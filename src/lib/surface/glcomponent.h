@@ -164,6 +164,15 @@ namespace anatomist
       glTEX_NORMAL_MAP,
     };
 
+    enum glTextureWrapMode
+    {
+      glTEXWRAP_REPEAT,
+      glTEXWRAP_MIRRORED_REPEAT,
+      glTEXWRAP_CLAMP_TO_EDGE,
+      glTEXWRAP_CLAMP_TO_BORDER,
+      glTEXWRAP_MIRROR_CLAMP_TO_EDGE,
+    };
+
     typedef ViewState::glSelectRenderMode glSelectRenderMode;
 
     struct TexExtrema
@@ -237,16 +246,21 @@ namespace anatomist
     virtual glTextureFiltering glTexFiltering( unsigned tex = 0 ) const;
     virtual void glSetTexFiltering( glTextureFiltering x, unsigned tex = 0 );
     virtual glAutoTexturingMode glAutoTexMode( unsigned tex = 0 ) const;
-    virtual void glSetAutoTexMode( glAutoTexturingMode mode, 
+    virtual glTextureWrapMode glTexWrapMode( unsigned coord = 0,
+                                             unsigned tex = 0 ) const;
+    virtual void glSetTexWrapMode( glTextureWrapMode x, unsigned coord = 0,
                                    unsigned tex = 0 );
-    virtual const float *glAutoTexParams( unsigned coord = 0, 
+    virtual void glSetAutoTexMode( glAutoTexturingMode mode,
+                                   unsigned tex = 0 );
+    virtual const float *glAutoTexParams( unsigned coord = 0,
                                           unsigned tex = 0 ) const;
-    virtual void glSetAutoTexParams( const float* params, unsigned coord = 0, 
+    virtual void glSetAutoTexParams( const float* params, unsigned coord = 0,
                                      unsigned tex = 0 );
     virtual bool glTexImageChanged( unsigned tex = 0 ) const;
     virtual bool glTexEnvChanged( unsigned tex = 0 ) const;
     virtual GLint glGLTexMode( unsigned tex = 0) const;
     virtual GLint glGLTexFiltering( unsigned tex = 0 ) const;
+    GLint glGLTexWrapMode( unsigned coord = 0, unsigned tex = 0 ) const;
     virtual void glSetTexRGBInterpolation( bool x, unsigned tex = 0 );
     virtual bool glTexRGBInterpolation( unsigned tex = 0 ) const;
     /// texture dimension (1, 2 [or 3])

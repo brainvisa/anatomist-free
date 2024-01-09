@@ -58,6 +58,7 @@ namespace anatomist
     float                               texgenparams_eye[3][4];
     GLfloat                             texscale[3];
     GLfloat                             texoffset[3];
+    glTextureWrapMode                   wrapmode[3];
   };
 
 }

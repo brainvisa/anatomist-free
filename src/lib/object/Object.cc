@@ -1150,6 +1150,42 @@ void AObject::setProperties( Object /*options*/ )
                       catch( ... )
                       {
                       }
+                    try
+                    {
+                      Object	tp = t->getProperty( "wrapmode" );
+                      static map<string, GLComponent::glTextureWrapMode>
+                        wrapmodes;
+                      if( wrapmodes.empty() )
+                        {
+                          wrapmodes[ "clamp_to_edge" ]
+                            = GLComponent::glTEXWRAP_CLAMP_TO_EDGE;
+                          wrapmodes[ "clamp_to_border" ]
+                            = GLComponent::glTEXWRAP_CLAMP_TO_BORDER;
+                          wrapmodes[ "repeat" ]
+                            = GLComponent::glTEXWRAP_REPEAT;
+                          wrapmodes[ "mirrored_repeat" ]
+                            = GLComponent::glTEXWRAP_MIRRORED_REPEAT;
+                          wrapmodes[ "mirror_clamp_to_edge" ]
+                            = GLComponent::glTEXWRAP_MIRROR_CLAMP_TO_EDGE;
+                        }
+                      Object tpi = tp->objectIterator();
+                      if( tpi.get() )
+                      {
+                        int k;
+                        for( k=0; k<3 && tpi->isValid(); tpi->next(), ++k )
+                        {
+                          map<string, GLComponent::glTextureWrapMode>::
+                            const_iterator
+                            im = wrapmodes.find(
+                              tpi->currentValue()->getString() );
+                          if( im != wrapmodes.end() )
+                            g->glSetTexWrapMode( im->second, k, i );
+                        }
+                      }
+                    }
+                    catch( ... )
+                    {
+                    }
                   }
                 }
               }

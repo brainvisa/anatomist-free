@@ -276,6 +276,9 @@ GLComponent::TexInfo::TexInfo()
   texoffset[0] = 0.;
   texoffset[1] = 0.;
   texoffset[2] = 0.;
+  wrapmode[0] = glTEXWRAP_CLAMP_TO_EDGE;
+  wrapmode[1] = glTEXWRAP_CLAMP_TO_EDGE;
+  wrapmode[2] = glTEXWRAP_CLAMP_TO_EDGE;
 }
 
 
@@ -411,10 +414,25 @@ GLComponent::glTexFiltering( unsigned tex ) const
 }
 
 
-void GLComponent::glSetTexFiltering( GLComponent::glTextureFiltering x, 
+void GLComponent::glSetTexFiltering( GLComponent::glTextureFiltering x,
                                      unsigned tex )
 {
   d->textures[ tex ].filter = x;
+  glSetTexEnvChanged( true, tex );
+}
+
+
+GLComponent::glTextureWrapMode
+GLComponent::glTexWrapMode( unsigned coord, unsigned tex ) const
+{
+  return glTexInfo( tex ).wrapmode[ coord ];
+}
+
+
+void GLComponent::glSetTexWrapMode( GLComponent::glTextureWrapMode x,
+                                    unsigned coord, unsigned tex )
+{
+  d->textures[ tex ].wrapmode[ coord ] = x;
   glSetTexEnvChanged( true, tex );
 }
 
@@ -447,6 +465,27 @@ GLint GLComponent::glGLTexFiltering( unsigned tex ) const
 {
   static GLint	mode[] = { GL_NEAREST, GL_LINEAR };
   return mode[ glTexFiltering( tex ) ];
+}
+
+
+GLint GLComponent::glGLTexWrapMode( unsigned coord, unsigned tex ) const
+{
+  switch( glTexWrapMode( coord, tex ) )
+  {
+    case glTEXWRAP_REPEAT:
+      return GL_REPEAT;
+    case glTEXWRAP_MIRRORED_REPEAT:
+      return GL_MIRRORED_REPEAT;
+    case glTEXWRAP_CLAMP_TO_EDGE:
+      return GL_CLAMP_TO_EDGE;
+    case glTEXWRAP_CLAMP_TO_BORDER:
+      return GL_CLAMP_TO_BORDER;
+    case glTEXWRAP_MIRROR_CLAMP_TO_EDGE:
+      return  GL_MIRROR_CLAMP_TO_EDGE;
+    default:
+      break;
+  }
+  return GL_CLAMP_TO_EDGE;
 }
 
 
@@ -994,12 +1033,15 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
   }
 
   // texture dims must be a power of 2
+  // this is not needed any longer (OpenGL >= 2)
+  /*
   for( x=0, utmp=1; x<32 && utmp < static_cast<unsigned>(dimx); ++x )
     utmp = utmp << 1;
   dimx = utmp;
   for( x=0, utmp=1; x<32 && utmp < static_cast<unsigned>(dimy); ++x )
     utmp = utmp << 1;
   dimy = utmp;
+  */
   if( dimx == 0 )
     dimx = 1;
   if( dimy == 0 )
@@ -1060,7 +1102,7 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
   {
     // if actual bounds are not [0,1], a texture rescaling must be
     // performed in addition.
-    // FIXME TODO this does not apply in all cases: then the texture is a 1D
+    // FIXME TODO this does not apply in all cases: when the texture is a 1D
     // quantity it should probably. When we are using 2D textures, it should
     // not. Right now I cannot figure out a good criterion to determine whether
     // whe should scale or not. In the meantime, we just check if it is 2D.
@@ -1069,9 +1111,10 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
       float scl = 1. / ( te.max[0] - te.min[0] );
       ti.texscale[0] *= scl;
       ti.texoffset[0] -= te.min[0];
-  //     cout << "scaling texture: " << scl << ", " << ti.texscale[0] << ", " << ti.texoffset[0] << endl;
+      // cout << "scaling texture: " << scl << ", " << ti.texscale[0] << ", " << ti.texoffset[0] << endl;
     }
   }
+  // cout << "useTexScale: " << useTexScale << ": " << ti.texscale[0] << ", " << ti.texscale[1] << ", " << ti.texoffset[0] << ", " << ti.texoffset[1] << endl;
 
   // allocate colormap
   VolumeRef<AimsRGBA> volTexImage( dimx, dimy );
@@ -1160,12 +1203,15 @@ bool GLComponent::glMakeTexImage( const ViewState & state,
   if( objpal->glMaxSizeY() > 0 )
     dimy = objpal->glMaxSizeY();
   // texture dims must be a power of 2
+  // this is not needed any longer (OpenGL >= 2)
+  /*
   for( x=0, utmp=1; x<32 && utmp<dimx; ++x )
     utmp = utmp << 1;
   dimx = utmp;
   for( x=0, utmp=1; x<32 && utmp<dimy; ++x )
     utmp = utmp << 1;
   dimy = utmp;
+  */
   if( dimx == 0 )
     dimx = 1;
   if( dimy == 0 )
@@ -1458,12 +1504,12 @@ bool GLComponent::glMakeTexEnvGLL( const ViewState & state,
           glDisable( GL_TEXTURE_GEN_S );
           glDisable( GL_TEXTURE_GEN_T );
           glDisable( GL_TEXTURE_GEN_R );
-          glTexParameteri( textype, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-          glTexParameteri( textype, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-          glTexParameteri( textype, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE );
-//           glTexParameteri( textype, GL_TEXTURE_WRAP_S, GL_REPEAT );
-//           glTexParameteri( textype, GL_TEXTURE_WRAP_T, GL_REPEAT );
-//           glTexParameteri( textype, GL_TEXTURE_WRAP_R, GL_REPEAT );
+          glTexParameteri( textype, GL_TEXTURE_WRAP_S,
+                           glGLTexWrapMode( 0, tex ) );
+          glTexParameteri( textype, GL_TEXTURE_WRAP_T,
+                           glGLTexWrapMode( 1, tex ) );
+          glTexParameteri( textype, GL_TEXTURE_WRAP_R,
+                           glGLTexWrapMode( 2, tex ) );
           break;
         }
 
