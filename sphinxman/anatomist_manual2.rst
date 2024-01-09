@@ -1833,7 +1833,7 @@ The .minf format may be "python dictionary" (similar to json), or XML.
 Some of these properties are interpreted by Anatomist, and may bring information with objects.
 
 .. |referential_prop_doc| replace::
-  referential identifier. The referential property is the one used directly for the object coordinates system. It may be a string identifier for a known referential, or an UUID (unique identifier), with the shape "9a839283-7642-d21a-f67a-836a205be5e3" for instance. Referential identifiers may be used in transformations to handle coordinates systems. String identifiers refer to "standard" referentials, and are mostly derived from the NIFTI referentials identifiers: "Scanner-based anatomical coordinates", "Talairach-MNI template-SPM", "Talairach-AC/PC-Anatomist", "Talairach", "Coordinates aligned to another file or to anatomical truth".
+  referential identifier. The referential property is the one used directly for the object coordinates system. It may be a string identifier for a known referential, or an UUID (unique identifier), with the shape "9a839283-7642-d21a-f67a-836a205be5e3" for instance. Referential identifiers may be used in transformations to handle coordinates systems. String identifiers refer to "standard" referentials, and are mostly derived from the NIFTI referentials identifiers: ``Scanner-based anatomical coordinates``, ``Talairach-MNI template-SPM``, ``Talairach-AC/PC-Anatomist``, ``Talairach``, ``Coordinates aligned to another file or to anatomical truth``.
 
 .. |referentials_prop_doc| replace::
   This is a list of referentials, used as destinations for transformations. The "transformations" property should be the same size as referentials: there is a one-to-one mapping between them. The values are interpreted the same way as for referential. Referential names are considered "local", this means are not shared between objects, unless they are a UUID or a known referential name (Talairach, MNI).
@@ -1851,7 +1851,7 @@ Some of these properties are interpreted by Anatomist, and may bring information
   **colors**: list of R, G, B or R, G, B, A values, all in one line, int values between 0 and 255. Depending on the "color_mode" property, values will be grouped by 3 or 4 to form colors.
 
 .. |color_mode_prop| replace::
-  **color_mode**: "RGB" or "rgb", "RGBA" or "rgba": tells if "colors" values should have 3 or 4 chanels.
+  **color_mode**: ``RGB`` or ``rgb``, ``RGBA`` or ``rgba``: tells if "colors" values should have 3 or 4 chanels.
 
 .. |image_prop| replace::
   **image**: image file name for palette. If "colors" is specified, it has priority and "image" is not taken into account in such a case. File names can be absolute, or relative to the current object file.
@@ -1866,19 +1866,22 @@ Some of these properties are interpreted by Anatomist, and may bring information
   List of texture properties. Each element in the list applies to one texture (for multi-textured objects), and is a dictionary of properties. Properties are:
 
 .. |tex_mode_prop| replace::
-  **mode**: mapping mode: "geometric", "linear", "replace", "decal", "blend", "add", "combine", or "linear_on_nonnul".
+  **mode**: mapping mode: ``geometric``, ``linear``, ``replace``, ``decal``, ``blend``, ``add``, ``combine``, or ``linear_on_nonnul``.
 
 .. |tex_filtering_prop| replace::
-  **filtering**: texture filtering: "nearest", "linear".
+  **filtering**: texture filtering: ``nearest``, ``linear``.
 
 .. |tex_generation_prop| replace::
-  **generation**: texture generation mode: "none", "object_linear", "eye_linear", "sphere_map", "reflection_map", "normal_map".
+  **generation**: texture generation mode: ``none``, ``object_linear``, ``eye_linear``, ``sphere_map``, ``reflection_map``, ``normal_map``.
 
 .. |tex_rate_prop| replace::
   **rate**: mixing rate (0. - 1.)
 
 .. |tex_interpolation_prop| replace::
-  **interpolation**: color interpolation mode: "palette" (standard), or "rgb".
+  **interpolation**: color interpolation mode: ``palette`` (standard), or ``rgb``.
+
+.. |tex_wrap_prop| replace::
+  **wrapmode**: Introduced in Anatomist 5.2. Texture wrapping mode, for each texture coordinate: list of 1, 2 or 3 values. Each value is either ``clamp_to_edge``, ``clamp_to_border``, ``repeat``, ``mirrored_repeat``, or ``mirror_clamp_to_edge``.
 
 .. |tex_gen_params_1_prop| replace::
   **generation_params_1**:
@@ -1920,6 +1923,7 @@ Some of these properties are interpreted by Anatomist, and may bring information
 |                      |                     | * |tex_generation_prop|       |
 |                      |                     | * |tex_rate_prop|             |
 |                      |                     | * |tex_interpolation_prop|    |
+|                      |                     | * |tex_wrap_prop|             |
 +----------------------+---------------------+-------------------------------+
 | texture_filenames    | meshes              | |texture_filenames_prop_doc|  |
 +----------------------+---------------------+-------------------------------+

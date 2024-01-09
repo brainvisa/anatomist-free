@@ -3095,7 +3095,7 @@ TexturingParams
       <td><tt>wrapmode</tt></td>
       <td><tt>string_vector</tt> (optional)</td>
       <td id="txt"><b>New in Anatomist 5.2</b><br/>
-        Set texture wrapping mode, for each texture coordinate: list of 1, 2 or 3 values. Each value is either "<tt>clamp_to_edge</tt>", "<tt>clamp_to_border</tt>", "<tt>repeat</tt>", "<tt>mirrored_repeat</tt>", or "mirror_clamp_to_edge</tt>".
+        Set texture wrapping mode, for each texture coordinate: list of 1, 2 or 3 values. Each value is either "<tt>clamp_to_edge</tt>", "<tt>clamp_to_border</tt>", "<tt>repeat</tt>", "<tt>mirrored_repeat</tt>", or "<tt>mirror_clamp_to_edge</tt>".
       </td>
     </tr>
   </tbody>
