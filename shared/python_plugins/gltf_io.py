@@ -210,6 +210,7 @@ class AnaGLTFParser(gltf_io.AimsGLTFParser):
     def parse_object(self, mesh, name):
         a = ana.Anatomist()
         obj = super().parse_object(mesh, name)
+
         amesh = a.toAObject(obj['mesh'])
         anaobj = amesh
         textures = obj.get('textures')
@@ -229,7 +230,7 @@ class AnaGLTFParser(gltf_io.AimsGLTFParser):
                         a_tex.setPalette(pal)
             if len(atex) > 1:
                 atexture = a.fusionObjects(atex,
-                                          method='FusionMultiTextureMethod')
+                                           method='FusionMultiTextureMethod')
             else:
                 atexture = atex[0]
             anaobj = a.fusionObjects([amesh, atexture],
