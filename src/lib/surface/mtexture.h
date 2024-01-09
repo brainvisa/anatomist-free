@@ -83,6 +83,10 @@ namespace anatomist
     virtual float glTexRate( unsigned tex = 0 ) const;
     virtual glTextureFiltering glTexFiltering( unsigned tex = 0 ) const;
     virtual void glSetTexFiltering( glTextureFiltering x, unsigned tex = 0 );
+    virtual glTextureWrapMode glTexWrapMode( unsigned coord = 0,
+                                             unsigned tex = 0 ) const;
+    virtual void glSetTexWrapMode( glTextureWrapMode x, unsigned coord = 0,
+                                   unsigned tex = 0 );
     virtual void glSetTexRGBInterpolation( bool x, unsigned tex = 0 );
     virtual bool glTexRGBInterpolation( unsigned tex = 0 ) const;
 

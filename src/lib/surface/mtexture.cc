@@ -242,6 +242,19 @@ GLComponent::glTextureFiltering AMTexture::glTexFiltering( unsigned tex ) const
 }
 
 
+GLComponent::glTextureWrapMode AMTexture::glTexWrapMode( unsigned coord,
+                                                         unsigned tex ) const
+{
+  const_iterator	i, e = end();
+  unsigned		n = 0;
+
+  for( i=begin(); i!=e && n < tex; ++i, ++n ) {}
+  if( i != e )
+    return (*i)->glAPI()->glTexWrapMode( coord, 0 );
+  return GLComponent::glTexWrapMode( coord, tex );
+}
+
+
 bool AMTexture::CanRemove( AObject* )
 {
   return false;
@@ -341,6 +354,19 @@ void AMTexture::glSetTexFiltering( glTextureFiltering x, unsigned tex )
   if( i != e )
     (*i)->glAPI()->glSetTexFiltering( x );
   GLComponent::glSetTexFiltering( x, tex );
+}
+
+
+void AMTexture::glSetTexWrapMode( glTextureWrapMode x, unsigned coord,
+                                  unsigned tex )
+{
+  const_iterator	i, e = end();
+  unsigned		n = 0;
+
+  for( i=begin(); i!=e && n < tex; ++i, ++n ) {}
+  if( i != e )
+    (*i)->glAPI()->glSetTexWrapMode( x, coord );
+  GLComponent::glSetTexWrapMode( x, coord, tex );
 }
 
 

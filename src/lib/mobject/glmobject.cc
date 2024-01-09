@@ -625,6 +625,28 @@ void GLMObject::glSetTexFiltering( glTextureFiltering x, unsigned tex )
 }
 
 
+GLComponent::glTextureWrapMode GLMObject::glTexWrapMode( unsigned coord,
+                                                         unsigned tex ) const
+{
+  const GLComponent	*t = glTexture( ViewState() );
+  if( t && t != glAPI() )
+    return t->glTexWrapMode( coord, tex );
+  return GLComponent::glTexWrapMode( coord, tex );
+}
+
+
+void GLMObject::glSetTexWrapMode( glTextureWrapMode x, unsigned coord,
+                                  unsigned tex )
+{
+  GLComponent	*t = glTexture( ViewState() );
+  if( t )
+  {
+    t->glSetTexWrapMode( x, coord, tex );
+    glSetChanged( glTEXENV );
+  }
+}
+
+
 bool GLMObject::glTexRGBInterpolation( unsigned tex ) const
 {
   const GLComponent	*t = glTexture( ViewState() );

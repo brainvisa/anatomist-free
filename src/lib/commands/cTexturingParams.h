@@ -37,6 +37,7 @@
 
 
 #include <anatomist/processor/Command.h>
+#include <anatomist/surface/glcomponent.h>
 #include <set>
 #include <vector>
 
@@ -48,13 +49,15 @@ namespace anatomist
   class TexturingParamsCommand : public RegularCommand
   {
   public:
-    TexturingParamsCommand( const std::set<AObject *> & obj, unsigned tex = 0, 
-                            int mode = -1, int filter = -1, int gen = -1, 
-                            float rate = -1, int rgbint = -1, 
-                            const float* genparams1 = 0, 
-                            const float* genparams2 = 0, 
-                            const float* genparams3 = 0,
-                            int valinter = -1
+    TexturingParamsCommand(
+      const std::set<AObject *> & obj, unsigned tex = 0,
+      int mode = -1, int filter = -1, int gen = -1,
+      float rate = -1, int rgbint = -1,
+      const float* genparams1 = 0,
+      const float* genparams2 = 0,
+      const float* genparams3 = 0,
+      int valinter = -1,
+      const std::vector<GLComponent::glTextureWrapMode> *wrapmode = 0
                           );
     virtual ~TexturingParamsCommand();
 
@@ -76,6 +79,7 @@ namespace anatomist
     std::vector<float>	_genparams_1;
     std::vector<float>	_genparams_2;
     std::vector<float>	_genparams_3;
+    std::vector<GLComponent::glTextureWrapMode> _wrapmode;
 
     friend class StdModule;
     static Command* read( const Tree & com, CommandContext* context );

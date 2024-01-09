@@ -234,6 +234,9 @@ CutMesh::CutMesh( const vector<AObject *> & obj )
         tex->glSetAutoTexParams( itex->glAutoTexParams( 0, j ), 0, j );
         tex->glSetAutoTexParams( itex->glAutoTexParams( 1, j ), 1, j );
         tex->glSetAutoTexParams( itex->glAutoTexParams( 2, j ), 2, j );
+        tex->glSetTexWrapMode( itex->glTexWrapMode( 0, j ), 0, j );
+        tex->glSetTexWrapMode( itex->glTexWrapMode( 1, j ), 1, j );
+        tex->glSetTexWrapMode( itex->glTexWrapMode( 2, j ), 2, j );
       }
 
       ATexSurface *ts = new ATexSurface( cm, tex );

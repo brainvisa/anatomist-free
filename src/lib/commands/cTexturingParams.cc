@@ -49,42 +49,48 @@ using namespace carto;
 using namespace std;
 
 
-TexturingParamsCommand::TexturingParamsCommand( const set<AObject *> & obj, 
-                                                unsigned tex, int mode, 
-                                                int filter, int gen, 
-                                                float rate, int rgbint, 
-                                                const float* genp1, 
-                                                const float* genp2, 
-                                                const float* genp3,
-                                                int valinter )
+TexturingParamsCommand::TexturingParamsCommand(
+  const set<AObject *> & obj,
+  unsigned tex, int mode,
+  int filter, int gen,
+  float rate, int rgbint,
+  const float* genp1,
+  const float* genp2,
+  const float* genp3,
+  int valinter,
+  const vector<GLComponent::glTextureWrapMode> *wrapmode )
   : RegularCommand(), _objects( obj ), _tex( tex ), _mode( mode ), 
     _filter( filter ), _gen( gen ), _rate( rate ), _rgbinter( rgbint ),
     _valinter( valinter )
 {
   if( genp1 )
-    {
-      _genparams_1.reserve( 4 );
-      _genparams_1.push_back( genp1[0] );
-      _genparams_1.push_back( genp1[1] );
-      _genparams_1.push_back( genp1[2] );
-      _genparams_1.push_back( genp1[3] );
-    }
+  {
+    _genparams_1.reserve( 4 );
+    _genparams_1.push_back( genp1[0] );
+    _genparams_1.push_back( genp1[1] );
+    _genparams_1.push_back( genp1[2] );
+    _genparams_1.push_back( genp1[3] );
+  }
   if( genp2 )
-    {
-      _genparams_2.reserve( 4 );
-      _genparams_2.push_back( genp2[0] );
-      _genparams_2.push_back( genp2[1] );
-      _genparams_2.push_back( genp2[2] );
-      _genparams_2.push_back( genp2[3] );
-    }
+  {
+    _genparams_2.reserve( 4 );
+    _genparams_2.push_back( genp2[0] );
+    _genparams_2.push_back( genp2[1] );
+    _genparams_2.push_back( genp2[2] );
+    _genparams_2.push_back( genp2[3] );
+  }
   if( genp3 )
-    {
-      _genparams_3.reserve( 4 );
-      _genparams_3.push_back( genp3[0] );
-      _genparams_3.push_back( genp3[1] );
-      _genparams_3.push_back( genp3[2] );
-      _genparams_3.push_back( genp3[3] );
-    }
+  {
+    _genparams_3.reserve( 4 );
+    _genparams_3.push_back( genp3[0] );
+    _genparams_3.push_back( genp3[1] );
+    _genparams_3.push_back( genp3[2] );
+    _genparams_3.push_back( genp3[3] );
+  }
+  if( wrapmode )
+  {
+    _wrapmode = *wrapmode;
+  }
 }
 
 
@@ -109,6 +115,7 @@ bool TexturingParamsCommand::initSyntax()
   s[ "generation_params_1" ] = Semantic( "float_vector", false );
   s[ "generation_params_2" ] = Semantic( "float_vector", false );
   s[ "generation_params_3" ] = Semantic( "float_vector", false );
+  s[ "wrapmode"            ] = Semantic( "string_vector", false );
   Registry::instance()->add( "TexturingParams", &read, ss );
   return true;
 }
@@ -143,6 +150,21 @@ void TexturingParamsCommand::doit()
               gc->glSetTexRate( _rate, _tex );
             if( _rgbinter >= 0 )
               gc->glSetTexRGBInterpolation( (bool) _rgbinter, _tex );
+
+            if( !_wrapmode.empty() )
+            {
+              unsigned k, n = _wrapmode.size();
+              if( n > 3 )
+                n = 3;
+              for( k=0; k<n; ++k )
+              {
+                GLComponent::glTextureWrapMode wm
+                  = GLComponent::glTEXWRAP_CLAMP_TO_EDGE;
+                if( _wrapmode.size() >= k )
+                  wm = _wrapmode[k];
+                gc->glSetTexWrapMode( wm, k, _tex );
+              }
+            }
 
             if( _valinter >= 0 )
             {
@@ -185,6 +207,8 @@ Command* TexturingParamsCommand::read( const Tree & com,
   float			rate = -1;
   unsigned		i, n;
   vector<float>		genparam1, genparam2, genparam3;
+  Object wmode;
+  vector<GLComponent::glTextureWrapMode> wmodevec;
 
   com.getProperty( "objects", id );
   try
@@ -230,59 +254,71 @@ Command* TexturingParamsCommand::read( const Tree & com,
   {
     vinter = com.getProperty( "value_interpolation" )->getScalar();
   } catch( ... ) {}
+  try
+  {
+    wmode = com.getProperty( "wrapmode" );
+  } catch( ... ) {}
 
   static map<string, GLComponent::glTextureMode>	modes;
   static map<string, GLComponent::glTextureFiltering>	filters;
   static map<string, GLComponent::glAutoTexturingMode>	gens;
   static map<string, bool>				inters;
+  static map<string, GLComponent::glTextureWrapMode>	wrapmodes;
   if( modes.empty() )
-    {
-      modes[ "geometric"                 ] = GLComponent::glGEOMETRIC;
-      modes[ "linear"                    ] = GLComponent::glLINEAR;
-      modes[ "replace"                   ] = GLComponent::glREPLACE;
-      modes[ "decal"                     ] = GLComponent::glDECAL;
-      modes[ "blend"                     ] = GLComponent::glBLEND;
-      modes[ "add"                       ] = GLComponent::glADD;
-      modes[ "combine"                   ] = GLComponent::glCOMBINE;
-      modes[ "linear_on_nonnul"          ] = GLComponent::glLINEAR_A_IF_B;
-      modes[ "linear_A_if_A_white"       ] = GLComponent::glLINEAR_A_IF_A;
-      modes[ "linear_A_if_B_white"       ] = GLComponent::glLINEAR_A_IF_B;
-      modes[ "linear_A_if_A_black"       ] = GLComponent::glLINEAR_A_IF_NOT_A;
-      modes[ "linear_A_if_B_black"       ] = GLComponent::glLINEAR_A_IF_NOT_B;
-      modes[ "linear_A_if_A_opaque"      ]
-        = GLComponent::glLINEAR_A_IF_A_ALPHA;
-      modes[ "linear_A_if_B_transparent" ]
-        = GLComponent::glLINEAR_A_IF_NOT_B_ALPHA;
-      modes[ "linear_B_if_A_white"       ] = GLComponent::glLINEAR_B_IF_A;
-      modes[ "linear_B_if_B_white"       ] = GLComponent::glLINEAR_B_IF_B;
-      modes[ "linear_B_if_A_black"       ] = GLComponent::glLINEAR_B_IF_NOT_A;
-      modes[ "linear_B_if_B_black"       ] = GLComponent::glLINEAR_B_IF_NOT_B;
-      modes[ "linear_B_if_B_opaque"      ]
-        = GLComponent::glLINEAR_B_IF_B_ALPHA;
-      modes[ "linear_B_if_A_transparent" ]
-        = GLComponent::glLINEAR_B_IF_NOT_A_ALPHA;
-      modes[ "max_channel"               ] = GLComponent::glMAX_CHANNEL;
-      modes[ "min_channel"               ] = GLComponent::glMIN_CHANNEL;
-      modes[ "max_opacity"               ] = GLComponent::glMAX_ALPHA;
-      modes[ "min_opacity"               ] = GLComponent::glMIN_ALPHA;
-      modes[ "geometric_sqrt"            ] = GLComponent::glGEOMETRIC_SQRT;
-      modes[ "geometric_lighten"         ] = GLComponent::glGEOMETRIC_LIGHTEN;
-      filters[ "nearest"     ] = GLComponent::glFILT_NEAREST;
-      filters[ "linear"      ] = GLComponent::glFILT_LINEAR;
-      gens[ "none"           ] = GLComponent::glTEX_MANUAL;
-      gens[ "object_linear"  ] = GLComponent::glTEX_OBJECT_LINEAR;
-      gens[ "eye_linear"     ] = GLComponent::glTEX_EYE_LINEAR;
-      gens[ "sphere_map"     ] = GLComponent::glTEX_SPHERE_MAP;
-      gens[ "reflection_map" ] = GLComponent::glTEX_REFLECTION_MAP;
-      gens[ "normal_map"     ] = GLComponent::glTEX_NORMAL_MAP;
-      inters[ "palette" ] = false;
-      inters[ "rgb"     ] = true;
+  {
+    modes[ "geometric"                 ] = GLComponent::glGEOMETRIC;
+    modes[ "linear"                    ] = GLComponent::glLINEAR;
+    modes[ "replace"                   ] = GLComponent::glREPLACE;
+    modes[ "decal"                     ] = GLComponent::glDECAL;
+    modes[ "blend"                     ] = GLComponent::glBLEND;
+    modes[ "add"                       ] = GLComponent::glADD;
+    modes[ "combine"                   ] = GLComponent::glCOMBINE;
+    modes[ "linear_on_nonnul"          ] = GLComponent::glLINEAR_A_IF_B;
+    modes[ "linear_A_if_A_white"       ] = GLComponent::glLINEAR_A_IF_A;
+    modes[ "linear_A_if_B_white"       ] = GLComponent::glLINEAR_A_IF_B;
+    modes[ "linear_A_if_A_black"       ] = GLComponent::glLINEAR_A_IF_NOT_A;
+    modes[ "linear_A_if_B_black"       ] = GLComponent::glLINEAR_A_IF_NOT_B;
+    modes[ "linear_A_if_A_opaque"      ]
+      = GLComponent::glLINEAR_A_IF_A_ALPHA;
+    modes[ "linear_A_if_B_transparent" ]
+      = GLComponent::glLINEAR_A_IF_NOT_B_ALPHA;
+    modes[ "linear_B_if_A_white"       ] = GLComponent::glLINEAR_B_IF_A;
+    modes[ "linear_B_if_B_white"       ] = GLComponent::glLINEAR_B_IF_B;
+    modes[ "linear_B_if_A_black"       ] = GLComponent::glLINEAR_B_IF_NOT_A;
+    modes[ "linear_B_if_B_black"       ] = GLComponent::glLINEAR_B_IF_NOT_B;
+    modes[ "linear_B_if_B_opaque"      ]
+      = GLComponent::glLINEAR_B_IF_B_ALPHA;
+    modes[ "linear_B_if_A_transparent" ]
+      = GLComponent::glLINEAR_B_IF_NOT_A_ALPHA;
+    modes[ "max_channel"               ] = GLComponent::glMAX_CHANNEL;
+    modes[ "min_channel"               ] = GLComponent::glMIN_CHANNEL;
+    modes[ "max_opacity"               ] = GLComponent::glMAX_ALPHA;
+    modes[ "min_opacity"               ] = GLComponent::glMIN_ALPHA;
+    modes[ "geometric_sqrt"            ] = GLComponent::glGEOMETRIC_SQRT;
+    modes[ "geometric_lighten"         ] = GLComponent::glGEOMETRIC_LIGHTEN;
+    filters[ "nearest"     ] = GLComponent::glFILT_NEAREST;
+    filters[ "linear"      ] = GLComponent::glFILT_LINEAR;
+    gens[ "none"           ] = GLComponent::glTEX_MANUAL;
+    gens[ "object_linear"  ] = GLComponent::glTEX_OBJECT_LINEAR;
+    gens[ "eye_linear"     ] = GLComponent::glTEX_EYE_LINEAR;
+    gens[ "sphere_map"     ] = GLComponent::glTEX_SPHERE_MAP;
+    gens[ "reflection_map" ] = GLComponent::glTEX_REFLECTION_MAP;
+    gens[ "normal_map"     ] = GLComponent::glTEX_NORMAL_MAP;
+    inters[ "palette" ] = false;
+    inters[ "rgb"     ] = true;
+    wrapmodes[ "clamp_to_edge"   ] = GLComponent::glTEXWRAP_CLAMP_TO_EDGE;
+    wrapmodes[ "clamp_to_border" ] = GLComponent::glTEXWRAP_CLAMP_TO_BORDER;
+    wrapmodes[ "repeat"          ] = GLComponent::glTEXWRAP_REPEAT;
+    wrapmodes[ "mirrored_repeat" ] = GLComponent::glTEXWRAP_MIRRORED_REPEAT;
+    wrapmodes[ "mirror_clamp_to_edge" ]
+      = GLComponent::glTEXWRAP_MIRROR_CLAMP_TO_EDGE;
     }
 
   map<string, GLComponent::glTextureMode>::const_iterator	im;
   map<string, GLComponent::glTextureFiltering>::const_iterator	iflt;
   map<string, GLComponent::glAutoTexturingMode>::const_iterator	itg;
   map<string, bool>::const_iterator				iti;
+  map<string, GLComponent::glTextureWrapMode>::const_iterator	iw;
 
   if( !smode.empty() )
     {
@@ -308,6 +344,20 @@ Command* TexturingParamsCommand::read( const Tree & com,
       if( iti != inters.end() )
         inter = iti->second;
     }
+  if( wmode.get() && wmode->size() >= 1 )
+  {
+    unsigned k, n = std::min( unsigned(wmode->size()), 3U );
+    Object wmi = wmode->objectIterator();
+    for( k=0; k<n && wmi->isValid(); ++k, wmi->next() )
+    {
+      iw = wrapmodes.find( wmi->currentValue()->getString() );
+      GLComponent::glTextureWrapMode wrapmode
+        = GLComponent::glTEXWRAP_CLAMP_TO_EDGE;
+      if( iw != wrapmodes.end() )
+        wrapmode = iw->second;
+      wmodevec.push_back( wrapmode );
+    }
+  }
 
   float	*g1 = 0, *g2 = 0, *g3 = 0;
   if( genparam1.size() >= 4 )
@@ -318,7 +368,8 @@ Command* TexturingParamsCommand::read( const Tree & com,
     g3 = &genparam3[0];
 
   return new TexturingParamsCommand( obj, (unsigned) tex, mode, filt, gen, 
-                                     rate, inter, g1, g2, g3, vinter );
+                                     rate, inter, g1, g2, g3, vinter,
+                                     wmodevec.empty() ? 0 : &wmodevec );
 }
 
 
