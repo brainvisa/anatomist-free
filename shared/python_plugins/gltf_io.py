@@ -222,11 +222,17 @@ class AnaGLTFParser(gltf_io.AimsGLTFParser):
                     del tex.header()['gltf_texture']
                     teximage = texinfo.get('teximage')
                     if teximage is not None:
-                        tname = '%s-%s' % (a_tex.name, str(uuid.uuid4()))
-                        pal = ana.cpp.APalette(tname, teximage.shape[0],
-                                               teximage.shape[1])
-                        pal[:] = teximage.np
-                        a.palettes().push_back(pal)
+                        # tname = '%s-%s' % (a_tex.name, str(uuid.uuid4()))
+                        tname = '%s-%s' % ('gltf_pal', hex(id(teximage))[2:])
+                        palettes = a.palettes()
+                        pal = palettes.find(tname)
+                        if pal is None or pal.isNull():
+                            pal = ana.cpp.APalette(tname, teximage.shape[0],
+                                                   teximage.shape[1])
+                            pal[:] = teximage.np
+                            a.palettes().push_back(pal)
+                        else:
+                            pal = pal._get()
                         a_tex.setPalette(pal)
             if len(atex) > 1:
                 atexture = a.fusionObjects(atex,
