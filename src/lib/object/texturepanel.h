@@ -61,7 +61,7 @@ public:
     Filtering,
     Generation,
     Interpolation,
-    ValueInterpolation //,
+    ValueInterpolation
   };
 
   QTexturePanel( const std::set<anatomist::AObject *> &, 
@@ -85,6 +85,7 @@ protected:
 
 protected slots:
   void modeChanged( int );
+  void wrapModeChanged( int );
   void filteringChanged( int );
   void generationChanged( int );
   void rateChanged( int );

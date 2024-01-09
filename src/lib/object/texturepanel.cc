@@ -60,6 +60,7 @@ struct QTexturePanel::Private
   QGroupBox			*modebox;
   QGroupBox			*filtbox;
   QButtonGroup                  *filtg;
+  QGroupBox			*wrapbox;
   QGroupBox			*ratebox;
   QGroupBox                     *genbox;
   QButtonGroup                  *geng;
@@ -75,12 +76,14 @@ struct QTexturePanel::Private
   int				rate;
   bool				rgbinterpol;
   bool                          valinter;
+  vector<GLComponent::glTextureWrapMode> wrapmode;
   bool				updating;
   unsigned			tex;
   vector<bool>			partvisible;
   bool				recurs;
   bool				uptodate;
   QComboBox                     *modes;
+  vector<QComboBox *>           wrapmodes;
   vector<QRadioButton *>	filters;
   vector<QRadioButton *>	autotex;
   vector<float>			genparams[3];
@@ -90,7 +93,8 @@ struct QTexturePanel::Private
 
 QTexturePanel::Private::Private( const set<AObject *> & obj )
   : objects( obj ), mode( 0 ), filt( 0 ), rgbinterpol( false ), 
-    updating( false ), tex( 0 ), 
+    wrapmode( 3, GLComponent::glTEXWRAP_CLAMP_TO_EDGE ), updating( false ),
+    tex( 0 ),
     partvisible( 6 ), recurs( false ), uptodate( true ), modes( 0 )
 {
   partvisible[0] = true;
@@ -156,7 +160,31 @@ QTexturePanel::QTexturePanel( const set<AObject *> & obj,
   d->modebox->setLayout( vlay2 );
   d->modes = new QComboBox( d->modebox );
   vlay2->addWidget( d->modes);
-  vlay2->addStretch( 1 );
+  //   vlay2->addStretch( 1 );
+
+  d->wrapbox = new QGroupBox( tr( "Wrapping mode" ), vbox );
+  vlay->addWidget( d->wrapbox );
+  QVBoxLayout *vlay3 = new QVBoxLayout( d->wrapbox );
+  d->wrapbox->setLayout( vlay3 );
+  vector<string> wrlabels( 3 );
+  wrlabels[0] = "S";
+  wrlabels[1] = "T";
+  wrlabels[2] = "R";
+
+  for( int i=0; i<3; ++i )
+  {
+    QHBoxLayout *h = new QHBoxLayout;
+    vlay3->addLayout( h );
+    h->addWidget( new QLabel( wrlabels[i].c_str() ) );
+    d->wrapmodes.push_back( new QComboBox( d->wrapbox ) );
+    h->addWidget( d->wrapmodes[i] );
+    d->wrapmodes[i]->addItem( "Repeat" );
+    d->wrapmodes[i]->addItem( "Mirrored repeat" );
+    d->wrapmodes[i]->addItem( "Clamp to edge" );
+    d->wrapmodes[i]->addItem( "Clamp to border" );
+    d->wrapmodes[i]->addItem( "Mirror clamp to edge" );
+  }
+  vlay3->addStretch( 1 );
 
   d->ratebox = new QGroupBox( tr( "Mixing rate" ), vbox );
   vlay->addWidget( d->ratebox );
@@ -250,7 +278,13 @@ QTexturePanel::QTexturePanel( const set<AObject *> & obj,
   updateWindow();
 
   connect( d->modes, SIGNAL( activated( int ) ), SLOT( modeChanged( int ) ) );
-  connect( d->filtg, SIGNAL( buttonClicked( int ) ), 
+  connect( d->wrapmodes[0], SIGNAL( activated( int ) ),
+           SLOT( wrapModeChanged( int ) ) );
+  connect( d->wrapmodes[1], SIGNAL( activated( int ) ),
+           SLOT( wrapModeChanged( int ) ) );
+  connect( d->wrapmodes[2], SIGNAL( activated( int ) ),
+           SLOT( wrapModeChanged( int ) ) );
+  connect( d->filtg, SIGNAL( buttonClicked( int ) ),
            SLOT( filteringChanged( int ) ) );
   connect( d->geng, SIGNAL( buttonClicked( int ) ),
            SLOT( generationChanged( int ) ) );
@@ -307,7 +341,7 @@ void QTexturePanel::runCommand()
         *c = new TexturingParamsCommand( d->objects, d->tex, d->mode, d->filt, 
                                          d->genmode, 0.01 * d->rate, 
                                          d->rgbinterpol, gp1, gp2, gp3,
-                                         d->valinter );
+                                         d->valinter, &d->wrapmode );
       theProcessor->execute( c );
     }
   d->uptodate = true;
@@ -414,6 +448,9 @@ void QTexturePanel::updateWindow()
     {
       d->mode = c->glTexMode( d->tex );
       d->filt = c->glTexFiltering( d->tex );
+      d->wrapmode[0] = c->glTexWrapMode( 0, d->tex );
+      d->wrapmode[1] = c->glTexWrapMode( 1, d->tex );
+      d->wrapmode[2] = c->glTexWrapMode( 2, d->tex );
       d->rgbinterpol = c->glTexRGBInterpolation( d->tex );
       d->genmode = c->glAutoTexMode( d->tex );
       d->rate = (int) rint( c->glTexRate( d->tex ) * 100 );
@@ -422,6 +459,9 @@ void QTexturePanel::updateWindow()
       d->geng->button( d->genmode )->setChecked( true );
       d->mixsl->setValue( d->rate );
       d->mixlb->setText( QString::number( d->rate ) );
+      d->wrapmodes[0]->setCurrentIndex( int( d->wrapmode[0] ) );
+      d->wrapmodes[1]->setCurrentIndex( int( d->wrapmode[1] ) );
+      d->wrapmodes[2]->setCurrentIndex( int( d->wrapmode[2] ) );
 
       updateAutoTexParams();
 
@@ -509,9 +549,15 @@ void QTexturePanel::updateWindow()
     d->genparambutton->setEnabled( false );
 
   if( d->partvisible[ Mode ] && mv[ Mode ] )
+  {
     d->modebox->show();
+    d->wrapbox->show();
+  }
   else
+  {
     d->modebox->hide();
+    d->wrapbox->hide();
+  }
   if( d->partvisible[ Rate ] && mv[ Rate ] )
     d->ratebox->show();
   else
@@ -557,6 +603,25 @@ void QTexturePanel::modeChanged( int x )
     d->mode = mode;
     runCommand();
   }
+}
+
+
+void QTexturePanel::wrapModeChanged( int )
+{
+  // cout << "QTexturePanel::wrapModeChanged" << endl;
+  unsigned i;
+  for( i=0; i<3; ++i )
+  {
+    GLComponent::glTextureWrapMode wm = GLComponent::glTextureWrapMode(
+      d->wrapmodes[i]->currentIndex() );
+
+    if( wm != d->wrapmode[i] )
+    {
+      d->wrapmode[i] = wm;
+      d->uptodate = false;
+    }
+  }
+  runCommand();
 }
 
 
@@ -618,6 +683,9 @@ void QTexturePanel::updateObjects()
           c->glSetTexMode( (GLComponent::glTextureMode) d->mode, d->tex );
           c->glSetTexFiltering( (GLComponent::glTextureFiltering) d->filt, 
                                 d->tex );
+          c->glSetTexWrapMode( d->wrapmode[0], 0, d->tex );
+          c->glSetTexWrapMode( d->wrapmode[1], 1, d->tex );
+          c->glSetTexWrapMode( d->wrapmode[2], 2, d->tex );
           c->glSetTexRGBInterpolation( d->rgbinterpol, d->tex );
           c->glSetAutoTexMode( (GLComponent::glAutoTexturingMode) d->genmode, 
                                d->tex );
@@ -654,6 +722,9 @@ void QTexturePanel::setActiveTexture( unsigned tex )
         {
           d->mode = c->glTexMode( tex );
           d->filt = c->glTexFiltering( tex );
+          d->wrapmode[0] = c->glTexWrapMode( 0, tex );
+          d->wrapmode[1] = c->glTexWrapMode( 1, tex );
+          d->wrapmode[2] = c->glTexWrapMode( 2, tex );
           d->genmode = c->glAutoTexMode( tex );
           d->rate = int( c->glTexRate( tex ) * 100 );
         }
