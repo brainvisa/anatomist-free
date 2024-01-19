@@ -41,13 +41,8 @@ options dealing with python modules:
 * run a python program file in Anatomist
 """
 
-from __future__ import print_function
-from __future__ import absolute_import
-
 import sys
 import os
-import string
-import glob
 import anatomist.cpp as anatomist
 from soma.qt_gui import qt_backend
 from soma.qt_gui.qt_backend.QtCore import *
@@ -66,6 +61,7 @@ _ipsubprocs_lock = threading.RLock()
 _ipsubprocs = []
 pythonscriptloader = None
 
+
 class PyAnatomistModule(anatomist.Module):
 
     def name(self):
@@ -73,6 +69,7 @@ class PyAnatomistModule(anatomist.Module):
 
     def description(self):
         return __doc__
+
 
 a = anatomist.Anatomist()
 
@@ -430,6 +427,12 @@ def runIPConsoleKernel(mode='qtconsole'):
                     _my_ioloop_start(ioloop.IOLoop.instance())
                 except KeyboardInterrupt:
                     pass
+
+        if hasattr(sys, '__ip_stdout'):
+            sys.stdout = sys.__ip_stdout
+            sys.stderr = sys.__ip_stderr
+            del sys.__ip_stdout
+            del sys.__ip_stderr
         return app
 
     else:
@@ -450,7 +453,6 @@ def ipythonShell(mode='qtconsole'):
         import jupyter_core.application
         ipfunc = 'from jupyter_core import application; ' \
             'app = application.JupyterApp(); app.initialize(); app.start()'
-        print('ipfunc:', ipfunc)
     except ImportError:
         try:
             import IPython
