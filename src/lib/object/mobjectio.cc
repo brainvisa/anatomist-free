@@ -166,7 +166,7 @@ namespace
   Object objectFromFactory( const string & otype,
                             const list<AObject *> children, Object properties )
   {
-//     cout << "objectFromFactory " << otype << endl;
+    // cout << "objectFromFactory " << otype << endl;
     Object obj;
     if( otype == "List" )
     {
@@ -186,10 +186,16 @@ namespace
       {
         try
         {
-          text = properties->getProperty( "text" )->getString();
+          Object otext = properties->getProperty( "text" );
+          if( !otext.isNull() )
+            text = otext->getString();
+          else
+            cout << "*** null text property! ***\n";
+          // cout << "    text: " << text << endl;
         }
         catch( ... )
         {
+          cout << "    no text\n";
         }
         try
         {
@@ -344,7 +350,7 @@ Object MObjectIO::readMObject( Object object_descr, const string & path,
                                map<string, Object> *pobj_map,
                                bool return_id )
 {
-//   cout << "readMObject\n";
+  // cout << "readMObject\n";
   rc_ptr<map<string, Object> > robj_map;
   if( !pobj_map )
     robj_map.reset( new map<string, Object> );
@@ -459,7 +465,7 @@ Object MObjectIO::readMObject( Object object_descr, const string & path,
     }
   }
 
-//   cout << "id: " << obj_id << ", otype: " << otype << ", fmethod: " << fmethod << ", name: " << obj_name << endl;
+  // cout << "id: " << obj_id << ", otype: " << otype << ", fmethod: " << fmethod << ", name: " << obj_name << endl;
 
   list<AObject *> aobjects;
 
