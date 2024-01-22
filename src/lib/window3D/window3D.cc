@@ -4783,6 +4783,9 @@ rc_ptr<ViewState> AWindow3D::viewState(bool slice)
 
 void AWindow3D::updateSaveButtonStatus()
 {
+  if( !d->savebt )
+    return;
+
   list<carto::shared_ptr<AObject> >::iterator io, eo = _objects.end();
   list<AObject *> tosave, toconfirm;
   bool useful = false;
