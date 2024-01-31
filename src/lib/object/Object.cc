@@ -72,6 +72,9 @@ using namespace carto;
 using namespace std;
 
 
+namespace anatomist
+{
+
 struct AObject::Private
 {
   enum TextureMode
@@ -198,6 +201,12 @@ AObject::~AObject()
   delete d;
 }
 
+
+
+bool AObject::IsFusion2DAllowed() 
+{
+  return true;
+}
 
 
 int AObject::CanBeDestroyed() 
@@ -1697,6 +1706,8 @@ AObject::Private::objectMenuRegistrers()
 {
   static MenuRegistrersMap reg;
   return reg;
+}
+
 }
 
 
