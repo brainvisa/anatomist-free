@@ -271,6 +271,7 @@ namespace anatomist
     virtual void unregisterWindow(AWindow* window);
     virtual bool Is2DObject() = 0;
     virtual bool Is3DObject() = 0;
+    virtual bool IsFusion2DAllowed();
     /// true if 2D rendering uses a textured plane (not a full openGL object)
     virtual bool textured2D() const { return false; }
     virtual bool isTransparent() const;

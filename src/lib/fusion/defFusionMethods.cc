@@ -80,8 +80,13 @@ int Fusion2dMethod::canFusion( const set<AObject *> & obj )
   GLComponent				*gl;
 
   for( io=obj.begin(); io!=fo; ++io )
-    if( !(gl = (*io)->glAPI()) || !gl->sliceableAPI() )
+  {
+
+    if( !( *io )->IsFusion2DAllowed() ||
+        !(gl = (*io)->glAPI()) || !gl->sliceableAPI() )
       return 0;
+
+  }
   return 140;
 }
 

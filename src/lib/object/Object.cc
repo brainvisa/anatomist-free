@@ -205,6 +205,12 @@ AObject::~AObject()
 
 
 
+bool AObject::IsFusion2DAllowed() 
+{
+  return true;
+}
+
+
 int AObject::CanBeDestroyed() 
 {
   if( !testDeletable() )
