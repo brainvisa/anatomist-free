@@ -51,6 +51,7 @@
 #include <anatomist/reference/wChooseReferential.h>
 #include <anatomist/constrainteditor/wConstraintEditor.h>
 #include <anatomist/commands/cCreateWindow.h>
+#include <anatomist/commands/cCreateWindowsBlock.h>
 #include <anatomist/commands/cLoadObject.h>
 #include <anatomist/commands/cCloseWindow.h>
 #include <anatomist/commands/cDeleteObject.h>
@@ -1586,6 +1587,15 @@ void ControlWindow::openThreeViews()
   set<AObject *>	o = selectedObjects();
   if( !o.empty() )
     theProcessor->execute( new AddObjectCommand( o, w ) );
+}
+
+
+void ControlWindow::openEmptyBlockView()
+{
+  CreateWindowsBlockCommand	*command
+    = new CreateWindowsBlockCommand( -1, 0, (vector<int>) 0, 0, 2 );
+  theProcessor->execute( command );
+  // QWidget *block = command->block();
 }
 
 

@@ -49,6 +49,7 @@ set( _headers
     commands/cCloseWindow.h
     commands/cCreateControlWindow.h
     commands/cCreateWindow.h
+    commands/cCreateWindowsBlock.h
     commands/cDeleteAll.h
     commands/cDeleteElement.h
     commands/cDeleteObject.h
@@ -298,6 +299,7 @@ set( _sources
     commands/cCloseWindow.cc
     commands/cCreateControlWindow.cc
     commands/cCreateWindow.cc
+    commands/cCreateWindowsBlock.cc
     commands/cDeleteAll.cc
     commands/cDeleteElement.cc
     commands/cDeleteObject.cc

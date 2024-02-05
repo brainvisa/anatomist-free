@@ -164,6 +164,8 @@ void AControlMenuHandler::create()
                      SLOT( openThreeViews() ), Qt::CTRL | Qt::Key_T );
   window->addAction( ControlWindow::tr( "Open a 4 views block" ), _receiver, 
                      SLOT( openBlockView() ), Qt::CTRL | Qt::Key_B );
+  window->addAction( ControlWindow::tr( "Open an empty block" ), _receiver,
+                     SLOT( openEmptyBlockView() ) );
 
   window->addSeparator();
   window->addAction( ControlWindow::tr( "Iconify windows" ), _receiver, 
