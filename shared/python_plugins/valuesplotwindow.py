@@ -118,41 +118,26 @@ class ValuesPlotWindow(ana.cpp.QAWindow):
             self._display_method_index]
         self._orientation = 'vertical'
 
+        self.color_modes = {
+            'color_list': proxy_method(self.get_value_color_colorlist),
+            'value_palette': proxy_method(self.get_value_color_valuepalette),
+            'object': proxy_method(self.get_value_color_object),
+            'object_palette': proxy_method(self.get_value_color_objpalette),
+        }
+
+        self._color_mode = 'color_list'
+        self.get_value_color = self.color_modes[self._color_mode]
+        self._palette = None
+
         # add toolbar
         toolbar = QtWidgets.QToolBar(wid)
-        toolbar.addAction('>', self.mutePlotType)
-        toolbar.addAction('V', self.muteOrientation)
+        toolbar.addAction('>', self.mute_plot_type)
+        toolbar.addAction('↺', self.mute_orientation)
+        toolbar.addAction('⚙', self.open_settings)
         wid.addToolBar(toolbar)
-        # referential bar
-        cw = wid.centralWidget()
-        nw = QtWidgets.QWidget(wid)
-        lay = QtWidgets.QVBoxLayout(nw)
-        lay.setContentsMargins(0, 0, 0, 0)
-        lay.setSpacing(5)
-        nw.setLayout(lay)
-        refbox = QtGui.QWidget(nw)
-        lay.addWidget(refbox)
-        cw.setParent(nw)
-        lay.addWidget(cw)
-        wid.setCentralWidget(nw)
-        rlay = QtGui.QHBoxLayout(refbox)
-        refbox.setLayout(rlay)
-        rbut = QtGui.QPushButton(refbox)
-        rlay.addWidget(rbut)
-        icons = ana.cpp.IconDictionary.instance()
-        directpix = icons.getIconInstance('direct_ref_mark')
-        refdirmark = QtGui.QLabel(refbox)
-        if directpix is not None:
-            refdirmark.setPixmap(directpix)
-        rlay.addWidget(refdirmark)
-        refdirmark.setFixedSize(QtCore.QSize(21, 7))
-        rbut.setFixedHeight(7)
-        refbox.setFixedHeight(refbox.sizeHint().height())
-        self._refbutton = rbut
-        self._reflabel = refdirmark
-        ana.cpp.anatomist.setQtColorStyle(rbut)
-        self.paintRefLabel()
-        rbut.clicked.connect(self.changeReferential)
+
+        # no referential bar button: the ref is managed automatically
+
         # close shortcut
         ac = QtGui.QAction('Close', self)
         ac.setShortcut(QtGui.QKeySequence(QtCore.Qt.CTRL | QtCore.Qt.Key_W))
@@ -241,45 +226,58 @@ class ValuesPlotWindow(ana.cpp.QAWindow):
             # print('obj:', obj.name(), ', pos:', pos, vpos, ', v:', ar[tuple(vpos)])
 
             self.data.append(ar[tuple(vpos)])
+            self._obj_indices.append(1)  # for now 1 value per object
 
     def baseTitle(self):
         return 'Box plot'
 
     def Refresh(self):
+        # set the referential of the first object
+        if len(self.Objects()) != 0:
+            oref = next(iter(self.Objects())).getReferential()
+            if oref != self.getReferential():
+                self.setReferential(oref)
         ana.cpp.QAWindow.Refresh(self)
         self.data = []
+        self._obj_indices = []
         xlabels = []
+        colors = []
+        i = 0
         for obj in self.Objects():
             self.plotObject(obj)
-            xlabels.append(obj.name())
+            xlabels.append(self.get_object_label(obj, self.data[i], i))
+            if np.isnan(self.data[-1]):
+                colors.append([0., 0., 0.])
+            else:
+                colors.append(self.get_value_color(obj, self.data[i], i))
+            i += self._obj_indices[-1]
 
         figure = pyplot.figure(self._fig.number)
         figure.clear()
         data = np.array(self.data)
         data = np.ma.masked_where(np.isnan(data), data)
         # print('plot data:', data)
+        # print('plot colors:', colors)
 
-        self._display_method(range(len(self.data)), data, xlabels)
+        self._display_method(range(len(self.data)), data, xlabels, colors)
         self._fig.canvas.draw()
 
-        self.paintRefLabel()
-
-    def draw_bars(self, x, y, labels):
+    def draw_bars(self, x, y, labels, colors):
         if self._orientation == 'vertical':
-            pylab.bar(x=x, height=y, color=self.fcolors_list)
+            pylab.bar(x=x, height=y, color=colors)
             pylab.xticks(x, labels, rotation='vertical')
         else:
-            pylab.barh(y=x, width=y, color=self.fcolors_list)
+            pylab.barh(y=x, width=y, color=colors)
             pylab.yticks(x, labels)
 
-    def draw_dots(self, x, y, labels):
+    def draw_dots(self, x, y, labels, colors):
         pylab.stem(x, y, orientation=self._orientation)
         if self._orientation == 'vertical':
             pylab.xticks(x, labels, rotation='vertical')
         else:
             pylab.yticks(x, labels)
 
-    def draw_plot(self, x, y, labels):
+    def draw_plot(self, x, y, labels, colors):
         if self._orientation == 'vertical':
             pylab.plot(x, y)
             pylab.xticks(x, labels, rotation='vertical')
@@ -287,73 +285,26 @@ class ValuesPlotWindow(ana.cpp.QAWindow):
             pylab.plot(y, x)
             pylab.yticks(x, labels)
 
-    def draw_stairs(self, x, y, labels):
+    def draw_stairs(self, x, y, labels, colors):
         pylab.stairs(y, orientation=self._orientation)
         if self._orientation == 'vertical':
-            pylab.xticks(x, labels, rotation='vertical')
+            pylab.xticks(x - 0.5, labels, rotation='vertical')
         else:
-            pylab.yticks(x, labels)
+            pylab.yticks(x - 0.5, labels)
 
-    def muteOrientation(self):
+    def mute_orientation(self):
         if self._orientation == 'vertical':
             self._orientation = 'horizontal'
         else:
             self._orientation = 'vertical'
         self.Refresh()
 
-    def mutePlotType(self):
+    def mute_plot_type(self):
         self._display_method_index \
             = (self._display_method_index + 1) % len(self._display_methods)
         self._display_method \
             = self._display_methods[self._display_method_index]
         self.Refresh()
-
-    def paintRefLabel(self):
-        ref = self.getReferential()
-        if ref is not None and ref.isDirect():
-            col = ref.Color()
-            pix = QtGui.QPixmap(32, 7)
-            pix.fill(QtGui.QColor(col.red(), col.green(), col.blue()))
-            p = QtGui.QPainter()
-            darken = 25
-            p.begin(pix)
-            red = col.red()
-            if red > darken:
-                red = col.red() - darken
-            else:
-                red += darken
-            green = col.green()
-            if green > darken:
-                green = col.green() - darken
-            else:
-                green += darken
-            blue = col.blue()
-            if blue > darken:
-                blue = col.blue() - darken
-            else:
-                blue += darken
-            p.setPen(QtGui.QPen(QtGui.QColor(red, green, blue), 5))
-            p.drawLine(3, 10, 25, -3)
-            p.end()
-            del p
-            pal = QtGui.QPalette(QtGui.QColor(col.red(), col.green(),
-                                              col.blue()))
-            self._refbutton.setBackgroundRole(QtGui.QPalette.Window)
-            # doesn't work... maybe due to styles forcing it ?
-            pal.setBrush(self._refbutton.backgroundRole(), QtGui.QBrush(pix))
-            self._refbutton.setPalette(pal)
-            if self._reflabel is not None:
-                self._reflabel.show()
-        else:
-            if self._reflabel is not None:
-                self._reflabel.hide()
-            if ref is not None:
-                col = ref.Color()
-                self._refbutton.setPalette(QtGui.QPalette(
-                    QtGui.QColor(col.red(), col.green(), col.blue())))
-            else:
-                self._refbutton.setPalette(QtGui.QPalette(
-                                           QtGui.QColor(192, 192, 192)))
 
     def changeReferential(self):
         sw = ana.cpp.set_AWindowPtr([self])
@@ -365,6 +316,69 @@ class ValuesPlotWindow(ana.cpp.QAWindow):
 
     def closeAction(self, dummy):
         self.close()
+
+    def get_value_color_colorlist(self, obj, value, index):
+        return self.fcolors_list[index % len(self.fcolors_list)]
+
+    def get_value_color_valuepalette(self, obj, value, index):
+        if self._palette is None:
+            return self.get_value_color_colorlist(obj, value, index)
+
+    def get_value_color_object(self, obj, value, index):
+        return self.fcolors_list[index % len(self.fcolors_list)]
+
+    def get_value_color_objpalette(self, obj, value, index):
+        pal = obj.palette()
+        if pal is None:
+            return self.get_value_color_colorlist(obj, value, index)
+        glc = obj.glAPI()
+        if glc is not None:
+            te = glc.glTexExtrema(0)
+            if te.minquant[0] != te.maxquant[0]:
+                value = (value - te.minquant[0]) \
+                    / (te.maxquant[0] - te.minquant[0])
+        rgb = pal.normColor(value, 0)
+        return [x / 256. for x in rgb[:3]]
+
+    def get_object_label(self, obj, value, index):
+        return obj.name()
+
+    def open_settings(self):
+        settingsw = QtWidgets.QDialog()
+        lay = QtWidgets.QVBoxLayout()
+        settingsw.setLayout(lay)
+
+        colmode = QtWidgets.QGroupBox('Color mode:')
+        cml = QtWidgets.QVBoxLayout()
+        colmode.setLayout(cml)
+        colmodes = list(self.color_modes.keys())
+        rbut = []
+        for cm in colmodes:
+            cmr = QtWidgets.QRadioButton(cm)
+            rbut.append(cmr)
+            if cm == self._color_mode:
+                cmr.setChecked(True)
+            cml.addWidget(cmr)
+        lay.addWidget(colmode)
+
+        blay = QtWidgets.QHBoxLayout()
+        lay.addLayout(blay)
+        blay.addStretch(1)
+        ok = QtWidgets.QPushButton('OK')
+        blay.addWidget(ok)
+        ok.clicked.connect(settingsw.accept)
+        cancel = QtWidgets.QPushButton('Cancel')
+        blay.addWidget(cancel)
+        cancel.clicked.connect(settingsw.reject)
+
+        res = settingsw.exec()
+        if res != QtWidgets.QDialog.Accepted:
+            return
+        sel = [i for i, b in enumerate(rbut) if b.isChecked()]
+        self._color_mode = colmodes[sel[0]]
+        del rbut
+        self.get_value_color = self.color_modes[self._color_mode]
+        self.Refresh()
 
 
 class ValuesPlotModule(ana.cpp.Module):
