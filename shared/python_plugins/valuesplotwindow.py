@@ -128,6 +128,7 @@ class ValuesPlotWindow(ana.cpp.QAWindow):
         self._color_mode = 'color_list'
         self.get_value_color = self.color_modes[self._color_mode]
         self._palette = None
+        self._palette_obj = None
 
         # add toolbar
         toolbar = QtWidgets.QToolBar(wid)
@@ -200,6 +201,8 @@ class ValuesPlotWindow(ana.cpp.QAWindow):
         ana.cpp.QAWindow.unregisterObject(self, obj)
 
     def plotObject(self, obj):
+        ''' Prepare a data point for a single object
+        '''
         if obj.objectTypeName(obj.type()) == 'VOLUME':
             vol = ana.cpp.AObjectConverter.aims(obj)
             ar = vol.np
@@ -222,6 +225,7 @@ class ValuesPlotWindow(ana.cpp.QAWindow):
             dims = vol.getSize()
             if np.min(vpos) < 0 or np.min(dims.np - 1 - vpos) < 0:
                 self.data.append(np.nan)
+                self._obj_indices.append(1)
                 return
             # print('obj:', obj.name(), ', pos:', pos, vpos, ', v:', ar[tuple(vpos)])
 
@@ -229,12 +233,17 @@ class ValuesPlotWindow(ana.cpp.QAWindow):
             self._obj_indices.append(1)  # for now 1 value per object
 
     def baseTitle(self):
-        return 'Box plot'
+        return 'Values plot'
 
     def Refresh(self):
+        ''' Redraw the full graph
+        '''
         # set the referential of the first object
-        if len(self.Objects()) != 0:
-            oref = next(iter(self.Objects())).getReferential()
+        objects = [o for o in self.Objects()
+                   if self._palette_obj is None
+                   or o is not self._palette_obj.internalRep]
+        if len(objects) != 0:
+            oref = objects[0].getReferential()
             if oref != self.getReferential():
                 self.setReferential(oref)
         ana.cpp.QAWindow.Refresh(self)
@@ -243,7 +252,7 @@ class ValuesPlotWindow(ana.cpp.QAWindow):
         xlabels = []
         colors = []
         i = 0
-        for obj in self.Objects():
+        for obj in objects:
             self.plotObject(obj)
             xlabels.append(self.get_object_label(obj, self.data[i], i))
             if np.isnan(self.data[-1]):
@@ -306,14 +315,6 @@ class ValuesPlotWindow(ana.cpp.QAWindow):
             = self._display_methods[self._display_method_index]
         self.Refresh()
 
-    def changeReferential(self):
-        sw = ana.cpp.set_AWindowPtr([self])
-        w = ana.cpp.ChooseReferentialWindow(
-            sw, [], 'Choose Referential Window')
-        w.setParent(self)
-        w.setWindowFlags(QtCore.Qt.Window)
-        w.show()
-
     def closeAction(self, dummy):
         self.close()
 
@@ -321,8 +322,18 @@ class ValuesPlotWindow(ana.cpp.QAWindow):
         return self.fcolors_list[index % len(self.fcolors_list)]
 
     def get_value_color_valuepalette(self, obj, value, index):
-        if self._palette is None:
+        if self._palette_obj is None:
             return self.get_value_color_colorlist(obj, value, index)
+        pal = self._palette_obj.palette()
+        if pal is None:
+            return self.get_value_color_colorlist(obj, value, index)
+        glc = self._palette_obj.glAPI()
+        te = glc.glTexExtrema(0)
+        if te.minquant[0] != te.maxquant[0]:
+            value = (value - te.minquant[0]) \
+                / (te.maxquant[0] - te.minquant[0])
+        rgb = pal.normColor(value, 0)
+        return [x / 256. for x in rgb[:3]]
 
     def get_value_color_object(self, obj, value, index):
         return self.fcolors_list[index % len(self.fcolors_list)]
@@ -361,6 +372,15 @@ class ValuesPlotWindow(ana.cpp.QAWindow):
             cml.addWidget(cmr)
         lay.addWidget(colmode)
 
+        palgrp = QtWidgets.QGroupBox('Palette:')
+        pl = QtWidgets.QVBoxLayout()
+        palgrp.setLayout(pl)
+        palb = QtWidgets.QPushButton('Edit')
+        pl.addWidget(palb)
+        palb.clicked.connect(self.edit_palette)
+        palb.clicked.connect(settingsw.accept)
+        lay.addWidget(palgrp)
+
         blay = QtWidgets.QHBoxLayout()
         lay.addLayout(blay)
         blay.addStretch(1)
@@ -379,6 +399,43 @@ class ValuesPlotWindow(ana.cpp.QAWindow):
         del rbut
         self.get_value_color = self.color_modes[self._color_mode]
         self.Refresh()
+
+    def update(self, observable, arg):
+        self.Refresh()
+
+    def edit_palette(self):
+        ''' Edit a palette (associated with a fake object) for the
+        "value_palette" color mode
+        '''
+        a = ana.Anatomist()
+        if self._palette_obj is None:
+            vol = aims.Volume_FLOAT(2, 1)
+            self._palette_obj = a.toAObject(vol)
+            a.unregisterObject(self._palette_obj)
+            a.registerObject(self._palette_obj, False)
+            self._palette_obj.releaseAppRef()
+            self.registerObject(self._palette_obj)
+        vol = a.toAimsObject(self._palette_obj)
+        vol[0, 0, 0, 0] = 0.
+        vol[1, 0, 0, 0] = 1.
+        objects = [o for o in self.Objects()
+                   if o is not self._palette_obj.internalRep]
+        i = 0
+        for o in objects:
+            glc = o.glAPI()
+            if glc is not None:
+                te = glc.glTexExtrema(0)
+                if i == 0:
+                    vol[0, 0, 0, 0] = te.minquant[0]
+                    vol[1, 0, 0, 0] = te.maxquant[0]
+                else:
+                    vol[0, 0, 0, 0] = np.min((te.minquant[0], vol[0, 0, 0, 0]))
+                    vol[1, 0, 0, 0] = np.max((te.maxquant[0], vol[1, 0, 0, 0]))
+                i += 1
+        self._palette_obj.setInternalsChanged()
+        self._palette_obj.internalUpdate()
+        self._palette_obj.notifyObservers()
+        a.execute('PopupPalette', objects=[self._palette_obj])
 
 
 class ValuesPlotModule(ana.cpp.Module):
