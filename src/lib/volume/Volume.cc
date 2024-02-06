@@ -209,6 +209,12 @@ void AVolumeBase::setShaderParameters(const Shader &shader, const ViewState & st
 }
 
 
+void AVolumeBase::internalUpdate()
+{
+  SetExtrema();
+}
+
+
 // ----
 
 template <class T>
@@ -965,6 +971,7 @@ template<class T> void AVolume<T>::SetExtrema()
   vec[3] = _volume->getSizeT();
   attrib->setProperty( "boundingbox_max", vec );
 }
+
 
 template <class T> vector<float> AVolume<T>::voxelSize() const
 {

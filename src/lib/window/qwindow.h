@@ -94,6 +94,10 @@ public:
   QToolBar* toolBar( const QString & name );
   void setDetachMenuAction( QAction* );
 
+  /// overloaded to avoid a problem in sip bindings
+  virtual void update( const anatomist::Observable* observable, void* arg )
+  { anatomist::AWindow::update( observable, arg ); }
+
 public slots:
   /**	Real drawing function, replacing AWindow::Refresh in subclasses of 
 	QAWindow - Don't forget to call QAWindow::refreshNow from overloaded 

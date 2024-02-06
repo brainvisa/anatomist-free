@@ -56,7 +56,9 @@ namespace anatomist
     AVolumeBase();
     virtual ~AVolumeBase();
 
-    virtual void setShaderParameters(const Shader &shader, const ViewState & state) const;
+    virtual void setShaderParameters( const Shader &shader,
+                                      const ViewState & state ) const;
+    virtual void internalUpdate();
   };
 
   /**	Volume object */
