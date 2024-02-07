@@ -36,12 +36,11 @@
 A Matplotlib-based profile window for Anatomist
 '''
 
-from __future__ import absolute_import
 import anatomist.direct.api as ana
 from soma import aims
 import numpy
 import numpy as np
-import sys
+from functools import partial
 
 from soma.qt_gui.qt_backend import init_matplotlib_backend
 init_matplotlib_backend()
@@ -52,7 +51,6 @@ import sip
 
 from soma.qt_gui.qt_backend import QtCore
 from soma.qt_gui.qt_backend import QtGui
-import six
 
 
 class AProfile(ana.cpp.QAWindow):
@@ -96,6 +94,10 @@ class AProfile(ana.cpp.QAWindow):
         toolbar.addAction('Y', self.muteOrientationY)
         toolbar.addAction('Z', self.muteOrientationZ)
         toolbar.addAction('T', self.muteOrientationT)
+        toolbar.addAction('X5', partial(self.muteOrientationT, 4))
+        toolbar.addAction('X6', partial(self.muteOrientationT, 5))
+        toolbar.addAction('X7', partial(self.muteOrientationT, 6))
+        toolbar.addAction('X8', partial(self.muteOrientationT, 7))
         wid.addToolBar(toolbar)
         # referential bar
         cw = wid.centralWidget()
@@ -203,7 +205,7 @@ class AProfile(ana.cpp.QAWindow):
 
     def plotObject(self, obj):
         if obj.objectTypeName(obj.type()) == 'VOLUME':
-            if self._coordindex == 3:
+            if self._coordindex >= 3:
                 return self.plotTprofile(obj)
             figure = pyplot.figure(self._fig.number)
             vol = ana.cpp.AObjectConverter.aims(obj)
@@ -305,7 +307,7 @@ class AProfile(ana.cpp.QAWindow):
             t0, t1 = bounds
             step = min(vs)  # not optimal.
             indices = [opos + uvect * (t0 + x * step) for x in
-                       six.moves.xrange(0, int((t1 - t0 + 1) / step))]
+                       range(0, int((t1 - t0 + 1) / step))]
 
             besti = numpy.argmax(
                 numpy.abs(self._orientation.transform([1, 0, 0])))
@@ -343,27 +345,35 @@ class AProfile(ana.cpp.QAWindow):
         figure = pyplot.figure(self._fig.number)
         vol = ana.cpp.AObjectConverter.aims(obj)
         ar = vol.np
-        pos = self.getPosition()
-        tpos = self.getTime()
-        opos = pos
+        pos = self.getFullPosition()
+        opos = pos[:3]
         oref = obj.getReferential()
         wref = self.getReferential()
         a = ana.Anatomist()
         trans = a.getTransformation(wref, oref)
         if trans:
-            opos = trans.transform(pos)
-        vs = vol.header()['voxel_size']
-        if len(vs) >= 4:
-            ts = vs[3]
-        else:
-            ts = 1.
-        xdata = [x * ts for x in six.moves.xrange(vol.getSizeT())]
-        ipos = numpy.array(opos) / vs[:3]
-        if ipos[0] < 0 or ipos[1] < 0 or ipos[2] < 0 or ipos[0] >= vol.getSizeX() \
+            opos = trans.transform(pos[:3])
+        vs = vol.header()['voxel_size'].np
+        vs = np.hstack((vs, np.ones((len(pos) - len(vs), ), dtype=int)))
+        ts = 1.
+        if len(vs) > self._coordindex:
+            ts = vs[self._coordindex]
+        dims = vol.getSize()
+        ndata = 1
+        if len(dims) > self._coordindex:
+            ndata = dims[self._coordindex]
+        xdata = np.arange(0, ndata * ts, ts)
+        ipos = np.round(pos.np / vs).astype(int)
+        ipos[:3] = np.round(np.asarray(opos) / vs[:3]).astype(int)
+        if ipos[0] < 0 or ipos[1] < 0 or ipos[2] < 0 \
+                or ipos[0] >= vol.getSizeX() \
                 or ipos[1] >= vol.getSizeY() or ipos[2] >= vol.getSizeZ():
             self.eraseObject(obj)
             return
-        data = ar[int(ipos[0]), int(ipos[1]), int(ipos[2]), :]
+        index = list(ipos)
+        if self._coordindex < len(dims):
+            index[self._coordindex] = slice(dims[self._coordindex])
+        data = ar[tuple(index)]
         kw = {}
         p = self._plots.get(ana.cpp.weak_ptr_AObject(obj))
         if p:
@@ -395,7 +405,7 @@ class AProfile(ana.cpp.QAWindow):
         self.paintRefLabel()
 
     def drawCursor(self):
-        pos = self.getPosition()[:3] + [self.getTime()]
+        pos = self.getFullPosition()
         if self._cursorplot:
             for x in self._cursorplot:
                 x.remove()
@@ -407,8 +417,12 @@ class AProfile(ana.cpp.QAWindow):
             self._cursorplot = None
             return
         ax.grid(True)
-        ax.xaxis.set_label_text(['X (mm)', 'Y (mm)', 'Z (mm)',
-                                 'T (s)'][self._coordindex])
+        labels = ['X (mm)', 'Y (mm)', 'Z (mm)', 'T (s)']
+        if self._coordindex < len(labels):
+            label = labels[self._coordindex]
+        else:
+            label = 'X%d' % (self._coordindex + 1)
+        ax.xaxis.set_label_text(label)
         # re-calculate lims, avoid ax.get_ylim() because it's often wrong
         if len(self._fig.axes[0].lines) == 0:
             self._cursorplot = None
@@ -417,8 +431,10 @@ class AProfile(ana.cpp.QAWindow):
                                for l in self._fig.axes[0].lines])),
                 np.max(np.max([l.get_xydata()[:, 1]
                                for l in self._fig.axes[0].lines]))]
-        self._cursorplot = ax.plot([pos[self._coordindex],
-                                    pos[self._coordindex]], lims, 'r')
+        x = [0., 0.]
+        if self._coordindex < len(pos):
+            x = [pos[self._coordindex], pos[self._coordindex]]
+        self._cursorplot = ax.plot(x, lims, 'r')
 
     def muteOrientationX(self):
         self._orientation = aims.Quaternion(0, 0, 0, 1)
@@ -435,8 +451,8 @@ class AProfile(ana.cpp.QAWindow):
         self._coordindex = 2
         self.Refresh()
 
-    def muteOrientationT(self):
-        self._coordindex = 3
+    def muteOrientationT(self, index=3):
+        self._coordindex = index
         self.Refresh()
 
     def onPick(self, event):
