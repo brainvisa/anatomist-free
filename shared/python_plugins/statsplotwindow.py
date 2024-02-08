@@ -113,6 +113,7 @@ class StatsPlotWindow(ana.cpp.QAWindow):
         self._display_methods = [
             proxy_method(self.draw_boxplot),
             proxy_method(self.draw_errorbars),
+            proxy_method(self.draw_violinplot),
         ]
         self._display_method = self._display_methods[
             self._display_method_index]
@@ -294,12 +295,15 @@ class StatsPlotWindow(ana.cpp.QAWindow):
         self._fig.canvas.draw()
 
     def draw_boxplot(self, x, y, labels, colors):
-        pylab.boxplot(x=y, labels=labels,
-                        vert=(self._orientation == 'vertical'))
+        bplot = pylab.boxplot(x=y, labels=labels, patch_artist=True,
+                              vert=(self._orientation == 'vertical'))
         if self._orientation == 'vertical':
             pylab.xticks(x + 1, labels, rotation='vertical')
         else:
             pylab.yticks(x + 1, labels)
+        for patch, color in zip(bplot['boxes'], colors):
+            patch.set_facecolor(color)
+
 
     def draw_errorbars(self, x, y, labels, colors):
         avg = []
@@ -318,6 +322,15 @@ class StatsPlotWindow(ana.cpp.QAWindow):
         else:
             pylab.errorbar(x=avg, y=x, xerr=std, fmt='o', linewidth=2,
                            capsize=6)
+            pylab.yticks(x, labels)
+
+    def draw_violinplot(self, x, y, labels, colors):
+        pylab.violinplot(dataset=y, positions=x, showmeans=True,
+                         showextrema=True,
+                         vert=(self._orientation == 'vertical'))
+        if self._orientation == 'vertical':
+            pylab.xticks(x, labels, rotation='vertical')
+        else:
             pylab.yticks(x, labels)
 
     def mute_orientation(self):
@@ -348,6 +361,7 @@ class StatsPlotWindow(ana.cpp.QAWindow):
             return self.get_value_color_colorlist(obj, value, index)
         glc = self._palette_obj.glAPI()
         te = glc.glTexExtrema(0)
+        value = np.average(value)
         if te.minquant[0] != te.maxquant[0]:
             value = (value - te.minquant[0]) \
                 / (te.maxquant[0] - te.minquant[0])
@@ -364,6 +378,7 @@ class StatsPlotWindow(ana.cpp.QAWindow):
         glc = obj.glAPI()
         if glc is not None:
             te = glc.glTexExtrema(0)
+            value = np.average(value)
             if te.minquant[0] != te.maxquant[0]:
                 value = (value - te.minquant[0]) \
                     / (te.maxquant[0] - te.minquant[0])
