@@ -38,6 +38,7 @@
 //--- header files ------------------------------------------------------------
 
 #include <anatomist/observer/Observer.h>
+#include <anatomist/observer/Observable.h>
 #include <anatomist/config/anatomist_config.h>
 #include <aims/vector/vector.h>
 #include <aims/rgb/rgb.h>
@@ -54,7 +55,7 @@ namespace anatomist
 
   /** Abstract base class Anatomist window
    */
-  class ANATOMIST_API AWindow : virtual public carto::SharedObject, virtual public Observer
+  class ANATOMIST_API AWindow : virtual public carto::SharedObject, virtual public Observer, virtual public Observable
   {
   public:
     enum Type

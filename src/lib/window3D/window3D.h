@@ -70,7 +70,7 @@ class QSlider;
 
 /** 3D window, OpenGL rendering
  */
-class AWindow3D : public ControlledWindow, public anatomist::Observable
+class AWindow3D : public ControlledWindow
 { 
   Q_OBJECT
 

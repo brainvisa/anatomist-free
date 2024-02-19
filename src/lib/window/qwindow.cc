@@ -155,6 +155,7 @@ void QAWindow::closeEvent( QCloseEvent * event )
     event->accept();
     if( parent() )
     {
+      notifyUnregisterObservers();
       setParent( 0 );
       setAttribute( Qt::WA_DeleteOnClose );
     }
@@ -174,6 +175,7 @@ bool QAWindow::close()
   {
     if( parent() )
     {
+      notifyUnregisterObservers();
       setParent( 0 );
       setAttribute( Qt::WA_DeleteOnClose );
     }
@@ -420,6 +422,8 @@ void QAWindow::detach()
 {
   if( parent() )
   {
+    obsSetChanged( "detachFromParent" );
+    notifyObservers( this );
     setParent( 0 );
     setAttribute( Qt::WA_DeleteOnClose );
     if( d->detachmenuaction )

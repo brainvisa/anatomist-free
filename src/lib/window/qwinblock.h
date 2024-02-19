@@ -34,10 +34,14 @@
 #ifndef ANATOMIST_WINDOW_QWINBLOCK_H
 #define ANATOMIST_WINDOW_QWINBLOCK_H
 
+#include <anatomist/observer/Observer.h>
 #include <qmainwindow.h>
 
 
-class QAWindowBlock : public QMainWindow
+class QGridLayout;
+
+
+class QAWindowBlock : public QMainWindow, public anatomist::Observer
 {
   Q_OBJECT
 
@@ -47,11 +51,18 @@ public:
    */
   QAWindowBlock( QWidget* parent = 0, const char* name = 0, 
                  Qt::WindowFlags f = Qt::Window,
-                 int colsrows = 2, bool inrows = false );
+                 int colsrows = 2, bool inrows = false, bool withmenu = true );
   virtual ~QAWindowBlock();
-  void addWindowToBlock(QWidget* item);
+  void addWindowToBlock( QWidget* item, bool withBorders = true );
   void setColsOrRows( bool inrows, int colsrows );
   void arrangeInRect( float widthHeightRatio = 1. );
+  bool inRows() const;
+  int columnCount() const;
+  int rowCount() const;
+  float widthHeightRatio() const;
+  virtual void update( const anatomist::Observable*, void* );
+  virtual void unregisterObservable( anatomist::Observable* );
+  void cleanupLayout();
 
 public slots:
   void layInColumns();
@@ -70,6 +81,42 @@ private:
   struct Private;
   Private	*d;
 };
+
+
+namespace anatomist
+{
+
+  class BlockBorderWidget : public QWidget
+  {
+  public:
+    BlockBorderWidget( int sides, QGridLayout *gridLayout = 0 );
+    virtual ~BlockBorderWidget();
+
+  protected:
+    void mousePressEvent( QMouseEvent *event );
+    void mouseReleaseEvent( QMouseEvent *event );
+    void mouseMoveEvent( QMouseEvent *event );
+
+  private:
+    int _sides;
+    QGridLayout *_gridLayout;
+    bool _pressed;
+    int _last_x;
+    int _last_y;
+  };
+
+
+  /** Taken from:
+      https://forum.qt.io/topic/151855/grid-layout-widget-and-splitter-like-resizing/9
+  */
+  class DraggableWrapper : public QWidget
+  {
+  public:
+    DraggableWrapper( QWidget *widget, QGridLayout *main_layout );
+    virtual ~DraggableWrapper();
+  };
+
+}
 
 #endif
 

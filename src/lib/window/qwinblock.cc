@@ -56,7 +56,7 @@ struct QAWindowBlock::Private
 
 QAWindowBlock::QAWindowBlock( QWidget *parent, const char* name,
                               Qt::WindowFlags f,
-                              int colsrows, bool inrows )
+                              int colsrows, bool inrows, bool withmenu )
   : QMainWindow( parent, f ), d( new QAWindowBlock::Private )
 {
   setObjectName(name);
@@ -83,29 +83,33 @@ QAWindowBlock::QAWindowBlock( QWidget *parent, const char* name,
     d->colsrows = 2;
   d->rectratio = 1.;
 
-  QMenuBar *mb = menuBar();
-  QMenu *menu = mb->addMenu( tr( "Windows block layout" ) );
-  QAction *colac = new QAction( tr( "Lay in columns" ), this );
-  menu->addAction( colac );
-  QAction *rowac = new QAction( tr( "Lay in rows" ), this );
-  menu->addAction( rowac );
-  QAction *recac = new QAction( tr( "Lay in rectangle" ), this );
-  menu->addAction( recac );
-  menu->addSeparator();
-  QAction *ncolac = new QAction( tr( "Set number of columns" ), this );
-  menu->addAction( ncolac );
-  QAction *nrowac = new QAction( tr( "Set number of rows" ), this );
-  menu->addAction( nrowac );
-  QAction *ratac = new QAction(
-    tr( "Set columns / rows ratio for rectangular layout" ), this );
-  menu->addAction( ratac );
+  if( withmenu )
+  {
+    QMenuBar *mb = menuBar();
+    QMenu *menu = mb->addMenu( tr( "Windows block layout" ) );
+    QAction *colac = new QAction( tr( "Lay in columns" ), this );
+    menu->addAction( colac );
+    QAction *rowac = new QAction( tr( "Lay in rows" ), this );
+    menu->addAction( rowac );
+    QAction *recac = new QAction( tr( "Lay in rectangle" ), this );
+    menu->addAction( recac );
+    menu->addSeparator();
+    QAction *ncolac = new QAction( tr( "Set number of columns" ), this );
+    menu->addAction( ncolac );
+    QAction *nrowac = new QAction( tr( "Set number of rows" ), this );
+    menu->addAction( nrowac );
+    QAction *ratac = new QAction(
+      tr( "Set columns / rows ratio for rectangular layout" ), this );
+    menu->addAction( ratac );
 
-  connect( colac, SIGNAL( triggered() ), this, SLOT( layInColumns() ) );
-  connect( rowac, SIGNAL( triggered() ), this, SLOT( layInRows() ) );
-  connect( recac, SIGNAL( triggered() ), this, SLOT( layInRectangle() ) );
-  connect( ncolac, SIGNAL( triggered() ), this, SLOT( setColumnsNumber() ) );
-  connect( nrowac, SIGNAL( triggered() ), this, SLOT( setRowsNumber() ) );
-  connect( ratac, SIGNAL( triggered() ), this, SLOT( setRectangularRatio() ) );
+    connect( colac, SIGNAL( triggered() ), this, SLOT( layInColumns() ) );
+    connect( rowac, SIGNAL( triggered() ), this, SLOT( layInRows() ) );
+    connect( recac, SIGNAL( triggered() ), this, SLOT( layInRectangle() ) );
+    connect( ncolac, SIGNAL( triggered() ), this, SLOT( setColumnsNumber() ) );
+    connect( nrowac, SIGNAL( triggered() ), this, SLOT( setRowsNumber() ) );
+    connect( ratac, SIGNAL( triggered() ), this,
+             SLOT( setRectangularRatio() ) );
+  }
 }
 
 
@@ -114,12 +118,42 @@ QAWindowBlock::~QAWindowBlock()
    delete d;
 }
 
-void QAWindowBlock::addWindowToBlock(QWidget *item)
+
+bool QAWindowBlock::inRows() const
+{
+  return d->inrows;
+}
+
+
+int QAWindowBlock::columnCount() const
+{
+  if( d->inrows )
+    return d->colsrows;
+  else
+    return static_cast<QGridLayout *>( layout() )->columnCount();
+}
+
+
+int QAWindowBlock::rowCount() const
+{
+  if( d->inrows )
+    return static_cast<QGridLayout *>( layout() )->rowCount();
+  else
+    return d->colsrows;
+}
+
+
+float QAWindowBlock::widthHeightRatio() const
+{
+  return d->rectratio;
+}
+
+
+void QAWindowBlock::addWindowToBlock( QWidget *item, bool withborders )
 {
   // if we don't remove the item's parent, the window will not be in the block
   // but next to it.
   item->setParent(0);
-#if QT_VERSION >= 0x040400
   int row = 0, col = 0;
   QLayoutItem *litem;
 
@@ -155,45 +189,23 @@ void QAWindowBlock::addWindowToBlock(QWidget *item)
       row = 0;
     }
   }
-  d->layout->addWidget( item, row, col );
+  if( withborders )
+  {
+    if( d->layout->columnStretch( col ) == 0 )
+      d->layout->setColumnStretch( col, 300 );
+    if( d->layout->rowStretch( row ) == 0 )
+      d->layout->setRowStretch( row, 300 );
+    DraggableWrapper *dwrap = new DraggableWrapper( item, d->layout );
+    d->layout->addWidget( dwrap, row, col );
+  }
+  else
+    d->layout->addWidget( item, row, col );
 //   item->setParent( centralWidget() ); // seems needed with Qt5
-#else // Qt version >= 4.0 and <= 4.3
-  vector< vector<bool> > used;
-  int i, j, k, n = d->layout->count();
-  int row, col, rspan, cspan;
 
-  for( i=0; i<n; ++i )
-  {
-    d->layout->getItemPosition( i, &row, &col, &rspan, &cspan );
-    while( row+rspan >= used.size() )
-      used.push_back( vector<bool>( false, d->cols ) );
-    for( j=row; j<row+rspan; ++j )
-    {
-      vector<bool> & urow = used[j];
-      while( urow.size() < col + cspan )
-        urow.push_back( false );
-      for( k=col; k<col+cspan; ++k )
-        urow[k] = true;
-    }
-  }
-  int nr = used.size(), nc;
-  col = 0;
-  row = 0;
-  for( row=0; row<nr; ++row )
-  {
-    vector<bool> & urow = used[row];
-    nc = urow.size();
-    for( col=0; col<nc; ++col )
-    {
-      if( !urow[col] )
-        break;
-    }
-    if( col < d->cols )
-      break;
-    col = 0;
-  }
-  d->layout->addWidget( item, row, col );
-#endif
+  Observable *obs = dynamic_cast<Observable *>( item );
+  cout << "addWindowToBlock, obs: " << obs << endl;
+  if( obs )
+    obs->addObserver( this );
 }
 
 void QAWindowBlock::dragEnterEvent( QDragEnterEvent* event )
@@ -265,7 +277,6 @@ void QAWindowBlock::setColsOrRows( bool inrows, int colsrows )
       || ( !d->inrows && d->layout->rowCount() == colsrows ) ) )
     return; // nothing to do
 
-#if QT_VERSION >= 0x040400
   int row = 0, col = 0, irow = 0, icol = 0;
   d->inrows = inrows;
   d->colsrows = colsrows;
@@ -354,10 +365,7 @@ void QAWindowBlock::setColsOrRows( bool inrows, int colsrows )
   for( im=moved.begin(); im!=em; ++im )
     d->layout->addWidget( im->first, im->second.first, im->second.second );
 
-#else // Qt version >= 4.0 and <= 4.3
-  // nothing....
-#warning QAWindowBlock::setColsOrRows not implemented for Qt < 4.4
-#endif
+  cleanupLayout();
 }
 
 
@@ -498,4 +506,237 @@ void QAWindowBlock::setRectangularRatio()
   }
 }
 
+
+void QAWindowBlock::update( const Observable* obs, void* )
+{
+  if( obs && obs->obsHasChanged( "detachFromParent" ) )
+  {
+    const QAWindow *caw = dynamic_cast<const QAWindow *>( obs );
+    if( caw )
+    {
+      if( caw->parent() )
+      {
+        QAWindow *aw = const_cast<QAWindow *>( caw );
+        QObject *parent = aw->parent();
+        QWidget *pw = dynamic_cast<QWidget *>( parent );
+        if( pw )
+        {
+          int index = d->layout->indexOf( pw );
+          if( index >= 0 )
+          {
+            aw->setParent( 0 );
+            delete parent;
+            cleanupLayout();
+          }
+        }
+      }
+    }
+
+    const_cast<Observable *>( obs )->deleteObserver( this );
+  }
+}
+
+
+void QAWindowBlock::unregisterObservable( Observable* obs )
+{
+  QAWindow *aw = dynamic_cast<QAWindow *>( obs );
+  if( aw )
+  {
+    QObject *parent = aw->parent();
+    if( parent )
+    {
+      QWidget *pw = dynamic_cast<QWidget *>( parent );
+      if( pw )
+      {
+        int index = d->layout->indexOf( pw );
+        if( index >= 0 )
+        {
+          aw->setParent( 0 );
+          delete parent;
+          cleanupLayout();
+        }
+      }
+    }
+  }
+  Observer::unregisterObservable( obs );
+}
+
+
+void QAWindowBlock::cleanupLayout()
+{
+  int i, nr = d->layout->rowCount();
+  int j, nc = d->layout->columnCount();
+  set<int> usedrows, usedcols;
+  for( i=0; i<nr; ++i )
+    for( j=0; j<nc; ++j )
+    {
+      QLayoutItem *item = d->layout->itemAtPosition( i, j );
+      if( item && item->widget() )
+      {
+        usedrows.insert( i );
+        usedcols.insert( j );
+        cout << i << ", " << j << ": " << item->widget() << endl;
+      }
+    }
+  for( i=0; i<nr; ++i )
+    if( usedrows.find( i ) == usedrows.end() )
+      d->layout->setRowStretch( i, 0 );
+  for( j=0; j<nc; ++j )
+    if( usedcols.find( j ) == usedcols.end() )
+      d->layout->setColumnStretch( j, 0 );
+}
+
+
+// ----
+
+BlockBorderWidget::BlockBorderWidget( int sides, QGridLayout *gridLayout )
+  : QWidget(), _sides( sides ), _gridLayout( gridLayout ), _pressed( false ),
+  _last_x( 0 ), _last_y( 0 )
+{
+  QPalette pal = palette();
+  pal.setColor( QPalette::ColorRole::Window, QColor( "white" ) );
+  setAutoFillBackground( true );
+  setPalette( pal );
+  _pressed = false;
+}
+
+
+BlockBorderWidget::~BlockBorderWidget()
+{
+}
+
+
+void BlockBorderWidget::mousePressEvent( QMouseEvent *event )
+{
+  QWidget::mousePressEvent( event );
+  _pressed = true;
+#if QT_VERSION >= 0x060000
+  _last_x = int( event->globalPosition().x() );
+  _last_y = int( event->globalPosition().y() );
+#else
+   _last_x = event->globalPos().x();
+   _last_y = event->globalPos().y();
+#endif
+}
+
+
+void BlockBorderWidget::mouseReleaseEvent( QMouseEvent *event )
+{
+  _pressed = false;
+  QWidget::mouseReleaseEvent( event );
+}
+
+
+void BlockBorderWidget::mouseMoveEvent( QMouseEvent *event )
+{
+  if( _pressed && _gridLayout )
+  {
+#if QT_VERSION >= 0x060000
+    int dx = int( event->globalPosition().x() ) - _last_x;
+    _last_x = int( event->globalPosition().x() );
+    int dy = int( event->globalPosition().y() ) - _last_y;
+    _last_y = int( event->globalPosition().y() );
+#else
+    int dx = event->globalPos().x() - _last_x;
+    _last_x = event->globalPos().x();
+    int dy = event->globalPos().y() - _last_y;
+    _last_y = event->globalPos().y();
+#endif
+    if( _sides & 2 )
+        dx *= -1;
+    else if( ! ( _sides & 1 ) )
+        dx = 0;
+
+    int index = -1;
+    int row, col, rspan, cspan;
+
+    if( dx != 0 )
+    {
+      index = _gridLayout->indexOf( static_cast<QWidget *>( parent() ) );
+      _gridLayout->getItemPosition( index, &row, &col, &rspan, &cspan );
+      int new_stretch = std::max(
+        1, _gridLayout->columnStretch( col ) - dx );
+      _gridLayout->setColumnStretch( col, new_stretch );
+    }
+
+    if( _sides & 8 )
+        dy *= -1;
+    else if( ! ( _sides & 4 ) )
+        dy = 0;
+
+    if( dy != 0 )
+    {
+      if( index < 0 )
+      {
+      index = _gridLayout->indexOf( static_cast<QWidget *>( parent() ) );
+        _gridLayout->getItemPosition( index, &row, &col, &rspan, &cspan );
+      }
+
+      int new_stretch = std::max(
+        1, _gridLayout->rowStretch( row ) - dy );
+      _gridLayout->setRowStretch( row, new_stretch );
+    }
+  }
+  else
+    QWidget::mouseMoveEvent( event );
+}
+
+
+// ---
+
+DraggableWrapper::DraggableWrapper( QWidget *widget, QGridLayout *main_layout )
+  : QWidget()
+{
+  QGridLayout *layout = new QGridLayout;
+  setLayout( layout );
+  layout->setSpacing( 0 );
+  layout->setContentsMargins( 0, 0, 0, 0 );
+
+  BlockBorderWidget *border_top = new BlockBorderWidget( 4, main_layout );
+  BlockBorderWidget *border_bottom = new BlockBorderWidget( 8, main_layout );
+  BlockBorderWidget *border_left = new BlockBorderWidget( 1, main_layout );
+  BlockBorderWidget *border_right = new BlockBorderWidget( 2, main_layout );
+
+  BlockBorderWidget *border_top_left_horizontal
+    = new BlockBorderWidget( 5, main_layout );
+  BlockBorderWidget *border_top_right_horizontal
+    = new BlockBorderWidget( 6, main_layout );
+  BlockBorderWidget *border_bottom_left_horizontal
+    = new BlockBorderWidget( 9, main_layout );
+  BlockBorderWidget *border_bottom_right_horizontal
+    = new BlockBorderWidget( 10, main_layout );
+
+  layout->addWidget( widget, 1, 1 );
+  layout->addWidget( border_top, 0, 1 );
+  layout->addWidget( border_bottom, 2, 1 );
+  layout->addWidget( border_left, 1, 0 );
+  layout->addWidget( border_right, 1, 2 );
+  layout->addWidget( border_top_left_horizontal, 0, 0 );
+  layout->addWidget( border_top_right_horizontal, 0, 2 );
+  layout->addWidget( border_bottom_left_horizontal, 2, 0 );
+  layout->addWidget( border_bottom_right_horizontal, 2, 2 );
+
+  int border_width = 5;
+  border_top->setFixedHeight( border_width );
+  border_bottom->setFixedHeight( border_width );
+  border_left->setFixedWidth( border_width );
+  border_right->setFixedWidth( border_width );
+
+  // apply size restrictions to corner border widgets to form L-shaped corners
+  border_top_left_horizontal->setFixedSize( border_width, border_width );
+  border_top_right_horizontal->setFixedSize( border_width, border_width );
+  border_bottom_left_horizontal->setFixedSize( border_width, border_width );
+  border_bottom_right_horizontal->setFixedSize( border_width, border_width );
+
+  // Apply size policies
+  setSizePolicy( QSizePolicy::Policy::Expanding,
+                 QSizePolicy::Policy::Expanding );
+  widget->setSizePolicy( QSizePolicy::Policy::Expanding,
+                         QSizePolicy::Policy::Expanding );
+}
+
+
+DraggableWrapper::~DraggableWrapper()
+{
+}
 

@@ -147,12 +147,12 @@ Observable::notifyObservers(void* arg)
       set<Observer*>::iterator	o;
 #ifdef ANA_DEBUG
       static int indent = 0;
-      int	i, n = 0;
-      for( i=0; i<indent; ++i ) cout << ' ';
+      int	j, n = 0;
+      for( j=0; j<indent; ++j ) cout << ' ';
       cout << "Observable::notifyObservers: observable: " << this 
            << " (" << typeid( *this ).name() << ")" 
            << ", arg: " << arg << " observers: " << _observers.size() << endl;
-      for( i=0; i<indent; ++i ) cout << ' ';
+      for( j=0; j<indent; ++j ) cout << ' ';
       cout << "<";
       for( o=_observers.begin(); o != _observers.end(); ++o )
         cout << *o << ", ";
@@ -162,7 +162,7 @@ Observable::notifyObservers(void* arg)
       for( o = _observers.begin(); o != _observers.end(); ++o )
         {
 #ifdef ANA_DEBUG
-          for( i=0; i<indent; ++i ) cout << ' ';
+          for( j=0; j<indent; ++j ) cout << ' ';
           cout << "Observer " << n << ": " << *o << " (" 
                << typeid( **o ).name() << ")";
 #endif
@@ -193,7 +193,7 @@ Observable::notifyObservers(void* arg)
 
 #ifdef ANA_DEBUG
       indent -= 2;
-      for( i=0; i<indent; ++i ) cout << ' ';
+      for( j=0; j<indent; ++j ) cout << ' ';
       cout << "Observable::notifyObservers end" << endl;
 #endif
       _updating = false;

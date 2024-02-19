@@ -97,6 +97,7 @@ public:
   /// overloaded to avoid a problem in sip bindings
   virtual void update( const anatomist::Observable* observable, void* arg )
   { anatomist::AWindow::update( observable, arg ); }
+  bool detachingFromParent() const;
 
 public slots:
   /**	Real drawing function, replacing AWindow::Refresh in subclasses of 
