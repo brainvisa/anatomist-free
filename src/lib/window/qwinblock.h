@@ -39,6 +39,14 @@
 
 
 class QGridLayout;
+class QLabel;
+class QTimer;
+
+
+namespace anatomist
+{
+  class AWindow;
+}
 
 
 class QAWindowBlock : public QMainWindow, public anatomist::Observer
@@ -63,6 +71,8 @@ public:
   virtual void update( const anatomist::Observable*, void* );
   virtual void unregisterObservable( anatomist::Observable* );
   void cleanupLayout();
+  void reorderViews( const std::list<QWidget *> & wins );
+  void dropRowCol( int x, int y, int & row, int & col ) const;
 
 public slots:
   void layInColumns();
@@ -72,8 +82,12 @@ public slots:
   void setRowsNumber();
   void setRectangularRatio();
 
+protected slots:
+  void windowsDropped();
+
 protected:
   virtual void dragEnterEvent( QDragEnterEvent* event );
+  virtual void dragLeaveEvent( QDragLeaveEvent* event );
   virtual void dropEvent( QDropEvent* );
   virtual void closeEvent( QCloseEvent * event );
 
@@ -91,11 +105,13 @@ namespace anatomist
   public:
     BlockBorderWidget( int sides, QGridLayout *gridLayout = 0 );
     virtual ~BlockBorderWidget();
+    void getRowCol( int & row, int & col, int & dirx, int & diry ) const;
 
   protected:
     void mousePressEvent( QMouseEvent *event );
     void mouseReleaseEvent( QMouseEvent *event );
     void mouseMoveEvent( QMouseEvent *event );
+    void mouseDoubleClickEvent( QMouseEvent *event );
 
   private:
     int _sides;
@@ -112,8 +128,17 @@ namespace anatomist
   class DraggableWrapper : public QWidget
   {
   public:
-    DraggableWrapper( QWidget *widget, QGridLayout *main_layout );
+    DraggableWrapper( QWidget *widget, QGridLayout *main_layout,
+                      bool withDragGrip = true );
     virtual ~DraggableWrapper();
+
+  protected:
+    virtual void mouseMoveEvent( QMouseEvent *event );
+
+  private:
+    bool _enableDragGrip;
+    QLabel *_dragWidget;
+    QTimer *_timer;
   };
 
 }

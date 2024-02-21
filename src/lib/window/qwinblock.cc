@@ -35,15 +35,22 @@
 #include <anatomist/window/qwindow.h>
 #include <anatomist/application/settings.h>
 #include <anatomist/control/windowdrag.h>
+#include <anatomist/controler/icondictionary.h>
+#include <anatomist/window/qWinFactory.h>
 #include <qlayout.h>
 #include <qpixmap.h>
 #include <qmenubar.h>
 #include <qdialog.h>
 #include <qspinbox.h>
 #include <qlineedit.h>
+#include <QLabel>
+#include <QTimer>
+#include <QDrag>
+
 
 using namespace anatomist;
 using namespace std;
+
 
 struct QAWindowBlock::Private
 {
@@ -51,6 +58,9 @@ struct QAWindowBlock::Private
   bool inrows;
   int colsrows;
   float rectratio;
+  set<AWindow *> droppedWins;
+  int droprow;
+  int dropcol;
 };
 
 
@@ -153,6 +163,9 @@ void QAWindowBlock::addWindowToBlock( QWidget *item, bool withborders )
 {
   // if we don't remove the item's parent, the window will not be in the block
   // but next to it.
+  if( item->parentWidget()
+      && dynamic_cast<DraggableWrapper *>( item->parentWidget() ) )
+    item = item->parentWidget();
   item->setParent(0);
   int row = 0, col = 0;
   QLayoutItem *litem;
@@ -189,12 +202,15 @@ void QAWindowBlock::addWindowToBlock( QWidget *item, bool withborders )
       row = 0;
     }
   }
-  if( withborders )
+  if( withborders && !dynamic_cast<DraggableWrapper *>( item ) )
   {
+    cout << "add borders\n";
+    int default_stretch = 300;
+
     if( d->layout->columnStretch( col ) == 0 )
-      d->layout->setColumnStretch( col, 300 );
+      d->layout->setColumnStretch( col, default_stretch );
     if( d->layout->rowStretch( row ) == 0 )
-      d->layout->setRowStretch( row, 300 );
+      d->layout->setRowStretch( row, default_stretch );
     DraggableWrapper *dwrap = new DraggableWrapper( item, d->layout );
     d->layout->addWidget( dwrap, row, col );
   }
@@ -203,39 +219,204 @@ void QAWindowBlock::addWindowToBlock( QWidget *item, bool withborders )
 //   item->setParent( centralWidget() ); // seems needed with Qt5
 
   Observable *obs = dynamic_cast<Observable *>( item );
-  cout << "addWindowToBlock, obs: " << obs << endl;
   if( obs )
     obs->addObserver( this );
 }
 
+
 void QAWindowBlock::dragEnterEvent( QDragEnterEvent* event )
 {
   //cout << "QAWindow::dragEnterEvent\n";
-  event->setAccepted( QAWindowDrag::canDecode( event->mimeData() ) );
+  bool ok = QAWindowDrag::canDecode( event->mimeData() );
+  event->setAccepted( ok );
+  if( ok )
+    setCursor( Qt::DragMoveCursor );
+  else
+    setCursor( Qt::ForbiddenCursor );
+}
+
+
+void QAWindowBlock::dragLeaveEvent( QDragLeaveEvent* event )
+{
+  setCursor( Qt::ArrowCursor );
 }
 
 
 void QAWindowBlock::dropEvent( QDropEvent* event )
 {
   //cout << "QAWindow::dropEvent\n";
+  setCursor( Qt::ArrowCursor );
+
   set<AWindow *>	w;
 
   if( QAWindowDrag::decode( event->mimeData(), w ) )
+  {
+    d->droppedWins = w;
+    dropRowCol( event->pos().x(), event->pos().y(), d->droprow, d->dropcol );
+    QTimer::singleShot( 0, this, SLOT( windowsDropped() ) );
+  }
+}
+
+
+void QAWindowBlock::dropRowCol( int x, int y, int & row, int & col ) const
+{
+  int r, c, nr = d->layout->rowCount(), nc = d->layout->columnCount();
+  row = -1;
+  col = -1;
+  for( r=0; r<nr; ++r )
+  {
+    QRect rect = d->layout->cellRect( r, 0 );
+    if( y >= rect.top() && y < rect.bottom() )
     {
-      //cout << "window decoded, " << w.size() << " windows\n";
-      set<AWindow *>::iterator	iw, ew = w.end();
-      QAWindow			*qw;
-      for( iw=w.begin(); iw!=ew; ++iw )
+      row = r;
+      break;
+    }
+  }
+  if( row < 0 )
+    row = nr;
+  for( c=0; c<nc; ++c )
+  {
+    QRect rect = d->layout->cellRect( 0, c );
+    if( x >= rect.left() && x < rect.right() )
+    {
+      col = c;
+      break;
+    }
+  }
+  if( col < 0 )
+    col = nc;
+  QRect rect = d->layout->cellRect( row, col );
+  int left = x - rect.left();
+  int right = rect.right() - x;
+  int top = y - rect.top();
+  int bottom = rect.bottom() - y;
+
+  if( right < left && right < top && right < bottom )
+    ++col;
+  else if( bottom < top && bottom < left && bottom < right )
+    ++row;
+}
+
+
+
+void QAWindowBlock::windowsDropped()
+{
+  set<AWindow *>::iterator	iw, ew = d->droppedWins.end();
+  list<QWidget *> reordered;
+  int row, col, nr = d->layout->rowCount(), nc = d->layout->columnCount();
+  bool inserted = false;
+
+  if( d->inrows )
+  {
+    for( row=0; row<nr; ++row )
+    {
+      for( col=0; col<nc; ++col )
+      {
+        if( row == d->droprow && col == d->dropcol )
+        {
+          inserted = true;
+          QAWindow			*qw;
+          for( iw=d->droppedWins.begin(); iw!=ew; ++iw )
+          {
+            qw = dynamic_cast<QAWindow *>( *iw );
+            if( qw )
+            {
+              reordered.push_back( qw );
+              qw->enableDetachMenu( true );
+            }
+          }
+        }
+        QLayoutItem *item = d->layout->itemAtPosition( row, col );
+        if( item && item->widget() )
+        {
+          QWidget *wid = item->widget();
+          DraggableWrapper *dw = dynamic_cast<DraggableWrapper *>( wid );
+          QAWindow * qw = 0;
+          if( dw )
+          {
+            QLayoutItem *li = static_cast<QGridLayout *>(
+              dw->layout() )->itemAtPosition( 1, 1 );
+            if( li )
+              qw = dynamic_cast<QAWindow *>( li->widget() );
+          }
+          if( !qw )
+            qw = dynamic_cast<QAWindow *>( wid );
+          if( !qw || d->droppedWins.find( qw ) == ew )
+            reordered.push_back( wid );
+        }
+      }
+      if( !inserted && row == d->droprow )
+      {
+        inserted = true;
+        QAWindow			*qw;
+        for( iw=d->droppedWins.begin(); iw!=ew; ++iw )
         {
           qw = dynamic_cast<QAWindow *>( *iw );
           if( qw )
+          {
+            reordered.push_back( qw );
+            qw->enableDetachMenu( true );
+          }
+        }
+      }
+    }
+  }
+  else
+  {
+    for( col=0; col<nc; ++col )
+      for( row=0; row<nr; ++row )
+      {
+        if( row == d->droprow && col == d->dropcol )
+        {
+          inserted = true;
+          QAWindow			*qw;
+          for( iw=d->droppedWins.begin(); iw!=ew; ++iw )
+          {
+            qw = dynamic_cast<QAWindow *>( *iw );
+            if( qw )
             {
-              addWindowToBlock( qw );
+              reordered.push_back( qw );
               qw->enableDetachMenu( true );
             }
+          }
         }
+        QLayoutItem *item = d->layout->itemAtPosition( row, col );
+        if( item && item->widget() )
+        {
+          QWidget *wid = item->widget();
+          DraggableWrapper *dw = dynamic_cast<DraggableWrapper *>( wid );
+          QAWindow * qw = 0;
+          if( dw )
+          {
+            QLayoutItem *li = static_cast<QGridLayout *>(
+              dw->layout() )->itemAtPosition( 1, 1 );
+            if( li )
+              qw = dynamic_cast<QAWindow *>( li->widget() );
+          }
+          if( !qw )
+            qw = dynamic_cast<QAWindow *>( wid );
+          if( !qw || d->droppedWins.find( qw ) == ew )
+            reordered.push_back( wid );
+        }
+      }
+  }
+
+  if( !inserted )
+  {
+    QAWindow			*qw;
+    for( iw=d->droppedWins.begin(); iw!=ew; ++iw )
+    {
+      qw = dynamic_cast<QAWindow *>( *iw );
+      if( qw )
+      {
+        reordered.push_back( qw );
+        qw->enableDetachMenu( true );
+      }
     }
+  }
+  reorderViews( reordered );
 }
+
 
 void QAWindowBlock::closeEvent( QCloseEvent * event )
 {
@@ -427,6 +608,129 @@ void QAWindowBlock::layInRectangle()
 }
 
 
+void QAWindowBlock::reorderViews( const list<QWidget *> & wins )
+{
+  list<QWidget *>::const_iterator iw, ew = wins.end();
+  list<QWidget *> reordered;
+  list<Observable *> new_wins;
+  list<Observable *>::const_iterator iaw, eaw = new_wins.end();
+
+  for( iw=wins.begin(); iw!=ew; ++iw )
+  {
+    int index = d->layout->indexOf( *iw );
+    if( index < 0 && (*iw)->parentWidget() )
+      index = d->layout->indexOf( (*iw)->parentWidget() );
+    if( index >= 0 )
+    {
+      QWidget *wid = d->layout->itemAt( index )->widget();
+      reordered.push_back( wid );
+      d->layout->removeWidget( wid );
+      d->layout->removeItem( d->layout->itemAt( index ) );
+    }
+    else
+    {
+      reordered.push_back( *iw );
+      Observable *aw = dynamic_cast<Observable *>( *iw );
+      if( aw )
+        new_wins.push_back( aw );
+    }
+  }
+  int row, col, nr = d->layout->rowCount(), nc = d->layout->columnCount();
+  int default_stretch = 300;
+  bool withborders = true;
+
+  if( d->inrows )
+  {
+    for( row=0; row<nr; ++row )
+      for( col=0; col<nc; ++col )
+      {
+        QLayoutItem *item = d->layout->itemAtPosition( row, col );
+        if( item )
+        {
+          if( item->widget() )
+          {
+            reordered.push_back( item->widget() );
+            d->layout->removeWidget( item->widget() );
+          }
+          d->layout->removeItem( item );
+        }
+      }
+    row = 0;
+    col = 0;
+    for( iw=reordered.begin(), ew=reordered.end(); iw!=ew; ++iw )
+    {
+      if( withborders && !dynamic_cast<DraggableWrapper *>( *iw ) )
+      {
+        DraggableWrapper *dwrap = new DraggableWrapper( *iw, d->layout );
+        d->layout->addWidget( dwrap, row, col );
+        if( d->layout->columnStretch( col ) == 0 )
+          d->layout->setColumnStretch( col, default_stretch );
+        if( d->layout->rowStretch( row ) == 0 )
+          d->layout->setRowStretch( row, default_stretch );
+      }
+      else
+        d->layout->addWidget( *iw, row, col );
+      ++col;
+      if( col >= d->colsrows )
+      {
+        col = 0;
+        ++row;
+      }
+    }
+  }
+  else
+  {
+    for( col=0; col<nc; ++col )
+      for( row=0; row<nr; ++row )
+      {
+        QLayoutItem *item = d->layout->itemAtPosition( row, col );
+        if( item )
+        {
+          if( item->widget() )
+          {
+            reordered.push_back( item->widget() );
+            d->layout->removeWidget( item->widget() );
+          }
+          d->layout->removeItem( item );
+        }
+      }
+    row = 0;
+    col = 0;
+    for( iw=reordered.begin(), ew=reordered.end(); iw!=ew; ++iw )
+    {
+      if( withborders && !dynamic_cast<DraggableWrapper *>( *iw ) )
+      {
+        DraggableWrapper *dwrap = new DraggableWrapper( *iw, d->layout );
+        d->layout->addWidget( dwrap, row, col );
+      }
+      else
+        d->layout->addWidget( *iw, row, col );
+      ++row;
+      if( row >= d->colsrows )
+      {
+        row = 0;
+        ++col;
+      }
+    }
+  }
+
+  if( withborders )
+  {
+    nr = d->layout->rowCount();
+    nc = d->layout->columnCount();
+    for( row=0; row<nr; ++row )
+      if( d->layout->rowStretch( row ) == 0 )
+        d->layout->setRowStretch( row, default_stretch );
+    for( col=0; col<nc; ++col )
+      if( d->layout->columnStretch( col ) == 0 )
+        d->layout->setColumnStretch( col, default_stretch );
+  }
+
+  for( iaw=new_wins.begin(); iaw!=eaw; ++iaw )
+    (*iaw)->addObserver( this );
+}
+
+
 void QAWindowBlock::setColumnsNumber()
 {
   QDialog dial( this );
@@ -514,18 +818,17 @@ void QAWindowBlock::update( const Observable* obs, void* )
     const QAWindow *caw = dynamic_cast<const QAWindow *>( obs );
     if( caw )
     {
-      if( caw->parent() )
+      if( caw->parentWidget() )
       {
         QAWindow *aw = const_cast<QAWindow *>( caw );
-        QObject *parent = aw->parent();
-        QWidget *pw = dynamic_cast<QWidget *>( parent );
+        QWidget *pw = aw->parentWidget();
         if( pw )
         {
           int index = d->layout->indexOf( pw );
           if( index >= 0 )
           {
             aw->setParent( 0 );
-            delete parent;
+            delete pw;
             cleanupLayout();
           }
         }
@@ -542,19 +845,15 @@ void QAWindowBlock::unregisterObservable( Observable* obs )
   QAWindow *aw = dynamic_cast<QAWindow *>( obs );
   if( aw )
   {
-    QObject *parent = aw->parent();
-    if( parent )
+    QWidget *pw = aw->parentWidget();
+    if( pw )
     {
-      QWidget *pw = dynamic_cast<QWidget *>( parent );
-      if( pw )
+      int index = d->layout->indexOf( pw );
+      if( index >= 0 )
       {
-        int index = d->layout->indexOf( pw );
-        if( index >= 0 )
-        {
-          aw->setParent( 0 );
-          delete parent;
-          cleanupLayout();
-        }
+        aw->setParent( 0 );
+        delete pw;
+        cleanupLayout();
       }
     }
   }
@@ -575,7 +874,6 @@ void QAWindowBlock::cleanupLayout()
       {
         usedrows.insert( i );
         usedcols.insert( j );
-        cout << i << ", " << j << ": " << item->widget() << endl;
       }
     }
   for( i=0; i<nr; ++i )
@@ -598,6 +896,15 @@ BlockBorderWidget::BlockBorderWidget( int sides, QGridLayout *gridLayout )
   setAutoFillBackground( true );
   setPalette( pal );
   _pressed = false;
+  Qt::CursorShape cshape = Qt::SplitVCursor;
+  if( ( sides & 3 ) && ! ( sides & 12 ) )
+    cshape = Qt::SplitHCursor;
+  else if( sides == 5 || sides == 10 )
+    cshape = Qt::SizeFDiagCursor;
+  else if( sides == 6 || sides == 9 )
+    cshape = Qt::SizeBDiagCursor;
+  setCursor( cshape );
+  setMouseTracking( true );
 }
 
 
@@ -642,39 +949,30 @@ void BlockBorderWidget::mouseMoveEvent( QMouseEvent *event )
     int dy = event->globalPos().y() - _last_y;
     _last_y = event->globalPos().y();
 #endif
-    if( _sides & 2 )
-        dx *= -1;
-    else if( ! ( _sides & 1 ) )
-        dx = 0;
 
-    int index = -1;
-    int row, col, rspan, cspan;
+    int row, col, dirx, diry;
+    getRowCol( row, col, dirx, diry );
+    dx *= dirx;
+    dy *= diry;
 
     if( dx != 0 )
     {
-      index = _gridLayout->indexOf( static_cast<QWidget *>( parent() ) );
-      _gridLayout->getItemPosition( index, &row, &col, &rspan, &cspan );
-      int new_stretch = std::max(
-        1, _gridLayout->columnStretch( col ) - dx );
-      _gridLayout->setColumnStretch( col, new_stretch );
+      if( col < _gridLayout->columnCount() )
+      {
+        int new_stretch = std::max(
+          1, _gridLayout->columnStretch( col ) - dx );
+        _gridLayout->setColumnStretch( col, new_stretch );
+      }
     }
-
-    if( _sides & 8 )
-        dy *= -1;
-    else if( ! ( _sides & 4 ) )
-        dy = 0;
 
     if( dy != 0 )
     {
-      if( index < 0 )
+      if( row < _gridLayout->rowCount() )
       {
-      index = _gridLayout->indexOf( static_cast<QWidget *>( parent() ) );
-        _gridLayout->getItemPosition( index, &row, &col, &rspan, &cspan );
+        int new_stretch = std::max(
+          1, _gridLayout->rowStretch( row ) - dy );
+        _gridLayout->setRowStretch( row, new_stretch );
       }
-
-      int new_stretch = std::max(
-        1, _gridLayout->rowStretch( row ) - dy );
-      _gridLayout->setRowStretch( row, new_stretch );
     }
   }
   else
@@ -682,10 +980,140 @@ void BlockBorderWidget::mouseMoveEvent( QMouseEvent *event )
 }
 
 
+void BlockBorderWidget::mouseDoubleClickEvent( QMouseEvent *event )
+{
+  int default_stretch = 300;
+  int row, col, dirx, diry;
+  getRowCol( row, col, dirx, diry );
+
+  if( _sides & 3 )
+    _gridLayout->setColumnStretch( col, default_stretch );
+  if( _sides & 12 )
+    _gridLayout->setRowStretch( row, default_stretch );
+}
+
+
+void BlockBorderWidget::getRowCol( int & row, int & col,
+                                   int & dirx, int & diry ) const
+{
+  int index;
+  int rspan, cspan;
+
+  index = _gridLayout->indexOf( parentWidget() );
+  _gridLayout->getItemPosition( index, &row, &col, &rspan, &cspan );
+  dirx = 1;
+  diry = 1;
+
+  if( _sides & 2 )
+      dirx *= -1;
+  else if( ! ( _sides & 1 ) )
+      dirx = 0;
+
+  if( _sides & 8 )
+      diry *= -1;
+  else if( ! ( _sides & 4 ) )
+      diry = 0;
+
+  // left or top border, if not the first, will be about the previous row/col
+  if( row > 0 && ( _sides & 4 ) )
+  {
+    --row;
+    diry *= -1;
+  }
+  if( col > 0 && ( _sides & 1 ) )
+  {
+    --col;
+    dirx *= -1;
+  }
+}
+
+
 // ---
 
-DraggableWrapper::DraggableWrapper( QWidget *widget, QGridLayout *main_layout )
-  : QWidget()
+class DragWinLabel : public QLabel
+{
+public:
+  DragWinLabel( QWidget* parent );
+  virtual ~DragWinLabel();
+
+protected:
+  virtual void mouseMoveEvent( QMouseEvent* event );
+};
+
+
+DragWinLabel::DragWinLabel( QWidget* parent )
+  : QLabel( parent )
+{
+  setAutoFillBackground( true );
+
+  const QPixmap *pix = IconDictionary::instance()->getIconInstance( "drag" );
+  if( !pix )
+  {
+    QPixmap mpix( Settings::findResourceFile( "icons/drag.png" ).c_str() );
+    if( !mpix.isNull() )
+    {
+      IconDictionary::instance()->addIcon( "drag", mpix );
+      pix = IconDictionary::instance()->getIconInstance( "drag" );
+    }
+  }
+
+  if( pix )
+    setPixmap( *pix );
+  setFrameStyle( QFrame::Panel | QFrame::Raised );
+//     _dragWidget->setStyleSheet( ".QFrame {backgrund-color: gray; border: 1px solid gray; border-radius: 10px; }" );
+  setFixedSize( 32, 32 );
+
+}
+
+
+DragWinLabel::~DragWinLabel()
+{
+}
+
+
+void DragWinLabel::mouseMoveEvent( QMouseEvent *event )
+{
+  if( event->buttons() == Qt::LeftButton )
+  {
+    QWidget *bparent = dynamic_cast<DraggableWrapper *>( parentWidget() );
+    if( !bparent )
+      return;
+
+    QGridLayout *lay = dynamic_cast<QGridLayout *>( bparent->layout() );
+    if( !lay )
+      return;
+
+    QLayoutItem *item = lay->itemAtPosition( 1, 1 );
+    if( !item )
+      return;
+
+    QAWindow *aw = dynamic_cast<QAWindow *>( item->widget() );
+    if( !aw )
+      return;
+
+    set<AWindow *>	so;
+    so.insert( aw );
+
+    QAWindowDrag *d = new QAWindowDrag( so );
+    QDrag *drag = new QDrag( this );
+    drag->setMimeData( d );
+
+    const QAWindowFactory::PixList	& pixl
+      = QAWindowFactory::pixmaps( aw->type() );
+
+    if( !pixl.psmall.isNull() )
+      drag->setPixmap( pixl.psmall );
+
+    drag->exec( Qt::MoveAction );
+  }
+}
+
+
+//
+
+DraggableWrapper::DraggableWrapper( QWidget *widget, QGridLayout *main_layout,
+                                    bool withDragGrip )
+  : QWidget(), _enableDragGrip( withDragGrip ), _dragWidget( 0 )
 {
   QGridLayout *layout = new QGridLayout;
   setLayout( layout );
@@ -733,10 +1161,33 @@ DraggableWrapper::DraggableWrapper( QWidget *widget, QGridLayout *main_layout )
                  QSizePolicy::Policy::Expanding );
   widget->setSizePolicy( QSizePolicy::Policy::Expanding,
                          QSizePolicy::Policy::Expanding );
+
+  if( withDragGrip )
+  {
+    _dragWidget = new DragWinLabel( this );
+    _dragWidget->move( 0, 0 );
+    _dragWidget->hide();
+    _timer = new QTimer( this );
+    _timer->setSingleShot( true );
+    connect( _timer, SIGNAL( timeout() ), _dragWidget, SLOT( hide() ) );
+    setMouseTracking( true );
+    cout << "mouse tracking ON\n";
+  }
 }
 
 
 DraggableWrapper::~DraggableWrapper()
 {
+}
+
+
+void DraggableWrapper::mouseMoveEvent( QMouseEvent *event )
+{
+  // never gets called. Why ??
+  if( _dragWidget && event->pos().x() < 100 && event->pos().y() < 100 )
+  {
+    _dragWidget->show();
+    _timer->start( 2000 );
+  }
 }
 
