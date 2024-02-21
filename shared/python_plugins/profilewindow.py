@@ -409,7 +409,7 @@ class AProfile(ana.cpp.QAWindow):
         if self._cursorplot:
             for x in self._cursorplot:
                 x.remove()
-            del self._cursorplot
+            self._cursorplot = None
         if len(self._fig.axes) == 0:
             return
         ax = self._fig.axes[0]
