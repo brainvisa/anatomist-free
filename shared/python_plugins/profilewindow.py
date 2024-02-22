@@ -413,10 +413,10 @@ class AProfile(ana.cpp.QAWindow):
         if len(self._fig.axes[0].lines) == 0:
             self._cursorplot = None
             return
-        lims = [np.min(np.min([l.get_xydata()[:, 1]
-                               for l in self._fig.axes[0].lines])),
-                np.max(np.max([l.get_xydata()[:, 1]
-                               for l in self._fig.axes[0].lines]))]
+        lims = [np.min([np.min(l.get_xydata()[:, 1])
+                        for l in self._fig.axes[0].lines]),
+                np.max([np.max(l.get_xydata()[:, 1])
+                        for l in self._fig.axes[0].lines])]
         self._cursorplot = ax.plot([pos[self._coordindex],
                                     pos[self._coordindex]], lims, 'r')
 
