@@ -1063,11 +1063,14 @@ void DragWinLabel::mouseMoveEvent( QMouseEvent *event )
     int type = aw->subtype();
     if( type == 0 )
       type = aw->type();
-    const QAWindowFactory::PixList	& pixl
-      = QAWindowFactory::pixmaps( type );
+    const QAWindowFactory::PixList	* pixl
+      = &QAWindowFactory::pixmaps( type );
 
-    if( !pixl.psmall.isNull() )
-      drag->setPixmap( pixl.psmall );
+    if( pixl->psmall.isNull() )
+      pixl = &QAWindowFactory::pixmaps( AWindow::WINDOW_3D );
+
+    if( !pixl->psmall.isNull() )
+      drag->setPixmap( pixl->psmall );
 
     drag->exec( Qt::MoveAction );
   }
