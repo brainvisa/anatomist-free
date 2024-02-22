@@ -1060,8 +1060,11 @@ void DragWinLabel::mouseMoveEvent( QMouseEvent *event )
     QDrag *drag = new QDrag( this );
     drag->setMimeData( d );
 
+    int type = aw->subtype();
+    if( type == 0 )
+      type = aw->type();
     const QAWindowFactory::PixList	& pixl
-      = QAWindowFactory::pixmaps( aw->type() );
+      = QAWindowFactory::pixmaps( type );
 
     if( !pixl.psmall.isNull() )
       drag->setPixmap( pixl.psmall );
