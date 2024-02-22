@@ -777,11 +777,14 @@ void QWindowTree::startDragging( QTreeWidgetItem* item, Qt::MouseButtons,
       int type = win->subtype();
       if( type == 0 )
         type = win->type();
-      const QAWindowFactory::PixList	& pixl 
-        = QAWindowFactory::pixmaps( type );
+      const QAWindowFactory::PixList	* pixl
+        = &QAWindowFactory::pixmaps( type );
 
-      if( !pixl.psmall.isNull() )
-        drag->setPixmap( pixl.psmall );
+      if( pixl->psmall.isNull() )
+        pixl = &QAWindowFactory::pixmaps( AWindow::WINDOW_3D );
+
+      if( !pixl->psmall.isNull() )
+        drag->setPixmap( pixl->psmall );
 
       drag->exec( Qt::CopyAction );
       //cout << "dragCopy done\n";
