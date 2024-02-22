@@ -235,10 +235,10 @@ void QAWindowBlock::dragEnterEvent( QDragEnterEvent* event )
   //cout << "QAWindow::dragEnterEvent\n";
   bool ok = QAWindowDrag::canDecode( event->mimeData() );
   event->setAccepted( ok );
-  if( ok )
-    setCursor( Qt::DragMoveCursor );
-  else
-    setCursor( Qt::ForbiddenCursor );
+//   if( ok )
+//     setCursor( Qt::DragMoveCursor );
+//   else
+//     setCursor( Qt::ForbiddenCursor );
 }
 
 
@@ -330,7 +330,7 @@ void QAWindowBlock::dragMoveEvent( QDragMoveEvent* event )
 
 void QAWindowBlock::dragLeaveEvent( QDragLeaveEvent* event )
 {
-  setCursor( Qt::ArrowCursor );
+//   setCursor( Qt::ArrowCursor );
   if( d->highlighted )
   {
     // reset style on the highlighted widget
@@ -343,7 +343,7 @@ void QAWindowBlock::dragLeaveEvent( QDragLeaveEvent* event )
 void QAWindowBlock::dropEvent( QDropEvent* event )
 {
   //cout << "QAWindow::dropEvent\n";
-  setCursor( Qt::ArrowCursor );
+//   setCursor( Qt::ArrowCursor );
   if( d->highlighted )
   {
     // reset style on the highlighted widget
