@@ -755,7 +755,7 @@ void QWindowTree::dragLeaveEvent( QDragLeaveEvent* )
 void QWindowTree::startDragging( QTreeWidgetItem* item, Qt::MouseButtons,
   Qt::KeyboardModifiers )
 {
-  //cout << "QWindowTree::startDragging\n";
+  // cout << "QWindowTree::startDragging\n";
   if( !item )
     return;
 
@@ -773,8 +773,12 @@ void QWindowTree::startDragging( QTreeWidgetItem* item, Qt::MouseButtons,
       QDrag *drag = new QDrag( this );
       drag->setMimeData( d );
 
+      AWindow *win = *so->begin();
+      int type = win->subtype();
+      if( type == 0 )
+        type = win->type();
       const QAWindowFactory::PixList	& pixl 
-        = QAWindowFactory::pixmaps( (*so->begin())->type() );
+        = QAWindowFactory::pixmaps( type );
 
       if( !pixl.psmall.isNull() )
         drag->setPixmap( pixl.psmall );
