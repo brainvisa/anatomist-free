@@ -58,11 +58,13 @@ CreateWindowCommand::CreateWindowCommand( const string & type, int id,
 					  const vector<int> & geom, 
                                           int blockid, QWidget *block,
                                           int cols, int rows,
-                                          Object options )
+                                          Object options,
+                                          int use_default_block )
   : RegularCommand(), SerializingCommand( context ), _type( type ), _win( 0 ), 
     _id( id ), _geom( geom ), _blockid( blockid ), _block( block ),
     _cols(cols), _rows( rows ),
-    _options( options )
+    _options( options ),
+    _use_default_block( use_default_block )
 {
 }
 
@@ -77,13 +79,14 @@ bool CreateWindowCommand::initSyntax()
   SyntaxSet	ss;
   Syntax	& s = ss[ "CreateWindow" ];
   
-  s[ "type"          ] = Semantic( "string", true );
-  s[ "res_pointer"   ] = Semantic( "int", true );
-  s[ "block_columns" ] = Semantic( "int", false );
-  s[ "block_rows"    ] = Semantic( "int", false );
-  s[ "geometry"      ] = Semantic( "int_vector", false );
-  s[ "block"         ] = Semantic( "int", false );
-  s[ "options"       ] = Semantic( "dictionary", false );
+  s[ "type"              ] = Semantic( "string", true );
+  s[ "res_pointer"       ] = Semantic( "int", true );
+  s[ "block_columns"     ] = Semantic( "int", false );
+  s[ "block_rows"        ] = Semantic( "int", false );
+  s[ "geometry"          ] = Semantic( "int_vector", false );
+  s[ "block"             ] = Semantic( "int", false );
+  s[ "options"           ] = Semantic( "dictionary", false );
+  s[ "use_default_block" ] = Semantic( "int", false );
   Registry::instance()->add( "CreateWindow", &read, ss );
   return( true );
 }
@@ -91,6 +94,8 @@ bool CreateWindowCommand::initSyntax()
 
 void CreateWindowCommand::doit()
 {
+  if( !_block && _use_default_block && _blockid == 0 )
+    _block = theAnatomist->defaultWindowsBlock();
   if( _block )
     {
       // check if the block still exists
@@ -117,7 +122,8 @@ void CreateWindowCommand::doit()
         inrows = false;
         colsrows = _cols;
       }
-      QAWindowBlock	*dk = new QAWindowBlock( theAnatomist->getQWidgetAncestor(), NULL,
+      QAWindowBlock	*dk = new QAWindowBlock(
+        theAnatomist->getQWidgetAncestor(), NULL,
         Qt::Window, colsrows, inrows );
       dk->show();
       _block = dk;
@@ -129,8 +135,6 @@ void CreateWindowCommand::doit()
       OutputEvent       ev( "CreateWindowBlock", ex );
       ev.send();
     }
-  else if( _blockid == 0 )
-    _block = 0;
   else if( _block )
   {
     QAWindowBlock *qb = dynamic_cast<QAWindowBlock *>( _block );
@@ -159,9 +163,10 @@ void CreateWindowCommand::doit()
       // send event
       if( _block )
       {
+        QAWindow *qw = dynamic_cast<QAWindow *>( _win );
         QAWindowBlock *qwb = dynamic_cast<QAWindowBlock *>( _block );
-        if( qwb )
-          qwb->addWindowToBlock((AWindow3D *)_win);
+        if( qwb && qw )
+          qwb->addWindowToBlock( qw );
       }
       Object	ex( (GenericObject *) new ValueObject<Dictionary> );
       ex->setProperty( "_window", Object::value( _win ) );
@@ -182,7 +187,7 @@ void CreateWindowCommand::undoit()
 Command* CreateWindowCommand::read( const Tree & com, CommandContext* context )
 {
   string	type;
-  int		id, blockid = 0, cols = 0, rows = 0;
+  int		id, blockid = 0, cols = 0, rows = 0, use_default_block = 1;
   vector<int>	geom;
   void		*ptr = 0;
 
@@ -193,6 +198,7 @@ Command* CreateWindowCommand::read( const Tree & com, CommandContext* context )
   com.getProperty( "block", blockid );
   com.getProperty( "block_columns", cols );
   com.getProperty( "block_rows", rows );
+  com.getProperty( "use_default_block", use_default_block );
   if( blockid > 0 )
     ptr = context->unserial->pointer( blockid, "Widget" );
   Object	options;
@@ -204,7 +210,9 @@ Command* CreateWindowCommand::read( const Tree & com, CommandContext* context )
     {
     }
   return new CreateWindowCommand( type, id, context, geom,
-		  blockid, (QWidget *) ptr, cols, rows, options );
+                                  blockid, (QWidget *) ptr, cols, rows,
+                                  options,
+                                  use_default_block );
 }
 
 
@@ -222,5 +230,7 @@ void CreateWindowCommand::write( Tree & com, Serializer* ser ) const
     t->setProperty( "block_rows", _rows );
   if( _options.get() )
     t->setProperty( "options", _options );
+  if( !_use_default_block )
+    t->setProperty( "use_default_block", 0 );
   com.insert( t );
 }

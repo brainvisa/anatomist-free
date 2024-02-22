@@ -55,7 +55,8 @@ namespace anatomist
 			 const std::vector<int> & geom 
 			 = (std::vector<int>) 0, int blockid = 0, 
                          QWidget *block = 0, int cols = 0, int rows = 0,
-                         carto::Object options = carto::none() );
+                         carto::Object options = carto::none(),
+                         int use_default_block = true );
     virtual ~CreateWindowCommand();
 
     virtual std::string name() const { return( "CreateWindow" ); }
@@ -82,6 +83,7 @@ namespace anatomist
     int			_cols;
     int                 _rows;
     carto::Object	_options;
+    int                 _use_default_block;
   };
 
 }

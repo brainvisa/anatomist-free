@@ -52,7 +52,8 @@ namespace anatomist
                                CommandContext* context = 0,
                                const std::vector<int> & geom
                                 = (std::vector<int>) 0,
-                               int cols = 0, int rows = 0 );
+                               int cols = 0, int rows = 0,
+                               int default_block = true );
     virtual ~CreateWindowsBlockCommand();
 
     virtual std::string name() const { return( "CreateWindowsBlock" ); }
@@ -73,6 +74,7 @@ namespace anatomist
     QWidget		*_block;
     int			_cols;
     int                 _rows;
+    int                 _default_block;
   };
 
 }

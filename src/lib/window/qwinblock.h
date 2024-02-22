@@ -76,6 +76,7 @@ public:
                    bool switching = false ) const;
   void dropRowColDirection( int x, int y, int & row, int & col,
                             int & dir, bool switching = false ) const;
+  virtual QSize sizeHint() const;
 
 public slots:
   void layInColumns();

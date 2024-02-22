@@ -213,6 +213,8 @@ namespace anatomist
     /// if true, closing the control window will abruptly exit the program.
     bool exitOnQuit() const;
     void setExitOnQuit( bool x );
+    QWidget* defaultWindowsBlock() const;
+    void setDefaultWindowsBlock( QWidget* wid );
 
   private:
     // friend ~ReferentialWindow would be enough but needs to include its .h

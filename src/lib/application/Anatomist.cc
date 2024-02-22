@@ -242,6 +242,7 @@ struct Anatomist::Anatomist_privateData
   int argc;
   const char **argv;
   bool exitOnQuit;
+  QWidget* defaultWindowsBlock;
 };
 
 
@@ -253,7 +254,8 @@ Anatomist::Anatomist_privateData::Anatomist_privateData()
     initialized( false ), cursorChanged( false ), config( 0 ), centralRef( 0 ),
     userLevel( 0 ), lastpos( 4, 0. ),
     lastref( 0 ), destroying( false ), objectsLock( Mutex::Recursive ),
-    qWidgetAncestor( 0 ), argc( 0 ), argv( 0 ), exitOnQuit( false )
+    qWidgetAncestor( 0 ), argc( 0 ), argv( 0 ), exitOnQuit( false ),
+    defaultWindowsBlock( 0 )
 {
 }
 
@@ -1624,6 +1626,18 @@ bool Anatomist::exitOnQuit() const
 void Anatomist::setExitOnQuit( bool x )
 {
   _privData->exitOnQuit = x;
+}
+
+
+QWidget* Anatomist::defaultWindowsBlock() const
+{
+  return _privData->defaultWindowsBlock;
+}
+
+
+void Anatomist::setDefaultWindowsBlock( QWidget* wid )
+{
+  _privData->defaultWindowsBlock = wid;
 }
 
 }

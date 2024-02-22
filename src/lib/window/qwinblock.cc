@@ -131,7 +131,15 @@ QAWindowBlock::QAWindowBlock( QWidget *parent, const char* name,
 
 QAWindowBlock::~QAWindowBlock()
 {
+  if( theAnatomist->defaultWindowsBlock() == this )
+    theAnatomist->setDefaultWindowsBlock( 0 );
    delete d;
+}
+
+
+QSize QAWindowBlock::sizeHint() const
+{
+  return QSize( 800, 600 );
 }
 
 

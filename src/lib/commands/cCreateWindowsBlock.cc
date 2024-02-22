@@ -55,9 +55,10 @@ CreateWindowsBlockCommand::CreateWindowsBlockCommand(
   int id,
   CommandContext* context,
   const vector<int> & geom,
-  int cols, int rows )
+  int cols, int rows, int default_block )
   : RegularCommand(), SerializingCommand( context ),
-    _id( id ), _geom( geom ), _cols(cols), _rows( rows )
+    _id( id ), _geom( geom ), _cols(cols), _rows( rows ),
+    _default_block( default_block )
 {
 }
 
@@ -76,6 +77,7 @@ bool CreateWindowsBlockCommand::initSyntax()
   s[ "block_columns" ] = Semantic( "int", false );
   s[ "block_rows"    ] = Semantic( "int", false );
   s[ "geometry"      ] = Semantic( "int_vector", false );
+  s[ "default_block" ] = Semantic( "int", false );
   Registry::instance()->add( "CreateWindowsBlock", &read, ss );
   return( true );
 }
@@ -83,24 +85,27 @@ bool CreateWindowsBlockCommand::initSyntax()
 
 void CreateWindowsBlockCommand::doit()
 {
-    // create a block widget
-    int colsrows = _rows;
-    bool inrows = false;
-    if( colsrows == 0 && _cols > 0 )
-    {
-      inrows = false;
-      colsrows = _cols;
-    }
-    QAWindowBlock	*dk
-      = new QAWindowBlock( theAnatomist->getQWidgetAncestor(), NULL,
-                           Qt::Window, colsrows, inrows );
-    dk->show();
-    _block = dk;
-    if( _id > 0 && context() && context()->unserial )
-      context()->unserial->registerPointer( (void *) _block, _id,
-                                            "Widget" );
-    if( _geom.size() == 4 )
-      _block->setGeometry( _geom[0], _geom[1], _geom[2], _geom[3] );
+  // create a block widget
+  int colsrows = _rows;
+  bool inrows = false;
+  if( colsrows == 0 && _cols > 0 )
+  {
+    inrows = false;
+    colsrows = _cols;
+  }
+  QAWindowBlock	*dk
+    = new QAWindowBlock( theAnatomist->getQWidgetAncestor(), NULL,
+                          Qt::Window, colsrows, inrows );
+  dk->show();
+  _block = dk;
+  if( _id > 0 && context() && context()->unserial )
+    context()->unserial->registerPointer( (void *) _block, _id,
+                                          "Widget" );
+  if( _geom.size() == 4 )
+    _block->setGeometry( _geom[0], _geom[1], _geom[2], _geom[3] );
+
+  if( _default_block )
+    theAnatomist->setDefaultWindowsBlock( _block );
 
   Object    ex( (GenericObject *) new ValueObject<Dictionary> );
     ex->setProperty( "_block", Object::value( _block ) );
@@ -119,7 +124,7 @@ void CreateWindowsBlockCommand::undoit()
 Command* CreateWindowsBlockCommand::read( const Tree & com,
                                           CommandContext* context )
 {
-  int		id, cols = 0, rows = 0;
+  int		id, cols = 0, rows = 0, default_block = true;
   vector<int>	geom;
 
   if( !com.getProperty( "res_pointer", id ) )
@@ -127,8 +132,10 @@ Command* CreateWindowsBlockCommand::read( const Tree & com,
   com.getProperty( "geometry", geom );
   com.getProperty( "block_columns", cols );
   com.getProperty( "block_rows", rows );
+  com.getProperty( "default_block", default_block );
   Object	options;
-  return new CreateWindowsBlockCommand( id, context, geom, cols, rows );
+  return new CreateWindowsBlockCommand( id, context, geom, cols, rows,
+                                        default_block );
 }
 
 
@@ -141,5 +148,7 @@ void CreateWindowsBlockCommand::write( Tree & com, Serializer* ser ) const
     t->setProperty( "block_columns", _cols );
   else if( _rows )
     t->setProperty( "block_rows", _rows );
+  if( !_default_block )
+    t->setProperty( "default_block", _default_block );
   com.insert( t );
 }
