@@ -87,6 +87,7 @@ protected slots:
 
 protected:
   virtual void dragEnterEvent( QDragEnterEvent* event );
+  virtual void dragMoveEvent( QDragMoveEvent* event );
   virtual void dragLeaveEvent( QDragLeaveEvent* event );
   virtual void dropEvent( QDropEvent* );
   virtual void closeEvent( QCloseEvent * event );
