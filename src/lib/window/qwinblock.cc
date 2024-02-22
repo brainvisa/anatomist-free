@@ -54,6 +54,11 @@ using namespace std;
 
 struct QAWindowBlock::Private
 {
+  Private()
+    : layout( 0 ), inrows( false ), colsrows( 2 ), rectratio( 1. ),
+      droprow( -1 ), dropcol( -1 ), highlighted( 0 )
+  {}
+
   QGridLayout	*layout;
   bool inrows;
   int colsrows;
@@ -61,6 +66,7 @@ struct QAWindowBlock::Private
   set<AWindow *> droppedWins;
   int droprow;
   int dropcol;
+  QWidget *highlighted;
 };
 
 
@@ -241,15 +247,96 @@ void QAWindowBlock::dragMoveEvent( QDragMoveEvent* event )
   bool ok = QAWindowDrag::canDecode( event->mimeData() );
   event->setAccepted( ok );
   if( ok )
-    setCursor( Qt::DragMoveCursor );
-  else
-    setCursor( Qt::ForbiddenCursor );
+  {
+    int row = -1, col = -1, dir = 0;
+    bool highlight = false;
+
+    bool switching = false;
+    set<AWindow *> w;
+    QAWindowDrag::decode( event->mimeData(), w );
+    if( w.size() == 1 )
+      switching = observed().find( *w.begin() ) != observed().end();
+
+    dropRowColDirection( event->pos().x(), event->pos().y(), row, col, dir,
+                         switching );
+    if( row >= 0 && col >= 0 )
+    {
+      QLayoutItem *item = d->layout->itemAtPosition( row, col );
+      if( item )
+      {
+        QWidget *wid = 0;
+        if( dir == 0 )
+          wid = item->widget();
+        else
+        {
+          DraggableWrapper *dwrap
+            = dynamic_cast<DraggableWrapper *>( item->widget() );
+          if( dwrap )
+          {
+            QGridLayout *lay
+              = dynamic_cast<QGridLayout *>( dwrap->layout() );
+            if( lay )
+            {
+              int pr = 0, pc = 1;
+              if( dir & 1 )
+              {
+                pr = 1;
+                pc = 0;
+              }
+              else if( dir & 2 )
+              {
+                pr = 1;
+                pc = 2;
+              }
+              else if( dir & 4 )
+              {
+                pr = 0;
+                pc = 1;
+              }
+              else if( dir & 8 )
+              {
+                pr = 2;
+                pc = 1;
+              }
+              QLayoutItem *sitem = lay->itemAtPosition( pr, pc );
+              if( sitem )
+                wid = sitem->widget();
+            }
+          }
+        }
+
+        if( wid )
+        {
+          highlight = true;
+          if( d->highlighted && d->highlighted != wid )
+            d->highlighted->setStyleSheet( "" );
+          if( d->highlighted != wid )
+          {
+            d->highlighted = wid;
+            wid->setStyleSheet( "background-color: #55aa80;" );
+          }
+        }
+      }
+    }
+    if( !highlight && d->highlighted )
+    {
+      // reset style on the highlighted widget
+      d->highlighted->setStyleSheet( "" );
+      d->highlighted = 0;
+    }
+  }
 }
 
 
 void QAWindowBlock::dragLeaveEvent( QDragLeaveEvent* event )
 {
   setCursor( Qt::ArrowCursor );
+  if( d->highlighted )
+  {
+    // reset style on the highlighted widget
+    d->highlighted->setStyleSheet( "" );
+    d->highlighted = 0;
+  }
 }
 
 
@@ -257,19 +344,30 @@ void QAWindowBlock::dropEvent( QDropEvent* event )
 {
   //cout << "QAWindow::dropEvent\n";
   setCursor( Qt::ArrowCursor );
+  if( d->highlighted )
+  {
+    // reset style on the highlighted widget
+    d->highlighted->setStyleSheet( "" );
+    d->highlighted = 0;
+  }
 
   set<AWindow *>	w;
 
   if( QAWindowDrag::decode( event->mimeData(), w ) )
   {
     d->droppedWins = w;
-    dropRowCol( event->pos().x(), event->pos().y(), d->droprow, d->dropcol );
+    bool switching = false;
+    if( w.size() == 1 )
+      switching = observed().find( *w.begin() ) != observed().end();
+    dropRowCol( event->pos().x(), event->pos().y(), d->droprow, d->dropcol,
+                switching );
     QTimer::singleShot( 0, this, SLOT( windowsDropped() ) );
   }
 }
 
 
-void QAWindowBlock::dropRowCol( int x, int y, int & row, int & col ) const
+void QAWindowBlock::dropRowColDirection( int x, int y, int & row, int & col,
+                                         int & dir, bool switching ) const
 {
   int r, c, nr = d->layout->rowCount(), nc = d->layout->columnCount();
   row = -1;
@@ -301,10 +399,37 @@ void QAWindowBlock::dropRowCol( int x, int y, int & row, int & col ) const
   int right = rect.right() - x;
   int top = y - rect.top();
   int bottom = rect.bottom() - y;
+  if( switching )
+    dir = 0;
+  else
+  {
+    if( d->inrows )
+    {
+      if( left < right )
+        dir = 1;
+      else
+        dir = 2;
+    }
+    else
+    {
+      if( top < bottom )
+        dir = 4;
+      else
+        dir = 8;
+    }
+  }
+}
 
-  if( right < left && right < top && right < bottom )
+
+void QAWindowBlock::dropRowCol( int x, int y, int & row, int & col,
+                               bool switching ) const
+{
+  int dir;
+  dropRowColDirection( x, y, row, col, dir, switching );
+
+  if( dir & 2 )
     ++col;
-  else if( bottom < top && bottom < left && bottom < right )
+  if( dir & 8 )
     ++row;
 }
 
@@ -312,10 +437,17 @@ void QAWindowBlock::dropRowCol( int x, int y, int & row, int & col ) const
 
 void QAWindowBlock::windowsDropped()
 {
+  bool switching = false;
+  if( d->droppedWins.size() == 1 )
+    switching = observed().find( *d->droppedWins.begin() ) != observed().end();
+
   set<AWindow *>::iterator	iw, ew = d->droppedWins.end();
   list<QWidget *> reordered;
   int row, col, nr = d->layout->rowCount(), nc = d->layout->columnCount();
   bool inserted = false;
+  bool placeholder = false;
+  QWidget *moved = 0;
+  int iow = -1;
 
   // cout << "drop: " << d->droprow << ", " << d->dropcol << endl;
 
@@ -332,8 +464,10 @@ void QAWindowBlock::windowsDropped()
   {
     for( rc[index0]=0; rc[index0]<nrc[index0]; ++rc[index0] )
     {
+      bool inserting = false;
       if( rc[index0] == drc[index0] && rc[index1] == drc[index1] )
       {
+        inserting = true;
         inserted = true;
         QAWindow			*qw;
         for( iw=d->droppedWins.begin(); iw!=ew; ++iw )
@@ -362,7 +496,17 @@ void QAWindowBlock::windowsDropped()
         if( !qw )
           qw = dynamic_cast<QAWindow *>( wid );
         if( !qw || d->droppedWins.find( qw ) == ew )
-          reordered.push_back( wid );
+        {
+          if( switching && !moved && inserting )
+            moved = wid;
+          else
+            reordered.push_back( wid );
+        }
+        else if( switching && !placeholder )
+        {
+          placeholder = true;
+          iow = reordered.size();
+        }
       }
     }
     if( !inserted && rc[index1] == drc[index1] )
@@ -379,6 +523,19 @@ void QAWindowBlock::windowsDropped()
         }
       }
     }
+  }
+
+  if( moved )
+  {
+    if( placeholder )
+    {
+      list<QWidget *>::iterator iwi;
+      int i = 0;
+      for( iwi=reordered.begin(); i<iow; ++i, ++iwi );
+      reordered.insert( iwi, moved );
+    }
+    else
+      reordered.push_back( moved );
   }
 
   if( !inserted )
@@ -1053,6 +1210,8 @@ void DragWinLabel::mouseMoveEvent( QMouseEvent *event )
     if( !aw )
       return;
 
+    item->widget()->setEnabled( false );
+
     set<AWindow *>	so;
     so.insert( aw );
 
@@ -1073,6 +1232,8 @@ void DragWinLabel::mouseMoveEvent( QMouseEvent *event )
       drag->setPixmap( pixl->psmall );
 
     drag->exec( Qt::MoveAction );
+
+    item->widget()->setEnabled( true );
   }
 }
 

@@ -72,7 +72,10 @@ public:
   virtual void unregisterObservable( anatomist::Observable* );
   void cleanupLayout();
   void reorderViews( const std::list<QWidget *> & wins );
-  void dropRowCol( int x, int y, int & row, int & col ) const;
+  void dropRowCol( int x, int y, int & row, int & col,
+                   bool switching = false ) const;
+  void dropRowColDirection( int x, int y, int & row, int & col,
+                            int & dir, bool switching = false ) const;
 
 public slots:
   void layInColumns();
