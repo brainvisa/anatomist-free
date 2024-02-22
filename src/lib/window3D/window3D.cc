@@ -2451,9 +2451,13 @@ void AWindow3D::registerObject(AObject* o, bool temporaryObject, int pos)
         for (iw = wg.begin(); iw != ew; ++iw)
           if (*iw != this && dynamic_cast<const AWindow3D *> (*iw))
           {
-            setPosition((*iw)->getPosition(), (*iw)->getReferential());
-            setpos = false;
-            break;
+            set<AObject *> objs = (*iw)->Objects();
+            if( !objs.empty() )
+            {
+              setPosition((*iw)->getPosition(), (*iw)->getReferential());
+              setpos = false;
+              break;
+            }
           }
       }
       if (setpos)
