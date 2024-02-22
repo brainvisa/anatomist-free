@@ -229,33 +229,38 @@ void AGraphicsView::wheelEvent( QWheelEvent * event )
 
 void AGraphicsView::dragEnterEvent( QDragEnterEvent* event )
 {
+  event->ignore();
   QGraphicsView::dragEnterEvent( event );
-  if( !event->isAccepted() )
-  {
-    GLWidgetManager *glm = dynamic_cast<GLWidgetManager *>( viewport() );
-    if( glm )
-    {
-      AWindow3D *w = dynamic_cast<AWindow3D *>( glm->aWindow() );
-      if( w )
-        w->dragEnterEvent( event );
-    }
-  }
+  // Problem: all events are accepted in QGraphicsView::dragEnterEvent(),
+  // which forbids filtering
+  event->ignore();
+//   if( !event->isAccepted() )
+//   {
+//     GLWidgetManager *glm = dynamic_cast<GLWidgetManager *>( viewport() );
+//     if( glm )
+//     {
+//       AWindow3D *w = dynamic_cast<AWindow3D *>( glm->aWindow() );
+//       if( w )
+//         w->dragEnterEvent( event );
+//     }
+//   }
+//   cout << "accepted (2): " << event->isAccepted() << endl;
 }
 
 
 void AGraphicsView::dragMoveEvent( QDragMoveEvent* event )
 {
   QGraphicsView::dragMoveEvent( event );
-  if( !event->isAccepted() )
-  {
-    GLWidgetManager *glm = dynamic_cast<GLWidgetManager *>( viewport() );
-    if( glm )
-    {
-      AWindow3D *w = dynamic_cast<AWindow3D *>( glm->aWindow() );
-      if( w )
-        w->dragMoveEvent( event );
-    }
-  }
+//   if( !event->isAccepted() )
+//   {
+//     GLWidgetManager *glm = dynamic_cast<GLWidgetManager *>( viewport() );
+//     if( glm )
+//     {
+//       AWindow3D *w = dynamic_cast<AWindow3D *>( glm->aWindow() );
+//       if( w )
+//         w->dragMoveEvent( event );
+//     }
+//   }
 }
 
 
