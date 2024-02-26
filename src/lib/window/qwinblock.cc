@@ -232,6 +232,12 @@ void QAWindowBlock::addWindowToBlock( QWidget *item, bool withborders )
     d->layout->addWidget( item, row, col );
 //   item->setParent( centralWidget() ); // seems needed with Qt5
 
+  int default_stretch = 300;
+  if( d->layout->rowStretch( row ) == 0 )
+    d->layout->setRowStretch( row, default_stretch );
+  if( d->layout->columnStretch( col ) == 0 )
+    d->layout->setColumnStretch( col, default_stretch );
+
   Observable *obs = dynamic_cast<Observable *>( item );
   if( obs )
     obs->addObserver( this );
