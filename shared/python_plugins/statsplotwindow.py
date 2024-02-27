@@ -295,6 +295,8 @@ class StatsPlotWindow(ana.cpp.QAWindow):
         self._fig.canvas.draw()
 
     def draw_boxplot(self, x, y, labels, colors):
+        if len(x) == 0 or len(y) == 0:
+            return  # plot fails if no data is given
         bplot = pylab.boxplot(x=y, labels=labels, patch_artist=True,
                               vert=(self._orientation == 'vertical'))
         if self._orientation == 'vertical':
@@ -303,7 +305,6 @@ class StatsPlotWindow(ana.cpp.QAWindow):
             pylab.yticks(x + 1, labels)
         for patch, color in zip(bplot['boxes'], colors):
             patch.set_facecolor(color)
-
 
     def draw_errorbars(self, x, y, labels, colors):
         avg = []

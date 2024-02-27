@@ -296,6 +296,7 @@ class ValuesPlotWindow(ana.cpp.QAWindow):
 
     def draw_stairs(self, x, y, labels, colors):
         pylab.stairs(y, orientation=self._orientation)
+        x = np.asarray(x)
         if self._orientation == 'vertical':
             pylab.xticks(x - 0.5, labels, rotation='vertical')
         else:
