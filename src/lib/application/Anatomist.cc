@@ -69,6 +69,7 @@
 #include <anatomist/stdmod/stdmod.h>
 #include <anatomist/window/Window.h>
 #include <anatomist/window3D/cursor.h>
+#include <anatomist/window/qwinblock.h>
 #include <anatomist/application/syntax.h>
 #include <anatomist/application/settings.h>
 #include <anatomist/application/listDir.h>
@@ -1637,7 +1638,23 @@ QWidget* Anatomist::defaultWindowsBlock() const
 
 void Anatomist::setDefaultWindowsBlock( QWidget* wid )
 {
-  _privData->defaultWindowsBlock = wid;
+  if( _privData->defaultWindowsBlock != wid )
+  {
+    if( _privData->defaultWindowsBlock )
+    {
+      QAWindowBlock *wb
+        = dynamic_cast<QAWindowBlock *>( _privData->defaultWindowsBlock );
+      if( wb )
+        wb->setDefaultBlockGui( false );
+    }
+    _privData->defaultWindowsBlock = wid;
+    if( wid )
+    {
+      QAWindowBlock *wb = dynamic_cast<QAWindowBlock *>( wid );
+      if( wb )
+        wb->setDefaultBlockGui( true );
+    }
+  }
 }
 
 }

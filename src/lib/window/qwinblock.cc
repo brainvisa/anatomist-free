@@ -56,7 +56,7 @@ struct QAWindowBlock::Private
 {
   Private()
     : layout( 0 ), inrows( false ), colsrows( 2 ), rectratio( 1. ),
-      droprow( -1 ), dropcol( -1 ), highlighted( 0 )
+      droprow( -1 ), dropcol( -1 ), highlighted( 0 ), defaultBlockAction( 0 )
   {}
 
   QGridLayout	*layout;
@@ -67,6 +67,7 @@ struct QAWindowBlock::Private
   int droprow;
   int dropcol;
   QWidget *highlighted;
+  QAction *defaultBlockAction;
 };
 
 
@@ -103,6 +104,11 @@ QAWindowBlock::QAWindowBlock( QWidget *parent, const char* name,
   {
     QMenuBar *mb = menuBar();
     QMenu *menu = mb->addMenu( tr( "Windows block layout" ) );
+    QAction *defblock = new QAction( tr( "Default block" ), this );
+    defblock->setCheckable( true );
+    defblock->setChecked( theAnatomist->defaultWindowsBlock() == this );
+    menu->addAction( defblock );
+    d->defaultBlockAction = defblock;
     QAction *colac = new QAction( tr( "Lay in columns" ), this );
     menu->addAction( colac );
     QAction *rowac = new QAction( tr( "Lay in rows" ), this );
@@ -118,6 +124,8 @@ QAWindowBlock::QAWindowBlock( QWidget *parent, const char* name,
       tr( "Set columns / rows ratio for rectangular layout" ), this );
     menu->addAction( ratac );
 
+    connect( defblock, SIGNAL( toggled( bool ) ),
+             this, SLOT( setDefaultBlock( bool ) ) );
     connect( colac, SIGNAL( triggered() ), this, SLOT( layInColumns() ) );
     connect( rowac, SIGNAL( triggered() ), this, SLOT( layInRows() ) );
     connect( recac, SIGNAL( triggered() ), this, SLOT( layInRectangle() ) );
@@ -981,6 +989,28 @@ void QAWindowBlock::cleanupLayout()
   for( j=0; j<nc; ++j )
     if( usedcols.find( j ) == usedcols.end() )
       d->layout->setColumnStretch( j, 0 );
+}
+
+
+void QAWindowBlock::setDefaultBlock( bool enabled )
+{
+  if( enabled )
+    theAnatomist->setDefaultWindowsBlock( this );
+  else if( theAnatomist->defaultWindowsBlock() == this )
+    theAnatomist->setDefaultWindowsBlock( 0 );
+  if( d->defaultBlockAction->isChecked() != enabled )
+    d->defaultBlockAction->setChecked( enabled );
+}
+
+
+void QAWindowBlock::setDefaultBlockGui( bool enabled )
+{
+  if( d->defaultBlockAction->isChecked() != enabled )
+  {
+    blockSignals( true );
+    d->defaultBlockAction->setChecked( enabled );
+    blockSignals( false );
+  }
 }
 
 

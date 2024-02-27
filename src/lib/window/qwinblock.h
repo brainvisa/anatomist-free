@@ -77,6 +77,7 @@ public:
   void dropRowColDirection( int x, int y, int & row, int & col,
                             int & dir, bool switching = false ) const;
   virtual QSize sizeHint() const;
+  void setDefaultBlockGui( bool );
 
 public slots:
   void layInColumns();
@@ -85,6 +86,7 @@ public slots:
   void setColumnsNumber();
   void setRowsNumber();
   void setRectangularRatio();
+  void setDefaultBlock( bool );
 
 protected slots:
   void windowsDropped();
