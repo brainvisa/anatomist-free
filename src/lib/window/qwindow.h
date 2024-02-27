@@ -98,10 +98,11 @@ public:
   virtual void update( const anatomist::Observable* observable, void* arg )
   { anatomist::AWindow::update( observable, arg ); }
   bool detachingFromParent() const;
+  virtual void dropEvent( QDropEvent* );
 
 public slots:
-  /**	Real drawing function, replacing AWindow::Refresh in subclasses of 
-	QAWindow - Don't forget to call QAWindow::refreshNow from overloaded 
+  /**	Real drawing function, replacing AWindow::Refresh in subclasses of
+	QAWindow - Don't forget to call QAWindow::refreshNow from overloaded
 	functions */
   virtual void refreshNow();
   virtual bool needsRedraw() const;
@@ -116,7 +117,6 @@ protected:
   virtual void createTitle();
   virtual void dragEnterEvent( QDragEnterEvent* );
   virtual void dragMoveEvent( QDragMoveEvent* );
-  virtual void dropEvent( QDropEvent* );
   virtual void mouseMoveEvent( QMouseEvent * e );
   /* in qt4 we have to find a way to catch close events and prevent deletion
      if ref-counting doesn't allow it */

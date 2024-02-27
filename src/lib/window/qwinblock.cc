@@ -35,8 +35,11 @@
 #include <anatomist/window/qwindow.h>
 #include <anatomist/application/settings.h>
 #include <anatomist/control/windowdrag.h>
+#include <anatomist/control/objectDrag.h>
 #include <anatomist/controler/icondictionary.h>
 #include <anatomist/window/qWinFactory.h>
+#include <anatomist/commands/cCreateWindow.h>
+#include <anatomist/processor/Processor.h>
 #include <qlayout.h>
 #include <qpixmap.h>
 #include <qmenubar.h>
@@ -249,7 +252,9 @@ void QAWindowBlock::addWindowToBlock( QWidget *item, bool withborders )
 void QAWindowBlock::dragEnterEvent( QDragEnterEvent* event )
 {
   //cout << "QAWindow::dragEnterEvent\n";
-  bool ok = QAWindowDrag::canDecode( event->mimeData() );
+  bool ok = QAWindowDrag::canDecode( event->mimeData() )
+    || QAObjectDrag::canDecode( event->mimeData() )
+    || QAObjectDrag::canDecodeURI( event->mimeData() );
   event->setAccepted( ok );
 }
 
@@ -257,9 +262,9 @@ void QAWindowBlock::dragEnterEvent( QDragEnterEvent* event )
 void QAWindowBlock::dragMoveEvent( QDragMoveEvent* event )
 {
   bool ok = QAWindowDrag::canDecode( event->mimeData() );
-  event->setAccepted( ok );
   if( ok )
   {
+    event->setAccepted( true );
     int row = -1, col = -1, dir = 0;
     bool highlight = false;
 
@@ -337,6 +342,9 @@ void QAWindowBlock::dragMoveEvent( QDragMoveEvent* event )
       d->highlighted = 0;
     }
   }
+  else
+    event->setAccepted( QAObjectDrag::canDecode( event->mimeData() )
+                        || QAObjectDrag::canDecodeURI( event->mimeData() ) );
 }
 
 
@@ -374,6 +382,16 @@ void QAWindowBlock::dropEvent( QDropEvent* event )
     dropRowCol( event->pos().x(), event->pos().y(), d->droprow, d->dropcol,
                 switching );
     QTimer::singleShot( 0, this, SLOT( windowsDropped() ) );
+  }
+  else if( QAObjectDrag::canDecode( event->mimeData() )
+           || QAObjectDrag::canDecodeURI( event->mimeData() ))
+  {
+    CreateWindowCommand *cmd = new CreateWindowCommand(
+      "3D", -1, 0, (std::vector<int>) 0, 0, this );
+    theProcessor->execute( cmd );
+    QAWindow *w = dynamic_cast<QAWindow *>( cmd->createdWindow() );
+    if( w )
+      w->dropEvent( event );
   }
 }
 
