@@ -218,12 +218,6 @@ void QAWindowBlock::addWindowToBlock( QWidget *item, bool withborders )
   }
   if( withborders && !dynamic_cast<DraggableWrapper *>( item ) )
   {
-    int default_stretch = 300;
-
-    if( d->layout->columnStretch( col ) == 0 )
-      d->layout->setColumnStretch( col, default_stretch );
-    if( d->layout->rowStretch( row ) == 0 )
-      d->layout->setRowStretch( row, default_stretch );
     DraggableWrapper *dwrap = new DraggableWrapper( item, d->layout );
     item->setParent( dwrap );
     d->layout->addWidget( dwrap, row, col );
@@ -249,10 +243,6 @@ void QAWindowBlock::dragEnterEvent( QDragEnterEvent* event )
   //cout << "QAWindow::dragEnterEvent\n";
   bool ok = QAWindowDrag::canDecode( event->mimeData() );
   event->setAccepted( ok );
-//   if( ok )
-//     setCursor( Qt::DragMoveCursor );
-//   else
-//     setCursor( Qt::ForbiddenCursor );
 }
 
 
@@ -942,27 +932,9 @@ void QAWindowBlock::update( const Observable* obs, void* )
 {
   if( obs && obs->obsHasChanged( "detachFromParent" ) )
   {
-    const QAWindow *caw = dynamic_cast<const QAWindow *>( obs );
-    if( caw )
-    {
-      if( caw->parentWidget() )
-      {
-        QAWindow *aw = const_cast<QAWindow *>( caw );
-        QWidget *pw = aw->parentWidget();
-        if( pw )
-        {
-          int index = d->layout->indexOf( pw );
-          if( index >= 0 )
-          {
-            aw->setParent( 0 );
-            delete pw;
-            cleanupLayout();
-          }
-        }
-      }
-    }
-
     const_cast<Observable *>( obs )->deleteObserver( this );
+    // needed because we are inside obs->updating
+    unregisterObservable( const_cast<Observable *>( obs ) );
   }
 }
 
