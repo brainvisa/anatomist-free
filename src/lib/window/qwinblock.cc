@@ -150,7 +150,9 @@ QAWindowBlock::~QAWindowBlock()
 
 QSize QAWindowBlock::sizeHint() const
 {
-  return QSize( 800, 600 );
+  if( observed().empty() )
+    return QSize( 800, 600 );
+  return QMainWindow::sizeHint();
 }
 
 
