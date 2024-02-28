@@ -216,8 +216,8 @@ class StatsPlotWindow(ana.cpp.QAWindow):
     def unregisterObject(self, obj):
         if hasattr(obj, 'internalRep'):
             obj = obj.internalRep
-        self.Refesh()
         ana.cpp.QAWindow.unregisterObject(self, obj)
+        self.Refresh()
 
     def plotObject(self, obj):
         ''' Prepare a data point for a single object
@@ -257,6 +257,9 @@ class StatsPlotWindow(ana.cpp.QAWindow):
                 index[-1] = slice(index[-1], index[-1] + 1)
             self.data.append(ar[tuple(index)])
             self._obj_indices.append(1)  # for now 1 value per object
+        else:
+            self.data.append(np.array([]))
+            self._obj_indices.append(1)
 
     def baseTitle(self):
         return 'Stats plot'
@@ -326,6 +329,11 @@ class StatsPlotWindow(ana.cpp.QAWindow):
             pylab.yticks(x, labels)
 
     def draw_violinplot(self, x, y, labels, colors):
+        invalid = set(i for i in range(len(y)) if len(y[i]) == 0)
+        if len(invalid) != 0:
+            x = [z for i, z in enumerate(x) if i not in invalid]
+            y = [z for i, z in enumerate(y) if i not in invalid]
+            labels = [z for i, z in enumerate(labels) if i not in invalid]
         pylab.violinplot(dataset=y, positions=x, showmeans=True,
                          showextrema=True,
                          vert=(self._orientation == 'vertical'))
@@ -509,8 +517,8 @@ def init():
 
 def clean_wincreator():
     ana.cpp.AWindowFactory.unregisterType('StatsPlot')
-    global createprofile
-    createprofile = None
+    global createstatsplot
+    createstatsplot = None
 
 
 hm = StatsPlotModule()

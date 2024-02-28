@@ -33,7 +33,7 @@
 
 
 '''
-A Matplotlib-based profile window for Anatomist
+A Matplotlib-based values plot window for Anatomist
 '''
 
 import anatomist.direct.api as ana
@@ -197,12 +197,13 @@ class ValuesPlotWindow(ana.cpp.QAWindow):
     def unregisterObject(self, obj):
         if hasattr(obj, 'internalRep'):
             obj = obj.internalRep
-        self.Refesh()
         ana.cpp.QAWindow.unregisterObject(self, obj)
+        self.Refresh()
 
     def plotObject(self, obj):
         ''' Prepare a data point for a single object
         '''
+        data = np.nan
         if obj.objectTypeName(obj.type()) == 'VOLUME':
             vol = ana.cpp.AObjectConverter.aims(obj)
             ar = vol.np
@@ -227,10 +228,11 @@ class ValuesPlotWindow(ana.cpp.QAWindow):
                 self.data.append(np.nan)
                 self._obj_indices.append(1)
                 return
-            # print('obj:', obj.name(), ', pos:', pos, vpos, ', v:', ar[tuple(vpos)])
+            # print('obj:', obj.name(), ', pos:', pos, vpos, ', v:', data)
+            data = ar[tuple(vpos)]
 
-            self.data.append(ar[tuple(vpos)])
-            self._obj_indices.append(1)  # for now 1 value per object
+        self.data.append(data)
+        self._obj_indices.append(1)  # for now 1 value per object
 
     def baseTitle(self):
         return 'Values plot'
@@ -471,8 +473,8 @@ def init():
 
 def clean_wincreator():
     ana.cpp.AWindowFactory.unregisterType('ValuesPlot')
-    global createprofile
-    createprofile = None
+    global createvaluesplot
+    createvaluesplot = None
 
 
 hm = ValuesPlotModule()
