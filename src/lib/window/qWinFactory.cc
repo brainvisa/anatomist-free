@@ -59,10 +59,13 @@ void QAWindowFactory::loadDefaultPixmaps( int type )
   tstr = stringLower( tstr );
 
   PixList & pix = _pixmaps[ type ];
-  pix.psmall.load( Settings::findResourceFile( "icons/window-" + tstr
-                   + "-small.xpm" ).c_str() );
-  pix.plarge.load( Settings::findResourceFile( "icons/window-" + tstr
-                   + "-large.xpm" ).c_str() );
-  pix.pactive.load( Settings::findResourceFile( "icons/window-" + tstr
-                    + "-active.xpm" ).c_str() );
+  if( pix.psmall.isNull() )
+  {
+    pix.psmall.load( Settings::findResourceFile( "icons/window-" + tstr
+                    + "-small.xpm" ).c_str() );
+    pix.plarge.load( Settings::findResourceFile( "icons/window-" + tstr
+                    + "-large.xpm" ).c_str() );
+    pix.pactive.load( Settings::findResourceFile( "icons/window-" + tstr
+                      + "-active.xpm" ).c_str() );
+  }
 }

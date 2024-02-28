@@ -35,7 +35,7 @@
 #include <anatomist/control/controlMenuHandler.h>
 #include <anatomist/selection/qSelMenu.h>
 #include <anatomist/control/wControl.h>
-#include <anatomist/window/winFactory.h>
+#include <anatomist/window/qWinFactory.h>
 #include <anatomist/application/module.h>
 #include <qmenubar.h>
 #include <QActionGroup>
@@ -156,6 +156,12 @@ void AControlMenuHandler::create()
   {
     ac = window->addAction( ControlWindow::tr( (*it).second.c_str() ) );
     ac->setData( it->first );
+    const QAWindowFactory::PixList &
+      pixs = QAWindowFactory::pixmaps( it->first );
+    if( pixs.psmall.isNull() )
+      QAWindowFactory::loadDefaultPixmaps( it->first );
+    if( !pixs.psmall.isNull() )
+      ac->setIcon( pixs.psmall );
     ag->addAction( ac );
   }
   ag->connect( ag, SIGNAL( triggered( QAction* ) ), 
@@ -226,6 +232,12 @@ void AControlMenuHandler::addWindowType( const string & type, int id )
   QMenu *window = d->popups[ "Windows" ];
   QAction *ac = window->addAction( ControlWindow::tr( type.c_str() ) );
   ac->setData( id );
+  const QAWindowFactory::PixList &
+    pixs = QAWindowFactory::pixmaps( type );
+  if( pixs.psmall.isNull() )
+    QAWindowFactory::loadDefaultPixmaps( type );
+  if( !pixs.psmall.isNull() )
+    ac->setIcon( pixs.psmall );
   QActionGroup * ag = _menubar->findChild<QActionGroup *>( "windows_types" );
   ag->addAction( ac );
 }
