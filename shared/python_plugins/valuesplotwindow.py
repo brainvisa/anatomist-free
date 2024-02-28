@@ -464,7 +464,7 @@ def init():
     ValuesPlotWindow._classType \
         = ValuesPlotWindow.Type(ana.cpp.AWindowFactory.registerType(
             'ValuesPlot', createvaluesplot, True))
-    # ana.cpp.QAWindowFactory.loadDefaultPixmaps('Matplotlib-profile')
+    ana.cpp.QAWindowFactory.loadDefaultPixmaps('values')
     ana.cpp.AWindowFactory.setHasControlWindowButton(
         ana.cpp.AWindowFactory.typeID('ValuesPlot'), False)
 

@@ -502,7 +502,7 @@ def init():
     StatsPlotWindow._classType \
         = StatsPlotWindow.Type(ana.cpp.AWindowFactory.registerType(
             'StatsPlot', createstatsplot, True))
-    # ana.cpp.QAWindowFactory.loadDefaultPixmaps('Matplotlib-profile')
+    ana.cpp.QAWindowFactory.loadDefaultPixmaps('stats')
     ana.cpp.AWindowFactory.setHasControlWindowButton(
         ana.cpp.AWindowFactory.typeID('StatsPlot'), False)
 
