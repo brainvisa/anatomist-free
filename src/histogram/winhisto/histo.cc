@@ -39,6 +39,7 @@
 
 using namespace anatomist;
 using namespace carto;
+using namespace std;
 
 
 QAHistogram::QAHistogram()
@@ -58,7 +59,7 @@ bool QAHistogram::add( AObject* d )
   VolumeRef< float > adata
       = ObjectConverter< Volume< float > >::ana2aims( d );
 
-  if ( !adata )
+  if ( !adata.get() )
   {
     rc_ptr<Volume< int8_t > > a8
         = ObjectConverter< Volume< int8_t > >::ana2aims( d );
@@ -149,7 +150,6 @@ bool QAHistogram::add( AObject* d )
 
     return true;
   }
-
   return false;
 }
 
