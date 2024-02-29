@@ -141,8 +141,8 @@ struct ControlWindow::Private
   QImageLabel		*logo;
   QWindowTree		*winList;
   QObjectTree		*objList;
-  mutable Referential	*defobjref;
-  mutable Referential	*defwinref;
+  mutable anatomist::Referential *defobjref;
+  mutable anatomist::Referential *defwinref;
   QTimer		*updatemenutimer;
   QToolBar		*toolbar;
   bool                  closeEnabled;
@@ -751,7 +751,7 @@ void ControlWindow::loadObject( const string& filter, const string& caption )
     }
 
   // set default ref on loaded objects
-  Referential	*r = defaultObjectsReferential();
+  anatomist::Referential	*r = defaultObjectsReferential();
   if( r && r != theAnatomist->centralReferential() )
     {
       Command *command = new AssignReferentialCommand( r, loaded, 
@@ -803,7 +803,7 @@ void ControlWindow::openWindow( int type )
   CreateWindowCommand	*command = new CreateWindowCommand( typestr );
   theProcessor->execute( command );
   // set default ref on loaded objects
-  Referential	*r = defaultWindowsReferential();
+  anatomist::Referential	*r = defaultWindowsReferential();
   if( r && r != theAnatomist->centralReferential() )
     {
       set<AWindow *>	w;
@@ -1599,31 +1599,31 @@ void ControlWindow::openEmptyBlockView()
 }
 
 
-Referential* ControlWindow::defaultObjectsReferential() const
+anatomist::Referential* ControlWindow::defaultObjectsReferential() const
 {
-  set<Referential *>	refs = theAnatomist->getReferentials();
+  set<anatomist::Referential *>	refs = theAnatomist->getReferentials();
   if( d->defobjref && refs.find( d->defobjref ) == refs.end() )
     d->defobjref = 0;
   return d->defobjref;
 }
 
 
-Referential* ControlWindow::defaultWindowsReferential() const
+anatomist::Referential* ControlWindow::defaultWindowsReferential() const
 {
-  set<Referential *>	refs = theAnatomist->getReferentials();
+  set<anatomist::Referential *>	refs = theAnatomist->getReferentials();
   if( d->defwinref && refs.find( d->defwinref ) == refs.end() )
     d->defwinref = 0;
   return d->defwinref;
 }
 
 
-void ControlWindow::setDefaultObjectsReferential( Referential* ref )
+void ControlWindow::setDefaultObjectsReferential( anatomist::Referential* ref )
 {
   d->defobjref = ref;
 }
 
 
-void ControlWindow::setDefaultWindowsReferential( Referential* ref )
+void ControlWindow::setDefaultWindowsReferential( anatomist::Referential* ref )
 {
   d->defwinref = ref;
 }

@@ -286,7 +286,8 @@ namespace anatomist
                                           int *vertex, float *distance,
                                           float tol = -1,
                                           int *polygon = 0,
-                                          bool tex_only = false ) const;
+                                          bool tex_only = false,
+                                          int target_poly = -1 ) const;
     //@}
 
 

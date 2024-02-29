@@ -1673,6 +1673,9 @@ void AWindow3D::getInfos3DFromPosition( const vector<float> & fpos,
   if( !glc )
     return;
 
+  float dist = -1;
+  objselect->nearestVertex( fpos, indexNearestVertex, &dist, -1, 0, true,
+                            poly );
   texvalue = objselect->texValues( fpos, getReferential(), poly );
   objselect->getTextureLabels( texvalue, texlabels, textype );
 }

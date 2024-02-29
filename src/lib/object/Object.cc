@@ -517,7 +517,7 @@ AObject* AObject::objectAt( const vector<float> & pos, float tol )
 const AObject* AObject::nearestVertex( const std::vector<float> & pos,
                                        int *vertex, float *distance,
                                        float tol, int *polygon,
-                                       bool tex_only ) const
+                                       bool tex_only, int target_poly ) const
 {
   const GLComponent *glc = glAPI();
   if( !glc || ( tex_only && glc->glNumTextures() == 0 ) )
@@ -539,64 +539,100 @@ const AObject* AObject::nearestVertex( const std::vector<float> & pos,
   if( tol >= 0 )
     tol2 = tol * tol;
 
-  for( i=0; i<nv; ++i )
+  if( target_poly >= 0 )
   {
-    p1[0] = *vert++;
-    p1[1] = *vert++;
-    p1[2] = *vert++;
-    d = ( p1 - p0 ).norm2();
-    if( ( dist < 0 || dist > d ) && ( tol2 < 0 || d <= tol2 ) )
+    unsigned np = glc->glNumPolygon( vs ), ps = glc->glPolygonSize( vs );
+    if( target_poly >= np )
+      return 0;
+
+    const GLuint *vpoly = glc->glPolygonArray( vs ) + ps * target_poly;
+    unsigned v;
+
+    for( i=0; i<ps; ++i )
     {
-      dist = d;
-      iv = i;
-    }
-  }
-  if( iv >= 0 )
-  {
-    *distance = sqrt( dist );
-    *vertex = iv;
-    if( polygon )
-    {
-      unsigned np = glc->glNumPolygon( vs );
-      unsigned ps = glc->glPolygonSize( vs );
-      const GLuint* poly = glc->glPolygonArray( vs );
-      unsigned j, p, ip;
-      float d2;
-      dist = -1;
-      for( i=0; i<np; ++i )
+      v = *vpoly++;
+      p1[0] = vert0[v * 3];
+      p1[1] = vert0[v * 3 + 1];
+      p1[2] = vert0[v * 3 + 2];
+      d = ( p1 - p0 ).norm2();
+      if( ( dist < 0 || d < dist ) && ( tol2 < 0 || d <= tol2 ) )
       {
-        for( j=0; j<np; ++j )
-          if( *(poly + j) == iv )
-            break;
-        if( j != np )
+        dist = d;
+        iv = v;
+      }
+    }
+    if( iv >= 0 )
+    {
+      *distance = sqrt( dist );
+      *vertex = iv;
+      if( polygon )
+        *polygon = target_poly;
+      return this;
+    }
+
+  }
+  else
+  {
+    for( i=0; i<nv; ++i )
+    {
+      p1[0] = *vert++;
+      p1[1] = *vert++;
+      p1[2] = *vert++;
+      d = ( p1 - p0 ).norm2();
+      if( ( dist < 0 || dist > d ) && ( tol2 < 0 || d <= tol2 ) )
+      {
+        dist = d;
+        iv = i;
+      }
+    }
+    if( iv >= 0 )
+    {
+      *distance = sqrt( dist );
+      *vertex = iv;
+      if( polygon )
+      {
+        unsigned np = glc->glNumPolygon( vs );
+        unsigned ps = glc->glPolygonSize( vs );
+        const GLuint* poly = glc->glPolygonArray( vs );
+        unsigned j, p, ip;
+        float d2;
+        dist = -1;
+        for( i=0; i<np; ++i )
         {
-          d2 = -1;
-          // max distance among points of the polygon
           for( j=0; j<np; ++j )
+            if( *(poly + j) == iv )
+              break;
+          if( j != np )
           {
-            p = (*poly++) * 3;
-            if( p != iv )
+            d2 = -1;
+            // max distance among points of the polygon
+            for( j=0; j<np; ++j )
             {
-              p1[0] = vert0[p++];
-              p1[1] = vert0[p++];
-              p1[2] = vert0[p++];
-              d = ( p1 - p0 ).norm2();
-              if( d2 < d )
-                d2 = d;
+              p = (*poly++) * 3;
+              if( p != iv )
+              {
+                p1[0] = vert0[p++];
+                p1[1] = vert0[p++];
+                p1[2] = vert0[p++];
+                d = ( p1 - p0 ).norm2();
+                if( d2 < d )
+                  d2 = d;
+              }
+            }
+            if( dist < 0 || d2 < dist )
+            {
+              // keep the poly with minimum d2 (max dist)
+              dist = d2;
+              ip = i;
             }
           }
-          if( dist < 0 || d2 < dist )
-          {
-            // keep the poly with minimum d2 (max dist)
-            dist = d2;
-            ip = i;
-          }
         }
+        *polygon = ip;
       }
-      *polygon = ip;
+      return this;
     }
-    return this;
   }
+
   return 0;
 }
 
@@ -812,12 +848,9 @@ anatomist::AObject::texValues( const std::vector<float> & pos, int poly ) const
   float tol = -1;  // FIXME
 
   const AObject *no = this;
-  if( poly < 0 )
-  {
-    no = nearestVertex( pos, &vertex, &distance, tol, 0, true );
-    if( !no )
-      return vector<float>();
-  }
+  no = nearestVertex( pos, &vertex, &distance, tol, 0, true, poly );
+  if( !no )
+    return vector<float>();
 
   const GLComponent *glc = no->glAPI();
   if( !glc || glc->glNumTextures() == 0 )
@@ -831,35 +864,6 @@ anatomist::AObject::texValues( const std::vector<float> & pos, int poly ) const
   if( pt.empty() )
     pt.push_back( 0 );
   ViewState vs( pt );
-
-  if( poly >= 0 )
-  {
-    unsigned np = glc->glNumPolygon( vs ), ps = glc->glPolygonSize( vs );
-    if( poly >= np )
-      return vector<float>();
-
-    const GLuint *vpoly = glc->glPolygonArray( vs ) + ps * poly;
-    const GLfloat *vert = glc->glVertexArray( vs );
-    float d;
-    Point3df p;
-    unsigned v, iv;
-    distance = -1;
-
-    for( i=0; i<ps; ++i )
-    {
-      v = *vpoly++;
-      p[0] = vert[v * 3];
-      p[1] = vert[v * 3 + 1];
-      p[2] = vert[v * 3 + 2];
-      p -= p0;
-      d = p.norm2();
-      if( distance < 0 || d < distance )
-      {
-        distance = d;
-        vertex = v;
-      }
-    }
-  }
 
   unsigned nt = glc->glNumTextures( vs ), ts;
   vector<float> values;
@@ -877,6 +881,99 @@ anatomist::AObject::texValues( const std::vector<float> & pos, int poly ) const
         val = ( val - te.min[j] ) * ( te.maxquant[j] - te.minquant[j] )
           / ( te.max[j] - te.min[j] ) + te.minquant[j];
       values.push_back( val );
+    }
+  }
+  return values;
+}
+
+
+rc_ptr<Volume<float> > AObject::texValuesSeries( const vector<float> & pos,
+                                                 int axis,
+                                                 const Referential* orgRef,
+                                                 int poly ) const
+{
+  Transformation	*trans
+    = theAnatomist->getTransformation( orgRef, getReferential() );
+  vector<float> pt = pos;
+
+  if( trans )
+  {
+    Point3df ptp = trans->transform( Point3df( pos[0], pos[1], pos[2] ) );
+    pt[0] = ptp[0];
+    pt[1] = ptp[1];
+    pt[2] = ptp[2];
+ }
+
+  return texValuesSeries( pt, axis, poly );
+}
+
+
+rc_ptr<Volume<float> >
+anatomist::AObject::texValuesSeries( const std::vector<float> & pos, int axis,
+                                     int poly ) const
+{
+  int vertex;
+  float distance;
+  float tol = -1;  // FIXME
+
+  const AObject *no = this;
+  no = nearestVertex( pos, &vertex, &distance, tol, 0, true, poly );
+  if( !no )
+    return VolumeRef<float>();
+
+  const GLComponent *glc = no->glAPI();
+  if( !glc || glc->glNumTextures() == 0 )
+    return VolumeRef<float>();  // would be strange: should not happen...
+
+  Point3df p0( pos ), p1;
+  vector<float> pt;
+  unsigned i;
+  for( i=3; i<pos.size(); ++i )
+    pt.push_back( pos[i] );
+  if( pt.empty() )
+    pt.push_back( 0 );
+  ViewState vs( pt );
+
+  unsigned nt = glc->glNumTextures( vs ), ts;
+  unsigned ns, td = 0;
+  for( i=0; i<nt; ++i )
+    td += glc->glDimTex( vs, i );
+
+  vector<float> voxs = no->voxelSize();
+
+  while( voxs.size() <= axis )
+    voxs.push_back( 1. );
+  unsigned n = 1, t, k;
+  if( axis == 3 )
+  {
+    vector<float> bmin, bmax;
+    if( no->boundingBox( bmin, bmax ) )
+      n = ( bmax[3] - bmin[3] ) / voxs[3] + 1;
+  }
+
+  VolumeRef<float> values( n, td );
+  values->setVoxelSize( voxs[axis] );
+
+  for( t=0; t<n; ++t )
+  {
+    if( axis >= 3 )
+      pt[axis - 3] = t * voxs[axis];
+    vs = ViewState( pt );
+
+    k = 0;
+    for( i=0; i<nt; ++i )
+    {
+      unsigned dt = glc->glDimTex( vs, i ), j;
+      const GLfloat* tc = glc->glTexCoordArray( vs, i );
+      const GLComponent::TexExtrema & te = glc->glTexExtrema( i );
+      for( j=0; j<dt; ++j )
+      {
+        float val = tc[vertex * dt + j];
+        if( te.scaled )
+          val = ( val - te.min[j] ) * ( te.maxquant[j] - te.minquant[j] )
+            / ( te.max[j] - te.min[j] ) + te.minquant[j];
+        values->at( t, k++ ) = val;
+      }
     }
   }
   return values;

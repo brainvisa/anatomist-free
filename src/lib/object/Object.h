@@ -40,6 +40,7 @@
 #include <anatomist/observer/Observable.h>
 #include <anatomist/observer/Observer.h>
 #include <anatomist/object/objectmenu.h>
+#include <cartodata/volume/volume.h>
 #include <cartobase/smart/rcptr.h>
 #include <cartobase/object/object.h>
 #include <aims/vector/vector.h>
@@ -336,7 +337,8 @@ namespace anatomist
                                           int *vertex, float *distance,
                                           float tol = -1,
                                           int *polygon = 0,
-                                          bool tex_only = false ) const;
+                                          bool tex_only = false,
+                                          int target_poly = -1 ) const;
 
     ///	Scans the object internals and determines its geometry extrema
     virtual void setGeomExtrema() {}
@@ -385,6 +387,11 @@ namespace anatomist
                                           int poly = -1 ) const;
     virtual std::vector<float>
     texValues( const std::vector<float> & pos, int poly = -1 ) const;
+    virtual carto::rc_ptr<carto::Volume<float> > texValuesSeries(
+      const std::vector<float> & pos, int axis, const Referential* orgRef,
+      int poly = -1 ) const;
+    virtual carto::rc_ptr<carto::Volume<float> > texValuesSeries(
+      const std::vector<float> & pos, int axis, int poly = -1 ) const;
     virtual void
     getTextureLabels( const std::vector<float> & texvalues,
                       std::vector<std::string> & texlabels,
