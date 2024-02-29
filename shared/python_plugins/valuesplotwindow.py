@@ -230,9 +230,18 @@ class ValuesPlotWindow(ana.cpp.QAWindow):
                 return
             # print('obj:', obj.name(), ', pos:', pos, vpos, ', v:', data)
             data = ar[tuple(vpos)]
+            self.data.append(data)
+            self._obj_indices.append(1)  # for now 1 value per object
 
-        self.data.append(data)
-        self._obj_indices.append(1)  # for now 1 value per object
+        else:
+            data = obj.texValues(self.getFullPosition())
+            if len(data) == 0:
+                data = np.nan
+                self.data.append(data)
+                self._obj_indices.append(1)
+            else:
+                self.data += data
+                self._obj_indices.append(len(data))
 
     def baseTitle(self):
         return 'Values plot'
@@ -266,6 +275,7 @@ class ValuesPlotWindow(ana.cpp.QAWindow):
         figure = pyplot.figure(self._fig.number)
         figure.clear()
         data = np.array(self.data)
+        print('data:', data)
         data = np.ma.masked_where(np.isnan(data), data)
         # print('plot data:', data)
         # print('plot colors:', colors)
