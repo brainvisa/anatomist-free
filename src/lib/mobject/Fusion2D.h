@@ -111,13 +111,16 @@ namespace anatomist
 
     virtual bool hasTexture() const { return( true ); }
     virtual unsigned dimTexture() const { return( 2 ); }
-    virtual float mixedTexValue( const std::vector<float> & pos ) const;
     virtual float mixedTexValue( const std::vector<float> & pos,
-                                 const Referential* orgRef ) const;
+                                 int poly = -1 ) const;
+    virtual float mixedTexValue( const std::vector<float> & pos,
+                                 const Referential* orgRef,
+                                 int poly = -1 ) const;
     virtual std::vector<float>
-    texValues( const std::vector<float> & pos ) const;
+    texValues( const std::vector<float> & pos, int poly = -1 ) const;
     virtual std::vector<float> texValues( const std::vector<float> & pos,
-                                          const Referential* orgRef ) const;
+                                          const Referential* orgRef,
+                                          int poly = -1 ) const;
     virtual float mixedValue( const std::vector<float> & pv ) const;
     virtual const Material *glMaterial() const;
     virtual bool isTransparent() const;

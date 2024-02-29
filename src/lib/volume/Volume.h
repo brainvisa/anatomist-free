@@ -112,9 +112,10 @@ namespace anatomist
 
     virtual bool hasTexture() const { return( true ); }
     virtual unsigned dimTexture() const { return( 1 ); }
-    virtual float mixedTexValue( const std::vector<float> & pos ) const;
+    virtual float mixedTexValue( const std::vector<float> & pos,
+                                 int poly = -1 ) const;
     virtual std::vector<float>
-    texValues( const std::vector<float> & pos ) const;
+    texValues( const std::vector<float> & pos, int poly = -1 ) const;
 
     virtual carto::GenericObject* attributed();
     virtual const carto::GenericObject* attributed() const;

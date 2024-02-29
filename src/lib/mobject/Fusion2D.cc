@@ -809,52 +809,52 @@ vector<float> Fusion2D::glMax2D() const
 }
 
 
-vector<float> Fusion2D::texValues( const vector<float> & pos ) const
+vector<float> Fusion2D::texValues( const vector<float> & pos, int poly ) const
 {
   vector<float>			tv( _data.size() );
   datatype::const_iterator	io=_data.begin(), fo=_data.end();
   unsigned			i = 1;
 
   //	assume MRI referential...
-  tv[0] = (*io)->mixedTexValue( pos );
+  tv[0] = (*io)->mixedTexValue( pos, poly );
 
   Referential	*ref = (*io)->getReferential();
 
   if( ref )
     for( ++io; io!=fo; ++io, ++i )
-      tv[i] = (*io)->mixedTexValue( pos, ref );
+      tv[i] = (*io)->mixedTexValue( pos, ref, poly );
   else
     for( ++io; io!=fo; ++io, ++i )
-      tv[i] = (*io)->mixedTexValue( pos );
+      tv[i] = (*io)->mixedTexValue( pos, poly );
 
   return( tv );
 }
 
 
 vector<float> Fusion2D::texValues( const vector<float> & pos,
-                                   const Referential* orgRef ) const
+                                   const Referential* orgRef, int poly ) const
 {
   unsigned			i;
   vector<float>			tv( _data.size() );
   datatype::const_iterator	io, fo=_data.end();
 
   for( i = 0, io=_data.begin(); io!=fo; ++io, ++i )
-    tv[i] = (*io)->mixedTexValue( pos, orgRef );
+    tv[i] = (*io)->mixedTexValue( pos, orgRef, poly );
 
   return( tv );
 }
 
 
-float Fusion2D::mixedTexValue( const vector<float> & pos ) const
+float Fusion2D::mixedTexValue( const vector<float> & pos, int poly ) const
 {
-  return( mixedValue( texValues( pos ) ) );
+  return( mixedValue( texValues( pos, poly ) ) );
 }
 
 
 float Fusion2D::mixedTexValue( const vector<float> & pos,
-                               const Referential* orgRef ) const
+                               const Referential* orgRef, int poly ) const
 {
-  return( mixedValue( texValues( pos, orgRef ) ) );
+  return( mixedValue( texValues( pos, orgRef, poly ) ) );
 }
 
 

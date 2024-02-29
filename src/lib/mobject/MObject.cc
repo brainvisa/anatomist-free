@@ -602,3 +602,41 @@ list<AObject *> MObject::renderedSubObjects( const ViewState & ) const
   return children;
 }
 
+
+const AObject* MObject::nearestVertex( const std::vector<float> & pos,
+                                       int *vertex, float *distance,
+                                       float tol, int *polygon,
+                                       bool tex_only ) const
+{
+  const AObject *res, *tmp;
+  int vt, pt;
+  float dt = -1;
+  int *ppt = 0;
+  if( polygon )
+    ppt = &pt;
+
+  res = AObject::nearestVertex( pos, vertex, distance, tol, polygon,
+                                tex_only );
+  if( res )
+    tol = ( tol < 0 ? *distance : std::min( tol, *distance ) );
+
+  const_iterator io, e = end();
+  for( io=begin(); io!=e; ++io )
+  {
+    // TODO: transform coords to child referential
+
+    tmp = (*io)->nearestVertex( pos, &vt, &dt, tol, ppt, tex_only );
+    if( tmp && ( !res || dt < *distance ) )
+    {
+      res = tmp;
+      *vertex = vt;
+      *distance = dt;
+      tol = ( tol < 0 ? *distance : std::min( tol, *distance ) );
+      if( polygon )
+        *polygon = *ppt;
+    }
+  }
+
+  return res;
+}
+

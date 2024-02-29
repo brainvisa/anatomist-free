@@ -282,6 +282,11 @@ namespace anatomist
 	@return	0 if not found
     */
     virtual AObject* objectAt( const std::vector<float> & pos, float tol = 0 );
+    virtual const AObject* nearestVertex( const std::vector<float> & pos,
+                                          int *vertex, float *distance,
+                                          float tol = -1,
+                                          int *polygon = 0,
+                                          bool tex_only = false ) const;
     //@}
 
 

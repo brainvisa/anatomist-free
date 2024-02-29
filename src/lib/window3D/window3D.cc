@@ -1658,6 +1658,7 @@ void AWindow3D::getInfos3DFromPosition( const vector<float> & fpos,
     Point3df & positionNearestVertex, int* indexNearestVertex,
     vector<string> & texlabels )
 {
+  // cout << "getInfos3DFromPosition, obj: " << objselect->name() << ", poly: " << poly << ", pos: " << fpos[0] << ", " << fpos[1] << ", " << fpos[2] << ", " << fpos[3] << endl;
   *indexNearestVertex = -1;
   *indexNearestVertex = 0;
 
@@ -1672,149 +1673,8 @@ void AWindow3D::getInfos3DFromPosition( const vector<float> & fpos,
   if( !glc )
     return;
 
-  AttributedAObject *aao = dynamic_cast<AttributedAObject *> (objselect);
-  Object labels;
-
-  // is there a labels table (int -> string map)
-  if( aao )
-  {
-    aao->attributed()->getProperty("data_type", textype);
-    try
-    {
-      labels = aao->attributed()->getProperty( "labels" );
-    }
-    catch( ... )
-    {
-    }
-  }
-  if( !labels.get() )
-  {
-    // try another texture object
-    MObject *mo = dynamic_cast<MObject *>( objselect );
-    if( mo )
-    {
-      MObject::iterator im, em = mo->end();
-      for( im=mo->begin(); im!=em; ++im )
-      {
-        aao = dynamic_cast<AttributedAObject *>( *im );
-        if( aao )
-        {
-          try
-          {
-            labels = aao->attributed()->getProperty( "labels" );
-            break;
-          }
-          catch( ... )
-          {
-          }
-        }
-      }
-    }
-  }
-
-  // sliceable textured object ?
-  texvalue = objselect->texValues( fpos, getReferential() );
-  if( !texvalue.empty() )
-  {
-    unsigned i, ntex = texvalue.size();
-    int itval;
-
-    if( labels.get() )
-    {
-      texlabels.reserve( ntex );
-      for( i = 0; i < ntex; ++i )
-      {
-        itval = int( rint( texvalue[i] ) );
-        // get string label if any
-        string label;
-        try
-        {
-          if( labels->hasItem( itval ) )
-          {
-            Object olabel = labels->getArrayItem( itval );
-            if( olabel )
-              label = olabel->getString();
-          }
-        }
-        catch( ... )
-        {
-        }
-        texlabels.push_back( label );
-      }
-    }
-
-    return;
-  }
-
-
-  Point3df position( fpos[0], fpos[1], fpos[2] );
-  ViewState vs3(getTime(), this);
-  SliceViewState vs2(getTime(), true, position, &d->slicequat,
-      getReferential(), windowGeometry(), &d->draw->quaternion(), this);
-  ViewState *vs = &vs2;
-
-  if( !objselect->Is2DObject()
-      || (d->viewtype == ThreeD && objselect->Is3DObject()) )
-    vs = &vs3;
-
-  if( poly >= 0 )
-  {
-    *indexNearestVertex = computeNearestVertexFromPolygonPoint(
-      *vs, poly, glc, position, positionNearestVertex );
-
-    if( *indexNearestVertex >= 0 && (unsigned) *indexNearestVertex
-        < glc->glNumVertex(*vs) )
-    {
-      unsigned ntex = glc->glNumTextures(*vs), tx;
-
-      for (tx = 0; tx < ntex; ++tx)
-      {
-        unsigned nvtex = glc->glTexCoordSize(*vs, tx);
-        if (nvtex > (unsigned) *indexNearestVertex)
-        {
-          const GLfloat* tc = glc->glTexCoordArray(*vs, tx);
-          if (tc)
-          {
-            const GLComponent::TexExtrema & te = glc->glTexExtrema(tx);
-
-            unsigned dt = glc->glDimTex(*vs, tx), i;
-            if (dt > 0)
-            {
-              texvalue.reserve( dt );
-              if( labels.get() )
-                texlabels.reserve( dt );
-              for (i = 0; i < dt; ++i)
-              {
-                float scl = (te.maxquant[i] - te.minquant[i])
-                  / (te.max[i] - te.min[i]);
-                float off = te.minquant[i] - scl * te.min[i];
-                float tval
-                  = scl * tc[*indexNearestVertex * dt + i] + off;
-                texvalue.push_back( tval );
-                // get string label if any
-                if( labels.get() )
-                {
-                  string label;
-                  if( labels->hasItem( int( rint( tval ) ) ) )
-                  {
-                    try
-                    {
-                      label = labels->getArrayItem(
-                        int( rint( tval ) ) )->getString();
-                    }
-                    catch( ... )
-                    {
-                    }
-                  }
-                  texlabels.push_back( label );
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
+  texvalue = objselect->texValues( fpos, getReferential(), poly );
+  objselect->getTextureLabels( texvalue, texlabels, textype );
 }
 
 bool AWindow3D::positionFromCursor(int x, int y, Point3df & position)

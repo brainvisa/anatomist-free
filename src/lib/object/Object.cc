@@ -56,6 +56,7 @@
 #include <anatomist/window/viewstate.h>
 #include <anatomist/object/mobjectio.h>
 #include <anatomist/object/sliceable.h>
+#include <anatomist/graph/attribAObject.h>
 #include <aims/resampling/quaternion.h>
 #include <aims/mesh/texturetools.h>
 #include <cartobase/stream/fileutil.h>
@@ -513,6 +514,93 @@ AObject* AObject::objectAt( const vector<float> & pos, float tol )
 }
 
 
+const AObject* AObject::nearestVertex( const std::vector<float> & pos,
+                                       int *vertex, float *distance,
+                                       float tol, int *polygon,
+                                       bool tex_only ) const
+{
+  const GLComponent *glc = glAPI();
+  if( !glc || ( tex_only && glc->glNumTextures() == 0 ) )
+    return 0;
+
+  Point3df p0( pos ), p1;
+  vector<float> pt;
+  unsigned i;
+  for( i=3; i<pos.size(); ++i )
+    pt.push_back( pos[i] );
+  if( pt.empty() )
+    pt.push_back( 0 );
+  ViewState vs( pt );
+  int iv = -1, nv = (int) glc->glNumVertex( vs );
+  if( nv == 0 )
+    return 0;
+  const GLfloat* vert0 = glc->glVertexArray( vs ), *vert = vert0;
+  float dist = -1, d, tol2 = -1;
+  if( tol >= 0 )
+    tol2 = tol * tol;
+
+  for( i=0; i<nv; ++i )
+  {
+    p1[0] = *vert++;
+    p1[1] = *vert++;
+    p1[2] = *vert++;
+    d = ( p1 - p0 ).norm2();
+    if( ( dist < 0 || dist > d ) && ( tol2 < 0 || d <= tol2 ) )
+    {
+      dist = d;
+      iv = i;
+    }
+  }
+  if( iv >= 0 )
+  {
+    *distance = sqrt( dist );
+    *vertex = iv;
+    if( polygon )
+    {
+      unsigned np = glc->glNumPolygon( vs );
+      unsigned ps = glc->glPolygonSize( vs );
+      const GLuint* poly = glc->glPolygonArray( vs );
+      unsigned j, p, ip;
+      float d2;
+      dist = -1;
+      for( i=0; i<np; ++i )
+      {
+        for( j=0; j<np; ++j )
+          if( *(poly + j) == iv )
+            break;
+        if( j != np )
+        {
+          d2 = -1;
+          // max distance among points of the polygon
+          for( j=0; j<np; ++j )
+          {
+            p = (*poly++) * 3;
+            if( p != iv )
+            {
+              p1[0] = vert0[p++];
+              p1[1] = vert0[p++];
+              p1[2] = vert0[p++];
+              d = ( p1 - p0 ).norm2();
+              if( d2 < d )
+                d2 = d;
+            }
+          }
+          if( dist < 0 || d2 < dist )
+          {
+            // keep the poly with minimum d2 (max dist)
+            dist = d2;
+            ip = i;
+          }
+        }
+      }
+      *polygon = ip;
+    }
+    return this;
+  }
+  return 0;
+}
+
+
 list<AObject *> AObject::load( const string & filename )
 {
   ObjectReader::PostRegisterList subobjects;
@@ -680,7 +768,7 @@ void AObject::createDefaultPalette( const string & name )
 
 
 float AObject::mixedTexValue( const vector<float> & pos,
-                              const Referential* orgRef ) const
+                              const Referential* orgRef, int poly ) const
 {
   Transformation *trans
     = theAnatomist->getTransformation( orgRef, getReferential() );
@@ -693,12 +781,12 @@ float AObject::mixedTexValue( const vector<float> & pos,
     pt[1] = ptp[1];
     pt[2] = ptp[2];
   }
-  return mixedTexValue( pt );
+  return mixedTexValue( pt, poly );
 }
 
 
 vector<float> AObject::texValues( const vector<float> & pos,
-                                  const Referential* orgRef ) const
+                                  const Referential* orgRef, int poly ) const
 {
   Transformation	*trans 
     = theAnatomist->getTransformation( orgRef, getReferential() );
@@ -712,7 +800,163 @@ vector<float> AObject::texValues( const vector<float> & pos,
     pt[2] = ptp[2];
  }
 
-  return texValues( pt );
+  return texValues( pt, poly );
+}
+
+
+std::vector<float>
+anatomist::AObject::texValues( const std::vector<float> & pos, int poly ) const
+{
+  int vertex;
+  float distance;
+  float tol = -1;  // FIXME
+
+  const AObject *no = this;
+  if( poly < 0 )
+  {
+    no = nearestVertex( pos, &vertex, &distance, tol, 0, true );
+    if( !no )
+      return vector<float>();
+  }
+
+  const GLComponent *glc = no->glAPI();
+  if( !glc || glc->glNumTextures() == 0 )
+    return vector<float>();  // would be strange: should not happen...
+
+  Point3df p0( pos ), p1;
+  vector<float> pt;
+  unsigned i;
+  for( i=3; i<pos.size(); ++i )
+    pt.push_back( pos[i] );
+  if( pt.empty() )
+    pt.push_back( 0 );
+  ViewState vs( pt );
+
+  if( poly >= 0 )
+  {
+    unsigned np = glc->glNumPolygon( vs ), ps = glc->glPolygonSize( vs );
+    if( poly >= np )
+      return vector<float>();
+
+    const GLuint *vpoly = glc->glPolygonArray( vs ) + ps * poly;
+    const GLfloat *vert = glc->glVertexArray( vs );
+    float d;
+    Point3df p;
+    unsigned v, iv;
+    distance = -1;
+
+    for( i=0; i<ps; ++i )
+    {
+      v = *vpoly++;
+      p[0] = vert[v * 3];
+      p[1] = vert[v * 3 + 1];
+      p[2] = vert[v * 3 + 2];
+      p -= p0;
+      d = p.norm2();
+      if( distance < 0 || d < distance )
+      {
+        distance = d;
+        vertex = v;
+      }
+    }
+  }
+
+  unsigned nt = glc->glNumTextures( vs ), ts;
+  vector<float> values;
+  values.reserve( nt );
+
+  for( i=0; i<nt; ++i )
+  {
+    unsigned dt = glc->glDimTex( vs, i ), j;
+    const GLfloat* tc = glc->glTexCoordArray( vs, i );
+    const GLComponent::TexExtrema & te = glc->glTexExtrema( i );
+    for( j=0; j<dt; ++j )
+    {
+      float val = tc[vertex * dt + j];
+      if( te.scaled )
+        val = ( val - te.min[j] ) * ( te.maxquant[j] - te.minquant[j] )
+          / ( te.max[j] - te.min[j] ) + te.minquant[j];
+      values.push_back( val );
+    }
+  }
+  return values;
+}
+
+
+void AObject::getTextureLabels( const vector<float> & texvalues,
+                                vector<string> & texlabels,
+                                string & textype ) const
+{
+  if( texvalues.empty() )
+    return;
+
+  const AttributedAObject *
+    aao = dynamic_cast<const AttributedAObject *> ( this );
+  Object labels;
+
+  // is there a labels table (int -> string map)
+  if( aao )
+  {
+    aao->attributed()->getProperty("data_type", textype);
+    try
+    {
+      labels = aao->attributed()->getProperty( "labels" );
+    }
+    catch( ... )
+    {
+    }
+  }
+  if( !labels.get() )
+  {
+    // try another texture object
+    const MObject *mo = dynamic_cast<const MObject *>( this );
+    if( mo )
+    {
+      MObject::const_iterator im, em = mo->end();
+      for( im=mo->begin(); im!=em; ++im )
+      {
+        aao = dynamic_cast<const AttributedAObject *>( *im );
+        if( aao )
+        {
+          try
+          {
+            labels = aao->attributed()->getProperty( "labels" );
+            break;
+          }
+          catch( ... )
+          {
+          }
+        }
+      }
+    }
+  }
+
+  unsigned i, ntex = texvalues.size();
+  int itval;
+
+  if( labels.get() )
+  {
+    texlabels.reserve( ntex );
+    for( i = 0; i < ntex; ++i )
+    {
+      itval = int( rint( texvalues[i] ) );
+      // get string label if any
+      string label;
+      try
+      {
+        if( labels->hasItem( itval ) )
+        {
+          Object olabel = labels->getArrayItem( itval );
+          if( olabel )
+            label = olabel->getString();
+        }
+      }
+      catch( ... )
+      {
+      }
+      texlabels.push_back( label );
+    }
+  }
 }
 
 

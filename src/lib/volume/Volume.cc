@@ -988,7 +988,7 @@ template <class T> void AVolume<T>::setVoxelSize( const vector<float> & vs )
 
 
 template<class T> 
-float AVolume<T>::mixedTexValue( const vector<float> & pos ) const
+float AVolume<T>::mixedTexValue( const vector<float> & pos, int ) const
 {
   vector<int> dims = _volume->getSize();
   vector<float> vs = _volume->getVoxelSize();
@@ -1018,7 +1018,7 @@ float AVolume<T>::mixedTexValue( const vector<float> & pos ) const
 
 
 template<class T> 
-vector<float> AVolume<T>::texValues( const vector<float> & pos ) const
+vector<float> AVolume<T>::texValues( const vector<float> & pos, int ) const
 {
   vector<int> dims = _volume->getSize();
   vector<float> vs = _volume->getVoxelSize();
@@ -1601,7 +1601,7 @@ VolumeVectorTraits<AimsRGBA>::mixedTexValue( const vector<int> & pos ) const
 {
   const AimsRGBA	& rgb = (*volume->volume())( pos );
   return ( ((float) rgb.red() ) + rgb.green() + rgb.blue() + 
-	   rgb.alpha() ) / 4;
+           rgb.alpha() ) / 4;
 }
 
 

@@ -312,6 +312,31 @@ namespace anatomist
     virtual AObject* objectAt( const std::vector<float> & pos,
                                float tol, const Referential* orgref,
                                const Point3df & orggeom );
+    /** Get the nearest vertex to a given position.
+
+        Only valid for a mesh-based object, otherwise 0 is returned.
+        vertex and distance should point to a valid int and float, and will be
+        filled with the mesh vertex index, and the distance to this vertex. If
+        the object has children objects, the child with the nearest vertex will
+        be returned. If tol is >=0, this tolerence threshold is used to filter
+        out vertices too far (thus the function may fail and return 0). If
+        polygon is given as a valid pointer to an int, the polygon index of the
+        "nearest polygon" will also be filled. The nearest polygon will contain
+        the nearest vertex, thus a polygon wich center is nearest to the given
+        point can be discarded.
+
+        The base implementation will perform an exaustive search, thus is
+        costy. Optimized implementations could make use of a kdtree algorithm,
+        but this default one does not.
+
+        If the object is also displayed in a 3D window, OpenGL-based functions
+        may be more efficient than this one.
+    */
+    virtual const AObject* nearestVertex( const std::vector<float> & pos,
+                                          int *vertex, float *distance,
+                                          float tol = -1,
+                                          int *polygon = 0,
+                                          bool tex_only = false ) const;
 
     ///	Scans the object internals and determines its geometry extrema
     virtual void setGeomExtrema() {}
@@ -333,11 +358,21 @@ namespace anatomist
         officially always in mm.
     */
     virtual float mixedTexValue( const std::vector<float> & pos,
-                                 const Referential* orgRef ) const;
+                                 const Referential* orgRef,
+                                 int poly = -1 ) const;
     /** Same as above except that coordinates are not transformed but taken
         in object coordinates system */
-    virtual float mixedTexValue( const std::vector<float> & pos ) const;
+    virtual float mixedTexValue( const std::vector<float> & pos,
+                                 int poly = -1 ) const;
     /** Gets the array of texture values at a given location
+
+        The optional poly argument, added in anatomist 5.2, is a hint of the
+        mesh polygon, when it is known (used for an OpenGL selection from a 3D
+        window). If left to -1, exaustive search is performed using the
+        nearestVertex() method. If a positive value is passed, only the
+        vertices of that polygon will be inspected.
+        An object-specific implementation may ignore this polygon information
+        (like for a volume, for instance).
 
         Note: in Anatomist 4.4 and earlier, this method was taking an
         additional argument, org_voxel_size. This was kind of pointless
@@ -346,9 +381,14 @@ namespace anatomist
         officially always in mm.
     */
     virtual std::vector<float> texValues( const std::vector<float> & pos,
-                                          const Referential* orgRef ) const;
+                                          const Referential* orgRef,
+                                          int poly = -1 ) const;
     virtual std::vector<float>
-    texValues( const std::vector<float> & pos ) const;
+    texValues( const std::vector<float> & pos, int poly = -1 ) const;
+    virtual void
+    getTextureLabels( const std::vector<float> & texvalues,
+                      std::vector<std::string> & texlabels,
+                      std::string & textype ) const;
 
     virtual bool loadable() const { return false; }
     virtual bool savable() const { return false; }
@@ -492,17 +532,17 @@ namespace anatomist
 
 
 inline float
-anatomist::AObject::mixedTexValue( const std::vector<float> & ) const
+anatomist::AObject::mixedTexValue( const std::vector<float> & pos,
+                                   int poly ) const
 {
-  return 0;
-}
-
-
-inline std::vector<float> 
-anatomist::AObject::texValues( const std::vector<float> & ) const
-{
-  std::vector<float> t;
-  return t;
+  std::vector<float> tval = texValues( pos, poly );
+  if( tval.empty() )
+    return 0;
+  float sum = 0.;
+  std::vector<float>::const_iterator i, e = tval.end();
+  for( i=tval.begin(); i!=e; ++i )
+    sum += *i;
+  return sum / tval.size();
 }
 
 
