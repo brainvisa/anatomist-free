@@ -204,9 +204,9 @@ class AProfile(ana.cpp.QAWindow):
             self._fig.canvas.draw()
 
     def plotObject(self, obj):
+        if self._coordindex >= 3:
+            return self.plotTprofile(obj)
         if obj.objectTypeName(obj.type()) == 'VOLUME':
-            if self._coordindex >= 3:
-                return self.plotTprofile(obj)
             figure = pyplot.figure(self._fig.number)
             vol = ana.cpp.AObjectConverter.aims(obj)
             ar = numpy.array(vol, copy=False)
@@ -343,8 +343,6 @@ class AProfile(ana.cpp.QAWindow):
 
     def plotTprofile(self, obj):
         figure = pyplot.figure(self._fig.number)
-        vol = ana.cpp.AObjectConverter.aims(obj)
-        ar = vol.np
         pos = self.getFullPosition()
         opos = pos[:3]
         oref = obj.getReferential()
@@ -353,27 +351,41 @@ class AProfile(ana.cpp.QAWindow):
         trans = a.getTransformation(wref, oref)
         if trans:
             opos = trans.transform(pos[:3])
-        vs = vol.header()['voxel_size'].np
-        vs = np.hstack((vs, np.ones((len(pos) - len(vs), ), dtype=int)))
+        vs = obj.voxelSize().np
         ts = 1.
         if len(vs) > self._coordindex:
             ts = vs[self._coordindex]
-        dims = vol.getSize()
-        ndata = 1
-        if len(dims) > self._coordindex:
-            ndata = dims[self._coordindex]
-        xdata = np.arange(0, ndata * ts, ts)
-        ipos = np.round(pos.np / vs).astype(int)
-        ipos[:3] = np.round(np.asarray(opos) / vs[:3]).astype(int)
-        if ipos[0] < 0 or ipos[1] < 0 or ipos[2] < 0 \
-                or ipos[0] >= vol.getSizeX() \
-                or ipos[1] >= vol.getSizeY() or ipos[2] >= vol.getSizeZ():
-            self.eraseObject(obj)
-            return
-        index = list(ipos)
-        if self._coordindex < len(dims):
-            index[self._coordindex] = slice(dims[self._coordindex])
-        data = ar[tuple(index)]
+
+        if obj.objectTypeName(obj.type()) == 'VOLUME':
+            vol = ana.cpp.AObjectConverter.aims(obj)
+            ar = vol.np
+            vs = np.hstack((vs, np.ones((len(pos) - len(vs), ), dtype=int)))
+            dims = vol.getSize()
+            ndata = 1
+            if len(dims) > self._coordindex:
+                ndata = dims[self._coordindex]
+            xdata = np.arange(0, ndata * ts, ts)
+            ipos = np.round(pos.np / vs).astype(int)
+            ipos[:3] = np.round(np.asarray(opos) / vs[:3]).astype(int)
+            if ipos[0] < 0 or ipos[1] < 0 or ipos[2] < 0 \
+                    or ipos[0] >= vol.getSizeX() \
+                    or ipos[1] >= vol.getSizeY() or ipos[2] >= vol.getSizeZ():
+                self.eraseObject(obj)
+                return
+            index = list(ipos)
+            if self._coordindex < len(dims):
+                index[self._coordindex] = slice(dims[self._coordindex])
+            data = ar[tuple(index)]
+
+        else:
+            opos = opos + pos[3:]
+            data = obj.texValuesSeries(opos, self._coordindex)
+            data = data[:, :, 0, 0]
+            ndata = data.shape[0]
+            if data.shape[1] == 1:
+                data = data[:, 0]
+            xdata = np.arange(0, ndata * ts, ts)
+
         kw = {}
         p = self._plots.get(ana.cpp.weak_ptr_AObject(obj))
         if p:
