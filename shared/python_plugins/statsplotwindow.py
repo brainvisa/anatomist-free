@@ -258,7 +258,11 @@ class StatsPlotWindow(ana.cpp.QAWindow):
             self.data.append(ar[tuple(index)])
             self._obj_indices.append(1)  # for now 1 value per object
         else:
-            self.data.append(np.array([]))
+            data = obj.texValuesSeries(self.getFullPosition(), self._direction)
+            data = data.np[:, :, 0, 0]
+            if data.shape[1] == 1:
+                data = data[:, 0]
+            self.data.append(data)
             self._obj_indices.append(1)
 
     def baseTitle(self):
