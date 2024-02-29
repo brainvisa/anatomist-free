@@ -106,8 +106,9 @@ class InfoWindow(ana.cpp.QAWindow):
         layout.addWidget(values_grp)
         vlist = Qt.QTableWidget()
         layout.addWidget(vlist)
-        vlist.setColumnCount(2)
-        vlist.setHorizontalHeaderLabels(['Object:', 'Value:'])
+        vlist.setColumnCount(4)
+        vlist.setHorizontalHeaderLabels(['Object:', 'Vertex:', 'Value:',
+                                         'Label:'])
         self.val_table = vlist
 
         # keep a reference to the python object to prevent destruction of the
@@ -212,15 +213,33 @@ class InfoWindow(ana.cpp.QAWindow):
                 continue
 
             tex = obj.texValues(fpos, wref)
+            labels = aims.vector_STRING()
+            textype = 'no_type'
+            obj.getTextureLabels(tex, labels, textype)
+            no, vertex, dist = obj.nearestVertex(fpos)
             if len(tex) == 0:
                 tex = ''
             elif len(tex) == 1:
                 tex = tex[0]
-            item = self.val_table.item(row, 1)
+            item = self.val_table.item(row, 2)
             if item is None:
                 item = Qt.QTableWidgetItem()
-                self.val_table.setItem(row, 1, item)
+                self.val_table.setItem(row, 2, item)
             item.setText(str(tex))
+            if labels:
+                item = self.val_table.item(row, 3)
+                if item is None:
+                    item = Qt.QTableWidgetItem()
+                    self.val_table.setItem(row, 3, item)
+                if len(labels) == 1:
+                    labels = labels[0]
+                item.setText(str(labels))
+            if no is not None:
+                item = self.val_table.item(row, 1)
+                if item is None:
+                    item = Qt.QTableWidgetItem()
+                    self.val_table.setItem(row, 1, item)
+                item.setText(str(vertex))
 
         self.paintRefLabel()
 
