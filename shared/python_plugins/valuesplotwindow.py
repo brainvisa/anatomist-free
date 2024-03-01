@@ -275,7 +275,6 @@ class ValuesPlotWindow(ana.cpp.QAWindow):
         figure = pyplot.figure(self._fig.number)
         figure.clear()
         data = np.array(self.data)
-        print('data:', data)
         data = np.ma.masked_where(np.isnan(data), data)
         # print('plot data:', data)
         # print('plot colors:', colors)
