@@ -79,7 +79,7 @@
 
 
 <!-- -->
-<h4> <a name="version-5.2.0"></a>2024/02/22 - Version 5.2.0</h4>
+<h4> <a name="version-5.2.0"></a>2024/02/01 - Version 5.2.0</h4>
 <h5>Visible changes (users):</h5>
 <ul>
   <li>GLTF 3D scene format support</li>
@@ -91,6 +91,18 @@
   <li>Texture wrapping modes (OpenGL standard modes, like repeat or clamp_to_edge) are supported and can be setup in API, commands, objects header properties, and GUI.
   </li>
   <li>Important improvements in windows blocks: block grid elements can be resized, moved and reordered, and windows can be dropped at the desired place. A new empty block can be opened (ctrl+N) and will become a "default block": all new windows will open, by default, in this block (after all if we open a block, it's probably because we intend to use it).
+  </li>
+  <li>3 new windows types:
+    <ul>
+      <li>Values plots: plots the value of observed objects at the selected position, in various plots types
+      </li>
+      <li>Stats plots: 1D stats along a given axis using several boxplots, errorbars etc
+      </li>
+      <li>Info window: displays the cursor position (modifiable) and objects vertex, value and label at the cursor position
+      </li>
+    </ul>
+  </li>
+  <li>The new windows types, plus the profile window, can now display data (timecourses) from both volumes and textured meshes.
   </li>
 </ul>
 
