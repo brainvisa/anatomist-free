@@ -269,6 +269,7 @@ When using Anatomist intensively, users often get entangled in several dozens of
 
 * double-clicking on a window in the list will make the corresponding window to get displayed on top, and to un-iconify if it was iconified or hidden.
 
+Another way of organizing windows is to use `windows blocks`_.
 
 Windows types
 -------------
@@ -287,6 +288,9 @@ The table below shows the different window types.
 .. |histo| image:: images/window-histogram-small.png
 .. |mpprofile| image:: images/window-matplotlib-profile-small.png
 .. |mphisto| image:: images/window-matplotlib-histogram-small.png
+.. |info| image:: images/window-info-small.png
+.. |values| image:: images/window-valuesplot-small.png
+.. |stats| image:: images/window-statsplot-small.png
 
 +-------------------+---------------------------------------------------------+
 | Icon              | Description                                             |
@@ -313,6 +317,12 @@ The table below shows the different window types.
 | |mpprofile|       | Matplotlib-based histogram                              |
 +-------------------+---------------------------------------------------------+
 | |mphisto|         | Matplotlib-based histogram                              |
++-------------------+---------------------------------------------------------+
+| |info|            | Information window (position, objects)                  |
++-------------------+---------------------------------------------------------+
+| |values|          | Values plots                                            |
++-------------------+---------------------------------------------------------+
+| |stats|           | Stats plots                                             |
 +-------------------+---------------------------------------------------------+
 
 Additional windows types may be provided in plugins.
@@ -345,6 +355,14 @@ Histogram, Profile, and Matplotlib-based variants
 The "older" *Profile* and *Histogram* windows were somewat limited: interactions were not really allowed on these kind of windows. Moreover, coordinates transformations were not properly handled in *Profile* windows.
 
 Newer modules, programmed in Python language, make use of the `Matplotlib <http://matplotlib.org>`_ library and provide newer alternatives for profile and histogram fully support interactive zooming, clicking on positions, and coordinates transformations.
+
+In Anatomist 5.2, profile windows can display textured objects (meshes) timecourses, whereas it vas limited to volumes earlier.
+
+
+Info, Values and Stats windows
+++++++++++++++++++++++++++++++
+
+|info| Info, |values| Values and |stats| Stats windows have been introduced in Anatomist 5.2. They display objects data values in different ways.
 
 
 Windows groups
@@ -383,6 +401,24 @@ You can add a new window to the block by dragging the window item from Anatomist
 To remove a window from the block, use the window menu *Window => Detach view*.
 
 It is also possible to reorganize the block by changing the views layout, using the options in the block window menu.
+
+Blocks improvements in Anatomist 5.2
+++++++++++++++++++++++++++++++++++++
+
+The blocks have been deeply reworked and improved in Anatomist 5.2, allowing a far more convenient and practical "everyday use":
+
+* An empty block can be opened, with the keyboard shorthand Ctrl-N ("new block").
+* "Default block" concept: A block can be set to be the default one. When a default block is defined, all new windows, unless specified something else (by programming), will open inside this block. A new empty block will automatically become the default one (it can be switched from the menu). The idea here is that when you open a block, you probably intend to use it to display new windows, and it saves the time and burden to drag & drop every window in the block later.
+* Windows can be reorganized using drag & drop: drag one from the top left corner (a hand icon appears when moving the mouse in this region), and drop at another place: it will switch with the windows it is dropped on.
+* Drag & drop of windows now allow to select where a window will be inserted in a block.
+* The block grid cells can be resized: rows and columns are separated with kind of splitter items which allows to resize rows and columns sizes, a bit like cells in a spreadshit. Double clicking on the splitter resets the default size ratio.
+
+Drawbacks
++++++++++
+
+* In a block, a given window size cannot be controlled completely: the "resize window" feature will not work, or not entirely.
+* Focus priority issues beteen the block and windows inside it can cause shortcut conflicts, causing them not to work. Sometimes you will need to click inside a view to force focus before a keyboard shortcut can work, and other shortcuts will not work at all due to conflicts.
+* In some window managers, inserting an existing window into a block may sometimes cause buggy displays of a ghost window outside of it. This is a window management issue, which is not reproducible. Tring again (detach view + re-insert it) may work.
 
 
 Window contextual menu
