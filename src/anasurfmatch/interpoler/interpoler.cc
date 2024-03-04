@@ -232,6 +232,96 @@ const GLComponent* AInterpoler::glTexture( const ViewState & , unsigned ) const
 }
 
 
+const AObjectPalette* AInterpoler::glPalette( unsigned tex ) const
+{
+  return texSurf()->glPalette( tex );
+}
+
+
+const GLComponent::TexExtrema & AInterpoler::glTexExtrema( unsigned tex )
+  const
+{
+  const GLComponent     *t = texSurf();
+  if( t && t != this )
+    return t->glTexExtrema( tex );
+  return GLComponent::glTexExtrema( tex );
+}
+
+
+GLComponent::TexExtrema & AInterpoler::glTexExtrema( unsigned tex )
+{
+  GLComponent     *t = texSurf();
+  if( t && t != this )
+    return t->glTexExtrema( tex );
+  return GLComponent::glTexExtrema( tex );
+}
+
+
+std::string AInterpoler::viewStateID( glPart part,
+                                      const ViewState & state ) const
+{
+  switch( part )
+    {
+    case glGENERAL:
+    case glBODY:
+      {
+        string	s;
+        const GLComponent	*c = glGeometry( state );
+        if( c && c != this )
+          s = c->viewStateID( part, state );
+        c = texSurf();
+        if( c && c != this )
+          return s + c->viewStateID( part, state );
+        return s;
+      }
+    case glGEOMETRY:
+    case glMATERIAL:
+      {
+        const GLComponent	*c = glGeometry( state );
+        if( c && c != this )
+          return c->viewStateID( part, state );
+        if( part == glMATERIAL )
+          return string();
+        vector<float> td = state.timedims;
+        vector<float> bbmin, bbmax;
+        boundingBox( bbmin, bbmax );
+        unsigned i, n = std::min( td.size(), bbmax.size() - 3 );
+        for( i=0; i<n; ++i )
+        {
+          if( td[i] < bbmin[i + 3] )
+            td[i] = bbmin[i + 3];
+          if( td[i] > bbmax[i + 3] )
+            td[i] = bbmax[i + 3];
+        }
+        if( n < bbmax.size() - 3 )
+        {
+          n = bbmax.size() - 3;
+          for( ; i<n; ++i )
+            td.push_back( bbmin[i + 3] );
+        }
+        string	s;
+        s.resize( sizeof(float) * ( n + 1 ) );
+        (float &) s[0] = n;
+        for( i=0; i<n; ++i )
+          (float &) s[( i + 1 ) * sizeof(float)] = td[i];
+        return s;
+      }
+    case glTEXIMAGE:
+    case glTEXENV:
+      {
+        const GLComponent	*c = texSurf();
+        if( c && c != this )
+          return c->viewStateID( part, state );
+        return string();
+      }
+    default:
+      break;
+    }
+
+  return string();
+}
+
+
 unsigned AInterpoler::glTexCoordSize( const ViewState & s, unsigned ) const
 {
   return glGeometry( s )->glNumVertex( s );
