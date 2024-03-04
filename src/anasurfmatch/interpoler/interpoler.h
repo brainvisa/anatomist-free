@@ -71,6 +71,10 @@ namespace anatomist
     virtual const GLComponent* orgGeom() const;
     virtual GLComponent* texSurf();
     virtual const GLComponent* texSurf() const;
+    virtual const AObjectPalette* glPalette( unsigned tex = 0 ) const;
+    virtual const TexExtrema & glTexExtrema( unsigned tex = 0 ) const;
+    virtual TexExtrema & glTexExtrema( unsigned tex = 0 );
+    virtual std::string viewStateID( glPart part, const ViewState & ) const;
 
     virtual bool Is2DObject() { return false; }
     virtual bool Is3DObject() { return true; }
