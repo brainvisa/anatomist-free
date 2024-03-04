@@ -2090,6 +2090,7 @@ void AWindow3D::changeTimeSliders( int slider_num, int value )
     d->slicelabels[slider_num]->setText( QString::number( value ) );
 
     _timepos[sl] = tvalue;
+    SetRefreshFlag();
 
     if( d->linkonslider )
     {
@@ -2105,7 +2106,6 @@ void AWindow3D::changeTimeSliders( int slider_num, int value )
     }
     else
     {
-      SetRefreshFlag();
       Refresh();
     }
 
