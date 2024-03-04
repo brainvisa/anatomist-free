@@ -26,6 +26,7 @@
 
 <p>
 <b><a href="#version-5.2.0">Version 5.2.0</a></b><br/>
+<b><a href="#version-5.1.2">Version 5.1.2</a></b><br/>
 <b><a href="#version-5.1.1">Version 5.1.1</a></b><br/>
 <b><a href="#version-5.1.0">Version 5.1.0</a></b><br/>
 <b><a href="#version-5.0.4">Version 5.0.4</a></b><br/>
@@ -82,10 +83,6 @@
 <h4> <a name="version-5.2.0"></a>2024/02/01 - Version 5.2.0</h4>
 <h5>Visible changes (users):</h5>
 <ul>
-  <li>GLTF 3D scene format support</li>
-  <li>GLTF scene export / import menu in 3D views. Allows to save in a single .gltf or .glb file the whole scene and exchange it with someone else in a very simple and convenient way.
-  </li>
-  <li>New colormaps</li>
   <li><tt>Save</tt> button in 3D views appears when a modified object is displayed. It allows for instance to save a manually labelled graph or a ROI to be saved simply.
   </li>
   <li>Texture wrapping modes (OpenGL standard modes, like repeat or clamp_to_edge) are supported and can be setup in API, commands, objects header properties, and GUI.
@@ -111,6 +108,19 @@
   <li>The <tt>anatomist</tt> command is no longer the C++ executable, but a python (pyanatomist) wrapper. It starts an IPython engine from the startup, in order to avoid hangups in recent versions of jupyter qtconsole. The former C++ executable is renamed <tt>anatomist-bin</tt>.
   </li>
   <li>Various bugfixes.</li>
+</ul>
+
+<!-- -->
+<h4> <a name="version-5.1.2"></a>2024/03/03 - Version 5.1.2</h4>
+<ul>
+  <li>GLTF 3D scene format support</li>
+  <li>GLTF scene export / import menu in 3D views. Allows to save in a single .gltf or .glb file the whole scene and exchange it with someone else in a very simple and convenient way.
+  </li>
+  <li>New colormaps</li>
+  <li>All manual graph manipulations mark them as user-modified</li>
+  <li>Fixed the interpoler fusion object, which was probably broken for a long time</li>
+  <li>Fixed window update issue in "slider triggers linked cursor" mode</li>
+  <li>Several other bug fixes</li>
 </ul>
 
 <!-- -->
