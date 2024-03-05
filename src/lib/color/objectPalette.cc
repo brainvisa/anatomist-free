@@ -34,6 +34,7 @@
 #include <anatomist/color/objectPalette.h>
 #include <anatomist/color/palette.h>
 #include <anatomist/color/paletteList.h>
+#include <anatomist/color/colortraits.h>
 #include <anatomist/application/Anatomist.h>
 #include <aims/rgb/rgb.h>
 #include <cartobase/object/object.h>
@@ -147,6 +148,7 @@ AObjectPalette & AObjectPalette::operator = ( const AObjectPalette & x )
     _zeroCentered1 = x._zeroCentered1;
     _zeroCentered2 = x._zeroCentered2;
   }
+
   return( *this );
 }
 
@@ -663,7 +665,7 @@ QImage* AObjectPalette::toQImage( int w, int h ) const
 
   unsigned      dimpx = col->getSizeX(), dimpy = col->getSizeY();
   unsigned      dimx = 256, dimy = dimpy, x, y;
-  int           xp, yp;
+  int           xp, yp, tmp;
   float         m1 = min1(), M1 = max1();
   float         m2 = min2(), M2 = max2();
 
@@ -677,21 +679,10 @@ QImage* AObjectPalette::toQImage( int w, int h ) const
     dimx = w;
   if( h > 0 )
     dimy = h;
-  if( m1 == M1 )
-  {
-    m1 = 0;
-    M1 = 1;
-  }
-  if( m2 == M2 )
-  {
-    m2 = 0;
-    M2 = 1;
-  }
 
-  float         facx = ((float) dimpx) / ( (M1 - m1) * dimx );
-  float         facy = ((float) dimpy) / ( (M2 - m2) * dimy );
-  float         dx = m1 * dimx;
-  float         dy = m2 * dimy;
+  ColorTraits<int>	coltraits1( this, 0, dimx - 1 );
+  ColorTraits<int>	coltraits2( this, 0, dimy - 1 );
+
   AimsRGBA      rgb;
 
   QImage        *img = new QImage( dimx, dimy, QImage::Format_ARGB32 );
@@ -699,18 +690,10 @@ QImage* AObjectPalette::toQImage( int w, int h ) const
 
   for( y=0; y<dimy; ++y )
   {
-    yp = (int) ( facy * ( ((float) y) - dy ) );
-    if( yp < 0 )
-      yp = 0;
-    else if( yp >= (int) dimpy )
-      yp = dimpy - 1;
+    coltraits2.paletteCoords( y, tmp, yp );
     for( x=0; x<dimx; ++x )
     {
-      xp = (int) ( facx * ( ((float) x) - dx ) );
-      if( xp < 0 )
-        xp = 0;
-      else if( xp >= (int) dimpx )
-        xp = dimpx - 1;
+      coltraits1.paletteCoords( x, xp, tmp );
       rgb = (*col)( xp, yp );
       im.setPixel( x, y, qRgb( rgb.red(), rgb.green(), rgb.blue() ) );
     }
@@ -718,6 +701,4 @@ QImage* AObjectPalette::toQImage( int w, int h ) const
 
   return img;
 }
-
-
 
