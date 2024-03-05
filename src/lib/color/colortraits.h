@@ -51,6 +51,7 @@ namespace anatomist
     AimsRGBA color( const T & ) const;
     void setup( const T & mini, const T & maxi );
     T neutralColor() const;
+    void paletteCoords( double val, int & px, int & py ) const;
 
   private:
     const AObjectPalette	*palette;
@@ -181,11 +182,12 @@ namespace anatomist
     setup( mini, maxi );
   }
 
+
   template <typename T> inline
-  AimsRGBA ColorScalarPaletteTraits<T>::color( const T & in ) const
+  void ColorScalarPaletteTraits<T>::paletteCoords(
+    double val, int & ival0, int & ival1 ) const
   {
-    int ival0, ival1;
-    double fval0, fval1, val = static_cast<double>( in );
+    double fval0, fval1;
 
     // Comparisons are written this way to accommodate NaN and Inf
     fval0 = scale0 * val + decal0;
@@ -217,6 +219,14 @@ namespace anatomist
         else
           ival1 = cmin1;
       }
+  }
+
+
+  template <typename T> inline
+  AimsRGBA ColorScalarPaletteTraits<T>::color( const T & in ) const
+  {
+    int ival0, ival1;
+    paletteCoords( in, ival0, ival1 );
 
     return colors->at( ival0, ival1 );
   }
@@ -233,134 +243,20 @@ namespace anatomist
     AimsRGBA col;
 
     int ival0, ival1;
-    float fval0, fval1, val = static_cast<float>( in.red() );
 
-    fval0 = scale0 * val + decal0;
-    if( fval0 > cmin0 && fval0 < cmax0 )
-    {
-      ival0 = static_cast<int>( fval0 );
-    }
-    else if( fval0 <= cmin0 )
-      ival0 = cmin0;
-    else if( fval0 >= cmax0 )
-      ival0 = cmax0;
-    else
-      ival0 = cmin0;
-
-    if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
-        colors->getSizeY() == 1 )
-      ival1 = 0 ;
-    else
-      {
-        fval1 = scale1 * val + decal1;
-        if( fval1 > cmin1 && fval1 < cmax1 )
-        {
-          ival1 = static_cast<int>( fval1 );
-        }
-        else if( fval1 <= cmin1 )
-          ival1 = cmin1;
-        else if( fval1 >= cmax1 )
-          ival1 = cmax1;
-        else
-          ival1 = cmin1;
-      }
-
+    paletteCoords( in.red(), ival0, ival1 );
     col[0] = colors->at( ival0, ival1 )[0];
 
-    val = static_cast<float>( in.green() );
-
-    fval0 = scale0 * val + decal0;
-    if( fval0 > cmin0 && fval0 < cmax0 )
-    {
-      ival0 = static_cast<int>( fval0 );
-    }
-    else if( fval0 <= cmin0 )
-      ival0 = cmin0;
-    else if( fval0 >= cmax0 )
-      ival0 = cmax0;
-    else
-      ival0 = cmin0;
-
-    if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
-        colors->getSizeY() == 1 )
-      ival1 = 0 ;
-    else
-      {
-        fval1 = scale1 * val + decal1;
-        if( fval1 > cmin1 && fval1 < cmax1 ) {
-          ival1 = static_cast<int>( fval1 );
-        } else if( fval1 <= cmin1 )
-          ival1 = cmin1;
-        else if( fval1 >= cmax1 )
-          ival1 = cmax1;
-        else
-          ival1 = cmin1;
-      }
-
+    paletteCoords( in.green(), ival0, ival1 );
     col[1] = colors->at( ival0, ival1 )[1];
 
-    val = static_cast<float>( in.blue() );
-
-    fval0 = scale0 * val + decal0;
-    if( fval0 > cmin0 && fval0 < cmax0 )
-    {
-      ival0 = static_cast<int>( fval0 );
-    }
-    else if( fval0 <= cmin0 )
-      ival0 = cmin0;
-    else if( fval0 >= cmax0 )
-      ival0 = cmax0;
-    else
-      ival0 = cmin0;
-
-    if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
-        colors->getSizeY() == 1 )
-      ival1 = 0 ;
-    else
-      {
-        fval1 = scale1 * val + decal1;
-        if( fval1 > cmin1 && fval1 < cmax1 ) {
-          ival1 = static_cast<int>( fval1 );
-        } else if( fval1 <= cmin1 )
-          ival1 = cmin1;
-        else if( fval1 >= cmax1 )
-          ival1 = cmax1;
-        else
-          ival1 = cmin1;
-      }
-
+    paletteCoords( in.blue(), ival0, ival1 );
     col[2] = colors->at( ival0, ival1 )[2];
 
-    val = static_cast<float>( std::sqrt( in.red() * in.red()
+    double val = static_cast<double>( std::sqrt( in.red() * in.red()
                                          + in.green() * in.green()
                                          + in.blue() * in.blue() ) );
-
-    fval0 = scale0 * val + decal0;
-    if( fval0 > cmin0 && fval0 < cmax0 ) {
-      ival0 = static_cast<int>( fval0 );
-    } else if( fval0 <= cmin0 )
-      ival0 = cmin0;
-    else if( fval0 >= cmax0 )
-      ival0 = cmax0;
-    else
-      ival0 = cmin0;
-
-    if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
-        colors->getSizeY() == 1 )
-      ival1 = 0 ;
-    else
-      {
-        fval1 = scale1 * val + decal1;
-        if( fval1 > cmin1 && fval1 < cmax1 ) {
-          ival1 = static_cast<int>( fval1 );
-        } else if( fval1 <= cmin1 )
-          ival1 = cmin1;
-        else if( fval1 >= cmax1 )
-          ival1 = cmax1;
-        else
-          ival1 = cmin1;
-      }
-
+    paletteCoords( val, ival0, ival1 );
     col[3] = colors->at( ival0, ival1 )[3];
 
     return col;
@@ -374,140 +270,17 @@ namespace anatomist
     AimsRGBA col;
 
     int ival0, ival1;
-    float fval0, fval1, val = static_cast<float>( in.red() );
 
-    fval0 = scale0 * val + decal0;
-    if( fval0 > cmin0 && fval0 < cmax0 )
-    {
-      ival0 = static_cast<int>( fval0 );
-    }
-    else if( fval0 <= cmin0 )
-      ival0 = cmin0;
-    else if( fval0 >= cmax0 )
-      ival0 = cmax0;
-    else
-      ival0 = cmin0;
-
-    if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
-        colors->getSizeY() == 1 )
-      ival1 = 0 ;
-    else
-      {
-        fval1 = scale1 * val + decal1;
-        if( fval1 > cmin1 && fval1 < cmax1 )
-        {
-          ival1 = static_cast<int>( fval1 );
-        }
-        else if( fval1 <= cmin1 )
-          ival1 = cmin1;
-        else if( fval1 >= cmax1 )
-          ival1 = cmax1;
-        else
-          ival1 = cmin1;
-      }
-
+    paletteCoords( in.red(), ival0, ival1 );
     col[0] = colors->at( ival0, ival1 )[0];
 
-    val = static_cast<float>( in.green() );
-
-    fval0 = scale0 * val + decal0;
-    if( fval0 > cmin0 && fval0 < cmax0 )
-    {
-      ival0 = static_cast<int>( fval0 );
-    }
-    else if( fval0 <= cmin0 )
-      ival0 = cmin0;
-    else if( fval0 >= cmax0 )
-      ival0 = cmax0;
-    else
-      ival0 = cmin0;
-
-    if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
-        colors->getSizeY() == 1 )
-      ival1 = 0 ;
-    else
-      {
-        fval1 = scale1 * val + decal1;
-        if( fval1 > cmin1 && fval1 < cmax1 )
-        {
-          ival1 = static_cast<int>( fval1 );
-        }
-        else if( fval1 <= cmin1 )
-          ival1 = cmin1;
-        else if( fval1 >= cmax1 )
-          ival1 = cmax1;
-        else
-          ival1 = cmin1;
-      }
-
+    paletteCoords( in.green(), ival0, ival1 );
     col[1] = colors->at( ival0, ival1 )[1];
 
-    val = static_cast<float>( in.blue() );
-
-    fval0 = scale0 * val + decal0;
-    if( fval0 > cmin0 && fval0 < cmax0 )
-    {
-      ival0 = static_cast<int>( fval0 );
-    }
-    else if( fval0 <= cmin0 )
-      ival0 = cmin0;
-    else if( fval0 >= cmax0 )
-      ival0 = cmax0;
-    else
-      ival0 = cmin0;
-
-    if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
-        colors->getSizeY() == 1 )
-      ival1 = 0 ;
-    else
-      {
-        fval1 = scale1 * val + decal1;
-        if( fval1 > cmin1 && fval1 < cmax1 )
-        {
-          ival1 = static_cast<int>( fval1 );
-        }
-        else if( fval1 <= cmin1 )
-          ival1 = cmin1;
-        else if( fval1 >= cmax1 )
-          ival1 = cmax1;
-        else
-          ival1 = cmin1;
-      }
-
+    paletteCoords( in.blue(), ival0, ival1 );
     col[2] = colors->at( ival0, ival1 )[2];
 
-    val = static_cast<float>( in.alpha() );
-
-    fval0 = scale0 * val + decal0;
-    if( fval0 > cmin0 && fval0 < cmax0 )
-    {
-      ival0 = static_cast<int>( fval0 );
-    }
-    else if( fval0 <= cmin0 )
-      ival0 = cmin0;
-    else if( fval0 >= cmax0 )
-      ival0 = cmax0;
-    else
-      ival0 = cmin0;
-
-    if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
-        colors->getSizeY() == 1 )
-      ival1 = 0 ;
-    else
-      {
-        fval1 = scale1 * val + decal1;
-        if( fval1 > cmin1 && fval1 < cmax1 )
-        {
-          ival1 = static_cast<int>( fval1 );
-        }
-        else if( fval1 <= cmin1 )
-          ival1 = cmin1;
-        else if( fval1 >= cmax1 )
-          ival1 = cmax1;
-        else
-          ival1 = cmin1;
-      }
-
+    paletteCoords( in.alpha(), ival0, ival1 );
     col[3] = colors->at( ival0, ival1 )[3];
 
     return col;
