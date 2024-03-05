@@ -99,6 +99,8 @@ namespace anatomist
     AimsRGBA color( const T & ) const;
     /// returns a black / transparent / zero color
     T neutralColor() const;
+    void paletteCoords( double val, int & px, int & py ) const;
+
 
   private:
     typename internal::ColorTraitsType<T>::traitstype	_traitstype;
@@ -140,6 +142,13 @@ namespace anatomist
   T ColorTraits<T>::neutralColor() const
   {
     return _traitstype.neutralColor();
+  }
+
+  template <typename T> inline
+  void ColorTraits<T>::paletteCoords( double val, int & px, int & py ) const
+  {
+    _traitstype.paletteCoords( val, px, py );
+
   }
 
   // ---
