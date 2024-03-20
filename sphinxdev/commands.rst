@@ -2806,9 +2806,8 @@ SetObjectPalette
 
 .. raw:: html
 
-  Affecte une palette &agrave; des objets. Les param&egrave;tres
-  (tous    optionnels)  permettent de r&eacute;gler le mode d'utilisation
-  de la  palette    par les objets.
+  Assigns a palette (or colormap) to objects. Parameters allow to tune how colors are mapped to objects.
+  <b>Anatomist 5.2</b> brings important changes in the behavior of colors mapping with "zero-centered" mode. See the parameters explanation.
 
   <table width="100%" class="docutils">
   <thead>
@@ -2826,94 +2825,92 @@ SetObjectPalette
     </tr>
     <tr>
       <td><tt>palette</tt></td>
-      <td><tt>string</tt> (optionnel depuis la version 3.2)</td>
-      <td>nom de la palette principale &agrave; appliquer</td>
+      <td><tt>string</tt> (optional since version 3.2)</td>
+      <td>primary palette name to be applied</td>
     </tr>
     <tr>
       <td><tt>palette2</tt></td>
-      <td><tt>string</tt> (optionnel)</td>
-      <td>palette secondaire (utile uniquement dans le cas de textures
-        2D)</td>
+      <td><tt>string</tt> (optional)</td>
+      <td>secondary palette (only useful with 2D textures)</td>
     </tr>
     <tr>
       <td><tt>min</tt></td>
-      <td><tt>float</tt> (optionnel)</td>
-      <td>proportion min de la palette correspondant au min des
-        valeurs de la texture de l'objet associ&eacute;es</td>
+      <td><tt>float</tt> (optional)</td>
+      <td>min proportion of object values range which will be mapped to the beginning of the palette colors.<br/>
+      <b>Since Anatomist 5.2</b>, if <tt>zero_centered_axis1</tt> / <tt>zero_centered_axis2</tt> is set, the <tt>min</tt> is not relative to the beginning of the palette, but to zero. This way it sets an absolute value threshold (which applies to both positive and negative values of the object).
+      </td>
     </tr>
     <tr>
       <td><tt>max</tt></td>
-      <td><tt>float</tt> (optionnel)</td>
-      <td>pareil pour le max. <tt>min</tt> <tt>max</tt> peuvent
-        &ecirc;tre      n&eacute;gatifs  (utilisation d'une sous-partie de lapalette)
-      et <tt>max</tt>         peut &ecirc;tre  sup&eacute;rieur &agrave; <tt>min</tt>
-      (-&gt;palette    invers&eacute;e)</td>
+      <td><tt>float</tt> (optional)</td>
+      <td>max proportion of object values range which will be mapped to the end of the palette colors.<br/>
+      <b>Since Anatomist 5.2</b>, if <tt>zero_centered_axis1</tt> / <tt>zero_centered_axis2</tt> is set, <tt>max</tt> is "double-sided" and applies to the absolute value of the object values range.<br/>
+      <tt>min</tt> and <tt>max</tt> may be positive or negative. They can be used to map to a sub-part of the palette, and if <tt>min</tt> &gt; <tt>max</tt>, then the palette gets inverted.
+      </td>
     </tr>
     <tr>
       <td><tt>min2</tt></td>
-      <td><tt>float</tt> (optionnel)</td>
-      <td>pareil pour l'affectation de la 2&egrave;me palette sur
-        la  2&egrave;me     composante de texture (objets avec texture 2D)</td>
+      <td><tt>float</tt> (optional)</td>
+      <td>same as <tt>min1</tt> but for the secondary palette, or the 2nd palette coorinate, for a 2D texture.
+      </td>
     </tr>
     <tr>
       <td><tt>max2</tt></td>
-      <td><tt>float</tt> (optionnel)</td>
-      <td>idem</td>
+      <td><tt>float</tt> (optional)</td>
+      <td>same</td>
     </tr>
     <tr>
       <td><tt>mixMethod</tt></td>
-      <td><tt>string</tt> (optionnel)</td>
-      <td>Mode de m&eacute;lange des 2 palettes pour former une
-        palette 2D: "<tt>LINEAR</tt>" ou "<tt>GEOMETRIC</tt>" pour le moment</td>
+      <td><tt>string</tt> (optional)</td>
+      <td>Mix mathod between 2 palettes to build a 2D palette: "<tt>LINEAR</tt>" or "<tt>GEOMETRIC</tt>".</td>
     </tr>
     <tr>
       <td><tt>linMixFactor</tt></td>
-      <td><tt>float</tt> (optionnel)</td>
-      <td>facteur de m&eacute;lange entre les 2 palettes en mode
-        lin&eacute;aire</td>
+      <td><tt>float</tt> (optional)</td>
+      <td>Mixing proportion between the 2 palettes in linear mode</td>
     </tr>
     <tr>
       <td><tt>palette1Dmapping</tt></td>
-      <td><tt>string</tt> (optionnel)</td>
-      <td>Mode de parcours d'une palette 2D (image) pour une texture 1D:
-        <tt>FirstLine</tt> (1ère ligne de l'image) ou <tt>Diagonal</tt>
+      <td><tt>string</tt> (optional)</td>
+      <td>Mapping mode for a 2D palette (image) when used on a 1D texture:
+        <tt>FirstLine</tt> (1st line of the image) or <tt>Diagonal</tt>
       </td>
     </tr>
     <tr>
       <td><tt>absoluteMode</tt></td>
-      <td><tt>int</tt> (optionnel)</td>
-      <td><b>Nouveau dans Anatomist 3.1.4</b><br>
-        Si ce flag est non-nul, les valeurs <tt>min</tt>, <tt>max</tt>, <tt>min2</tt> et <tt>max2</tt> sont des valeurs absolues dans la texture des objets concernés. Sinon (par défaut) on est en mode proportionnel.
+      <td><tt>int</tt> (optional)</td>
+      <td><b>New in Anatomist 3.1.4</b><br>
+        If this flag is set, values <tt>min</tt>, <tt>max</tt>, <tt>min2</tt> and <tt>max2</tt> are absolute values in object texture values. Otherwise (the default), they are proportional to the object texture values range.
       </td>
     </tr>
     <tr>
       <td><tt>sizex</tt></td>
-      <td><tt>int</tt> (optionnel)</td>
-      <td><b>Nouveau dans Anatomist 3.2</b><br>
-        Taille X de la palette/texture interne utilisée par OpenGL.<br/>
-        Ce paramètre peut être utile pour avoir une bonne précision de texture sur certains objets.
+      <td><tt>int</tt> (optional)</td>
+      <td><b>New in Anatomist 3.2</b><br>
+        X size of the internal palette / texture image used in OpenGL.<br/>
+        This parameter is useful to get the desired color precision on some objects.
       </td>
     </tr>
     <tr>
       <td><tt>sizey</tt></td>
       <td><tt>int</tt> (optionnel)</td>
-      <td><b>Nouveau dans Anatomist 3.2</b><br>
-        Taille Y de la palette/texture interne utilisée par OpenGL.<br/>
-        Ce paramètre peut être utile pour avoir une bonne précision de texture sur certains objets.
+      <td><b>New in Anatomist 3.2</b><br>
+        Y size of the internal palette / texture image used in OpenGL.<br/>
+        This parameter is useful to get the desired color precision on some objects.
       </td>
     </tr>
     <tr>
       <td><tt>zero_centered_axis1</tt></td>
-      <td><tt>int</tt> (optionnel)</td>
+      <td><tt>int</tt> (optional)</td>
       <td><b>New in Anatomist 4.6</b><br>
-        If activated (1), the palette will be centered to absolute value 0 when min/max are manipulated. Note that it doesn't force symmetry when setting min/max by a program, and the center is related to object extremal values.
+        If activated (1), the palette will be centered to absolute value 0 when min/max are manipulated. The behavior has changed in <b>Anatomist 5.2</b> as zero-centered palettes can now have both high and low thresholds using <tt>max</tt> / <tt>min</tt> settings, and are actually forced to be symmetrric.
       </td>
     </tr>
     <tr>
       <td><tt>zero_centered_axis2</tt></td>
       <td><tt>int</tt> (optionnel)</td>
       <td><b>New in Anatomist 4.6</b><br>
-        If activated (1), the 2nd palette will be centered to absolute value 0 when min/max are manipulated. Note that it doesn't force symmetry when setting min/max by a program, and the center is related to object extremal values.
+        Same as <tt>zero_centered_axis1</tt> for the 2nd texture component and palette.
       </td>
     </tr>
 
