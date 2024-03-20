@@ -832,6 +832,28 @@ Some textures are 2D: each mesh vertex has 2 different texture values, which may
 
   Palette window
 
+
+Palettes and positive / negative values
+***************************************
+
+Some volumes or textures contain values which may be positive or negative, with 0 being a meningful value: for instance contrasts maps with positive and negative effects, relative curvature maps, etc. To facilitate color mapping with these objects, the palette settings have a "value 0 at center" setting, which allows to maintain the center of the palette matching the value 0 in objects values.
+
+**Anatomist 5.2** brings improvements to this "zero-centered" mode, and behaves differently from earlier versions. In this mode, the ``max`` value is now relative to the absolute value of the object values extremum, and ``min`` sets a lower threshold in absolute values, but which is symmetric: this way it allows to enlarge the "neutral" color at the center of the palette. Negative values are still allowed for ``max`` (meaning: colormap inversion) and ``min``: if ``min`` has a different sign from ``max``, then the center of the palette will be shrunk, removing colors from the center. When switching to this mode, the ``min`` value automatically gets set to 0 (meaning: threshold is 0).
+
+The following figure shows the effect of the ``min`` setting with the same palette:
+
+.. figure:: images/sympalette_1.jpg
+
+  min at 0
+
+.. figure:: images/sympalette_2.jpg
+
+  min > 0: positive absolute threshold
+
+.. figure:: images/sympalette_3.jpg
+
+  min < 0
+
 **Palette parameters:**
 
 +--------------------+--------------------------------------------------------+
