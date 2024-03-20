@@ -41,20 +41,49 @@ namespace anatomist
 {
 
 template <typename T>
-void ColorScalarPaletteTraits<T>::setup( const T & minit, const T & maxit )
+void ColorScalarPaletteTraits<T>::setup( const T & minit, const T & maxit,
+                                         const T & minit1, const T & maxit1 )
+{
+  setup1D( 0, minit, maxit );
+  setup1D( 1, minit1, maxit1 );
+}
+
+
+template <typename T>
+void ColorScalarPaletteTraits<T>::setup1D( int dim,
+                                           const T & minit, const T & maxit )
 {
   colors = palette->colors();
 
-  unsigned	ncol0, ncol1;
-  float		minc0, minc1, maxc0, maxc1;
+  float  scale;
+  float  decal;
+  int    cmin;
+  int    cmax;
+  float  minv;
+  float  maxv;
+  float  scalen;
+  float  decaln;
+  int    cminn;
+  int    cmaxn;
+
+  unsigned	ncol0;
+  float		minc0, maxc0;
   float		mini = static_cast<float>( minit ),
     maxi = static_cast<float>( maxit );
 
-  ncol0 = colors->getSizeX();
-  ncol1 = colors->getSizeY();
+  ncol0 = colors->getSize()[dim];
 
-  minc0 = palette->min1();
-  maxc0 = palette->max1(); // colormap min & max
+  if( dim == 1 )
+  {
+    minc0 = palette->min2();
+    maxc0 = palette->max2(); // colormap min & max
+  }
+  else
+  {
+    minc0 = palette->min1();
+    maxc0 = palette->max1(); // colormap min & max
+  }
+
   if( minc0 == maxc0 )
   {
     if( minc0 == 1. )
@@ -62,60 +91,106 @@ void ColorScalarPaletteTraits<T>::setup( const T & minit, const T & maxit )
     else
       maxc0 = 1.;
   }
-  minc1 = palette->min2();
-  maxc1 = palette->max2(); // colormap min & max
-  if( minc1 == maxc1 )
-  {
-    if( minc1 == 1. )
-      minc1 = 0.;
-    else
-      maxc1 = 1.;
-  }
 
   if( mini == maxi )
-    {
-      maxi = mini + 1.;
-      minv0 = mini;
-      maxv0 = maxi;
-      minv1 = mini;
-      maxv1 = maxi;
-    }
+  {
+    maxi = mini + 1.;
+    minv = mini;
+    maxv = maxi;
+  }
   else
+  {
+    // thresholds in image values
+    if( ( dim == 0 && !palette->zeroCenteredAxis1() )
+        || ( dim == 1 && !palette->zeroCenteredAxis2() ) )
     {
-      // thresholds in image values
-      minv0 = float( mini + minc0 * (double(maxi) - mini) );
-      maxv0 = float( mini + maxc0 * (double(maxi) - mini) );
-      if( minv0 > maxv0 )
-        swap(minv0, maxv0);
-      // thresholds in image values
-      minv1 = float( mini + minc1 * (double(maxi) - mini) );
-      maxv1 = float( mini + maxc1 * (double(maxi) - mini) );
-      if( minv1 > maxv1 )
-        swap(minv1, maxv1);
+      minv = float( mini + minc0 * (double(maxi) - mini) );
+      maxv = float( mini + maxc0 * (double(maxi) - mini) );
+      if( minv > maxv )
+        swap(minv, maxv);
     }
+    else
+    {
+      maxi = std::max( std::abs( maxi ), std::abs( mini) );
+      mini = -maxi;
+      minv = float( minc0 * double(maxi) );
+      maxv = float( std::abs( maxc0 ) * double(maxi) );
+      if( maxc0 < 0 )
+        minv *= -1;
+    }
+  }
 
-  scale0 = float( ( static_cast<double>( ncol0 ) )
-    / ( (double(maxi) - mini) * (maxc0 - minc0) ) );
-  scale1 = float( ( static_cast<double>( ncol1 ) )
-    / ( (double(maxi) - mini) * (maxc1 - minc1) ) );
-  decal0 = float( - ( mini / (double(maxi) - mini) + minc0 ) * ncol0
-    / (maxc0 - minc0) );
-  decal1 = float( - ( mini / (double(maxi) - mini) + minc1 ) * ncol1
-    / (maxc1 - minc1) );
-  cmin0 = 0;
-  cmin1 = 0;
-  cmax0 = colors->getSizeX() - 1;
-  cmax1 = colors->getSizeY() - 1;
+  if( ( dim == 0 && !palette->zeroCenteredAxis1() )
+      || ( dim == 1 && !palette->zeroCenteredAxis2() ) )
+  {
+    scale = float( ( static_cast<double>( ncol0 ) )
+      / ( (double(maxi) - mini) * (maxc0 - minc0) ) );
+    decal = float( - ( mini / (double(maxi) - mini) + minc0 ) * ncol0
+      / (maxc0 - minc0) );
+    cmin = 0;
+    cmax = ncol0 - 1;
+  }
+  else
+  {
+    scale = float( ( static_cast<double>( ncol0 ) / 2 )
+      / ( double( maxv ) - double( minv ) ) ) * ( maxc0 >= 0 ? 1 : -1 );
+    scalen = scale;
+    if( maxc0 < 0 )
+    {
+      decal = - double( scale ) * double( maxv );
+      decaln = ncol0 / 2 + scalen * double( minv );
 
-  /*
-  std::cout << "cmin0: " << cmin0 << ", cmax0: " << cmax0 << ", cmin1: " << cmin1
-            << ", cmax1: " << cmax1 << ", scale0: " << scale0 << ", scale1: "
-            << scale1 << std::endl; */
+      cmin = 0;
+      cmax = ncol0 / 2;
+      cminn = ncol0 / 2;
+      cmaxn = ncol0 - 1;
+    }
+    else
+    {
+      decal = ncol0 / 2 - double( scale ) * double( minv );
+
+      decaln = double( scalen ) * double( maxv );
+
+      cmin = ncol0 / 2;
+      cmax = ncol0 - 1;
+      cminn = 0;
+      cmaxn = ncol0 / 2;
+    }
+  }
+
+  if( dim != 1 )
+  {
+    scale0 = scale;
+    scalen0 = scalen;
+    decal0 = decal;
+    decaln0 = decaln;
+    cmin0 = cmin;
+    cminn0 = cminn;
+    cmax0 = cmax;
+    cmaxn0 = cmaxn;
+    minv0 = minv;
+    maxv0 = maxv;
+  }
+  else
+  {
+    scale1 = scale;
+    scalen1 = scalen;
+    decal1 = decal;
+    decaln1 = decaln;
+    cmin1 = cmin;
+    cminn1 = cminn;
+    cmax1 = cmax;
+    cmaxn1 = cmaxn;
+    minv1 = minv;
+    maxv1 = maxv;
+  }
 }
 
 
 template <>
 void ColorScalarPaletteTraits<AimsRGB>::setup( const AimsRGB &,
+                                               const AimsRGB &,
+                                               const AimsRGB &,
                                                const AimsRGB & )
 {
   colors = palette->colors();
@@ -168,7 +243,7 @@ void ColorScalarPaletteTraits<AimsRGB>::setup( const AimsRGB &,
 
 template <>
 void ColorScalarPaletteTraits<AimsRGBA>::setup( const AimsRGBA &,
-    const AimsRGBA & )
+    const AimsRGBA &, const AimsRGBA &, const AimsRGBA & )
 {
   colors = palette->colors();
 

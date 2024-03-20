@@ -663,11 +663,9 @@ QImage* AObjectPalette::toQImage( int w, int h ) const
   if( !col || col->getSizeX() == 0 || col->getSizeY() == 0 )
     return 0;
 
-  unsigned      dimpx = col->getSizeX(), dimpy = col->getSizeY();
-  unsigned      dimx = 256, dimy = dimpy, x, y;
-  int           xp, yp, tmp;
-  float         m1 = min1(), M1 = max1();
-  float         m2 = min2(), M2 = max2();
+  int      dimpx = int( col->getSizeX() ), dimpy = int( col->getSizeY() );
+  int      dimx = 256, dimy = dimpy, x, y;
+  int      xp, yp, shx = 0, shy = 0;
 
   if( dimy < 32 )
     dimy = 32;
@@ -680,8 +678,11 @@ QImage* AObjectPalette::toQImage( int w, int h ) const
   if( h > 0 )
     dimy = h;
 
-  ColorTraits<int>	coltraits1( this, 0, dimx - 1 );
-  ColorTraits<int>	coltraits2( this, 0, dimy - 1 );
+  shx = -int(dimx) / 2;
+  shy = -int(dimy) / 2;
+
+  ColorTraits<int>	coltraits( this, shx, dimx + shx - 1,
+                                   shy, dimy + shy - 1 );
 
   AimsRGBA      rgb;
 
@@ -690,14 +691,91 @@ QImage* AObjectPalette::toQImage( int w, int h ) const
 
   for( y=0; y<dimy; ++y )
   {
-    coltraits2.paletteCoords( y, tmp, yp );
+    coltraits.paletteCoord1( y + shy, yp );
     for( x=0; x<dimx; ++x )
     {
-      coltraits1.paletteCoords( x, xp, tmp );
+      coltraits.paletteCoord0( x + shx, xp );
       rgb = (*col)( xp, yp );
       im.setPixel( x, y, qRgb( rgb.red(), rgb.green(), rgb.blue() ) );
     }
   }
+
+  return img;
+}
+
+
+rc_ptr<Volume<AimsRGBA> > AObjectPalette::toVolume( int w, int h,
+                                                    bool scaled ) const
+{
+  const Volume<AimsRGBA>    *col = colors();
+
+  if( !col || col->getSizeX() == 0 || col->getSizeY() == 0 )
+    return rc_ptr<Volume<AimsRGBA> >( new Volume<AimsRGBA> ) ;
+
+  int      dimpx = int( col->getSizeX() ), dimpy = int( col->getSizeY() );
+  int      dimx = 256, dimy = dimpy, x, y;
+  int      xp, yp, shx = 0, shy = 0;
+
+  if( dimy < 32 )
+    dimy = 32;
+  if( dimy > 256 )
+    dimy = 256;
+  if( dimx == 0 )
+    dimx = 1;
+  if( w > 0 )
+    dimx = w;
+  if( h > 0 )
+    dimy = h;
+
+  shx = -int(dimx) / 2;
+  shy = -int(dimy) / 2;
+
+  const AObjectPalette *pal = this;
+  AObjectPalette *unscaled_pal = 0;
+
+  if( !scaled )
+  {
+    unscaled_pal = new AObjectPalette( *this );
+    unscaled_pal->setMax1( 1. );
+    if( !zeroCenteredAxis1() )
+      unscaled_pal->setMin1( 0. );
+    else
+    {
+      if( max1() < 0 )
+        unscaled_pal->setMax1( -1. );
+      unscaled_pal->setMin1( min1() / std::abs( max1() ) );
+    }
+    unscaled_pal->setMax2( 1. );
+    if( !zeroCenteredAxis2() )
+      unscaled_pal->setMin2( 0. );
+    else
+    {
+      if( max2() < 0 )
+        unscaled_pal->setMax2( -1. );
+      unscaled_pal->setMin1( min2() / std::abs( max2() ) );
+    }
+    pal = unscaled_pal;
+  }
+
+  ColorTraits<int>	coltraits( pal, shx, dimx + shx - 1,
+                                   shy, dimy + shy - 1 );
+
+  AimsRGBA      rgb;
+
+  rc_ptr<Volume<AimsRGBA> > img( new Volume<AimsRGBA>( dimx, dimy ) );
+
+  for( y=0; y<dimy; ++y )
+  {
+    coltraits.paletteCoord1( y + shy, yp );
+    for( x=0; x<dimx; ++x )
+    {
+      coltraits.paletteCoord0( x + shx, xp );
+      (*img)( x, y ) = (*col)( xp, yp );
+    }
+  }
+
+  if( unscaled_pal )
+    delete unscaled_pal;
 
   return img;
 }

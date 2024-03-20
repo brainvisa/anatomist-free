@@ -151,6 +151,8 @@ namespace anatomist
 
     static std::map<std::string, MixMethod>	mixMethods;
     QImage* toQImage( int w = 0, int h = 0 ) const;
+    carto::rc_ptr<carto::Volume<AimsRGBA> >
+      toVolume( int w = 0, int h = 0, bool scaled = true ) const;
 
   protected:
     static std::map<std::string, MixMethod> defaultMixMethods();

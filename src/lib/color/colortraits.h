@@ -47,11 +47,19 @@ namespace anatomist
   {
   public:
     ColorScalarPaletteTraits( const AObjectPalette* pal, const T & mini,
+                              const T & maxi, const T & mini2,
+                              const T & maxi2 );
+    ColorScalarPaletteTraits( const AObjectPalette* pal, const T & mini,
                               const T & maxi );
     AimsRGBA color( const T & ) const;
-    void setup( const T & mini, const T & maxi );
+    void setup( const T & mini, const T & maxi,
+                const T & mini2, const T & maxi2 );
+    void setup1D( int dim, const T & mini, const T & maxi );
     T neutralColor() const;
-    void paletteCoords( double val, int & px, int & py ) const;
+    void paletteCoords( double val0, double val1, int & px, int & py ) const;
+    void paletteCoord( int dim, double val0, int & px ) const;
+    void paletteCoord0( double val0, int & px ) const;
+    void paletteCoord1( double val0, int & px ) const;
 
   private:
     const AObjectPalette	*palette;
@@ -68,6 +76,16 @@ namespace anatomist
     float			maxv0;
     float			minv1;
     float			maxv1;
+
+    float			scalen0;
+    float			scalen1;
+    float			decaln0;
+    float			decaln1;
+    int				cminn0;
+    int				cminn1;
+    int				cmaxn0;
+    int				cmaxn1;
+
   };
 
 
@@ -95,11 +113,16 @@ namespace anatomist
   template<typename T> class ColorTraits
   {
   public:
+    ColorTraits( const AObjectPalette*, const T & mini, const T & maxi,
+                 const T & mini2, const T & maxi2 );
     ColorTraits( const AObjectPalette*, const T & mini, const T & maxi );
     AimsRGBA color( const T & ) const;
     /// returns a black / transparent / zero color
     T neutralColor() const;
-    void paletteCoords( double val, int & px, int & py ) const;
+    void paletteCoords( double val0, double val1, int & px, int & py ) const;
+    void paletteCoord( int dim, double val0, int & px ) const;
+    void paletteCoord0( double val0, int & px ) const;
+    void paletteCoord1( double val0, int & px ) const;
 
 
   private:
@@ -125,6 +148,16 @@ namespace anatomist
 
   }
 
+
+  template<typename T> inline
+  ColorTraits<T>::ColorTraits( const AObjectPalette* pal, const T & mini,
+                               const T & maxi, const T & mini2,
+                               const T & maxi2 )
+    : _traitstype( pal, mini, maxi, mini2, maxi2 )
+  {
+  }
+
+
   template<typename T> inline
   ColorTraits<T>::ColorTraits( const AObjectPalette* pal, const T & mini,
                                const T & maxi )
@@ -145,10 +178,31 @@ namespace anatomist
   }
 
   template <typename T> inline
-  void ColorTraits<T>::paletteCoords( double val, int & px, int & py ) const
+  void ColorTraits<T>::paletteCoords( double val0, double val1,
+                                      int & px, int & py ) const
   {
-    _traitstype.paletteCoords( val, px, py );
+    _traitstype.paletteCoords( val0, val1, px, py );
 
+  }
+
+  template <typename T> inline
+  void ColorTraits<T>::paletteCoord( int dim, double val0, int & px ) const
+  {
+    _traitstype.paletteCoord( dim, val0, px );
+  }
+
+
+  template <typename T> inline
+  void ColorTraits<T>::paletteCoord0( double val0, int & px ) const
+  {
+    _traitstype.paletteCoord0( val0, px );
+  }
+
+
+  template <typename T> inline
+  void ColorTraits<T>::paletteCoord1( double val0, int & px ) const
+  {
+    _traitstype.paletteCoord1( val0, px );
   }
 
   // ---
@@ -185,59 +239,164 @@ namespace anatomist
   ColorScalarPaletteTraits<T>::ColorScalarPaletteTraits( const AObjectPalette
                                                          * pal,
                                                          const T & mini,
+                                                         const T & maxi,
+                                                         const T & mini2,
+                                                         const T & maxi2 )
+    : palette( pal )
+  {
+    setup( mini, maxi, mini2, maxi2 );
+  }
+
+
+  template <typename T> inline
+  ColorScalarPaletteTraits<T>::ColorScalarPaletteTraits( const AObjectPalette
+                                                         * pal,
+                                                         const T & mini,
                                                          const T & maxi )
     : palette( pal )
   {
-    setup( mini, maxi );
+    setup( mini, maxi, mini, maxi );
   }
 
 
   template <typename T> inline
   void ColorScalarPaletteTraits<T>::paletteCoords(
-    double val, int & ival0, int & ival1 ) const
+    double val0, double val1, int & ival0, int & ival1 ) const
   {
-    double fval0, fval1;
+    paletteCoord0( val0, ival0 );
+    paletteCoord1( val0, ival0 );
+  }
 
-    // Comparisons are written this way to accommodate NaN and Inf
-    fval0 = scale0 * val + decal0;
-    if( fval0 > cmin0 && fval0 < cmax0 )
+
+  template <typename T> inline
+  void ColorScalarPaletteTraits<T>::paletteCoord(
+    int dim, double val0, int & ival0 ) const
+  {
+    if( dim != 0 )
+      paletteCoord1( val0, ival0 );
+    else
+      paletteCoord0( val0, ival0 );
+  }
+
+
+  template <typename T> inline
+  void ColorScalarPaletteTraits<T>::paletteCoord0(
+    double val0, int & ival0 ) const
+  {
+    double fval0;
+
+    if( !palette->zeroCenteredAxis1() )
     {
-      ival0 = static_cast<int>( fval0 );
-    }
-    else if( fval0 <= cmin0 )
-      ival0 = cmin0;
-    else if( fval0 >= cmax0 )
-      ival0 = cmax0;
-    else
-      ival0 = cmin0;
+      // Comparisons are written this way to accommodate NaN and Inf
+      fval0 = scale0 * val0 + decal0;
 
-    if( palette->palette1DMapping() == AObjectPalette::FIRSTLINE ||
-        colors->getSizeY() == 1 )
-      ival1 = 0 ;
-    else
+      if( fval0 > cmin0 && fval0 < cmax0 )
       {
-        fval1 = scale1 * val + decal1;
-        if( fval1 > cmin1 && fval1 < cmax1 )
-        {
-          ival1 = static_cast<int>( fval1 );
-        }
-        else if( fval1 <= cmin1 )
-          ival1 = cmin1;
-        else if( fval1 >= cmax1 )
-          ival1 = cmax1;
-        else
-          ival1 = cmin1;
+        ival0 = static_cast<int>( fval0 );
       }
+      else if( fval0 <= cmin0 )
+        ival0 = cmin0;
+      else if( fval0 >= cmax0 )
+        ival0 = cmax0;
+      else
+        ival0 = cmin0;
+    }
+    else
+    {
+      if( val0 >= 0 )
+      {
+        fval0 = scale0 * val0 + decal0;
+        if( fval0 > cmin0 && fval0 < cmax0 )
+          ival0 = static_cast<int>( fval0 );
+        else if( fval0 <= cmin0 )
+          ival0 = cmin0;
+        else if( fval0 >= cmax0 )
+          ival0 = cmax0;
+        else
+          ival0 = cmin0;
+      }
+      else
+      {
+        fval0 = scalen0 * val0 + decaln0;
+        if( fval0 > cminn0 && fval0 < cmaxn0 )
+          ival0 = static_cast<int>( fval0 );
+        else if( fval0 <= cminn0 )
+          ival0 = cminn0;
+        else if( fval0 >= cmaxn0 )
+          ival0 = cmaxn0;
+        else
+          ival0 = cminn0;
+      }
+    }
+  }
+
+
+  template <typename T> inline
+  void ColorScalarPaletteTraits<T>::paletteCoord1(
+    double val0, int & ival0 ) const
+  {
+    if( ( !palette->is2dMode()
+          && palette->palette1DMapping() == AObjectPalette::FIRSTLINE )
+        || colors->getSizeY() == 1 )
+      ival0 = 0 ;
+    else
+    {
+      double fval0;
+
+      if( !palette->zeroCenteredAxis2() )
+      {
+        // Comparisons are written this way to accommodate NaN and Inf
+        fval0 = scale1 * val0 + decal1;
+
+        if( fval0 > cmin1 && fval0 < cmax1 )
+        {
+          ival0 = static_cast<int>( fval0 );
+        }
+        else if( fval0 <= cmin1 )
+          ival0 = cmin1;
+        else if( fval0 >= cmax1 )
+          ival0 = cmax1;
+        else
+          ival0 = cmin1;
+      }
+      else
+      {
+        if( val0 >= 0 )
+        {
+          fval0 = scale1 * val0 + decal1;
+          if( fval0 > cmin1 && fval0 < cmax1 )
+            ival0 = static_cast<int>( fval0 );
+          else if( fval0 <= cmin1 )
+            ival0 = cmin1;
+          else if( fval0 >= cmax1 )
+            ival0 = cmax1;
+          else
+            ival0 = cmin1;
+        }
+        else
+        {
+          fval0 = scalen1 * val0 + decaln1;
+          if( fval0 > cminn1 && fval0 < cmaxn1 )
+            ival0 = static_cast<int>( fval0 );
+          else if( fval0 <= cminn1 )
+            ival0 = cminn1;
+          else if( fval0 >= cmaxn1 )
+            ival0 = cmaxn1;
+          else
+            ival0 = cminn1;
+        }
+      }
+    }
   }
 
 
   template <typename T> inline
   AimsRGBA ColorScalarPaletteTraits<T>::color( const T & in ) const
   {
-    int ival0, ival1;
-    paletteCoords( in, ival0, ival1 );
+    int ival0;
+    paletteCoord0( in, ival0 );
 
-    return colors->at( ival0, ival1 );
+    return colors->at( ival0, 0 );
   }
 
   template <typename T> inline
@@ -251,22 +410,22 @@ namespace anatomist
   {
     AimsRGBA col;
 
-    int ival0, ival1;
+    int ival0;
 
-    paletteCoords( in.red(), ival0, ival1 );
-    col[0] = colors->at( ival0, ival1 )[0];
+    paletteCoord0( in.red(), ival0 );
+    col[0] = colors->at( ival0, 0 )[0];
 
-    paletteCoords( in.green(), ival0, ival1 );
-    col[1] = colors->at( ival0, ival1 )[1];
+    paletteCoord0( in.green(), ival0 );
+    col[1] = colors->at( ival0, 0 )[1];
 
-    paletteCoords( in.blue(), ival0, ival1 );
-    col[2] = colors->at( ival0, ival1 )[2];
+    paletteCoord0( in.blue(), ival0 );
+    col[2] = colors->at( ival0, 0 )[2];
 
     double val = static_cast<double>( std::sqrt( in.red() * in.red()
                                          + in.green() * in.green()
                                          + in.blue() * in.blue() ) );
-    paletteCoords( val, ival0, ival1 );
-    col[3] = colors->at( ival0, ival1 )[3];
+    paletteCoord0( val, ival0 );
+    col[3] = colors->at( ival0, 0 )[3];
 
     return col;
   }
@@ -278,19 +437,19 @@ namespace anatomist
   {
     AimsRGBA col;
 
-    int ival0, ival1;
+    int ival0;
 
-    paletteCoords( in.red(), ival0, ival1 );
-    col[0] = colors->at( ival0, ival1 )[0];
+    paletteCoord0( in.red(), ival0 );
+    col[0] = colors->at( ival0, 0 )[0];
 
-    paletteCoords( in.green(), ival0, ival1 );
-    col[1] = colors->at( ival0, ival1 )[1];
+    paletteCoord0( in.green(), ival0 );
+    col[1] = colors->at( ival0, 0 )[1];
 
-    paletteCoords( in.blue(), ival0, ival1 );
-    col[2] = colors->at( ival0, ival1 )[2];
+    paletteCoord0( in.blue(), ival0 );
+    col[2] = colors->at( ival0, 0 )[2];
 
-    paletteCoords( in.alpha(), ival0, ival1 );
-    col[3] = colors->at( ival0, ival1 )[3];
+    paletteCoord0( in.alpha(), ival0 );
+    col[3] = colors->at( ival0, 0 )[3];
 
     return col;
   }

@@ -41,6 +41,7 @@
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/application/globalConfig.h>
 #include <anatomist/object/Object.h>
+#include <anatomist/color/colortraits.h>
 #include <aims/rgb/rgb.h>
 #include <map>
 #include <vector>
@@ -1012,7 +1013,7 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
     return VolumeRef<AimsRGBA>();
   float         min = objpal->min1(), max = objpal->max1();
   float         min2 = objpal->min2(), max2 = objpal->max2();
-  unsigned      x, y;
+  int           x, y;
   unsigned      dimpx = cols->getSizeX(), dimpy = cols->getSizeY(), utmp;
   int           xs, ys;
   const TexInfo & t = glTexInfo( tex );
@@ -1057,10 +1058,10 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
     min2 = 0;
     max2 = 1;
   }
-  float facx = ( (float) dimpx ) / ( ( max - min ) * dimx );
-  float facy = ( (float) dimpy ) / ( ( max2 - min2 ) * dimy );
-  float dx = min * cols->getSizeX() / ( max - min );
-  float dy = min2 * cols->getSizeY() / ( max2 - min2 );
+  float facx = ( (float) dimpx ) / dimx;
+  float facy = ( (float) dimpy ) / dimy;
+  float dx = 0.f;
+  float dy = 0.f;
 
   // cout << "dimx: " << dimx << ", dimpx: " << dimpx << endl;
   /* if the texture image can contain the whole colormap, then use it unscaled,
@@ -1128,20 +1129,20 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
     r = 1.;
   GLubyte         ir = 255 - (GLubyte) ( r * 255.9 );
 
+  int shx = -int(dimx) / 2, shy = -int(dimy) / 2;
+
+  ColorTraits<int>	coltraits( objpal, shx * facx - dx,
+                                   (dimx - 1 + shx) * facx - dx,
+                                   shy * facy - dy,
+                                   (dimy + shy - 1) * facy - dy );
+
   for( y=0; y<static_cast<unsigned>(dimy); ++y )
   {
-    ys = (int) ( facy * y - dy );
-    if( ys < 0 )
-      ys = 0;
-    else if( ys >= (int) dimpy )
-      ys = dimpy - 1;
+    coltraits.paletteCoord1( y + shy, ys );
+
     for( x=0; x<static_cast<unsigned>(dimx); ++x )
     {
-      xs = (int) ( facx * x - dx );
-      if( xs < 0 )
-        xs = 0;
-      else if( xs >= (int) dimpx )
-        xs = dimpx - 1;
+      coltraits.paletteCoord0( x + shx, xs );
 
       rgb = (*cols)( xs, ys );
       if( t.mode == glLINEAR )
