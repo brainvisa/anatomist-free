@@ -41,8 +41,6 @@ import os
 import weakref
 import anatomist.direct.api as ana
 import anatomist.cpp as anatomist
-from six.moves import range
-from six.moves import zip
 
 an = anatomist.Anatomist()
 processor = an.theProcessor()
@@ -81,15 +79,6 @@ def getObjectId(object):
         return id
     except RuntimeError:
         return None
-
-
-def convertVolumeToArray(img):
-    import numpy
-
-    def AimsRGBtoTuple(color):
-        return (color.red(), color.green(), color.blue(), 255)
-    l = [AimsRGBtoTuple(img.value(i)) for i in range(img.getSizeX())]
-    return numpy.array(l, dtype='i')
 
 
 class MplCanvas(FigureCanvas):
@@ -195,10 +184,10 @@ class PaletteWidget(MplCanvas):
         self._aobjectPalette = self._obj.getOrCreatePalette()
         img = self._aobjectPalette.refPalette()
         self._size = img.getSizeX()
-        palette = self._compute_palette(img)
+        palette = self._compute_palette()
         self._display(palette)
 
-    def _compute_palette(self, img):
+    def _compute_palette(self):
         import numpy
         import matplotlib
         crange = numpy.linspace(0., 1., self._size)
@@ -209,9 +198,8 @@ class PaletteWidget(MplCanvas):
             a[:, 1:3] /= 255.
             return a
 
-        colors = convertVolumeToArray(img).tolist()
-        colors.reverse()
-        colors = numpy.array(colors)
+        img = self._aobjectPalette.toVolume(self._size, 1, False)
+        colors = img.np['v'][:, 0, 0, 0, :3][::-1]
         comps = [scaleComponent(colors, id) for id in range(3)]
         colorname = ['red', 'green', 'blue']
         cdict = dict(zip(colorname, comps))
@@ -236,8 +224,12 @@ class PaletteWidget(MplCanvas):
         ma = te.maxquant[0]
         pmin = self._aobjectPalette.min1()
         pmax = self._aobjectPalette.max1()
-        rmin = mi + (ma - mi) * pmin
-        rmax = mi + (ma - mi) * pmax
+        if self._aobjectPalette.zeroCenteredAxis1():
+            rmax = numpy.max((numpy.abs(mi), numpy.abs(ma))) * numpy.abs(pmax)
+            rmin = -rmax
+        else:
+            rmin = mi + (ma - mi) * pmin
+            rmax = mi + (ma - mi) * pmax
         if rmin == rmax:
             return
         pylab.imshow(range, aspect='auto', cmap=palette,
