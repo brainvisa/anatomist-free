@@ -42,6 +42,8 @@
 
 namespace anatomist
 {
+  class AWindow;
+
 
   class WindowBlockCommand : public RegularCommand, public SerializingCommand
   {
@@ -50,8 +52,9 @@ namespace anatomist
                         CommandContext* context = 0,
                         QWidget *block = 0, int cols = 0, int rows = 0,
                         bool makerect = false, float rectratio = 1.,
-                        const std::vector<int> & geom = (std::vector<int>) 0
-                        );
+                        const std::vector<int> & geom = (std::vector<int>) 0,
+                        const std::vector<AWindow *> & reorder_views
+                          = std::vector<AWindow *>() );
     virtual ~WindowBlockCommand();
 
     virtual std::string name() const { return( "WindowBlock" ); }
@@ -73,6 +76,7 @@ namespace anatomist
     int                 _rows;
     bool                _rect;
     float               _rectratio;
+    std::vector<AWindow *> _reorder_views;
   };
 
 }

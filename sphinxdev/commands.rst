@@ -3161,6 +3161,13 @@ WindowBlock
         if <tt>make_rectangle</tt> is set, this parameter specifies the width / height ratio of the rectangle. Default: 1.
       </td>
     </tr>
+    <tr>
+      <td><tt>reorder_views</tt></td>
+      <td><tt>int_vector</tt> (optional)</td>
+      <td>
+        <b>New in Anatomist 5.2</b>. If given, the views will be reordered in the order of the given windows, following the row or column alignment.
+      </td>
+    </tr>
   </tbody>
   </table>
 

@@ -36,6 +36,7 @@
 #include <anatomist/processor/Serializer.h>
 #include <anatomist/processor/unserializer.h>
 #include <anatomist/window/qwinblock.h>
+#include <anatomist/window/qwindow.h>
 #include <anatomist/processor/context.h>
 // #include <anatomist/processor/event.h>
 #include <cartobase/object/syntax.h>
@@ -55,10 +56,12 @@ WindowBlockCommand::WindowBlockCommand( int id,
                                         QWidget *block,
                                         int cols, int rows,
                                         bool makerect, float rectratio,
-                                        const vector<int> & geom )
+                                        const vector<int> & geom,
+                                        const vector<AWindow *>
+                                          & reorder_views )
   : RegularCommand(), SerializingCommand( context ), _id( id ),
     _geom( geom ), _block( block ), _cols(cols), _rows( rows ),
-    _rect( makerect ), _rectratio( rectratio )
+    _rect( makerect ), _rectratio( rectratio ), _reorder_views( reorder_views )
 {
 }
 
@@ -79,6 +82,7 @@ bool WindowBlockCommand::initSyntax()
   s[ "geometry"        ] = Semantic( "int_vector", false );
   s[ "make_rectangle"  ] = Semantic( "int", false );
   s[ "rectangle_ratio" ] = Semantic( "float", false );
+  s[ "reorder_views"   ] = Semantic( "int_vector", false );
   Registry::instance()->add( "WindowBlock", &read, ss );
   return( true );
 }
@@ -87,6 +91,7 @@ bool WindowBlockCommand::initSyntax()
 void WindowBlockCommand::doit()
 {
   QAWindowBlock *block = 0;
+  cout << "WindowBlockCommand, _block: " << _block << endl;
   if( _block )
   {
     // check if the block exists
@@ -141,6 +146,20 @@ void WindowBlockCommand::doit()
   }
   if( _block )
   {
+    block = dynamic_cast<QAWindowBlock *>( _block );
+    if( block && !_reorder_views.empty() )
+    {
+      list<QWidget *> wids;
+      vector<AWindow *>::const_iterator iw, ew = _reorder_views.end();
+      QAWindow *wid;
+      for( iw=_reorder_views.begin(); iw!=ew; ++iw )
+      {
+        wid = dynamic_cast<QAWindow *>( *iw );
+        if( wid )
+          wids.push_back( wid );
+      }
+      block->reorderViews( wids );
+    }
     if( block && _rect )
       block->arrangeInRect( _rectratio );
     if( _geom.size() == 4 )
@@ -154,8 +173,11 @@ Command* WindowBlockCommand::read( const Tree & com, CommandContext* context )
   string        type;
   int           id, cols = 0, rows = 0, rect = 0;
   vector<int>   geom;
+  vector<int>   reorder_i;
   void          *ptr = 0;
   float         rectratio = 1.;
+  unsigned      i, n;
+  vector<AWindow *> winL;
 
   if( !com.getProperty( "block", id ) )
     return 0;
@@ -164,10 +186,23 @@ Command* WindowBlockCommand::read( const Tree & com, CommandContext* context )
   com.getProperty( "block_rows", rows );
   com.getProperty( "make_rectangle", rect );
   com.getProperty( "rectangle_ratio", rectratio );
+  com.getProperty( "reorder_views", reorder_i );
   if( id > 0 )
     ptr = context->unserial->pointer( id, "Widget" );
+
+  winL.reserve( reorder_i.size() );
+  for( i=0, n=reorder_i.size(); i<n; ++i )
+  {
+    void * wptr = context->unserial->pointer( reorder_i[i], "AWindow" );
+    if( wptr )
+      winL.push_back( (AWindow *) wptr );
+    else
+      cerr << "window id " << reorder_i[i] << " not found\n";
+  }
+  cout << "WindowBlockCommand read, id: " << id << ", block: " << ptr << endl;
+
   return new WindowBlockCommand( id, context, (QWidget *) ptr, cols, rows,
-                                 (bool) rect, rectratio, geom );
+                                 (bool) rect, rectratio, geom, winL );
 }
 
 
@@ -185,5 +220,14 @@ void WindowBlockCommand::write( Tree & com, Serializer* ser ) const
     t->setProperty( "make_rectangle", (int) 1 );
   if( _rectratio != 1. )
     t->setProperty( "rectangle_ratio", _rectratio );
+
+  vector<AWindow *>::const_iterator	iw;
+  vector<int> win;
+
+  for( iw=_reorder_views.begin(); iw!=_reorder_views.end(); ++iw )
+    win.push_back( ser->serialize( *iw ) );
+  if( !win.empty() )
+    t->setProperty( "reorder_views", win );
+
   com.insert( t );
 }
