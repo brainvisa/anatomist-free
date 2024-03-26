@@ -91,7 +91,6 @@ bool WindowBlockCommand::initSyntax()
 void WindowBlockCommand::doit()
 {
   QAWindowBlock *block = 0;
-  cout << "WindowBlockCommand, _block: " << _block << endl;
   if( _block )
   {
     // check if the block exists
@@ -199,7 +198,6 @@ Command* WindowBlockCommand::read( const Tree & com, CommandContext* context )
     else
       cerr << "window id " << reorder_i[i] << " not found\n";
   }
-  cout << "WindowBlockCommand read, id: " << id << ", block: " << ptr << endl;
 
   return new WindowBlockCommand( id, context, (QWidget *) ptr, cols, rows,
                                  (bool) rect, rectratio, geom, winL );
