@@ -168,36 +168,76 @@ void SetObjectPaletteCommand::doit()
             absmode = true;
             float m0 = te.minquant[0];
             float scl0;
-            if( te.maxquant[0] != m0 )
-              scl0 = 1. / (te.maxquant[0] - m0);
-            else
-              scl0 = 1.;
-            if( _min1flg )
-              pal.setMin1( ( _min1 - m0 ) * scl0 );
-            else
-              pal.setMin1( o->palette()->min1() );
-            if( _max1flg )
+            if( pal.zeroCenteredAxis1() )
             {
-              pal.setMax1( ( _max1 - m0 ) * scl0 );
+              double omax = std::max( std::abs( te.maxquant[0] ),
+                                      std::abs( te.minquant[0] ) );
+              if( omax != 0 )
+                scl0 = 1. / omax;
+              else
+                scl0 = 1.;
+              if( _min1flg )
+                pal.setMin1( _min1 * scl0 );
+              else
+                pal.setMin1( o->palette()->min1() );
+
+              if( _max1flg )
+                pal.setMax1( _max1 * scl0 );
+              else
+                pal.setMax1( o->palette()->max1() );
             }
             else
-              pal.setMax1( o->palette()->max1() );
+            {
+              if( te.maxquant[0] != m0 )
+                scl0 = 1. / (te.maxquant[0] - m0);
+              else
+                scl0 = 1.;
+              if( _min1flg )
+                pal.setMin1( ( _min1 - m0 ) * scl0 );
+              else
+                pal.setMin1( o->palette()->min1() );
+
+              if( _max1flg )
+                pal.setMax1( ( _max1 - m0 ) * scl0 );
+              else
+                pal.setMax1( o->palette()->max1() );
+            }
             float m1 = 0, scl1 = 1;
             if( te.minquant.size() >= 2 )
             {
-              m1 = te.minquant[1];
-              if( te.maxquant[1] != m1 )
-                scl1 = 1. / (te.maxquant[1] - m1);
+              if( pal.zeroCenteredAxis2() )
+              {
+                double omax = std::max( std::abs( te.maxquant[1] ),
+                                        std::abs( te.minquant[1] ) );
+                if( omax != 0 )
+                  scl1 = 1. / omax;
+                else
+                  scl1 = 1.;
+                if( _min2flg )
+                  pal.setMin2( _min2 * scl1 );
+                else
+                  pal.setMin2( o->palette()->min2() );
+                if( _max2flg )
+                  pal.setMax2( _max2 * scl1 );
+                else
+                  pal.setMax2( o->palette()->max2() );
+              }
               else
-                scl1 = 1.;
-              if( _min2flg )
-                pal.setMin2( ( _min2 - m1 ) * scl1 );
-              else
-                pal.setMin2( o->palette()->min2() );
-              if( _max2flg )
-                pal.setMax2( ( _max2 - m1 ) * scl1 );
-              else
-                pal.setMax2( o->palette()->max2() );
+              {
+                m1 = te.minquant[1];
+                if( te.maxquant[1] != m1 )
+                  scl1 = 1. / (te.maxquant[1] - m1);
+                else
+                  scl1 = 1.;
+                if( _min2flg )
+                  pal.setMin2( ( _min2 - m1 ) * scl1 );
+                else
+                  pal.setMin2( o->palette()->min2() );
+                if( _max2flg )
+                  pal.setMax2( ( _max2 - m1 ) * scl1 );
+                else
+                  pal.setMax2( o->palette()->max2() );
+              }
             }
           }
         }

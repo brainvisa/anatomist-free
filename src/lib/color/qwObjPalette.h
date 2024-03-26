@@ -119,7 +119,7 @@ protected:
   virtual QWidget* makeDimBox( const QString & title, QWidget* parent, 
                                DimBox* dbox );
   virtual void setValues( DimBox* dimBox, float min, float max, 
-                          float objMin, float objMax );
+                          float objMin, float objMax, bool zeroCentered );
   virtual void setValues1();
   virtual void setValues2();
   virtual void updateObjects();

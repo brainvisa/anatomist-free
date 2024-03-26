@@ -821,9 +821,9 @@ void QAPaletteWin::update( const anatomist::Observable* obs, void* )
         if( d->objMin == d->objMax )
           d->objMax = d->objMin + 1;	// avoid pbs of division by 0
         setValues( d->dimBox1, d->objpal->min1(), d->objpal->max1(),
-                    d->objMin, d->objMax );
+                    d->objMin, d->objMax, pal->zeroCenteredAxis1() );
         setValues( d->dimBox2, d->objpal->min2(), d->objpal->max2(),
-                    d->objMin2, d->objMax2 );
+                    d->objMin2, d->objMax2, pal->zeroCenteredAxis2() );
       }
     }
 
@@ -1037,7 +1037,7 @@ void QAPaletteWin::palette2Changed( const QString & palname )
 
 
 void QAPaletteWin::setValues( DimBox* dimBox, float m, float M,
-			      float objMin, float objMax )
+			      float objMin, float objMax, bool zeroCentered )
 {
   bool rec = d->recursive;
   d->recursive = true;
@@ -1047,30 +1047,41 @@ void QAPaletteWin::setValues( DimBox* dimBox, float m, float M,
 
   double	min, max;
 
-  if( m < M )
-    {
-      min = m;
-      max = M;
-    }
+  if( zeroCentered )
+  {
+    double omax = std::max( std::abs( objMin ), std::abs( objMax ) );
+    max = omax * M;
+    min = omax * m;
+    dimBox->minSlider->setValue( (int) ( ( m/2 + 0.5 - dimBox->slrelmin ) * 1000
+                                        / ( dimBox->slrelmax
+                                            - dimBox->slrelmin ) ) );
+    dimBox->maxSlider->setValue( (int) ( ( M/2 + 0.5 - dimBox->slrelmin ) * 1000
+                                        / ( dimBox->slrelmax
+                                            - dimBox->slrelmin ) ) );
+    dimBox->minLabel->setText( QString::number( min ) );
+    dimBox->maxLabel->setText( QString::number( max ) );
+    min = -omax + omax * 2 * dimBox->slrelmin;
+    max = -omax + omax * 2 * dimBox->slrelmax;
+    dimBox->minEd->setText( QString::number( min ) );
+    dimBox->maxEd->setText( QString::number( max ) );
+  }
   else
-    {
-      min = M;
-      max = m;
-    }
-  dimBox->minSlider->setValue( (int) ( ( m - dimBox->slrelmin ) * 1000
-                                       / ( dimBox->slrelmax
-                                           - dimBox->slrelmin ) ) );
-  dimBox->maxSlider->setValue( (int) ( ( M - dimBox->slrelmin ) * 1000
-                                       / ( dimBox->slrelmax
-                                           - dimBox->slrelmin ) ) );
-  min = double(objMin) + ( double(objMax) - objMin ) * m;
-  max = double(objMin) + ( double(objMax) - objMin ) * M;
-  dimBox->minLabel->setText( QString::number( min ) );
-  dimBox->maxLabel->setText( QString::number( max ) );
-  min = double(objMin) + ( double(objMax) - objMin ) * dimBox->slrelmin;
-  max = double(objMin) + ( double(objMax) - objMin ) * dimBox->slrelmax;
-  dimBox->minEd->setText( QString::number( min ) );
-  dimBox->maxEd->setText( QString::number( max ) );
+  {
+    dimBox->minSlider->setValue( (int) ( ( m - dimBox->slrelmin ) * 1000
+                                        / ( dimBox->slrelmax
+                                            - dimBox->slrelmin ) ) );
+    dimBox->maxSlider->setValue( (int) ( ( M - dimBox->slrelmin ) * 1000
+                                        / ( dimBox->slrelmax
+                                            - dimBox->slrelmin ) ) );
+    min = double(objMin) + ( double(objMax) - objMin ) * m;
+    max = double(objMin) + ( double(objMax) - objMin ) * M;
+    dimBox->minLabel->setText( QString::number( min ) );
+    dimBox->maxLabel->setText( QString::number( max ) );
+    min = double(objMin) + ( double(objMax) - objMin ) * dimBox->slrelmin;
+    max = double(objMin) + ( double(objMax) - objMin ) * dimBox->slrelmax;
+    dimBox->minEd->setText( QString::number( min ) );
+    dimBox->maxEd->setText( QString::number( max ) );
+  }
 
   dimBox->minSlider->blockSignals( false );
   dimBox->maxSlider->blockSignals( false );
@@ -1087,7 +1098,8 @@ void QAPaletteWin::setValues1()
 
   float	m = objpal->min1(), M = objpal->max1();
 
-  setValues( d->dimBox1, m, M, d->objMin, d->objMax );
+  setValues( d->dimBox1, m, M, d->objMin, d->objMax,
+             objpal->zeroCenteredAxis1() );
 }
 
 
@@ -1099,7 +1111,8 @@ void QAPaletteWin::setValues2()
 
   float	m = objpal->min2(), M = objpal->max2();
 
-  setValues( d->dimBox2, m, M, d->objMin2, d->objMax2 );
+  setValues( d->dimBox2, m, M, d->objMin2, d->objMax2,
+             objpal->zeroCenteredAxis2() );
 }
 
 
@@ -1264,8 +1277,17 @@ void QAPaletteWin::updateObjects()
   AObject *o;
 
   // convert to absolute values
-  omi = pal->min1() * ( double(d->objMax) - d->objMin ) + double(d->objMin);
-  oma = pal->max1() * ( double(d->objMax) - d->objMin ) + double(d->objMin);
+  if( pal->zeroCenteredAxis1() )
+  {
+    double omax = std::max( std::abs( d->objMax ), std::abs( d->objMin ) );
+    omi = pal->min1() * omax;
+    oma = pal->max1() * omax;
+  }
+  else
+  {
+    omi = pal->min1() * ( double(d->objMax) - d->objMin ) + double(d->objMin);
+    oma = pal->max1() * ( double(d->objMax) - d->objMin ) + double(d->objMin);
+  }
 
   for( io=obj.begin(); io!=fo; ++io )
     {
@@ -1278,6 +1300,11 @@ void QAPaletteWin::updateObjects()
           {
             mi = te.minquant[0];
             ma = te.maxquant[0];
+            if( pal->zeroCenteredAxis1() )
+            {
+              ma = std::max( std::abs( ma ), std::abs( mi ) );
+              mi = 0.;
+            }
             if( mi == ma )	// protect against division by 0
               ma = mi + 1;
             // convert to object scale
@@ -1677,12 +1704,31 @@ void QAPaletteWin::runCommand()
       SetObjectPaletteCommand	*com;
       // convert to absolute values
       AObjectPalette *pal = objPalette();
-      double omi = pal->min1() * ( double(d->objMax) - d->objMin ) + d->objMin;
-      double oma = pal->max1() * ( double(d->objMax) - d->objMin ) + d->objMin;
-      double omi2 = pal->min2() * ( double(d->objMax2) - d->objMin2 )
-        + d->objMin2;
-      double oma2 = pal->max2() * ( double(d->objMax2) - d->objMin2 )
-        + d->objMin2;
+      double omi, oma;
+      if( d->objpal->zeroCenteredAxis1() )
+      {
+        double omax = std::max( std::abs( d->objMax ), std::abs( d->objMin ) );
+        omi = pal->min1() * omax;
+        oma = pal->max1() * omax;
+      }
+      else
+      {
+        omi = pal->min1() * ( double(d->objMax) - d->objMin ) + d->objMin;
+        oma = pal->max1() * ( double(d->objMax) - d->objMin ) + d->objMin;
+      }
+      double omi2, oma2;
+      if( d->objpal->zeroCenteredAxis1() )
+      {
+        double omax = std::max( std::abs( d->objMax2 ),
+                                std::abs( d->objMin2 ) );
+        omi2 = pal->min2() * omax;
+        oma2 = pal->max2() * omax;
+      }
+      else
+      {
+        omi = pal->min2() * ( double(d->objMax2) - d->objMin2 ) + d->objMin2;
+        oma2 = pal->max2() * ( double(d->objMax2) - d->objMin2 ) + d->objMin2;
+      }
 
       if( d->objpal->refPalette2() )
       {
