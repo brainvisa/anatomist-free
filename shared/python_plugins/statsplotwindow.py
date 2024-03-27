@@ -51,6 +51,7 @@ import pylab
 from soma.qt_gui.qt_backend import QtCore
 from soma.qt_gui.qt_backend import QtGui
 from soma.qt_gui.qt_backend import QtWidgets
+from soma.qt_gui.qt_backend import sip
 from soma.utils.weak_proxy import proxy_method
 
 
@@ -60,7 +61,7 @@ class StatsPlotWindow(ana.cpp.QAWindow):
     It is designed in python, and python-inherited classes suffer from
     reference-counting problems. See the doc of the releaseref() method.
     '''
-    _instances = set()
+    _instances = {}
     _classType = ana.cpp.AWindow.Type(0)
 
     colors_list = [
@@ -103,8 +104,8 @@ class StatsPlotWindow(ana.cpp.QAWindow):
         self.setCentralWidget(wid)
         # keep a reference to the python object to prevent destruction of the
         # python part
-        StatsPlotWindow._instances.add(self)
-        self.destroyed.connect(self.destroyNotified)
+        StatsPlotWindow._instances[sip.unwrapinstance(self)] = self
+        self.destroyed.connect(StatsPlotWindow.destroyNotified)
         self._plots = {}
         self._orientation = aims.Quaternion(0, 0, 0, 1)
         self._cursorplot = None
@@ -169,7 +170,8 @@ class StatsPlotWindow(ana.cpp.QAWindow):
         '''WARNING:
         the instance in _instances shouldn't count on C++ side
         PROBLEM: all python refs are one unique ref for C++,
-        all being of the same type, so later references will not be strong refs.
+        all being of the same type, so later references will not be strong
+        refs.
         the less annoying workaround at the moment is that python refs are
         'weak shared references': count as references to keep the object alive,
         but don't actually prevent its destruction whenever the close method
@@ -177,13 +179,15 @@ class StatsPlotWindow(ana.cpp.QAWindow):
         will hold a deleted C++ object.
         This way, only C++ may destroy the object.
         When the C++ instance is destroyed, the QObject destroyed callback is
-        used to cleanup the additional python reference in AHistogram._instances
+        used to cleanup the additional python reference in
+        StatsPlotWindow._instances
         so that the python instance can also be destroyed when python doesn't
         use it any longer.
         That's the best I can do for now...
         This releaseref method should be called after the constructor: it is
         called from the createHistogramWindow factory class.
-        this means you should _not_ create an instance of AHistogram directly.'''
+        this means you should _not_ create an instance of StatsPlotWindow
+        directly.'''
         a = ana.Anatomist()
         a.execute('ExternalReference', elements=[self],
                   action_type='TakeWeakSharedRef')
@@ -194,13 +198,15 @@ class StatsPlotWindow(ana.cpp.QAWindow):
         # print 'StatsPlotWindow.__del__'
         ana.cpp.QAWindow.__del__(self)
 
+    @staticmethod
     def destroyNotified(self):
         # print 'destroyNotified'
         # release internal reference which kept the python side of the object
         # alive - now the python object may be destroyed since the C++ side
         # will be also destroyed anyway.
-        if self in StatsPlotWindow._instances:
-            StatsPlotWindow._instances.remove(self)
+        ptr = sip.unwrapinstance(self)
+        if ptr in StatsPlotWindow._instances:
+            del StatsPlotWindow._instances[ptr]
 
     def type(self):
         return self._classType
