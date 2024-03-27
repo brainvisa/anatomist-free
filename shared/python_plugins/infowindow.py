@@ -43,6 +43,7 @@ import atexit
 from soma.qt_gui.qt_backend import QtCore
 from soma.qt_gui.qt_backend import Qt
 from soma.qt_gui.qt_backend import QtGui
+from soma.qt_gui.qt_backend import sip
 
 
 class InfoWindow(ana.cpp.QAWindow):
@@ -51,13 +52,14 @@ class InfoWindow(ana.cpp.QAWindow):
     It is designed in python, and python-inherited classes suffer from
     reference-counting problems. See the doc of the releaseref() method.
     '''
-    _instances = set()
+    _instances = {}
     _classType = ana.cpp.AWindow.Type(0)
 
     def __init__(self, parent=None, name=None, options=aims.Object(), f=None):
         '''The releaseref() method should be called after the constructor - see
         the doc of this method.
-        It is not called from the constructor for technical anatomist IDs problems
+        It is not called from the constructor for technical anatomist IDs
+        problems
         (which may be solved).
         '''
         if f is None:
@@ -112,9 +114,12 @@ class InfoWindow(ana.cpp.QAWindow):
         self.val_table = vlist
 
         # keep a reference to the python object to prevent destruction of the
-        # python part
-        InfoWindow._instances.add(self)
-        self.destroyed.connect(self.destroyNotified)
+        # python part. We keep a "raw pointer" to it, because the destroyed
+        # signal is emitted when higher-levels of the C++ object are already
+        # destroyed: we just get a QWidget object pointer, not a QAWindow. But
+        # the raw pointer allows to identify the object.
+        InfoWindow._instances[sip.unwrapinstance(self)] = self
+        self.destroyed.connect(InfoWindow.destroyNotified)
 
         # close shortcut
         ac = QtGui.QAction('Close', self)
@@ -126,7 +131,8 @@ class InfoWindow(ana.cpp.QAWindow):
         '''WARNING:
         the instance in _instances shouldn't count on C++ side
         PROBLEM: all python refs are one unique ref for C++,
-        all being of the same type, so later references will not be strong refs.
+        all being of the same type, so later references will not be strong
+        refs.
         the less annoying workaround at the moment is that python refs are
         'weak shared references': count as references to keep the object alive,
         but don't actually prevent its destruction whenever the close method
@@ -134,13 +140,15 @@ class InfoWindow(ana.cpp.QAWindow):
         will hold a deleted C++ object.
         This way, only C++ may destroy the object.
         When the C++ instance is destroyed, the QObject destroyed callback is
-        used to cleanup the additional python reference in AHistogram._instances
+        used to cleanup the additional python reference in
+        InfoWindow._instances
         so that the python instance can also be destroyed when python doesn't
         use it any longer.
         That's the best I can do for now...
         This releaseref method should be called after the constructor: it is
         called from the createHistogramWindow factory class.
-        this means you should _not_ create an instance of AHistogram directly.'''
+        this means you should _not_ create an instance of InfoWindow
+        directly.'''
         a = ana.Anatomist()
         a.execute('ExternalReference', elements=[self],
                   action_type='TakeWeakSharedRef')
@@ -149,16 +157,20 @@ class InfoWindow(ana.cpp.QAWindow):
 
     def __del__(self):
         # print('InfoWindow.__del__')
-        self.notifyUnregisterObservers()
-        ana.cpp.QAWindow.__del__(self)
+        super().__del__()
 
-    def destroyNotified(self):
-        # print 'destroyNotified'
+    @staticmethod
+    def destroyNotified(obj):
+        # print('destroyNotified')
         # release internal reference which kept the python side of the object
         # alive - now the python object may be destroyed since the C++ side
         # will be also destroyed anyway.
-        if self in InfoWindow._instances:
-            InfoWindow._instances.remove(self)
+        # obj is the C++ object, already partly deleted, thus it is not a
+        # QAWindow, but a QWidget. We use a raw pointer to identify the window
+        # we have registered in the constructor.
+        ptr = sip.unwrapinstance(obj)
+        if ptr in InfoWindow._instances:
+            del InfoWindow._instances[ptr]
 
     def type(self):
         return self._classType
