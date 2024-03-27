@@ -125,6 +125,9 @@ AWindow::AWindow() :
 AWindow::~AWindow()
 {
   d->destroying = true;
+  // should probably be done (first) in derived classes, but if they don't do it, let's do it now
+  notifyUnregisterObservers();
+
   disableRefCount();
   // send event
   Object	ex( (GenericObject *) 

@@ -113,6 +113,9 @@ QAWindow::QAWindow( QWidget* parent, const char* name, Object params,
 QAWindow::~QAWindow()
 {
   // cout << "~QAWindow\n";
+  // should be done at each derivation level: only the 1st one will actually do
+  // something
+  notifyUnregisterObservers();
   delete d;
 }
 

@@ -148,7 +148,8 @@ class InfoWindow(ana.cpp.QAWindow):
                   action_type='ReleaseStrongRef')
 
     def __del__(self):
-        # print 'InfoWindow.__del__'
+        # print('InfoWindow.__del__')
+        self.notifyUnregisterObservers()
         ana.cpp.QAWindow.__del__(self)
 
     def destroyNotified(self):
