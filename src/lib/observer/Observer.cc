@@ -53,8 +53,10 @@ void Observer::cleanupObserver()
     (*_observed.begin())->deleteObserver( this );
     if( _observed.size() == n )
     {
-      cerr << "observable " << *_observed.begin() << " could not be removed " 
-           << "from observer " << this << endl;
+      cerr << "observable " << *_observed.begin() << "("
+           << typeid(**_observed.begin()).name() << ") could not be removed "
+           << "from observer " << this << " (" << typeid(*this).name() << ")"
+           << endl;
       _observed.erase( _observed.begin() );
     }
   }
