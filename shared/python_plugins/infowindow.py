@@ -184,7 +184,7 @@ class InfoWindow(ana.cpp.QAWindow):
                 self, obj, temporaryObject, position)
             row = self.val_table.rowCount()
             self.val_table.setRowCount(row + 1)
-            self._objects_rows[obj] = row
+            self._objects_rows[sip.unwrapinstance(obj)] = row
             self.val_table.setItem(
                 row, 0, Qt.QTableWidgetItem(self.get_object_label(obj)))
 
@@ -199,10 +199,10 @@ class InfoWindow(ana.cpp.QAWindow):
     def unregisterObject(self, obj):
         if hasattr(obj, 'internalRep'):
             obj = obj.internalRep
-        row = self._objects_rows.get(obj)
+        row = self._objects_rows.get(sip.unwrapinstance(obj))
         if row is not None:
             self.val_table.removeRow(row)
-            del self._objects_rows[obj]
+            del self._objects_rows[sip.unwrapinstance(obj)]
             for oid, r in self._objects_rows.items():
                 if r > row:
                     self._objects_rows[oid] -= 1
@@ -221,7 +221,7 @@ class InfoWindow(ana.cpp.QAWindow):
         wref = self.getReferential()
 
         for obj in self.Objects():
-            row = self._objects_rows.get(obj)
+            row = self._objects_rows.get(sip.unwrapinstance(obj))
             if row is None:
                 continue
 
