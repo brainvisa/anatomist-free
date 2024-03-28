@@ -67,6 +67,8 @@ class InfoWindow(ana.cpp.QAWindow):
         ana.cpp.QAWindow.__init__(self, parent, name, options, f)
 
         self._objects_rows = {}
+        self._refbutton = None
+        self._reflabel = None
 
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         wid = Qt.QWidget()
@@ -75,34 +77,41 @@ class InfoWindow(ana.cpp.QAWindow):
         layout = Qt.QVBoxLayout()
         wid.setLayout(layout)
 
+        if options.isNull():
+            options = {}
         # referential bar
-        refbox = QtGui.QWidget(wid)
-        layout.addWidget(refbox)
-        rlay = QtGui.QHBoxLayout(refbox)
-        refbox.setLayout(rlay)
-        rbut = QtGui.QPushButton(refbox)
-        rlay.addWidget(rbut)
-        icons = ana.cpp.IconDictionary.instance()
-        directpix = icons.getIconInstance('direct_ref_mark')
-        refdirmark = QtGui.QLabel(refbox)
-        if directpix is not None:
-            refdirmark.setPixmap(directpix)
-        rlay.addWidget(refdirmark)
-        refdirmark.setFixedSize(QtCore.QSize(21, 7))
-        rbut.setFixedHeight(7)
-        refbox.setFixedHeight(refbox.sizeHint().height())
-        self._refbutton = rbut
-        self._reflabel = refdirmark
-        ana.cpp.anatomist.setQtColorStyle(rbut)
-        self.paintRefLabel()
-        rbut.clicked.connect(self.changeReferential)
+        nodeco = options.get('no_decoration', False)
+        if not nodeco:
+            refbox = QtGui.QWidget(wid)
+            layout.addWidget(refbox)
+            rlay = QtGui.QHBoxLayout(refbox)
+            refbox.setLayout(rlay)
+            rbut = QtGui.QPushButton(refbox)
+            rlay.addWidget(rbut)
+            icons = ana.cpp.IconDictionary.instance()
+            directpix = icons.getIconInstance('direct_ref_mark')
+            refdirmark = QtGui.QLabel(refbox)
+            if directpix is not None:
+                refdirmark.setPixmap(directpix)
+            rlay.addWidget(refdirmark)
+            refdirmark.setFixedSize(QtCore.QSize(21, 7))
+            rbut.setFixedHeight(7)
+            refbox.setFixedHeight(refbox.sizeHint().height())
+            self._refbutton = rbut
+            self._reflabel = refdirmark
+            ana.cpp.anatomist.setQtColorStyle(rbut)
+            self.paintRefLabel()
+            rbut.clicked.connect(self.changeReferential)
 
-        coord_grp = Qt.QGroupBox('Coords:')
-        layout.addWidget(coord_grp)
-        clay = Qt.QGridLayout()
-        coord_grp.setLayout(clay)
-        self.coord_lay = clay
+        self.coord_lay = None
         self.coord_items = []
+        nocoords = options.get('no_coords', False)
+        if not nocoords:
+            coord_grp = Qt.QGroupBox('Coords:')
+            layout.addWidget(coord_grp)
+            clay = Qt.QGridLayout()
+            coord_grp.setLayout(clay)
+            self.coord_lay = clay
 
         values_grp = Qt.QLabel('Values:')
         layout.addWidget(values_grp)
@@ -254,6 +263,8 @@ class InfoWindow(ana.cpp.QAWindow):
                     self.val_table.setItem(row, 1, item)
                 item.setText(str(vertex))
 
+        self.val_table.resizeColumnsToContents()
+
         self.paintRefLabel()
 
     def closeAction(self, dummy):
@@ -270,6 +281,8 @@ class InfoWindow(ana.cpp.QAWindow):
         self.update_position_ui()
 
     def update_position_ui(self):
+        if self.coord_lay is None:
+            return
         coords = ('X', 'Y', 'Z', 'T', 'X5', 'X6', 'X7', 'X8')
         mpos = self.getFullPosition()
         for i in range(len(self.coord_items), len(mpos)):
@@ -294,6 +307,8 @@ class InfoWindow(ana.cpp.QAWindow):
         self.update_position_ui()
 
     def paintRefLabel(self):
+        if self._refbutton is None:
+            return
         ref = self.getReferential()
         if ref is not None and ref.isDirect():
             col = ref.Color()
@@ -362,7 +377,8 @@ class InfoWindowModule(ana.cpp.Module):
 class createInfoWindow(ana.cpp.AWindowCreator):
 
     def __call__(self, dock, options):
-        h = InfoWindow()
+        print('createInfoWindow options:', options)
+        h = InfoWindow(options=options)
         h.releaseref()
         h.show()
         return h
