@@ -519,6 +519,7 @@ const AObject* AObject::nearestVertex( const std::vector<float> & pos,
                                        float tol, int *polygon,
                                        bool tex_only, int target_poly ) const
 {
+  // cout << "AObject::nearestVertex " << pos[0] << ", " << pos[1] << ", " << pos[2] << ", tol: " << tol << ", tex_only: " << tex_only << ", target_poly: " << target_poly << ", poly: " << polygon << endl;
   const GLComponent *glc = glAPI();
   if( !glc || ( tex_only && glc->glNumTextures() == 0 ) )
     return 0;
@@ -594,23 +595,25 @@ const AObject* AObject::nearestVertex( const std::vector<float> & pos,
         unsigned np = glc->glNumPolygon( vs );
         unsigned ps = glc->glPolygonSize( vs );
         const GLuint* poly = glc->glPolygonArray( vs );
-        unsigned j, p, ip;
+        unsigned j, p;
+        int ip = -1;
         float d2;
         dist = -1;
         for( i=0; i<np; ++i )
         {
-          for( j=0; j<np; ++j )
+          for( j=0; j<ps; ++j )
             if( *(poly + j) == iv )
               break;
-          if( j != np )
+          if( j != ps )
           {
             d2 = -1;
             // max distance among points of the polygon
-            for( j=0; j<np; ++j )
+            for( j=0; j<ps; ++j )
             {
-              p = (*poly++) * 3;
+              p = *poly++;
               if( p != iv )
               {
+                p *= 3;
                 p1[0] = vert0[p++];
                 p1[1] = vert0[p++];
                 p1[2] = vert0[p++];
@@ -623,9 +626,11 @@ const AObject* AObject::nearestVertex( const std::vector<float> & pos,
             {
               // keep the poly with minimum d2 (max dist)
               dist = d2;
-              ip = i;
+              ip = int(i);
             }
           }
+          else
+            poly += ps;
         }
         *polygon = ip;
       }
