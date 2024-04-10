@@ -221,10 +221,10 @@ class InfoWindow(ana.cpp.QAWindow):
     def baseTitle(self):
         return 'Info'
 
-    def Refresh(self):
+    def refreshNow(self):
         ''' Redraw
         '''
-        ana.cpp.QAWindow.Refresh(self)
+        ana.cpp.QAWindow.refreshNow(self)
 
         fpos = self.getFullPosition()
         wref = self.getReferential()
@@ -234,11 +234,12 @@ class InfoWindow(ana.cpp.QAWindow):
             if row is None:
                 continue
 
-            tex = obj.texValues(fpos, wref)
+            no, vertex, dist, poly = obj.nearestVertex(fpos, 2., False, -1,
+                                                       True)
+            tex = obj.texValues(fpos, wref, poly)
             labels = aims.vector_STRING()
             textype = 'no_type'
             obj.getTextureLabels(tex, labels, textype)
-            no, vertex, dist = obj.nearestVertex(fpos)
             if len(tex) == 0:
                 tex = ''
             elif len(tex) == 1:
