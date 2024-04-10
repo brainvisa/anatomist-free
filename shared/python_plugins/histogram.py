@@ -284,8 +284,8 @@ class AHistogram(ana.cpp.QAWindow):
     def baseTitle(self):
         return 'Histogram'
 
-    def Refresh(self):
-        ana.cpp.QAWindow.Refresh(self)
+    def refreshNow(self):
+        ana.cpp.QAWindow.refreshNow(self)
         if not self._objectschanged and \
                 list(self.getPosition()) + [self.getTime()] != self._oldpos:
             if not self._localHisto:

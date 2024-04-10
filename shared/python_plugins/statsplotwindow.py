@@ -274,7 +274,7 @@ class StatsPlotWindow(ana.cpp.QAWindow):
     def baseTitle(self):
         return 'Stats plot'
 
-    def Refresh(self):
+    def refreshNow(self):
         ''' Redraw the full graph
         '''
         # set the referential of the first object
@@ -285,7 +285,7 @@ class StatsPlotWindow(ana.cpp.QAWindow):
             oref = objects[0].getReferential()
             if oref != self.getReferential():
                 self.setReferential(oref)
-        ana.cpp.QAWindow.Refresh(self)
+        ana.cpp.QAWindow.refreshNow(self)
         self.data = []
         self._obj_indices = []
         xlabels = []

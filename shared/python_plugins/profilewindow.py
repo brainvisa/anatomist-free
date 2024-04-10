@@ -404,8 +404,8 @@ class AProfile(ana.cpp.QAWindow):
     def baseTitle(self):
         return 'Profile'
 
-    def Refresh(self):
-        ana.cpp.QAWindow.Refresh(self)
+    def refreshNow(self):
+        ana.cpp.QAWindow.refreshNow(self)
         for obj in self.Objects():
             self.plotObject(obj)
         self.drawCursor()
