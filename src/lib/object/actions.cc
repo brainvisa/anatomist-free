@@ -543,10 +543,11 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
     GenericObject  *ps = 0;
     unsigned  i, n, j, nj;
     Referential *ownref = 0;
+    bool creatredref = false;
 
     if( go && (ps = go->attributed() ) )
     {
-      vector<Motion>        vmot;
+      vector<AffineTransformation3d> vmot;
       vector<Referential*>  vref;
       Referential           *ref = 0;
       int                   mniref = -1;
@@ -769,7 +770,10 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
           if( !m.isIdentity() )
           {
             if( !ownref )
+            {
               ownref = new Referential;
+              creatredref = true;
+            }
             vref.push_back( Referential::acPcReferential() );
             vmot.push_back( m );
           }
@@ -796,6 +800,7 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
         ref->header().setProperty( "name",
           Referential::mniTemplateReferential()->header().getProperty(
             "name" )->getString() + "_" + (*io)->name() );
+        ref->header().setProperty( "axes_orientation", "RAS" );
         // link MNI refs
         Transformation *t
             = theAnatomist->getTransformation( ref, vref[ mniref ] );
@@ -809,6 +814,7 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
         ref->header().setProperty( "name",
           Referential::acPcReferential()->header().getProperty(
             "name" )->getString() + "_" + (*io)->name() );
+        ref->header().setProperty( "axes_orientation", "LPI" );
         vref[ acpcref ] = ref;
       }
 
@@ -845,6 +851,7 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
           if( !ownref )
           {
             ownref = new Referential;
+            creatredref = true;
             ownref->header().setProperty( "name", (*io)->name() );
           }
           if( !uid.empty() )
@@ -861,6 +868,27 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
           t->registerTrans();
           (*io)->setChanged();
           (*io)->notifyObservers( theAnatomist );
+        }
+      }
+
+      if( creatredref && ownref )
+      {
+        try
+        {
+          carto::Referential cref = carto::Referential::fromHeader(
+            Object::reference( *ps ), true );
+          Object ehdr = cref.exportedHeader();
+          ehdr->removeProperty( "uuid" );
+          ehdr->removeProperty( "lpi_uuid" );
+          ownref->header().copyProperties( ehdr );
+        }
+        catch( ... )
+        {
+          if( ps->hasProperty( "referential_def" ) )
+          {
+            ownref->header().copyProperties(
+              ps->getProperty( "referential_def" ) );
+          }
         }
       }
 
@@ -888,6 +916,7 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
             if( !ownref )
             {
               ownref = new Referential;
+              creatredref = true;
               ownref->header().setProperty( "name", (*io)->name() );
             }
             (*io)->setReferential( ownref );
