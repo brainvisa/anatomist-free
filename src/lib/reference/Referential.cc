@@ -43,6 +43,7 @@
 #include <anatomist/reference/Transformation.h>
 #include <anatomist/graph/pythonAObject.h>
 #include <aims/resampling/standardreferentials.h>
+#include <cartodata/transformation/referential.h>
 #include <cartobase/exception/file.h>
 #include <cartobase/stream/fileutil.h>
 #include <cartobase/config/paths.h>
@@ -86,6 +87,8 @@ namespace
 
 namespace anatomist
 {
+
+  using anatomist::Referential;
 
 //--- methods -----------------------------------------------------------------
 
@@ -381,8 +384,9 @@ bool Referential::isDirect() const
   bool  direct = false; // default is not direct
   try
   {
-    Object d = _header->getProperty( "direct_referential" );
-    direct = (bool) d->getScalar();
+    carto::Referential ref
+      = carto::Referential::fromHeader( Object::reference( *_header ), true );
+    direct = ref.isDirect();
   }
   catch( ... )
   {
@@ -404,8 +408,10 @@ bool Referential::isDirect() const
           ref2 = (*i)->destination();
         try
         {
-          Object d = ref2->header().getProperty( "direct_referential" );
-          direct = (bool) d->getScalar() ^ !(*i)->isDirect();
+          carto::Referential ref
+            = carto::Referential::fromHeader( Object::reference(
+              ref2->header() ), true );
+          direct = direct ^ !(*i)->isDirect();
           found = true;
           t = *i;
           break;
