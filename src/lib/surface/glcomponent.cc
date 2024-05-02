@@ -1018,6 +1018,7 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
   int           xs, ys;
   const TexInfo & t = glTexInfo( tex );
   TexInfo & ti = d->textures[ tex ];
+  // cout << "cols: " << dimpx << ", " << dimpy << endl;
 
   if( dimx < 0 )
   {
@@ -1109,13 +1110,38 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
     // whe should scale or not. In the meantime, we just check if it is 2D.
     if( dimy == 1 )
     {
+      float tmi2 = te.min[0];
       float scl = 1. / ( te.max[0] - te.min[0] );
+      if( objpal->zeroCenteredAxis1() && te.maxquant[0] != -te.minquant[0] )
+      {
+        /* cout << "setting 0 at center in tex scaling\n";
+        cout << "qant: " << te.minquant[0] << ", " << te.maxquant[0] << endl;
+        cout << "minmax: " << te.min[0] << ", " << te.max[0] << endl; */
+        float tm = std::max( std::abs( te.maxquant[0] ),
+                             std::abs( te.minquant[0] ) );
+        float tma2 = te.max[0];
+        if( tm == te.maxquant[0] )
+        {
+          float tmiq = ( -tm - te.minquant[0] )
+            / ( te.maxquant[0] - te.minquant[0] );
+          tmi2 = tmiq * scl;
+          // cout << "tmiq: " << tmiq << ", tmi2: " << tmi2 << endl;
+        }
+        else
+        {
+          float tmaq = ( tm - te.maxquant[0] )
+            / ( te.maxquant[0] - te.minquant[0] );
+          tma2 = tmaq * scl;
+          // cout << "tmaq: " << tmaq << ", tma2: " << tma2 << endl;
+        }
+        scl = 1. / ( tma2 - tmi2 );
+      }
       ti.texscale[0] *= scl;
-      ti.texoffset[0] -= te.min[0];
-      // cout << "scaling texture: " << scl << ", " << ti.texscale[0] << ", " << ti.texoffset[0] << endl;
+      ti.texoffset[0] -= tmi2 * scl;
+      cout << "scaling texture: " << scl << ", " << ti.texscale[0] << ", " << ti.texoffset[0] << endl;
     }
   }
-  // cout << "useTexScale: " << useTexScale << ": " << ti.texscale[0] << ", " << ti.texscale[1] << ", " << ti.texoffset[0] << ", " << ti.texoffset[1] << endl;
+  cout << "useTexScale: " << useTexScale << ": " << ti.texscale[0] << ", " << ti.texscale[1] << ", " << ti.texoffset[0] << ", " << ti.texoffset[1] << endl;
 
   // allocate colormap
   VolumeRef<AimsRGBA> volTexImage( dimx, dimy );
@@ -1159,6 +1185,7 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
         *ptr++ = (GLubyte) ( (float) rgb.blue()  * r ) + ir;
         *ptr++ = (GLubyte) rgb.alpha();
       }
+      // cout << x << ": " << x + shx << ", " << xs << ": " << rgb << endl;
     }
   }
 //   cout << "texture : " << dimx << " x " << dimy << endl;
