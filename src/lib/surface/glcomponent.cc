@@ -1018,7 +1018,7 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
   int           xs, ys;
   const TexInfo & t = glTexInfo( tex );
   TexInfo & ti = d->textures[ tex ];
-  cout << "cols: " << dimpx << ", " << dimpy << endl;
+  // cout << "cols: " << dimpx << ", " << dimpy << endl;
 
   if( dimx < 0 )
   {

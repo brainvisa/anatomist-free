@@ -42,6 +42,7 @@
 #include <anatomist/object/actions.h>
 #include <anatomist/surface/glcomponent.h>
 #include <anatomist/window/viewstate.h>
+#include <anatomist/color/objectPalette.h>
 #include <graph/tree/tree.h>
 #include <anatomist/primitive/primitive.h>
 #include <anatomist/application/Anatomist.h>
@@ -91,7 +92,12 @@ Fusion3D::Fusion3D( const vector<AObject *> & obj )
   for( io=surf.begin(), fo=surf.end(); io!=fo; ++io )
     insert( shared_ptr<AObject>( shared_ptr<AObject>::Strong, *io ) );
   for( io=vol.begin(), fo=vol.end(); io!=fo; ++io )
+  {
     insert( shared_ptr<AObject>( shared_ptr<AObject>::Strong, *io ) );
+    // set GL palette to 1024 at least
+    if( (*io)->palette() && (*io)->palette()->glMaxSizeX() < 1024 )
+      (*io)->palette()->glSetMaxSize( 1024, -2 );
+  }
 
   _type = AObject::FUSION3D;
 
