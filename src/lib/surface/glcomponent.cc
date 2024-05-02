@@ -1018,7 +1018,7 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
   int           xs, ys;
   const TexInfo & t = glTexInfo( tex );
   TexInfo & ti = d->textures[ tex ];
-  // cout << "cols: " << dimpx << ", " << dimpy << endl;
+  cout << "cols: " << dimpx << ", " << dimpy << endl;
 
   if( dimx < 0 )
   {
@@ -1026,6 +1026,7 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
     if( objpal->glMaxSizeX() > 0 )
       dimx = objpal->glMaxSizeX();
   }
+  // cout << "teximage: " << dimx << ", " << dimy << endl;
 
   if( dimy < 0 )
   {
@@ -1059,48 +1060,30 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
     min2 = 0;
     max2 = 1;
   }
-  float facx = ( (float) dimpx ) / dimx;
-  float facy = ( (float) dimpy ) / dimy;
-  float dx = 0.f;
-  float dy = 0.f;
-
   // cout << "dimx: " << dimx << ", dimpx: " << dimpx << endl;
   /* if the texture image can contain the whole colormap, then use it unscaled,
      and use the OpenGL texture matrix to zoom into it.
      TODO: in that case we could avoid re-making the teximage if it's already
      done.
   */
-  float fxbis = facx;
-  float fybis = facy;
-  float dxbis = 0., dybis = 0.;
-  if( !useTexScale || static_cast<unsigned>(dimx) < dimpx )
-    fxbis = 1.;
-  else
+  bool balance_zero = false;
+  const TexExtrema & te = glTexExtrema( tex );
+
+  if( objpal->zeroCenteredAxis1() && te.maxquant[0] != -te.minquant[0] )
   {
-    facx = 1.;
-    dxbis = - dx / dimx;
-    dx = 0.;
-  }
-  if( !useTexScale || static_cast<unsigned>(dimy) < dimpy )
-    fybis = 1.;
-  else
-  {
-    facy = 1.;
-    dybis = -dy / dimy;
-    dy = 0.;
-  }
-  if( useTexScale )
-  {
-    ti.texscale[0] = fxbis;
-    ti.texscale[1] = fybis;
-    ti.texscale[2] = 1.;
-    ti.texoffset[0] = dxbis;
-    ti.texoffset[1] = dybis;
-    ti.texoffset[2] = 0.;
+    useTexScale = true;
+    balance_zero = true;
   }
 
-  const TexExtrema & te = glTexExtrema( tex );
-  if( ( te.min[0] != 0. || te.max[0] != 1. ) && te.min[0] != te.max[0] )
+  ti.texscale[0] = 1.;
+  ti.texscale[1] = 1.;
+  ti.texscale[2] = 1.;
+  ti.texoffset[0] = 0.;
+  ti.texoffset[1] = 0.;
+  ti.texoffset[2] = 0.;
+
+  if( balance_zero
+      || ( ( te.min[0] != 0. || te.max[0] != 1. ) && te.min[0] != te.max[0] ) )
   {
     // if actual bounds are not [0,1], a texture rescaling must be
     // performed in addition.
@@ -1112,10 +1095,10 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
     {
       float tmi2 = te.min[0];
       float scl = 1. / ( te.max[0] - te.min[0] );
-      if( objpal->zeroCenteredAxis1() && te.maxquant[0] != -te.minquant[0] )
+      if( balance_zero )
       {
         /* cout << "setting 0 at center in tex scaling\n";
-        cout << "qant: " << te.minquant[0] << ", " << te.maxquant[0] << endl;
+        cout << "quant: " << te.minquant[0] << ", " << te.maxquant[0] << endl;
         cout << "minmax: " << te.min[0] << ", " << te.max[0] << endl; */
         float tm = std::max( std::abs( te.maxquant[0] ),
                              std::abs( te.minquant[0] ) );
@@ -1124,24 +1107,25 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
         {
           float tmiq = ( -tm - te.minquant[0] )
             / ( te.maxquant[0] - te.minquant[0] );
-          tmi2 = tmiq * scl;
+          tmi2 = tmiq * scl + te.min[0];
           // cout << "tmiq: " << tmiq << ", tmi2: " << tmi2 << endl;
         }
         else
         {
           float tmaq = ( tm - te.maxquant[0] )
             / ( te.maxquant[0] - te.minquant[0] );
-          tma2 = tmaq * scl;
+          tma2 = tmaq * scl + te.max[0];
           // cout << "tmaq: " << tmaq << ", tma2: " << tma2 << endl;
         }
         scl = 1. / ( tma2 - tmi2 );
       }
       ti.texscale[0] *= scl;
       ti.texoffset[0] -= tmi2 * scl;
-      cout << "scaling texture: " << scl << ", " << ti.texscale[0] << ", " << ti.texoffset[0] << endl;
+      useTexScale = true;
+      // cout << "scaling texture: " << scl << ", " << ti.texscale[0] << ", " << ti.texoffset[0] << endl;
     }
   }
-  cout << "useTexScale: " << useTexScale << ": " << ti.texscale[0] << ", " << ti.texscale[1] << ", " << ti.texoffset[0] << ", " << ti.texoffset[1] << endl;
+  // cout << "useTexScale: " << useTexScale << ": " << ti.texscale[0] << ", " << ti.texscale[1] << ", " << ti.texoffset[0] << ", " << ti.texoffset[1] << endl;
 
   // allocate colormap
   VolumeRef<AimsRGBA> volTexImage( dimx, dimy );
@@ -1157,10 +1141,10 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
 
   int shx = -int(dimx) / 2, shy = -int(dimy) / 2;
 
-  ColorTraits<int>	coltraits( objpal, shx * facx - dx,
-                                   (dimx - 1 + shx) * facx - dx,
-                                   shy * facy - dy,
-                                   (dimy + shy - 1) * facy - dy );
+  ColorTraits<int>	coltraits( objpal, shx,
+                                   (dimx - 1 + shx),
+                                   shy,
+                                   (dimy + shy - 1) );
 
   for( y=0; y<static_cast<unsigned>(dimy); ++y )
   {

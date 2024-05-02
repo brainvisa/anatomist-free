@@ -891,11 +891,17 @@ void ATexture::createDefaultPalette( const string & name )
     AObject::createDefaultPalette( name );
   // use a 10 bits palette by default
   if( d->dim == 1 )
+  {
     palette()->create( 1024 );
+    palette()->setMaxSize( 1024, -2 );
+    palette()->glSetMaxSize( 1024, -2 );
+  }
   else
     {
       palette()->set2dMode( true );
       palette()->create( 512, 512 );
+      palette()->setMaxSize( 512, 512 );
+      palette()->glSetMaxSize( 512, 512 );
     }
   palette()->fill();
 }
