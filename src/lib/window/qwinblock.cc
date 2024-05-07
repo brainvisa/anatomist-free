@@ -627,95 +627,26 @@ void QAWindowBlock::setColsOrRows( bool inrows, int colsrows )
       || ( !d->inrows && d->layout->rowCount() == colsrows ) ) )
     return; // nothing to do
 
-  int row = 0, col = 0, irow = 0, icol = 0;
+  list<QWidget *> wins;
+  int nr = d->layout->rowCount(), nc = d->layout->columnCount();
+
+  vector<int> rc( 2, 0 ), nrc( 2 );
+  nrc[0] = nr;
+  nrc[1] = nc;
+  int rcindex0 = d->inrows ? 1 : 0, rcindex1 = 1 - rcindex0;
+
+  for( rc[rcindex1]=0; rc[rcindex1]<nrc[rcindex1]; ++rc[rcindex1] )
+    for( rc[rcindex0]=0; rc[rcindex0]<nrc[rcindex0]; ++rc[rcindex0] )
+    {
+      QLayoutItem *item = d->layout->itemAtPosition( rc[0], rc[1] );
+      if( item && item->widget() )
+        wins.push_back( item->widget() );
+    }
+
   d->inrows = inrows;
   d->colsrows = colsrows;
-  QWidget *widget;
-  QLayoutItem *item;
-  list<pair<QWidget *, pair<int, int> > > moved;
 
-  if( inrows )
-  {
-    int nr = d->layout->rowCount(), nc = d->layout->columnCount();
-    for( row=0; row<nr; ++row )
-    {
-      for( col=0; col<nc; ++col )
-      {
-        item = d->layout->itemAtPosition( row, col );
-        if( item )
-        {
-          widget = item->widget();
-          if( widget )
-          {
-            d->layout->removeWidget( widget );
-            item = d->layout->itemAtPosition( row, col );
-            if( item )
-            {
-              d->layout->removeItem( item );
-              delete item;
-            }
-            moved.push_back( make_pair( widget, make_pair( irow, icol ) ) );
-//             d->layout->addWidget( widget, irow, icol );
-            ++icol;
-            if( icol >= colsrows )
-            {
-              icol = 0;
-              ++irow;
-            }
-          }
-          else
-          {
-            d->layout->removeItem( item );
-            delete item;
-          }
-        }
-      }
-    }
-  }
-  else
-  {
-    int nr = d->layout->rowCount(), nc = d->layout->columnCount();
-    for( col=0; col<nc; ++col )
-    {
-      for( row=0; row<nr; ++row )
-      {
-        item = d->layout->itemAtPosition( row, col );
-        if( item )
-        {
-          widget = item->widget();
-          if( widget )
-          {
-            d->layout->removeWidget( widget );
-            item = d->layout->itemAtPosition( row, col );
-            if( item )
-            {
-              d->layout->removeItem( item );
-              delete item;
-            }
-            moved.push_back( make_pair( widget, make_pair( irow, icol ) ) );
-//             d->layout->addWidget( widget, irow, icol );
-            ++irow;
-            if( irow >= colsrows )
-            {
-              irow = 0;
-              ++icol;
-            }
-          }
-          else
-          {
-            d->layout->removeItem( item );
-            delete item;
-          }
-        }
-      }
-    }
-  }
-
-  list<pair<QWidget *, pair<int, int> > >::iterator im, em = moved.end();
-  for( im=moved.begin(); im!=em; ++im )
-    d->layout->addWidget( im->first, im->second.first, im->second.second );
-
-  cleanupLayout();
+  reorderViews( wins );
 }
 
 
@@ -814,6 +745,8 @@ void QAWindowBlock::reorderViews( const list<QWidget *> & wins )
   int default_stretch = 300;
   bool withborders = true;
 
+  // cout << "rows: " << nr << ", cols: " << nc << endl;
+
   vector<int> rc( 2, 0 ), nrc( 2 );
   nrc[0] = nr;
   nrc[1] = nc;
@@ -833,6 +766,17 @@ void QAWindowBlock::reorderViews( const list<QWidget *> & wins )
         d->layout->removeItem( item );
       }
     }
+
+  // rebuild the layout because rowCount() and columnCount() cannot decrease
+  // and attachments to the borders may be disabled.
+
+  delete d->layout;
+  QWidget *mainw = centralWidget();
+  d->layout = new QGridLayout( mainw );
+  d->layout->setSpacing(0);
+  d->layout->setContentsMargins( 5, 5, 5, 5 );
+  mainw->setLayout(d->layout);
+
   rc[rcindex0] = 0;
   rc[rcindex1] = 0;
   for( iw=reordered.begin(), ew=reordered.end(); iw!=ew; ++iw )
