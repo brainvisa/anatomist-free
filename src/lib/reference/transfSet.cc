@@ -406,13 +406,17 @@ void ATransformSet::propagate( Referential* ref, Referential* r2,
   //cout << "prop done\n";
 }
 
+// DEBUG
+#include <time.h>
 
 void ATransformSet::completeTransformations( Transformation* t )
 {
+  clock_t clk = clock();
+
   Referential	*r1 = t->source();
   Referential	*r2 = t->destination();
   Referential	*oref;
-  //cout << "completeTransformations " << r1 << " -> " << r2 << endl;
+  cout << "completeTransformations " << r1 << " -> " << r2 << endl;
 
   ///	fill inverse
   Transformation	*inv = transformation( r2, r1 );
@@ -436,91 +440,77 @@ void ATransformSet::completeTransformations( Transformation* t )
   front[ r1 ] = t;
 
   while( !front.empty() )
-    {
-      ir = front.begin();
-      r = ir->first;
-      //cout << "front : " << r << endl;
-      oref = ir->second->source();
-      if( oref == r )
-	oref = ir->second->destination();
-      propagate( r, oref, done );
-      done.insert( r );
-      front.erase( ir );
-      is=d->trans.begin();
-      while( is != es )
-	{
-	  bool	incd = false;
-	  //cout << "trans loop\n";
-	  ed=is->second.end();
-	  if( is->first == r )
-	    {
-	      //cout << "line\n";
-	      id = is->second.begin();
-	      ++is;
-	      incd = true;
-	      while( id != ed )
-                if( id->second.trans )
-                  // generated trans will be pruned afterwards
-                  if( !id->second.trans->isGenerated() )
-                    {
-                      if( done.find( id->first ) == dend )
-                        {
-                          //cout << "insert " << id->first << endl;
-                          front[ id->first ] = id->second.trans;
-                        }
-                      ++id;
-                    }
-                else
-                  ++id;
-            }
-          else
-            {
-              //cout << "col\n";
-              id = is->second.find( r );
-              ris = is->first;
-              ++is;
-              incd = true;
-              if( id != ed && id->second.trans )
-              {
-                // generated trans will be pruned afterwards
-                if( !id->second.trans->isGenerated()
-                    && done.find( ris ) == dend )
-                  {
-                    //cout << "insert " << ris << endl;
-                    front[ ris ] = id->second.trans;
-                  }
-              }
-              if( !incd )
-                ++is;
-            }
-        }
-      //cout << "end loop is\n";
-    }
-
-    // prune connections between unconnected components
-
+  {
+    ir = front.begin();
+    r = ir->first;
+    cout << "front : " << r << endl;
+    oref = ir->second->source();
+    if( oref == r )
+      oref = ir->second->destination();
+    propagate( r, oref, done );
+    done.insert( r );
+    front.erase( ir );
     for( is=d->trans.begin(); is != es; ++is )
     {
-      bool incd = false;
       //cout << "trans loop\n";
-      bool sout, dout;
-      sout = ( done.find( is->first ) == dend );
-      id = is->second.begin();
       ed=is->second.end();
-      while( id != ed )
-        if( id->second.trans )
-        {
-          dout = ( done.find( id->first ) == dend );
-          if( id->second.trans->isGenerated() && ( sout ^ dout ) )
+      if( is->first == r )
+      {
+        //cout << "line\n";
+        for( id = is->second.begin(); id != ed; ++id )
+          // generated trans will be pruned afterwards
+          if( id->second.trans && !id->second.trans->isGenerated()
+              && done.find( id->first ) == dend )
           {
-            id2 = id;
-            ++id;
-            delete id2->second.trans;
+            //cout << "insert " << id->first << endl;
+            front[ id->first ] = id->second.trans;
           }
-          else
-            ++id;
+      }
+      else
+      {
+        //cout << "col\n";
+        id = is->second.find( r );
+        ris = is->first;
+        // generated trans will be pruned afterwards
+        if( id != ed && id->second.trans
+            && !id->second.trans->isGenerated()
+            && done.find( ris ) == dend )
+        {
+          //cout << "insert " << ris << endl;
+          front[ ris ] = id->second.trans;
         }
+      }
     }
+    //cout << "end loop is\n";
+  }
+
+  // prune connections between unconnected components
+  cout << "prune connections between unconnected components\n";
+
+  for( is=d->trans.begin(); is != es; ++is )
+  {
+    //cout << "trans loop\n";
+    bool sout, dout;
+    sout = ( done.find( is->first ) == dend );
+    id = is->second.begin();
+    ed=is->second.end();
+    while( id != ed )
+      if( id->second.trans )
+      {
+        dout = ( done.find( id->first ) == dend );
+        if( id->second.trans->isGenerated() && ( sout ^ dout ) )
+        {
+          id2 = id;
+          ++id;
+          delete id2->second.trans;
+        }
+        else
+          ++id;
+      }
+      else
+        ++id;
+  }
+  cout << "completeTransformations time: " << clock() - clk << endl;
 }
 
 
