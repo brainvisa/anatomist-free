@@ -42,6 +42,7 @@
 #include <graph/tree/tree.h>
 
 using namespace anatomist;
+using namespace aims;
 using namespace carto;
 using namespace std;
 
@@ -75,7 +76,7 @@ bool SaveTransformationCommand::initSyntax()
 
 void SaveTransformationCommand::doit()
 {
-  aims::Writer<Motion>  mw( _filename );
+  aims::Writer<AffineTransformation3d>  mw( _filename );
   mw.write( _tra->motion() );
 }
 

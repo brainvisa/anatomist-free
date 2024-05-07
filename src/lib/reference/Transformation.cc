@@ -41,7 +41,7 @@
 
 
 using namespace anatomist;
-// using namespace aims;
+using namespace aims;
 using namespace carto;
 using namespace std;
 using aims::Quaternion;
@@ -85,12 +85,30 @@ Transformation::~Transformation()
 
 Transformation & Transformation::operator = ( const Transformation& trans )
 {
-  if( this == &trans ) return( *this );
+  if( this == &trans )
+    return( *this );
 
-  _motion = trans._motion;
+  this->operator = ( trans._motion );
 
   return( *this );
 }
+
+
+Transformation & Transformation::operator = (
+  const AffineTransformation3d & trans )
+{
+  bool reg = ATransformSet::instance()->hasTransformation( this );
+  if( reg )
+    reg = ( _motion != trans );
+
+  _motion = trans;
+
+  if( reg )
+    ATransformSet::instance()->updateTransformation( this );
+
+  return *this;
+}
+
 
 void Transformation::SetRotation(int i,int j,float val)
 {
@@ -122,7 +140,13 @@ void Transformation::invert()
 {
   bool	reg = ATransformSet::instance()->hasTransformation( this );
 
-  _motion = *_motion.inverse();
+  unique_ptr<AffineTransformation3d> inv = _motion.inverse();
+  if( reg )
+    reg = ( _motion !=  *inv );
+
+  AffineTransformationBase::epsilon = 1e-5;
+
+  _motion = *inv;
 
   if( reg )
     ATransformSet::instance()->updateTransformation( this );
@@ -274,7 +298,8 @@ void Transformation::setMatrixT( float m[4][3] )
   matrix(2,3) = m[0][2];
 }
 
-void Transformation::addMotionToHistory(const Motion & motion)
+void
+Transformation::addMotionToHistory( const AffineTransformation3d & motion )
 {
   if (_motionHistoryIndex == -1)
   {

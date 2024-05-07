@@ -707,12 +707,12 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
             }
             // cout << "ref OK, nj: " << vmot.size() << endl;
             // cout << "vref: " << vref.size() << endl;
-            Motion  m( it->currentValue() );
+            AffineTransformation3d  m( it->currentValue() );
             // look if an identical transformation has already been specified
             for( j=0, nj=vmot.size(); j<nj; ++j )
               if( m == vmot[j] )
               {
-                // cout << "identical motion already used\n";
+                // cout << "identical transformation already used\n";
                 if( ref == Referential::mniTemplateReferential() )
                 {
                   // cout << "MNI\n";
@@ -896,12 +896,12 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
         try
         {
           Object stom = ps->getProperty( "storage_to_memory" );
-          Motion  m( stom ), mi = *m.inverse();
+          AffineTransformation3d  m( stom ), mi = *m.inverse();
           Point3df vs = Point3df( (*io)->voxelSize() );
           Point3df vss
             = mi.transform( vs ) - mi.transform( Point3df( 0, 0, 0 ) );
           vss = Point3df( fabs( vss[0] ), fabs( vss[1] ), fabs( vss[2] ) );
-          Motion vm;
+          AffineTransformation3d vm;
           vm.rotation()(0,0) = vs[0];
           vm.rotation()(1,1) = vs[1];
           vm.rotation()(2,2) = vs[2];

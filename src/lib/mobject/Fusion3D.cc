@@ -286,7 +286,8 @@ void Fusion3D::refreshVTexture( const ViewState & s ) const
   /*
   cout << "Fusion3D::refreshVTexture\n";
   cout << "haschanged: " << glHasChanged( glGENERAL ) << ", texchanged: " 
-       << glTexImageChanged() << endl;
+       << glTexImageChanged() << ", refreshVTexture: " << d->refreshVTexture
+       << endl;
   */
 
   if( d->refreshVTexture )

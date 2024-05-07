@@ -37,7 +37,7 @@
 
 //--- header files ------------------------------------------------------------
 
-#include <aims/resampling/motion.h>
+#include <aims/transformation/affinetransformation3d.h>
 
 
 //--- class declarations ------------------------------------------------------
@@ -52,30 +52,31 @@ namespace anatomist
 
   class Referential;
 
-  /**	Transformation between two referentials. 
-	Actually linear transformations up to now, but could be extended.
-	All transformations are registered and stored into the TransformSet 
-	singleton object
+  /**   Transformation between two referentials.
+        Actually linear transformations up to now, but could be extended.
+        All transformations are registered and stored into the TransformSet
+        singleton object
   */
 
   class Transformation
   { 
   public:
     Transformation( Referential *,Referential *, bool regist = false, 
-		    bool generated = false );
+                    bool generated = false );
     Transformation( Referential *,Referential *, 
-		    const Transformation & trans );
+                    const Transformation & trans );
     Transformation();
     /// Unregister from the TransformSet and other objects
     virtual ~Transformation();
 
     /// Operator = doesn't copy source / dest references
     Transformation & operator = ( const Transformation & trans );
+    Transformation & operator = ( const aims::AffineTransformation3d & trans );
     Transformation & operator *= ( const Transformation & trans );
     // Transformation & operator += ( const Transformation & trans );
     Transformation operator - () const;
-    Motion & motion() { return _motion; }
-    const Motion & motion() const { return _motion; }
+    aims::AffineTransformation3d & motion() { return _motion; }
+    const aims::AffineTransformation3d & motion() const { return _motion; }
 
     void setRotation( float** r );
     void setTranslation( float* t );
@@ -108,7 +109,7 @@ namespace anatomist
     /* transforms cube (pmin1, pmin2) and builds the new bounding box 
        in the new ref */
     void transformBoundingBox( const Point3df & pmin1, const Point3df & pmax1, 
-			       Point3df & pmin2, Point3df & pmax2 );
+                               Point3df & pmin2, Point3df & pmax2 );
 
     ///	Registers the transformation to the TransformSet
     void registerTrans();
@@ -116,8 +117,8 @@ namespace anatomist
     bool isGenerated() const { return( _generated ); }
     void setGenerated( bool x ) { _generated = x; }
 
-    /// Adds a new motion to motion history
-    void addMotionToHistory(const Motion &);
+    /// Adds a new AffineTransformation3d to motion history
+    void addMotionToHistory( const aims::AffineTransformation3d & );
     /// Undoes last motion
     void undo();
     /// Redoes last motion
@@ -125,120 +126,120 @@ namespace anatomist
     /// Returns the motion history size
     std::size_t motionHistorySize() const
     {
-    	return _motionHistory.size();
+      return _motionHistory.size();
     }
     /// Returns the current motion history index
     int motionHistoryIndex() const
     {
-    	return _motionHistoryIndex;
+      return _motionHistoryIndex;
     }
 
     /** Static transform function: with transformation, org and dest 
-	geometries.
-	These functions are designed to help various situations of 
-	transformations and geometry changes. They are as fast as possible 
-	(inline, direct, with the fewest required data copying and temporary 
-	variables) */
+        geometries.
+        These functions are designed to help various situations of
+        transformations and geometry changes. They are as fast as possible
+        (inline, direct, with the fewest required data copying and temporary
+        variables) */
     static Point3df transform( const Point3df & pos, const Transformation* tra, 
-			       const Point3df & voxSizeOrg, 
-			       const Point3df & voxSizeDst );
+                               const Point3df & voxSizeOrg,
+                               const Point3df & voxSizeDst );
     /// slower than above: must find the transformation (not inline)
     static Point3df transform( const Point3df & pos, const Referential* orgRef, 
-			       const Referential* dstRef, 
-			       const Point3df & voxSizeOrg, 
-			       const Point3df & voxSizeDst );
+                               const Referential* dstRef,
+                               const Point3df & voxSizeOrg,
+                               const Point3df & voxSizeDst );
     /// no transformation, only geometries
     static Point3df transform( const Point3df & pos, 
-			       const Point3df & voxSizeOrg, 
-			       const Point3df & voxSizeDst );
+                               const Point3df & voxSizeOrg,
+                               const Point3df & voxSizeDst );
     /// transformation, dest geometry but no org geometry
     static Point3df transform( const Point3df & pos, const Transformation* tra, 
-			       const Point3df & voxSizeDst );
+                               const Point3df & voxSizeDst );
     /// transformation, org geometry but no dest geometry
     static Point3df transform( const Point3df & pos, 
-			       const Point3df & voxSizeOrg, 
-			       const Transformation* tra );
+                               const Point3df & voxSizeOrg,
+                               const Transformation* tra );
     /// no transformation, no dest geometry but org geometry
     static Point3df transform( const Point3df & pos, 
-			       const Point3df & voxSizeOrg );
+                               const Point3df & voxSizeOrg );
     /** no transformation, no org geometry but dest geometry. 
 	The function name changes here to differ from the one above */
     static Point3df transformDG( const Point3df & pos, 
-				 const Point3df & voxSizeDst );
+                                 const Point3df & voxSizeDst );
     void notifyChange();
 
   protected:
-    Motion      _motion;
+    aims::AffineTransformation3d      _motion;
     Referential *_source;
-    Referential	*_dest;
-    bool	_generated;
-    std::vector <Motion> _motionHistory;
+    Referential *_dest;
+    bool _generated;
+    std::vector <aims::AffineTransformation3d> _motionHistory;
     int _motionHistoryIndex;
   };
 
 
-  //	inline functions
+  //   inline functions
 
 
   inline Point3df 
   Transformation::transform( const Point3df & pos, const Transformation* tra, 
-			     const Point3df & voxSizeOrg, 
-			     const Point3df & voxSizeDst )
+                             const Point3df & voxSizeOrg,
+                             const Point3df & voxSizeDst )
   {
     Point3df	pt = tra->transform( Point3df( pos[0] * voxSizeOrg[0], 
-					       pos[1] * voxSizeOrg[1], 
-					       pos[2] * voxSizeOrg[2] ) );
+                                               pos[1] * voxSizeOrg[1],
+                                               pos[2] * voxSizeOrg[2] ) );
     return( Point3df( pt[0] / voxSizeDst[0], pt[1] / voxSizeDst[1], 
-		      pt[2] / voxSizeDst[2] ) );
+                      pt[2] / voxSizeDst[2] ) );
   }
 
 
   inline Point3df 
   Transformation::transform( const Point3df & pos, 
-			     const Point3df & voxSizeOrg, 
-			     const Point3df & voxSizeDst )
+                             const Point3df & voxSizeOrg,
+                             const Point3df & voxSizeDst )
   {
     return( Point3df( pos[0] * voxSizeOrg[0] / voxSizeDst[0], 
-		      pos[1] * voxSizeOrg[1] / voxSizeDst[1], 
-		      pos[2] * voxSizeOrg[2] / voxSizeDst[2] ) );
+                      pos[1] * voxSizeOrg[1] / voxSizeDst[1],
+                      pos[2] * voxSizeOrg[2] / voxSizeDst[2] ) );
   }
 
 
   inline Point3df 
   Transformation::transform( const Point3df & pos, const Point3df & voxSizeOrg, 
-			     const Transformation* tra )
+                             const Transformation* tra )
   {
     return( tra->transform( Point3df( pos[0] * voxSizeOrg[0], 
-				      pos[1] * voxSizeOrg[1], 
-				      pos[2] * voxSizeOrg[2] ) ) );
+                                      pos[1] * voxSizeOrg[1],
+                                      pos[2] * voxSizeOrg[2] ) ) );
   }
 
 
   inline Point3df 
   Transformation::transform( const Point3df & pos, const Transformation* tra, 
-			   const Point3df & voxSizeDst )
+                             const Point3df & voxSizeDst )
   {
     Point3df	pt = tra->transform( pos );
     return( Point3df( pt[0] / voxSizeDst[0], pt[1] / voxSizeDst[1], 
-		      pt[2] / voxSizeDst[2] ) );
+                      pt[2] / voxSizeDst[2] ) );
   }
 
 
   inline Point3df 
   Transformation::transform( const Point3df & pos, 
-			   const Point3df & voxSizeOrg )
+                             const Point3df & voxSizeOrg )
   {
     return( Point3df( pos[0] * voxSizeOrg[0], pos[1] * voxSizeOrg[1], 
-		      pos[2] * voxSizeOrg[2] ) );
+                      pos[2] * voxSizeOrg[2] ) );
   }
 
 
   inline Point3df 
   Transformation::transformDG( const Point3df & pos, 
-			     const Point3df & voxSizeDst )
+                               const Point3df & voxSizeDst )
   {
     return( Point3df( pos[0] / voxSizeDst[0], pos[1] / voxSizeDst[1], 
-		      pos[2] / voxSizeDst[2] ) );
+                      pos[2] / voxSizeDst[2] ) );
   }
 
   inline Point3df

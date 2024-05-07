@@ -186,10 +186,13 @@ void ATransformSet::registerTransformation( Transformation* t )
     {
       if( id->second.trans == t )
       {
-        // the (same) transformation was already registered - just update it.
-        if( id->second.obs.get() )
-          id->second.obs->setChanged();
-        updateTransformation( t );
+        // 2024/05/07 don't force an update if trans has not actually been
+        // modified. Does this have side effects ??
+
+//         // the (same) transformation was already registered - just update it.
+//         if( id->second.obs.get() )
+//           id->second.obs->setChanged();
+//         updateTransformation( t );
         return;
       }
       else
@@ -348,8 +351,7 @@ void ATransformSet::propagate( Referential* ref, Referential* r2,
       tr = transformation( r2, ref );
       assert( tr );
       rt = new Transformation( ref, r2, true, true );
-      *rt = *tr;
-      rt->invert();
+      *rt = *tr->motion().inverse();
     }
 
   for( ir=others.begin(); ir!=er; ++ir )
@@ -397,10 +399,9 @@ void ATransformSet::propagate( Referential* ref, Referential* r2,
 	tr2 = new Transformation( d, s, true, true );
       //cout << "update " << d << " -> " << s << endl;
       if( tr2->isGenerated() )
-	{
-	  *tr2 = *tr;
-	  tr2->invert();
-	}
+      {
+        *tr2 = *tr->motion().inverse();
+      }
     }
   //cout << "prop done\n";
 }
@@ -459,18 +460,8 @@ void ATransformSet::completeTransformations( Transformation* t )
 	      incd = true;
 	      while( id != ed )
                 if( id->second.trans )
-                  if( id->second.trans->isGenerated() )
-                    {
-                      if( done.find( id->first ) == dend )
-                        {
-                          id2 = id;
-                          ++id;
-                          delete id2->second.trans;
-                        }
-                      else
-                        ++id;
-                    }
-                  else
+                  // generated trans will be pruned afterwards
+                  if( !id->second.trans->isGenerated() )
                     {
                       if( done.find( id->first ) == dend )
                         {
@@ -491,18 +482,9 @@ void ATransformSet::completeTransformations( Transformation* t )
               incd = true;
               if( id != ed && id->second.trans )
               {
-                if( id->second.trans->isGenerated() )
-                  {
-                    if( ris != r2 && done.find( ris ) == dend )
-                      {
-                        id2 = id;
-                        ++id;
-                        //cout << "delete " << ris << " -> " << r << endl;
-                        delete id2->second.trans;
-                        //cout << "(deleted)\n";
-                      }
-                  }
-                else if( done.find( ris ) == dend )
+                // generated trans will be pruned afterwards
+                if( !id->second.trans->isGenerated()
+                    && done.find( ris ) == dend )
                   {
                     //cout << "insert " << ris << endl;
                     front[ ris ] = id->second.trans;
@@ -513,6 +495,31 @@ void ATransformSet::completeTransformations( Transformation* t )
             }
         }
       //cout << "end loop is\n";
+    }
+
+    // prune connections between unconnected components
+
+    for( is=d->trans.begin(); is != es; ++is )
+    {
+      bool incd = false;
+      //cout << "trans loop\n";
+      bool sout, dout;
+      sout = ( done.find( is->first ) == dend );
+      id = is->second.begin();
+      ed=is->second.end();
+      while( id != ed )
+        if( id->second.trans )
+        {
+          dout = ( done.find( id->first ) == dend );
+          if( id->second.trans->isGenerated() && ( sout ^ dout ) )
+          {
+            id2 = id;
+            ++id;
+            delete id2->second.trans;
+          }
+          else
+            ++id;
+        }
     }
 }
 
