@@ -407,16 +407,16 @@ void ATransformSet::propagate( Referential* ref, Referential* r2,
 }
 
 // DEBUG
-#include <time.h>
+// #include <time.h>
 
 void ATransformSet::completeTransformations( Transformation* t )
 {
-  clock_t clk = clock();
+  // clock_t clk = clock();
 
   Referential	*r1 = t->source();
   Referential	*r2 = t->destination();
   Referential	*oref;
-  cout << "completeTransformations " << r1 << " -> " << r2 << endl;
+  // cout << "completeTransformations " << r1 << " -> " << r2 << endl;
 
   ///	fill inverse
   Transformation	*inv = transformation( r2, r1 );
@@ -443,7 +443,7 @@ void ATransformSet::completeTransformations( Transformation* t )
   {
     ir = front.begin();
     r = ir->first;
-    cout << "front : " << r << endl;
+    // cout << "front : " << r << endl;
     oref = ir->second->source();
     if( oref == r )
       oref = ir->second->destination();
@@ -485,7 +485,6 @@ void ATransformSet::completeTransformations( Transformation* t )
   }
 
   // prune connections between unconnected components
-  cout << "prune connections between unconnected components\n";
 
   for( is=d->trans.begin(); is != es; ++is )
   {
@@ -510,7 +509,7 @@ void ATransformSet::completeTransformations( Transformation* t )
       else
         ++id;
   }
-  cout << "completeTransformations time: " << clock() - clk << endl;
+  // cout << "completeTransformations time: " << clock() - clk << endl;
 }
 
 
