@@ -72,6 +72,7 @@ set( _headers
     commands/cLinkWindows.h
     commands/cLoadGraphSubObjects.h
     commands/cLoadObject.h
+    commands/cLoadObjects.h
     commands/cLoadTransformation.h
     commands/cLoadTransformationGraph.h
     commands/cNewId.h
@@ -322,6 +323,7 @@ set( _sources
     commands/cLinkWindows.cc
     commands/cLoadGraphSubObjects.cc
     commands/cLoadObject.cc
+    commands/cLoadObjects.cc
     commands/cLoadTransformation.cc
     commands/cLoadTransformationGraph.cc
     commands/cNewId.cc

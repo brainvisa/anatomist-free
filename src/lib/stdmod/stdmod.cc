@@ -85,6 +85,7 @@
 #include <anatomist/commands/cLinkWindows.h>
 #include <anatomist/commands/cLoadGraphSubObjects.h>
 #include <anatomist/commands/cLoadObject.h>
+#include <anatomist/commands/cLoadObjects.h>
 #include <anatomist/commands/cNewId.h>
 #include <anatomist/commands/cLoadTransformation.h>
 #include <anatomist/commands/cLoadTransformationGraph.h>
@@ -269,6 +270,7 @@ void StdModule::actionsDeclaration()
   LinkWindowsCommand::initSyntax();
   LoadGraphSubObjectsCommand::initSyntax();
   LoadObjectCommand::initSyntax();
+  LoadObjectsCommand::initSyntax();
   LoadTransformationCommand::initSyntax();
   LoadTransformationGraphCommand::initSyntax();
   SaveTransformationGraphCommand::initSyntax();

@@ -67,6 +67,7 @@
 #include <soma-io/io/formatdictionary.h>
 #include <soma-io/datasourceinfo/datasourceinfoloader.h>
 #include <cartobase/stream/fileutil.h>
+#include <cartobase/thread/thread.h>
 #include <qapplication.h>
 #include <time.h>
 #include <zlib.h>
@@ -1286,6 +1287,9 @@ list<AObject *> ObjectReader::load( const string & filename,
     {
     }
   }
+  if( !Thread::currentIsMainThread() )
+    // if not in main thread, async actions must be delayed to main thread
+    async = true;
 
   list<AObject *>::iterator io, eo = objects.end();
   if( !objects.empty() )
