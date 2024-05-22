@@ -833,9 +833,12 @@ void Anatomist::registerObject( AObject* obj, int inctrl )
 #endif
   if( _privData->destroying )
     return;
+  lockObjects( true );
   _privData->anaObj[ obj ]
       = shared_ptr<AObject>( shared_ptr<AObject>::WeakShared, obj );
-  if( inctrl ) mapObject( obj );
+  if( inctrl )
+    mapObject( obj );
+  lockObjects( false );
   // call the observable notifier
   ObservableCreatedNotifier::notifyCreated( obj );
 }
@@ -849,12 +852,18 @@ void Anatomist::unregisterObject( AObject* obj )
   cout << "Anatomist::unregisterObject " << obj << " ("
       << typeid( *obj ).name() << ") - " << obj->name() << endl;
 #endif
+
+  lockObjects( true );
+
   unmapObject( obj );
 
   map<const AObject *, shared_ptr<AObject> >::iterator i
       = _privData->anaObj.find( obj );
   if( i != _privData->anaObj.end() )
     _privData->anaObj.erase( i );
+
+  lockObjects( false );
+
 #ifdef ANA_DEBUG
   else
     cerr << "  - nothing to unregister" << endl;
@@ -866,11 +875,13 @@ void Anatomist::releaseObject( AObject* obj )
 {
   using carto::shared_ptr;
 
+  lockObjects( true );
   map<const AObject *, shared_ptr<AObject> >::iterator
       i = _privData->anaObj.find( obj );
   // change the smart pointer type to Weak
   if( i != _privData->anaObj.end() )
     i->second.reset( shared_ptr<AObject>::Weak, obj );
+  lockObjects( false );
 }
 
 
@@ -878,6 +889,7 @@ void Anatomist::takeObjectRef( AObject* obj )
 {
   using carto::shared_ptr;
 
+  lockObjects( true );
   map<const AObject *, shared_ptr<AObject> >::iterator
       i = _privData->anaObj.find( obj );
   // change the smart pointer type to Weak
@@ -889,6 +901,7 @@ void Anatomist::takeObjectRef( AObject* obj )
     _privData->anaObj[ obj ]
       = shared_ptr<AObject>( shared_ptr<AObject>::WeakShared, obj );
   }
+  lockObjects( false );
 }
 
 
@@ -1121,6 +1134,7 @@ string Anatomist::makeObjectName( const string & name )
     ++pos;
   //	remove path
   string	name2 = name.substr( pos, name.length() - pos );
+  lockObjects( true );
   map<string, AObject *>::iterator	fn=_privData->anaNameObj.end();
   bool					e;
   unsigned				i = 2;
@@ -1129,34 +1143,40 @@ string Anatomist::makeObjectName( const string & name )
   pos = name2.length();
 
   do
+  {
+    e = true;
+    if( _privData->anaNameObj.find( name2 ) != fn )
     {
-      e = true;
-      if( _privData->anaNameObj.find( name2 ) != fn )
-	{
-	  e = false;
-	  name2.erase( pos, name2.length() - pos );
-	  sprintf( num, "%d", i );
-	  name2 += string( " (" ) + num + ")";
-	  ++i;
-	}
+      e = false;
+      name2.erase( pos, name2.length() - pos );
+      sprintf( num, "%d", i );
+      name2 += string( " (" ) + num + ")";
+      ++i;
     }
+  }
   while( !e );
 
-  return( name2 );
+  lockObjects( false );
+
+  return name2;
 }
 
 
 void Anatomist::registerObjectName( const string& name, AObject* obj )
 {
+  lockObjects( true );
   if ( _privData->anaNameObj.find( name ) == _privData->anaNameObj.end() )
     _privData->anaNameObj[ name ] = obj;
+  lockObjects( false );
 }
 
 
 void Anatomist::unregisterObjectName( const string& name )
 {
+  lockObjects( true );
   if ( _privData->anaNameObj.find( name ) != _privData->anaNameObj.end() )
     _privData->anaNameObj.erase( name );
+  lockObjects( false );
 }
 
 
