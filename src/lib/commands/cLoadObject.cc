@@ -238,9 +238,6 @@ LoadObjectCommand::read( const Tree & com, CommandContext* context )
   string	filename;
   int		id, ascurs = 0;
 
-
-  if( com.getProperty( "res_pointer", id ) )
-
   if( !com.getProperty( "filename", filename ) 
       || !com.getProperty( "res_pointer", id ) )
     return( 0 );
