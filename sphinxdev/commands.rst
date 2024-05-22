@@ -194,6 +194,7 @@ Commands definition
   * :ref:`LinkWindows`
   * :ref:`LoadGraphSubObjects`
   * :ref:`LoadObject`
+  * :ref:`LoadObjects`
   * :ref:`LoadReferentialFromHeader`
   * :ref:`LoadTransformation`
   * :ref:`LoadTransformationGraph`
@@ -1920,6 +1921,12 @@ LoadObject
       <td>ID of the loaded object</td>
     </tr>
     <tr>
+      <td><tt>name</tt></td>
+      <td><tt>string</tt> (optional)</td>
+      <td>name to be assigned to the loaded object
+      </td>
+    </tr>
+    <tr>
       <td><tt>as_cursor</tt></td>
       <td><tt>int</tt> (optional)</td>
       <td><b>New in Anatomist 3.0</b>.
@@ -1929,7 +1936,7 @@ LoadObject
     </tr>
     <tr>
       <td><tt>options</tt></td>
-      <td><tt><a href="#dicttype">dictionary</a></tt> (optionnel)</td>
+      <td><tt><a href="#dicttype">dictionary</a></tt> (optional)</td>
       <td><b>New in Anatomist 3.0</b>.
         Additional options to be passes to reading functions.<br>
         At the moment, only one option is recognized at anatomist level (but in the future, more
@@ -1944,12 +1951,92 @@ LoadObject
           </tr>
           <tr>
             <td><tt>hidden</tt></td>
-            <td><tt>int</tt></td>
+            <td><tt>int</tt> (optional)</td>
             <td><b>New in Anatomist 3.1</b>.
               A hidden object does not appear in Anatomist main control window.
             </td>
           </tr>
+          <tr>
+            <td><tt>asynchronous</tt></td>
+            <td><tt>int</tt> (optional)</td>
+            <td><b>New in Anatomist 4.3.1</b>.
+            An asynchronous loading starts the load operation in background, and returns immediately. Objects will be loaded and added to the application objects list as soon as they are loaded.
+            </td>
+          </tr>
         </table>
+      </td>
+    </tr>
+  </tbody>
+  </table>
+
+
+.. _LoadObjects:
+
+LoadObjects
+-----------
+
+.. raw:: html
+
+  <b>New in Anatomist 5.2</b>
+  Loads several objects from a list of files on disk. This new command is an alternative to the older <tt>LoadObject</tt>, which allows to load a list of objects at once, and enables parallel loading. The default is to use parallel loading, actually. However depending on data formats (in AIMS / Soma-IO libraries), some might not be thread-safe (robust to parallel loading) and might crash when used parallelly. Thus this feature should be regarded as experimental in a general way, and may be used for trusted data formats.
+
+  <table width="100%" class="docutils">
+  <thead>
+    <tr>
+      <th>Attribute:</th>
+      <th>Type:</th>
+      <th>Description:</th>
+    </tt>
+  </thead>
+  <tbody>
+    <tr>
+      <td><tt>filenames</tt></td>
+      <td><tt>string_vector</tt></td>
+      <td>files to read.</td>
+    </tr>
+    <tr>
+      <td><tt>res_pointers</tt></td>
+      <td><tt>int_vector</tt></td>
+      <td>IDs of the loaded objects</td>
+    </tr>
+    <tr>
+      <td><tt>names</tt></td>
+      <td><tt>string_vector</tt> (optional)</td>
+      <td>names to be assigned to loaded objects
+      </td>
+    </tr>
+    <tr>
+      <td><tt>options</tt></td>
+      <td><tt><a href="#dicttype">dictionary</a></tt> (optional)</td>
+      <td>
+        Additional options to be passed to the reading functions. Options are common to all objects readings.<br>
+        <table class="docutils">
+          <tr>
+            <td><tt>restrict_object_types</tt></td>
+            <td><tt>dictionary</tt></td>
+            <td>Restricts objects types that can be read. Ex:<br>
+              <pre>options { '__syntax__' : 'dictionary', 'Volume' : [ 'S16', 'FLOAT' ] }</pre>
+            </td>
+          </tr>
+          <tr>
+            <td><tt>hidden</tt></td>
+            <td><tt>int</tt> (optional)</td>
+            <td>A hidden object does not appear in Anatomist main control window.
+            </td>
+          </tr>
+          <tr>
+            <td><tt>asynchronous</tt></td>
+            <td><tt>int</tt> (optional)</td>
+            <td>An asynchronous loading starts the load operation in background, and returns immediately. Objects will be loaded and added to the application objects list as soon as they are loaded.
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td><tt>threaded</tt></td>
+      <td><tt>int</tt> (optional, default=1)</td>
+      <td>If enabled (the default), use parallel loading in as many threads as the number of cores of the computer.
       </td>
     </tr>
   </tbody>

@@ -80,7 +80,7 @@
 
 
 <!-- -->
-<h4> <a name="version-5.2.0"></a>2024/05/07 - Version 5.2.0</h4>
+<h4> <a name="version-5.2.0"></a>2024/05/22 - Version 5.2.0</h4>
 <h5>Visible changes (users):</h5>
 <ul>
   <li><tt>Save</tt> button in 3D views appears when a modified object is displayed. It allows for instance to save a manually labelled graph or a ROI to be saved simply.
@@ -106,6 +106,8 @@
   <li>Support (in AIMS library, actually) for reading various Freesurfer native formats: surfaces (meshes), curvature, annotations, and .xfm affine transformation files.
   </li>
   <li>Reworked the transformations graph update when adding / changing a transformation. The process is about 3 times faster and avoids triggering lots of unneeded change notifications. The process is still largely suboptimal I think, but it's better than it used to be...
+  </li>
+  <li>It is now possible to load multiple objects in parallal in the C++ and python APIs.The GUI still uses sequential loading for safety (data formats are not all guananteed to be thread-safe).
   </li>
 </ul>
 
