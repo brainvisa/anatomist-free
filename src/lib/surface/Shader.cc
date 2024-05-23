@@ -266,7 +266,7 @@ bool	Shader::getAnatomistDefaultBehaviour(void)
 
 bool	Shader::isActivated(void)
 {
-  bool use_glshader = getAnatomistDefaultBehaviour();
+  bool use_glshader = true;
   GlobalConfiguration   *cfg = theAnatomist->config();
 
   try
@@ -278,6 +278,11 @@ bool	Shader::isActivated(void)
   catch( ... )
   {
   }
+
+  if( !use_glshader )
+    return false;
+
+  use_glshader = getAnatomistDefaultBehaviour();
 
   return use_glshader;
 }
@@ -505,7 +510,9 @@ void Shader::setShaderParameters(const AVolumeBase &obj, const ViewState & state
 void Shader::bind(const GLComponent &glc, const ViewState & state)
 {
   if (not d->enable) return;
-  if (d->_shader_program_p.isNull()) return;
+  load_if_needed();
+  if (d->_shader_program_p.isNull())
+    return;
 
 #if QT_VERSION >= 0x060000
   QOpenGLShaderProgram *shader_program = (*(d->_shader_program_p));

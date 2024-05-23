@@ -300,7 +300,7 @@ GLComponent::GLComponent() : d( new GLComponent::Private )
   if (Shader::isUsedByDefault())
   {
     _shader = new Shader();
-    _shader->load_if_needed();
+    // _shader->load_if_needed();
   }
   else
     _shader = 0;
@@ -2336,7 +2336,8 @@ void GLComponent::setupShader()
     if( value < 0 )
       value = Shader::DefaultColoringModel;
     _shader->setColoringModel( (Shader::ColoringModel) value );
-    _shader->load_if_needed();
+    // load_if_needed() will be done in bind() now
+    // _shader->load_if_needed();
   }
   else
     removeShader();

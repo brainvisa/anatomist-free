@@ -43,6 +43,7 @@
 #include <anatomist/processor/event.h>
 #include <anatomist/object/oReader.h>
 #include <anatomist/object/loadevent.h>
+#include <anatomist/surface/Shader.h>
 #include <cartobase/stream/fileutil.h>
 #include <cartobase/object/syntax.h>
 #include <graph/tree/tree.h>
@@ -197,6 +198,9 @@ LoadObjectsCommand::doit()
     {
     }
   }
+
+  // make sure sharers are initialized from main thread
+  Shader::isSupported();
 
   QObject::connect( ObjectReaderNotifier::notifier(),
     SIGNAL( objectLoaded( AObject*,
