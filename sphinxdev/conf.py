@@ -218,7 +218,7 @@ extlinks = {
     'anatomist '),
   'anadox': ('../../anatomist-' + version + '/doxygen/%s',
     'anadox '),
-  'anausr': ('../../pyanatomist-' + version + '/user_doc/%s',
+  'anausr': ('../user_doc/%s',
     'anausr '),
   'aimsdox': ('../../aimsdata-' + version + '/doxygen/%s',
     'aimsdox '),

@@ -32,7 +32,7 @@ The configuration file holds the settings selected from the Preferences menu of 
         'html_browser': 'konqueror %1 &',
       }
 
-In the future this file will move to XML format, but this is only the future.
+XML format is also supported, but is less human-readable.
 
 The Python/Minf format is more flexible than the older "tree" format because it allows unknown tags. This is important because it keeps compatibility with older anatomist versions: at the moment, new options saved in the settings file will prevent older anatomist versions to read the whole file. Inversely, the python format is only supported (and readable) since Anatomist 1.29.
 
