@@ -32,64 +32,68 @@
  */
 
 
-#ifndef ANA_PROCESSOR_SERIALIZER_H
-#define ANA_PROCESSOR_SERIALIZER_H
+#ifndef ANA_CONTROL_WCONTROLEVENTS_H
+#define ANA_CONTROL_WCONTROLEVENTS_H
 
 
-//--- header files ------------------------------------------------------------
-
-#include <cartobase/thread/mutex.h>
+#include <QEvent>
+#include <string>
 #include <map>
-
+#include <set>
 
 namespace anatomist
 {
-  //--- class declarations ----------------------------------------------------
+  class AObject;
 
-  /**
-   *	Serializer is a helper class for pointer serialization. Every pointer
-   *	can be asociated with a unique integer ID that can be saved to a file
-   *	and restored later.
-   */
 
-  class Serializer
+  /** ControlWindow map object event: posted to trigger registering of an
+      object in the control window. It is used when triggered from a
+      non-principal thread.
+  */
+  class MapObjectEvent : public QEvent
   {
   public:
-    Serializer();
-    virtual ~Serializer();
+    static Type eventType();
 
-    /**
-     *	Generate a unique ID to serialize a pointer
-     *	@param ptr pointer to serialize
-     *	@return unique id associated with the pointer to serialize
-     */
-    int serialize( void* ptr );
+    MapObjectEvent( AObject *obj );
+    virtual ~MapObjectEvent();
+    AObject *object() const { return _object; }
 
   private:
-    ///	Disabled Copy constructor
-    Serializer(const Serializer&);
-
-    ///	Assignment operator
-    Serializer& operator=(const Serializer&);
-
-  protected:
-    ///	Pointer to ID lookup table
-    std::map<void*, int> _ptr2id;
-
-    ///	Current ID: begin from 0 and increment with every new pointer
-    int _id;
-    carto::Mutex _mutex;
+    AObject* _object;
   };
 
 
-  //--- inline methods --------------------------------------------------------
-
-  inline
-  Serializer::Serializer() : _id(0), _mutex( carto::Mutex::Recursive )
+  /** ControlWindow unmap object event: posted to trigger unregistering of an
+      object in the control window. It is used when triggered from a
+      non-principal thread.
+  */
+  class UnmapObjectEvent : public QEvent
   {
-  }
+  public:
+    static Type eventType();
+
+    UnmapObjectEvent( AObject *obj );
+    virtual ~UnmapObjectEvent();
+    AObject *object() const { return _object; }
+
+  private:
+    AObject* _object;
+  };
+
+
+  /** ControlWindow update interface event: posted to trigger the update. It is
+      used when triggered from a non-principal thread.
+  */
+  class UpdateControlWindowEvent : public QEvent
+  {
+  public:
+    static Type eventType();
+
+    UpdateControlWindowEvent();
+    virtual ~UpdateControlWindowEvent();
+  };
 
 }
-
 
 #endif

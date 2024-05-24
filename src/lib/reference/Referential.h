@@ -42,6 +42,7 @@
 #include <anatomist/window/Window.h>
 #include <aims/data/pheader.h>
 #include <cartobase/uuid/uuid.h>
+#include <cartobase/thread/mutex.h>
 
 
 //--- class declarations ------------------------------------------------------
@@ -122,6 +123,7 @@ namespace anatomist
     /// Retourne une nouvelle couleur.
     AimsRGB NewColor();
     std::string _filename;
+    carto::Mutex _mutex;
   };
 
 }

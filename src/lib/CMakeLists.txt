@@ -97,6 +97,36 @@ set( _headers
     commands/cWindowBlock.h
     commands/cWindowConfig.h
     config/anatomist_config.h
+    control/abstractMenuHandler.h
+    control/backPixmap_P.h
+    control/coloredpixmap.h
+    control/controlConfig.h
+    control/controlMenuHandler.h
+    control/graphParams.h
+    control/objectDrag.h
+    control/qAbout.h
+    control/qImageLabel.h
+    control/qObjTree.h
+    control/qWinTree.h
+#        control/toolTips.h
+    control/toolTips-qt.h
+    control/wcontrolevents.h
+    control/wControl.h
+    control/winconfigio.h
+    control/wPreferences.h
+    control/whatsNew.h
+    controler/action.h
+    controler/control_d.h
+    controler/actiondictionary.h
+    controler/controldictionary.h
+    controler/controlgroupdictionary.h
+    controler/icondictionary.h
+    controler/actionpool.h
+    controler/controlmanager.h
+    controler/control.h
+    controler/controlswitch.h
+    controler/view.h
+    control/windowdrag.h
     dialogs/colorDialog.h
     dialogs/colorWidget.h
     dialogs/qScopeLineEdit.h
@@ -171,35 +201,6 @@ set( _headers
     object/sliceable.h
     object/texturepanel.h
     object/texturewin.h
-    control/coloredpixmap.h
-    control/graphParams.h
-    control/qAbout.h
-    control/qWinTree.h
-    control/qObjTree.h
-#        control/toolTips.h
-    control/toolTips-qt.h
-    control/winconfigio.h
-    control/wControl.h
-    control/controlMenuHandler.h
-    control/abstractMenuHandler.h
-    control/qImageLabel.h
-    control/wPreferences.h
-    control/controlConfig.h
-    control/whatsNew.h
-    control/objectDrag.h
-    control/backPixmap_P.h
-    controler/action.h
-    controler/control_d.h
-    controler/actiondictionary.h
-    controler/controldictionary.h
-    controler/controlgroupdictionary.h
-    controler/icondictionary.h
-    controler/actionpool.h
-    controler/controlmanager.h
-    controler/control.h
-    controler/controlswitch.h
-    controler/view.h
-    control/windowdrag.h
     window/colorstyle.h
     window/controlledWindow.h
     window/glcaps.h
@@ -347,6 +348,36 @@ set( _sources
     commands/cTexturingParams.cc
     commands/cWindowBlock.cc
     commands/cWindowConfig.cc
+    control/abstractMenuHandler.cc
+    control/backPixmap_P.cc
+    control/coloredpixmap.cc
+    control/controlConfig.cc
+    control/controlMenuHandler.cc
+    control/objectDrag.cc
+    control/graphParams.cc
+    control/qAbout.cc
+    control/qAboutMessages.cc
+    control/qImageLabel.cc
+    control/qObjTree.cc
+    control/qWinTree.cc
+#        control/toolTips.cc
+    control/toolTips-qt.cc
+    control/wcontrolevents.cc
+    control/wControl.cc
+    control/winconfigio.cc
+    control/whatsNew.cc
+    control/wPreferences.cc
+    control/windowdrag.cc
+    controler/action.cc
+    controler/actiondictionary.cc
+    controler/controldictionary.cc
+    controler/controlgroupdictionary.cc
+    controler/icondictionary.cc
+    controler/actionpool.cc
+    controler/controlmanager.cc
+    controler/control.cc
+    controler/controlswitch.cc
+    controler/view.cc
     dialogs/colorDialog.cc
     dialogs/colorWidget.cc
     dialogs/qScopeLineEdit.cc
@@ -417,35 +448,6 @@ set( _sources
     object/texturepanel.cc
     object/texturewin.cc
     object/objectmenuCallbacks.cc
-    control/coloredpixmap.cc
-    control/graphParams.cc
-    control/qAbout.cc
-    control/qAboutMessages.cc
-    control/qWinTree.cc
-    control/qObjTree.cc
-#        control/toolTips.cc
-    control/toolTips-qt.cc
-    control/winconfigio.cc
-    control/wControl.cc
-    control/controlMenuHandler.cc
-    control/abstractMenuHandler.cc
-    control/qImageLabel.cc
-    control/wPreferences.cc
-    control/controlConfig.cc
-    control/whatsNew.cc
-    control/objectDrag.cc
-    control/backPixmap_P.cc
-    control/windowdrag.cc
-    controler/action.cc
-    controler/actiondictionary.cc
-    controler/controldictionary.cc
-    controler/controlgroupdictionary.cc
-    controler/icondictionary.cc
-    controler/actionpool.cc
-    controler/controlmanager.cc
-    controler/control.cc
-    controler/controlswitch.cc
-    controler/view.cc
     window/colorstyle.cc
     window/controlledWindow.cc
     window/glcaps.cc

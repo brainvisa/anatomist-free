@@ -52,16 +52,19 @@ int
 Serializer::serialize(void* ptr)
 {
   //cout << "serialize ptr : " << ptr << " -> ";
+  _mutex.lock();
   map<void*, int>::iterator i = _ptr2id.find(ptr);
   if (i == _ptr2id.end())
-    {
-      _ptr2id[ptr] = ++_id;
-      //cout << _id << endl;
-      return _id;
-    }
+  {
+    _ptr2id[ptr] = ++_id;
+    //cout << _id << endl;
+    _mutex.unlock();
+    return _id;
+  }
   else
-    {
-      //cout << i->second << endl;
-      return i->second;
-    }
+  {
+    //cout << i->second << endl;
+    _mutex.unlock();
+    return i->second;
+  }
 }

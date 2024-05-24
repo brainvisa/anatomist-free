@@ -33,13 +33,14 @@
 
 
 #include <cstdlib>
+#include <anatomist/control/wControl.h>
 #include <anatomist/application/fileDialog.h>
 #include <anatomist/color/wMaterial.h>
 #include <anatomist/selection/qSelectFactory.h>
 #include <anatomist/control/qObjTree.h>
 #include <anatomist/control/qWinTree.h>
-#include <anatomist/control/wControl.h>
 #include <anatomist/control/controlMenuHandler.h>
+#include <anatomist/control/wcontrolevents.h>
 #include <anatomist/object/Object.h>
 #include <anatomist/window/Window.h>
 #include <anatomist/control/wPreferences.h>
@@ -1782,4 +1783,36 @@ void ControlWindow::setWindowTypeVisible( int wtype, bool visible )
   }
 }
 
+
+bool ControlWindow::event( QEvent *e )
+{
+  // intercept control window events
+  if( e->type() == MapObjectEvent::eventType() )
+  {
+    e->accept();
+    MapObjectEvent *ev = static_cast<MapObjectEvent *>( e );
+    AObject *object = ev->object();
+    if( object )
+      registerObject( object );
+    return true;
+  }
+  else if( e->type() == UnmapObjectEvent::eventType() )
+  {
+    e->accept();
+    UnmapObjectEvent *ev = static_cast<UnmapObjectEvent *>( e );
+    AObject *object = ev->object();
+    if( object )
+      unregisterObject( object );
+    return true;
+  }
+  else if( e->type() == UpdateControlWindowEvent::eventType() )
+  {
+    e->accept();
+    if( !theAnatomist->destroying() )
+      UpdateMenus();
+    return true;
+  }
+
+  return QMainWindow::event( e );
+}
 

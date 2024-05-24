@@ -44,6 +44,7 @@
 #include <anatomist/application/Anatomist.h>
 
 #include <anatomist/control/wControl.h>
+#include <anatomist/control/wcontrolevents.h>
 #include <anatomist/commands/cCreateControlWindow.h>
 #include <anatomist/commands/cLoadObject.h>
 #include <anatomist/commands/cServer.h>
@@ -89,6 +90,7 @@
 #include <cartobase/smart/rcptrtrick.h>
 #include <cartobase/thread/mutex.h>
 #include <cartobase/exception/file.h>
+#include <cartobase/thread/thread.h>
 #include <string.h>
 #include <algorithm>
 #include <stdio.h>
@@ -907,44 +909,68 @@ void Anatomist::takeObjectRef( AObject* obj )
 
 void Anatomist::registerReferential( Referential* ref )
 {
+  lockObjects( true );  // could be a different mutex
   _privData->anaRef.insert( ref );
-  if( _privData->referentialWindow != 0 )
+  lockObjects( false );
+  if( _privData->referentialWindow != 0 && Thread::currentIsMainThread() )
     _privData->referentialWindow->refresh();
+  // else use postEvent
 }
 
 
 void Anatomist::unregisterReferential( Referential* ref )
 {
+  lockObjects( true );  // could be a different mutex
   set<Referential*>::iterator i = _privData->anaRef.find( ref );
   if( i != _privData->anaRef.end() )
     {
       ATransformSet::instance()->deleteTransformationsWith( ref );
       _privData->anaRef.erase( i );
-      if( _privData->referentialWindow != 0 )
+      lockObjects( false );
+      if( _privData->referentialWindow != 0 && Thread::currentIsMainThread() )
         _privData->referentialWindow->refresh();
+      // else use postEvent
     }
   else
+  {
     cerr << "Anatomist::unregisterReferential : ref not found\n";
+    lockObjects( false );
+  }
 }
 
 
 void Anatomist::mapObject( AObject* obj )
 {
   if( getControlWindow() != 0 && !_privData->destroying )
-    getControlWindow()->registerObject( obj );
+  {
+    if( Thread::currentIsMainThread() )
+      getControlWindow()->registerObject( obj );
+    else
+      qApp->postEvent( getControlWindow(), new MapObjectEvent( obj ) );
+  }
 }
 
 
 void Anatomist::unmapObject( AObject* obj )
 {
-  if( getControlWindow() != 0)
-    getControlWindow()->unregisterObject( obj );
+  if( getControlWindow() != 0 && !_privData->destroying )
+  {
+    if( Thread::currentIsMainThread() )
+      getControlWindow()->unregisterObject( obj );
+    else
+      qApp->postEvent( getControlWindow(), new UnmapObjectEvent( obj ) );
+  }
 }
 
 void Anatomist::UpdateInterface()
 {
   if( getControlWindow() != 0 && !_privData->destroying )
-    getControlWindow()->UpdateMenus();
+  {
+    if( Thread::currentIsMainThread() )
+      getControlWindow()->UpdateMenus();
+    else
+      qApp->postEvent( getControlWindow(), new UpdateControlWindowEvent );
+  }
 }
 
 //	Object operations

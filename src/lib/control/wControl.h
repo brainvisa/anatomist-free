@@ -166,6 +166,7 @@ public slots:
   void clearAll();
 
 protected:
+  virtual bool event( QEvent *e );
   void closeEvent(QCloseEvent *event);
   virtual void createMenu();
   virtual void createIcons();

@@ -38,10 +38,12 @@
 #include <iostream>
 
 using namespace anatomist;
+using namespace carto;
 using namespace std;
 
 
 Unserializer::Unserializer()
+  : _mutex( Mutex::Recursive )
 {
 }
 
@@ -54,20 +56,27 @@ Unserializer::~Unserializer()
 void Unserializer::registerPointer( void* ptr, int id, const string & type )
 {
   //cout << "Unserializer::registerPointer : " << ptr << " -> " << id << endl;
+  _mutex.lock();
   if( id < 0 )
     id = freeID();
   _id2ptr[id] = ptr;
   if( ptr )
     _ptr2type[ptr] = type;
+  _mutex.unlock();
 }
 
 
 void* Unserializer::pointer( int id ) const
 {
+  _mutex.lock();
   map<int, void*>::const_iterator	i = _id2ptr.find( id );
   if( i == _id2ptr.end() )
-    return( 0 );
-  return( i->second );
+  {
+    _mutex.unlock();
+    return 0;
+  }
+  _mutex.unlock();
+  return i->second;
 }
 
 
@@ -81,7 +90,7 @@ void* Unserializer::pointer( int id, const string & typecheck ) const
       cerr << "Id " << id << " doesn't correspond to a " << typecheck << endl;
       return( 0 );
     }
-  return( ptr );
+  return ptr;
 }
 
 
@@ -96,16 +105,21 @@ string Unserializer::type( void* ptr ) const
 
 void Unserializer::unregister( int id )
 {
+  _mutex.lock();
   map<int, void*>::iterator	i = _id2ptr.find( id );
-  if( i == _id2ptr.end() )
-    return;
-  _ptr2type.erase( i->second );
-  _id2ptr.erase( i );
+  if( i != _id2ptr.end() )
+  {
+    _ptr2type.erase( i->second );
+    _id2ptr.erase( i );
+  }
+  _mutex.unlock();
 }
 
 
 void Unserializer::garbageCollect()
 {
+  _mutex.lock();
+
   map<int, void*>::iterator	i, e = _id2ptr.end(), i2;
   map<void *, string>::iterator	j, f = _ptr2type.end(), j2;
   set<void *>			done;
@@ -177,20 +191,22 @@ void Unserializer::garbageCollect()
   j = _ptr2type.begin();
   while( j != f )
     if( done.find( j->first ) == garbage )
-      {
-	cerr << "pointer with no ID, deleting, type: " << j->second << ", ptr: " << j->first << endl;
-	j2 = j;
-	++j;
-	_ptr2type.erase( j2 );
-      }
+    {
+      cerr << "pointer with no ID, deleting, type: " << j->second << ", ptr: " << j->first << endl;
+      j2 = j;
+      ++j;
+      _ptr2type.erase( j2 );
+    }
     else
       ++j;
+
+  _mutex.unlock();
 }
 
 
 int Unserializer::makeID( void* ptr, const std::string & type )
 {
-  int				id = freeID();
+  int	id = freeID();
   registerPointer( ptr, id, type );
   return id;
 }
@@ -198,9 +214,12 @@ int Unserializer::makeID( void* ptr, const std::string & type )
 
 int Unserializer::freeID() const
 {
+  _mutex.lock();
   map<int, void*>::const_iterator	ii, ei = _id2ptr.end();
   int					id = 0;
   for( ii=_id2ptr.begin(); ii!=ei && ii->first==id; ++ii, ++id ) {}
+
+  _mutex.unlock();
   return id;
 }
 
@@ -211,10 +230,15 @@ int Unserializer::id( void* ptr, const string & t ) const
     throw runtime_error
       ( string( "mismatching type of object: " + t 
                 + " while expecting " + type( ptr ) ).c_str() );
+  _mutex.lock();
   map<int, void *>::const_iterator	i, e = _id2ptr.end();
   for( i=_id2ptr.begin(); i!=e && i->second != ptr; ++i ) {}
   if( i != e )
+  {
+    _mutex.unlock();
     return i->first;
+  }
+  _mutex.unlock();
   throw runtime_error( "ID of object not found" );
 }
 

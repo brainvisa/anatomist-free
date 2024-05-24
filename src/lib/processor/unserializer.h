@@ -35,6 +35,7 @@
 #ifndef ANA_PROCESSOR_UNSERIALIZER_H
 #define ANA_PROCESSOR_UNSERIALIZER_H
 
+#include <cartobase/thread/mutex.h>
 #include <map>
 #include <string>
 
@@ -71,6 +72,7 @@ namespace anatomist
   private:
     std::map<int, void*>		_id2ptr;
     std::map<void *, std::string>	_ptr2type;
+    mutable carto::Mutex                _mutex;
   };
 
 }

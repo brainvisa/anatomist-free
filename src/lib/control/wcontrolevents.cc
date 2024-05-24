@@ -32,64 +32,71 @@
  */
 
 
-#ifndef ANA_PROCESSOR_SERIALIZER_H
-#define ANA_PROCESSOR_SERIALIZER_H
+#include <anatomist/control/wcontrolevents.h>
 
+using namespace anatomist;
 
-//--- header files ------------------------------------------------------------
-
-#include <cartobase/thread/mutex.h>
-#include <map>
-
-
-namespace anatomist
+QEvent::Type MapObjectEvent::eventType()
 {
-  //--- class declarations ----------------------------------------------------
-
-  /**
-   *	Serializer is a helper class for pointer serialization. Every pointer
-   *	can be asociated with a unique integer ID that can be saved to a file
-   *	and restored later.
-   */
-
-  class Serializer
-  {
-  public:
-    Serializer();
-    virtual ~Serializer();
-
-    /**
-     *	Generate a unique ID to serialize a pointer
-     *	@param ptr pointer to serialize
-     *	@return unique id associated with the pointer to serialize
-     */
-    int serialize( void* ptr );
-
-  private:
-    ///	Disabled Copy constructor
-    Serializer(const Serializer&);
-
-    ///	Assignment operator
-    Serializer& operator=(const Serializer&);
-
-  protected:
-    ///	Pointer to ID lookup table
-    std::map<void*, int> _ptr2id;
-
-    ///	Current ID: begin from 0 and increment with every new pointer
-    int _id;
-    carto::Mutex _mutex;
-  };
-
-
-  //--- inline methods --------------------------------------------------------
-
-  inline
-  Serializer::Serializer() : _id(0), _mutex( carto::Mutex::Recursive )
-  {
-  }
-
+  static Type type = QEvent::None;
+  if( type == QEvent::None )
+    type = (QEvent::Type) registerEventType();
+  return type;
 }
 
 
-#endif
+MapObjectEvent::MapObjectEvent( AObject* object )
+  : QEvent( eventType() ), _object( object )
+{
+}
+
+
+MapObjectEvent::~MapObjectEvent()
+{
+}
+
+
+// --
+
+QEvent::Type UnmapObjectEvent::eventType()
+{
+  static Type type = QEvent::None;
+  if( type == QEvent::None )
+    type = (QEvent::Type) registerEventType();
+  return type;
+}
+
+
+UnmapObjectEvent::UnmapObjectEvent( AObject* object )
+  : QEvent( eventType() ), _object( object )
+{
+}
+
+
+UnmapObjectEvent::~UnmapObjectEvent()
+{
+}
+
+
+// --
+
+QEvent::Type UpdateControlWindowEvent::eventType()
+{
+  static Type type = QEvent::None;
+  if( type == QEvent::None )
+    type = (QEvent::Type) registerEventType();
+  return type;
+}
+
+
+UpdateControlWindowEvent::UpdateControlWindowEvent()
+  : QEvent( eventType() )
+{
+}
+
+
+UpdateControlWindowEvent::~UpdateControlWindowEvent()
+{
+}
+
+

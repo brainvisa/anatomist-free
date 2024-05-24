@@ -93,7 +93,8 @@ namespace anatomist
 //--- methods -----------------------------------------------------------------
 
 Referential::Referential()
-  : _indCol( 0 ), _destroying( false ), _header( new PythonHeader )
+  : _indCol( 0 ), _destroying( false ), _header( new PythonHeader ),
+    _mutex( Mutex::Recursive )
 {
   _color = NewColor();
   genuuid( *_header );
@@ -102,7 +103,8 @@ Referential::Referential()
 
 
 Referential::Referential( const string & filename )
-  : _indCol( 0 ), _destroying( false ), _header( 0 )
+  : _indCol( 0 ), _destroying( false ), _header( 0 ),
+    _mutex( Mutex::Recursive )
 {
   _color = NewColor();
   if( !load( filename ) )
@@ -112,7 +114,8 @@ Referential::Referential( const string & filename )
 
 
 Referential::Referential(set<AObject*>& objL)
-  : _indCol( 0 ), _destroying( false ), _header( new PythonHeader )
+  : _indCol( 0 ), _destroying( false ), _header( new PythonHeader ),
+    _mutex( Mutex::Recursive )
 {
   _anaObj = objL;
   _color = NewColor();
@@ -121,7 +124,8 @@ Referential::Referential(set<AObject*>& objL)
 }
 
 Referential::Referential(set<AWindow*>& winL)
-  : _indCol( 0 ), _destroying( false ), _header( new PythonHeader )
+  : _indCol( 0 ), _destroying( false ), _header( new PythonHeader ),
+    _mutex( Mutex::Recursive )
 {
   _anaWin = winL;
   _color = NewColor();
@@ -131,7 +135,8 @@ Referential::Referential(set<AWindow*>& winL)
 
 
 Referential::Referential( const Referential& ref )
-  : _indCol( 0 ), _destroying( false ), _header( new PythonHeader )
+  : _indCol( 0 ), _destroying( false ), _header( new PythonHeader ),
+    _mutex( Mutex::Recursive )
 {
   *this = ref;
   _indCol = 0;
@@ -261,11 +266,13 @@ void Referential::AddObject(AObject* obj)
   set<AObject*>::iterator iobj;
   bool trouve = false;
 
+  _mutex.lock();
   iobj = _anaObj.find( obj );
   if ( iobj != _anaObj.end() )
     trouve = true;
 
   if (!trouve) _anaObj.insert(obj);
+  _mutex.unlock();
 }
 
 void Referential::AddWindow(AWindow* win)
@@ -273,31 +280,35 @@ void Referential::AddWindow(AWindow* win)
   set<AWindow*>::iterator iwin;
   bool trouve = false;
 
+  _mutex.lock();
   iwin = _anaWin.find( win );
   if ( iwin != _anaWin.end() )
     trouve = true;
 
-
   if (!trouve) _anaWin.insert(win);
+  _mutex.unlock();
 }
 
 void Referential::RemoveObject(AObject* obj)
 {
   set<AObject*>::iterator iobj;
 
-
+  _mutex.lock();
   iobj = _anaObj.find( obj );
   if ( iobj != _anaObj.end() )
     _anaObj.erase( iobj );
+  _mutex.unlock();
 }
 
 void Referential::RemoveWindow(AWindow* win)
 {
   set<AWindow*>::iterator iwin;
 
+  _mutex.lock();
   iwin = _anaWin.find( win );
   if ( iwin != _anaWin.end() )
     _anaWin.erase( iwin );
+  _mutex.unlock();
 }
 
 

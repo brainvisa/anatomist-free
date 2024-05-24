@@ -60,6 +60,7 @@
 #include <aims/resampling/quaternion.h>
 #include <aims/mesh/texturetools.h>
 #include <cartobase/stream/fileutil.h>
+#include <cartobase/thread/mutex.h>
 #include <time.h>
 
 //#define ANA_DEBUG
