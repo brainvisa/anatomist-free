@@ -53,6 +53,7 @@
 #include <anatomist/commands/cCreateWindow.h>
 #include <anatomist/commands/cCreateWindowsBlock.h>
 #include <anatomist/commands/cLoadObject.h>
+#include <anatomist/commands/cLoadObjects.h>
 #include <anatomist/commands/cCloseWindow.h>
 #include <anatomist/commands/cDeleteObject.h>
 #include <anatomist/commands/cReloadObject.h>
@@ -714,12 +715,33 @@ void ControlWindow::loadObject( const string& filter, const string& caption )
   }
 
   QStringList		filenames = fd.selectedFiles();
+  vector<string>        sfilenames;
   list<QString>		scenars;
   set<AObject *>	loaded;
 
   AimsFileDialog *afd = dynamic_cast<AimsFileDialog *>( &fd );
   string data_type;
   Object options;
+
+  bool threaded = false;
+  bool async = false;
+  try
+  {
+    threaded = bool(
+      theAnatomist->config()->getProperty( "parallel_load" )->getScalar() );
+  }
+  catch( ... )
+  {
+  }
+  try
+  {
+    async = bool(
+      theAnatomist->config()->getProperty( "async_load" )->getScalar() );
+  }
+  catch( ... )
+  {
+  }
+
   if( afd && afd->optionsValid() )
   {
     data_type = afd->selectedType().second;
@@ -731,7 +753,22 @@ void ControlWindow::loadObject( const string& filter, const string& caption )
       options->setProperty( "url_options", url_opt );
     if( !data_type.empty() )
       options->setProperty( "preferred_data_type", data_type );
+    try
+    {
+      threaded = options->getProperty( "threaded" )->getScalar();
+    }
+    catch( ... )
+    {
+    }
   }
+  if( !options || !options->hasProperty( "asynchronous" ) )
+  {
+    if( !options )
+      options = Object::value( carto::Dictionary() );
+    options->setProperty( "asynchronous", async );
+  }
+
+  sfilenames.reserve( filenames.count() );
 
   for ( QStringList::Iterator it = filenames.begin(); it != filenames.end(); 
         ++it )
@@ -740,15 +777,19 @@ void ControlWindow::loadObject( const string& filter, const string& caption )
       if( s.lastIndexOf( ".ana" ) == int( s.length() ) - 4 )
         scenars.push_back( s );	// script file
       else
-      {
-        // options->setProperty( "asynchronous", true );
-        LoadObjectCommand *command = new LoadObjectCommand(
-          (*it).toLocal8Bit().data(), -1, "", false, options );
-        theProcessor->execute( command );
-        list<AObject *> objs = command->loadedObjects();
-        loaded.insert( objs.begin(), objs.end() );
-      }
+        sfilenames.push_back( it->toLocal8Bit().data() );
     }
+
+  if( !sfilenames.empty() )
+  {
+    LoadObjectsCommand *command = new LoadObjectsCommand(
+      sfilenames, vector<int>(), vector<string>(), options,
+      &CommandContext::defaultContext(), threaded );
+
+    theProcessor->execute( command );
+    vector<AObject *> objs = command->loadedObjects();
+    loaded.insert( objs.begin(), objs.end() );
+  }
 
   // set default ref on loaded objects
   anatomist::Referential	*r = defaultObjectsReferential();

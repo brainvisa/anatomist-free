@@ -432,6 +432,27 @@ Here is a complete (I hope) list of the possible options:
         </td>
         <td>4.4</td>
       </tr>
+      <tr>
+        <td><tt>async_load</tt></td>
+        <td><tt>int</tt></td>
+        <td><tt>0</tt></td>
+        <td><tt>0</tt>, <tt>1</tt></td>
+        <td>Use async loading when loading objects via the GUI. Async loading is done in background (in a separate thread) thus doesn't block the user interface. Objects are added in the list as soon as they have finished loading.<br/>
+        As this is using threading, some data formats might not be robust to parallelism, which could result in crashes. If you experience such, please disable this rather experimental option.
+        </td>
+        <td>5.2</td>
+      </tr>
+      <tr>
+        <td><tt>parallel_load</tt></td>
+        <td><tt>int</tt></td>
+        <td><tt>0</tt></td>
+        <td><tt>0</tt>, <tt>1</tt></td>
+        <td>Use parallel loading when loading multiple objects via the GUI. Parallel loading is done using all the available CPU cores.<br/>
+        This option is compatible with the <tt>async_load</tt> option, and may be used in addition to it.<br/>
+        As this is using threading, some data formats might not be robust to parallelism, which could result in crashes. If you experience such, please disable this rather experimental option.
+        </td>
+        <td>5.2</td>
+      </tr>
     </tbody>
   </table>
 

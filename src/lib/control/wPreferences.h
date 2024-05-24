@@ -82,6 +82,8 @@ public slots:
   void shadersByDefault( bool x );
   void confirmBeforeQuitChanged( int x );
   void maxPolygonsPerObjectChanged();
+  void parallelLoadChanged( int x );
+  void asyncLoadChanged( int x );
 
 protected:
   void updateWindows();

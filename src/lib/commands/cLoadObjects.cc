@@ -234,7 +234,7 @@ Mutex & LoadObjectsCommand::mutex()
 
 void LoadObjectsCommand::doLoad()
 {
-  // cout << "doLoad\n" << flush;
+  // cout << "doLoad, threaded: " << d->_threaded << "\n" << flush;
   if( !d->_threaded )
   {
     vector<string>::const_iterator i, e = d->_filename.end();

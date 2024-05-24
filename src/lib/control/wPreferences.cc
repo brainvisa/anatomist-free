@@ -291,10 +291,9 @@ PreferencesWindow::PreferencesWindow()
 
   QGroupBox	*refs = new QGroupBox( tr( "Default referentials" ), app );
   vlay->addWidget( refs );
-  vlay->addStretch( 1 );
-  vlay = new QVBoxLayout( refs );
+  QVBoxLayout *vlay2 = new QVBoxLayout( refs );
   QWidget *refg = new QWidget( refs );
-  vlay->addWidget( refg );
+  vlay2->addWidget( refg );
   QGridLayout *glay = new QGridLayout( refg );
   glay->setContentsMargins( 0, 0, 0, 0 );
   glay->addWidget(
@@ -317,6 +316,45 @@ PreferencesWindow::PreferencesWindow()
            SLOT( changeDefObjectsRef() ) );
   connect( _pdat->defwinref, SIGNAL( clicked() ), this, 
            SLOT( changeDefWindowsRef() ) );
+
+  // load options
+
+  QGroupBox *loadg = new QGroupBox( tr( "Objects load options" ), app );
+  vlay->addWidget( loadg );
+  vlay->addStretch( 1 );
+  QVBoxLayout *loadl = new QVBoxLayout( loadg );
+  QCheckBox *loadp
+    = new QCheckBox( tr( "Use parallel load for multiple objects" ), loadg );
+  loadl->addWidget( loadp );
+  QCheckBox *loads
+    = new QCheckBox( tr( "Use asynchronous loading" ), loadg );
+  loadl->addWidget( loads );
+
+  bool threaded = false;
+  bool async = false;
+  try
+  {
+    threaded = bool(
+      theAnatomist->config()->getProperty( "parallel_load" )->getScalar() );
+  }
+  catch( ... )
+  {
+  }
+  try
+  {
+    async = bool(
+      theAnatomist->config()->getProperty( "async_load" )->getScalar() );
+  }
+  catch( ... )
+  {
+  }
+
+  loadp->setChecked( threaded );
+  loads->setChecked( async );
+  connect( loadp, SIGNAL( stateChanged( int ) ), this,
+           SLOT( parallelLoadChanged( int ) ) );
+  connect( loads, SIGNAL( stateChanged( int ) ), this,
+           SLOT( asyncLoadChanged( int ) ) );
 
   //	Linked cursor tab
 
@@ -363,7 +401,7 @@ PreferencesWindow::PreferencesWindow()
   _pdat->cursSlider->setValue( AWindow::cursorSize() );
   QGroupBox *cursCol = new QGroupBox( tr( "Cursor color :" ), lkcur );
   vlay->addWidget( cursCol );
-  QVBoxLayout *vlay2 = new QVBoxLayout( cursCol );
+  vlay2 = new QVBoxLayout( cursCol );
   QButtonGroup *bgp = new QButtonGroup( cursCol );
   bgp->setExclusive( true );
   QRadioButton *rb = new QRadioButton( tr( "Use default color" ), cursCol );
@@ -1283,7 +1321,7 @@ void PreferencesWindow::commonScannerBasedReferential( bool x )
 
 void PreferencesWindow::confirmBeforeQuitChanged( int x )
 {
-  cout << "confirmBeforeQuitChanged: " << x << endl;
+  // cout << "confirmBeforeQuitChanged: " << x << endl;
   if( x )
   {
     if( theAnatomist->config()->hasProperty( "confirmBeforeQuit" ) )
@@ -1291,6 +1329,32 @@ void PreferencesWindow::confirmBeforeQuitChanged( int x )
   }
   else
     theAnatomist->config()->setProperty( "confirmBeforeQuit", int(0) );
+}
+
+
+void PreferencesWindow::parallelLoadChanged( int x )
+{
+  cout << "parallalLoadChanged: " << x << endl;
+  if( !x )
+  {
+    if( theAnatomist->config()->hasProperty( "parallel_load" ) )
+      theAnatomist->config()->removeProperty( "parallel_load" );
+  }
+  else
+    theAnatomist->config()->setProperty( "parallel_load", int(1) );
+}
+
+
+void PreferencesWindow::asyncLoadChanged( int x )
+{
+  cout << "asyncLoadChanged: " << x << endl;
+  if( !x )
+  {
+    if( theAnatomist->config()->hasProperty( "async_load" ) )
+      theAnatomist->config()->removeProperty( "async_load" );
+  }
+  else
+    theAnatomist->config()->setProperty( "async_load", int(1) );
 }
 
 
