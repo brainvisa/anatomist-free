@@ -36,14 +36,13 @@
 #define ANATOMIST_WINDOW_GLWIDGET_H
 
 #include <qglobal.h>
-#if QT_VERSION >= 0x060000
-#define ANA_USE_QOPENGLWIDGET 1
+#include <anatomist/window/glwidgetmanager.h>
+#ifdef ANA_USE_QOPENGLWIDGET
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
 #else
 #include <anatomist/window/glcontext.h>
 #endif
-#include <anatomist/window/glwidgetmanager.h>
 
 
 #ifdef ANA_USE_QOPENGLWIDGET

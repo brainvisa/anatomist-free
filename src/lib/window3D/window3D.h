@@ -42,6 +42,7 @@
 #include <anatomist/primitive/primitive.h>
 #include <anatomist/window/viewstate.h>
 
+
 namespace aims
 {
   class Quaternion;
@@ -60,7 +61,7 @@ namespace anatomist
 
 }
 
-#if QT_VERSION >= 0x060000
+#ifdef ANA_USE_QOPENGLWIDGET
 class QOpenGLWidget;
 #else
 class QGLWidget;
@@ -201,7 +202,7 @@ public:
                        & objects,
                        const aims::Quaternion & slicequat,
                        const anatomist::Referential *wref = 0, 
-#if QT_VERSION >= 0x060000
+#ifdef ANA_USE_QOPENGLWIDGET
                        QOpenGLWidget* glw = 0, bool with3d = false );
 #else
                        QGLWidget* glw = 0, bool with3d = false );
@@ -253,7 +254,7 @@ public:
 
   typedef anatomist::GLWidgetManager* (*GLWidgetCreator)
       ( anatomist::AWindow* win, QWidget* parent, const char* name,
-#if QT_VERSION >= 0x060000
+#ifdef ANA_USE_QOPENGLWIDGET
         const QOpenGLWidget * shareWidget, Qt::WindowFlags f );
 #else
         const QGLWidget * shareWidget, Qt::WindowFlags f );

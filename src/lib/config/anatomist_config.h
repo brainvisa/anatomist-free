@@ -46,5 +46,12 @@
 #define ANATOMIST_API
 #endif	// _WIN32
 
+#include <qglobal.h>
+#if QT_VERSION >= 0x050000
+// used to be activated only with QT_VERSION >= 0x060000
+// but we need if for offscreen Z selection
+#define ANA_USE_QOPENGLWIDGET 1
+#endif
+
 #endif
 

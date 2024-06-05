@@ -87,7 +87,7 @@
 #include <qslider.h>
 #include <qglobal.h>
 #include <qmessagebox.h>
-#if QT_VERSION >= 0x060000
+#ifdef ANA_USE_QOPENGLWIDGET
 #include <QOpenGLWidget>
 #else
 #include <QGLWidget>
@@ -1682,6 +1682,7 @@ void AWindow3D::getInfos3DFromPosition( const vector<float> & fpos,
 
 bool AWindow3D::positionFromCursor(int x, int y, Point3df & position)
 {
+  cout << "AWindow3D::positionFromCursor " << x << ", " << y << endl;
   bool res = d->draw->positionFromCursor(x, y, position);
   d->mouseX = x;
   d->mouseY = y;
@@ -2711,7 +2712,7 @@ void AWindow3D::updateWindowGeometry()
 
 Geometry AWindow3D::setupWindowGeometry(
     const list<carto::shared_ptr<AObject> > & objects, const Quaternion & slicequat,
-#if QT_VERSION >= 0x060000
+#ifdef ANA_USE_QOPENGLWIDGET
     const anatomist::Referential *wref, QOpenGLWidget* glw, bool with3d )
 #else
     const anatomist::Referential *wref, QGLWidget* glw, bool with3d )

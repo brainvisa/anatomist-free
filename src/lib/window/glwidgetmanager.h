@@ -39,16 +39,15 @@
 #include <anatomist/primitive/primitive.h>
 #include <anatomist/window/viewstate.h>
 
-#include <qglobal.h>
-#if QT_VERSION >= 0x060000
+#ifndef ANA_USE_QOPENGLWIDGET
+#error ANA_USE_QOPENGLWIDGET not defined
+#endif
+#ifdef ANA_USE_QOPENGLWIDGET
 #include <QOpenGLWidget>
-#define ANA_USE_QOPENGLWIDGET 1
 #else
 #include <QtOpenGL/QGLWidget>
 #endif
-#if QT_VERSION >= 0x040600
 class QGestureEvent;
-#endif
 
 
 namespace aims

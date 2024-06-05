@@ -34,14 +34,13 @@
 
 #include <anatomist/window/glcaps.h>
 #include <anatomist/window/glwidgetmanager.h>
-#include <anatomist/window/glcaps.h>
 #include <anatomist/application/fileDialog.h>
 #include <qimage.h>
 #include <qstringlist.h>
 #include <qtimer.h>
 #include <map>
 #include <anatomist/controler/controlswitch.h>
-#if QT_VERSION < 0x060000
+#ifndef ANA_USE_QOPENGLWIDGET
 #include <anatomist/window/glcontext.h>
 #endif
 #include <anatomist/reference/Transformation.h>
@@ -58,9 +57,7 @@
 #include <QSysInfo>
 #include <QLineEdit>
 #include <QIntValidator>
-#if QT_VERSION >= 0x050000
 #include <QWindow>
-#endif
 
 #ifdef ANA_USE_QOPENGLWIDGET
 #include <QOpenGLWidget>
@@ -1853,14 +1850,12 @@ void GLWidgetManager::setupView( int width, int height )
   glLoadMatrixf( &_pd->rotation[0] );
 
   // Viewport to draw objects into
-#if QT_VERSION >= 0x050000
   QWindow *win = qglWidget()->window()->windowHandle();
   if( win )
   {
     width *= win->devicePixelRatio();
     height *= win->devicePixelRatio();
   }
-#endif
   glViewport( 0, 0, width, height );
 
   // Modelview matrix: we can now apply translation and left-right mirroring
@@ -1884,18 +1879,19 @@ bool GLWidgetManager::positionFromCursor( int x, int y, Point3df & position )
 
   setupView();
   y = _pd->glwidget->height() - 1 - y;
-#if QT_VERSION >= 0x050000
   QWindow *win = qglWidget()->window()->windowHandle();
   if( win )
   {
-    x *= win->devicePixelRatio();
-    y *= win->devicePixelRatio();
+    x = int( x * win->devicePixelRatio() );
+    y = int( y * win->devicePixelRatio() );
   }
-#endif
   // get z coordinate in the depth buffer
   GLfloat z = 2.;
+  glGetError(); // flush any older error (should be done in a loop)
   glReadPixels( (GLint)x, (GLint) y, 1, 1, 
                 GL_DEPTH_COMPONENT, GL_FLOAT, &z );
+
+  glGetError(); // flush any error
 
   // if this z-buffer pixel still has its initial value,
   // we interpret it as being `background'

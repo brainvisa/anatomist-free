@@ -799,7 +799,7 @@ void LinkAction::execLink( int x, int y, int, int )
     if( w3 )
       w3->displayInfoAtClickPosition( x, y );
   }
-  else cout << "no position could be read\n";
+  else cout << "no position could be read at " << x << ", " << y << endl;
 }
 
 
