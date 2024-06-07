@@ -1506,7 +1506,7 @@ RoiManagementActionSharedData::RoiManagementActionSharedData()
     myImageNamesChanged(true), myCurrentGraphRegionsChanged(true),
     myCurrentHierarchyRoiNamesChanged(true), mySelectedHierarchy(""),
     mySelectedHierarchyId( RoiManagementActionView_Private::NEURO ),
-    myGraphName(""), myCurrentGraph(""),
+    myCurrentGraph(""),
     myCurrentGraphId(-1), myCurrentImage(""), myCurrentImageId(-1),
     myRegionName(""), myPartialRegionName(""), myCurrentRegionId(-1)
 {
@@ -2346,11 +2346,6 @@ RoiManagementAction::selectGraph( const string & graphName, int graphId  )
   notifyObservers() ;
 }
 
-// void
-// RoiManagementAction::setGraphName( const string& name )
-// {
-//   _sharedData->myGraphName = name ;
-// }
 
 void
 RoiManagementAction::newGraph( const string& /* name */ )
@@ -2414,9 +2409,7 @@ RoiManagementAction::newGraph( const string& /* name */ )
 
   if ( iterName != lastName )
   {
-    _sharedData->myGraphName = graphName ;
-    selectGraph( _sharedData->myGraphName, id ) ;
-    //cout << "graph selected " << _sharedData->myGraphName << endl ;
+    selectGraph( graphName, id ) ;
   }
   // If no hierarchy is loaded, load neuronames.hie
   set<AObject *> objs = theAnatomist->getObjects() ;
@@ -3483,7 +3476,6 @@ RoiManagementActionSharedData::printState()
   cout << "\nParameters :" << endl ;
   cout << "\tselectedHierarchy : " << mySelectedHierarchy << " , " << mySelectedHierarchyId << endl ;
   cout << "\tcurrentGraph : " << myCurrentGraph << " , " << myCurrentGraphId << endl ;
-  cout << "\tgraphName : " << myGraphName << endl ;
   cout << "\tcurrentImage : " << myCurrentImage << " , " << myCurrentImageId << endl ;
   cout << "\tcurrentRegion : " << myRegionName << " , " << myCurrentRegionId << endl ;
 

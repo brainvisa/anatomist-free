@@ -232,7 +232,6 @@ namespace anatomist{
     std::string mySelectedHierarchy ;
     int mySelectedHierarchyId ;
     std::string myUserDefinedHierarchy ;
-    std::string myGraphName ;
     std::string myCurrentGraph ;
     int myCurrentGraphId ;
     std::string myCurrentImage ;
