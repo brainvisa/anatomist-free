@@ -16,7 +16,6 @@ HEADERS = \
         control/levelsetcontrol.h \
 	control/labelnamingcontrol.h \
 	action/roimanagementaction.h \
-	control/roimanagementcontrol.h \
 	application/roibasemodule.h \
 	commands/cCreateGraph.h \
 	commands/cGetConnThres.h \
@@ -35,7 +34,6 @@ SOURCES = \
         control/levelsetcontrol.cc \
 	control/labelnamingcontrol.cc \
 	action/roimanagementaction.cc \
-	control/roimanagementcontrol.cc \
 	application/roibasemodule.cc \
 	commands/cCreateGraph.cc \
 	commands/cGetConnThres.cc \
