@@ -1682,7 +1682,6 @@ void AWindow3D::getInfos3DFromPosition( const vector<float> & fpos,
 
 bool AWindow3D::positionFromCursor(int x, int y, Point3df & position)
 {
-  cout << "AWindow3D::positionFromCursor " << x << ", " << y << endl;
   bool res = d->draw->positionFromCursor(x, y, position);
   d->mouseX = x;
   d->mouseY = y;
