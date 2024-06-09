@@ -407,14 +407,12 @@ void GLWidgetManager::initializeGL()
 
 void GLWidgetManager::resizeGL( int w, int h )
 {
-#if QT_VERSION >= 0x050000
   QWindow *win = qglWidget()->window()->windowHandle();
   if( win )
   {
     w *= win->devicePixelRatio();
     h *= win->devicePixelRatio();
   }
-#endif
   glViewport( 0, 0, (GLint)w, (GLint)h );
   resizeOtherFramebuffers( w, h );
   _pd->resized = true;
@@ -479,7 +477,13 @@ void GLWidgetManager::paintScene()
 
 void GLWidgetManager::paintGL()
 {
+  // cout << "GLWidgetManager::paintGL\n";
+#if ANA_USE_QOPENGLWIDGET
+  // needed only using offscreen rendering, I don't know why.
+  _pd->zbufready = false;
+#else
   _pd->zbufready = true;
+#endif
   if( _pd->zbuftimer )
     _pd->zbuftimer->stop();
   paintGL( Normal );
@@ -493,7 +497,7 @@ void GLWidgetManager::paintGL()
         _pd->qobject = new GLWidgetManager_Private_QObject( _pd->glwidget,
           this );
       _pd->qobject->connect( _pd->zbuftimer, SIGNAL( timeout() ), _pd->qobject,
-                           SLOT( updateZBuffer() ) );
+                             SLOT( updateZBuffer() ) );
     }
     _pd->zbuftimer->setSingleShot( true );
     _pd->zbuftimer->start( 300 );
@@ -664,6 +668,7 @@ void GLWidgetManager::restoreFramebuffer()
 void GLWidgetManager::paintGL( DrawMode m, int virtualWidth,
                                int virtualHeight )
 {
+  // cout << "paintGL mode " << m << ", " << virtualWidth << ", " << virtualHeight << endl;
   int width = _pd->glwidget->width(), height = _pd->glwidget->height();
   if( virtualWidth != 0 )
     width = virtualWidth;
@@ -740,14 +745,12 @@ void GLWidgetManager::paintGL( DrawMode m, int virtualWidth,
       }*/
 
   // Viewport to draw objects into
-#if QT_VERSION >= 0x050000
   QWindow *win = qglWidget()->window()->windowHandle();
   if( win )
   {
     width *= win->devicePixelRatio();
     height *= win->devicePixelRatio();
   }
-#endif
   glViewport( 0, 0, width, height );
 
   // Modelview matrix: we can now apply translation and left-right mirroring
@@ -1118,7 +1121,6 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
   GLuint fb, depth_rb, color_tex;
   GLint devwidth = width;
   GLint devheight = height;
-#if QT_VERSION >= 0x050000
   QWindow *win = qglWidget()->window()->windowHandle();
   if( win )
   {
@@ -1126,7 +1128,6 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
     width /= win->devicePixelRatio();
     height /= win->devicePixelRatio();
   }
-#endif
   GLenum status;
 
   if( use_framebuffer )
