@@ -39,9 +39,6 @@
 #include <anatomist/primitive/primitive.h>
 #include <anatomist/window/viewstate.h>
 
-#ifndef ANA_USE_QOPENGLWIDGET
-#error ANA_USE_QOPENGLWIDGET not defined
-#endif
 #ifdef ANA_USE_QOPENGLWIDGET
 #include <QOpenGLWidget>
 #else
@@ -96,9 +93,7 @@ namespace anatomist
     virtual void initializeGL();
     virtual void resizeGL( int w, int h );
     virtual void paintGL();
-#if QT_VERSION >= 0x040600
     virtual void gestureEvent( QGestureEvent *event );
-#endif
     virtual void mousePressEvent( QMouseEvent* me );
     virtual void mouseReleaseEvent( QMouseEvent* me );
     virtual void mouseMoveEvent( QMouseEvent* me );

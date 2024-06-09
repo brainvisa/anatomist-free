@@ -98,9 +98,7 @@ public slots:
   void debugPrint();
 
 protected:
-#if QT_VERSION >= 0x040600
   virtual bool event( QEvent * );
-#endif
   virtual void initializeGL() Q_DECL_OVERRIDE;
   virtual void resizeGL( int w, int h ) Q_DECL_OVERRIDE;
   virtual void paintGL() Q_DECL_OVERRIDE;

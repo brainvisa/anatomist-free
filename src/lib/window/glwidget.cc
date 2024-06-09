@@ -33,9 +33,7 @@
 
 
 #include <anatomist/window/glwidget.h>
-#if QT_VERSION >= 0x040600
 #include <QGestureEvent>
-#endif
 #include <QApplication>
 #include <QPaintEvent>
 
