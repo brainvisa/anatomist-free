@@ -37,7 +37,6 @@
 #include <anatomist/action/blobsegmentation.h>
 #include <anatomist/control/paintcontrol.h>
 #include <anatomist/action/roimanagementaction.h>
-#include <anatomist/control/roimanagementcontrol.h>
 #include <anatomist/action/levelsetaction.h>
 #include <anatomist/control/levelsetcontrol.h>
 #include <anatomist/action/labelnaming.h>
