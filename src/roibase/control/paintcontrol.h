@@ -66,6 +66,7 @@ namespace anatomist {
 
     virtual void doAlsoOnDeselect ( ActionPool * pool ) ;
     virtual void doAlsoOnSelect( ActionPool * pool ) ;
+    virtual void selectionChangedEvent();
     
   private:
     struct Private;

@@ -99,7 +99,9 @@ public:
 		       const std::string& originalName, 
 		       const std::string& message, bool noHierarchy = true ) ;
   static void objectLoaded( anatomist::Observable* );
-  
+  int graphId( const std::string & graphName );
+  int imageId( const std::string & imageName );
+
 private slots :
   void selectGraph( int );
   void renameGraph( QListWidgetItem * ) ;
@@ -233,12 +235,9 @@ namespace anatomist{
     int mySelectedHierarchyId ;
     std::string myUserDefinedHierarchy ;
     std::string myCurrentGraph ;
-    int myCurrentGraphId ;
     std::string myCurrentImage ;
-    int myCurrentImageId ;
     std::string myRegionName ;
     std::string myPartialRegionName ;
-    int myCurrentRegionId ;
     
   };
 
@@ -273,33 +272,36 @@ namespace anatomist{
     void modifyUDFWRegionName(const std::string & oldName, const std::string & newName ) ;
     void modifyUDFWRegionColor( const std::string & name, 
 			        int red, int green, int blue ) ;
-    void selectGraph( const std::string & graphName, int graphId ) ;
+    void selectGraph( const std::string & graphName );
+    void selectGraph( const std::string & graphName,
+                      const std::string & regionName );
     void newGraph( const std::string& name ) ;
-    void selectImage( const std::string & imageName, int imageId ) ;
+    void selectImage( const std::string & imageName ) ;
     void refresh() ;
-    void renameGraph( const std::string& name, int graphId ) ;
+    void renameGraph( const std::string& name ) ;
     void deleteGraph( ) ;
     void loadGraph( const QStringList& ) ;
     void saveGraphAs( ) ;
     void reloadGraph( ) ;
     void saveGraph( ) ;
-    void selectRegion( const std::string& regionName, int regionId ) ;
-    void selectRegionName( const std::string& regionName ) ;
-    void smartSelectRegionName( const std::string & partialRegionName ) ;
+    /// use the general selection system to select a region
+    void selectRegion( const std::string& regionName, bool force = false );
+    /// just set the internal current region name
+    void selectRegionName( const std::string& regionName );
+    void smartSelectRegionName( const std::string & partialRegionName );
     void newRegion( const std::string& name ) ;
-    void renameRegion( const std::string & name, int regionId ) ;
+    void renameRegion( const std::string & name ) ;
     void deleteRegion( ) ;
     void exportAsMask( ) ;
     static void exportRegion( AGraphObject * o) ;
     void regionsFusion( const std::set<std::string>& regions,
 			const std::string& newName) ;
     void createWindow( const std::string& type ) ;
-    
-    int selectedHierarchyId() { return _sharedData->mySelectedHierarchyId ; }
-    int currentGraphId() 
-      { return _sharedData->myCurrentGraphId ; }
-    int currentImageId() { return _sharedData->myCurrentImageId ; }
-    int currentRegionId() { return _sharedData->myCurrentRegionId ; }
+    void updateFromSelection();
+
+    std::string currentGraph() const { return _sharedData->myCurrentGraph; }
+    std::string currentRegionName() const { return _sharedData->myRegionName; }
+    std::string currentImage() const { return _sharedData->myCurrentImage; }
 
     virtual QWidget * actionView( QWidget * ) ;
     virtual bool viewableAction( ) const { return true ; }
@@ -322,6 +324,7 @@ namespace anatomist{
     
     const std::string& selectedHierarchy() const { return _sharedData->mySelectedHierarchy ; }
     const std::string& userDefinedHierarchy() const { return _sharedData->myUserDefinedHierarchy ; }
+    int selectedHierarchyId() { return _sharedData->mySelectedHierarchyId ; }
 
   private:  
     //   void createGraph( AObject * volume ) ;

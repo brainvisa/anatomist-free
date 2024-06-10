@@ -505,3 +505,10 @@ PaintControl::doAlsoOnSelect( ActionPool * /*pool*/ )
     }
 }
 
+
+void PaintControl::selectionChangedEvent()
+{
+  RoiManagementAction rma;
+  rma.updateFromSelection();
+}
+

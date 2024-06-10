@@ -629,7 +629,7 @@ RoiManagementActionView::getImageNames()
 QStringList
 RoiManagementActionView::getCurrentGraphRegions()
 {
-  #ifdef ANA_DEBUG
+#ifdef ANA_DEBUG
   cout << "RoiManagementActionView::getCurrentGraphRegions" << endl ;
 #endif
   myGettingRegionNames = true ;
@@ -695,13 +695,7 @@ RoiManagementActionView::selectGraph( int row )
 
   mySelectingGraph = true ;
   _private->myRoiManagementAction->selectGraph(
-    graph->text().toStdString(),
-    _private->mySelectGraph->currentRow() );
-
-//   if( _private->myRoiManagementAction->savableGraph() )
-//     _private->mySaveGraphAction->setEnabled( true ) ;
-//   else
-//     _private->mySaveGraphAction->setEnabled( false ) ;
+    graph->text().toStdString() );
 
   mySelectingGraph = false ;
 }
@@ -725,8 +719,7 @@ RoiManagementActionView::selectImage( int row )
   QListWidgetItem *image = _private->mySelectImage->item( row );
 
   mySelectingImage = true ;
-  _private->myRoiManagementAction->selectImage(
-    image->text().toStdString(), _private->mySelectImage->currentRow() );
+  _private->myRoiManagementAction->selectImage( image->text().toStdString() );
   mySelectingImage = false ;
 }
 
@@ -824,8 +817,7 @@ RoiManagementActionView::renameGraph( QListWidgetItem * graph )
 {
   _private->myRoiManagementAction->renameGraph(
     askName( "session", graph->text().toStdString(),
-              "Please enter new name for selected session" ),
-    _private->mySelectGraph->currentRow() );
+              "Please enter new name for selected session" ) );
 }
 
 void
@@ -904,6 +896,7 @@ RoiManagementActionView::saveGraph( )
 void
 RoiManagementActionView::selectRegion( int row )
 {
+  // cout << "RoiManagementActionView::selectRegion " << row << endl;
   if ( myUpdatingFlag || row < 0 )
     return ;
 
@@ -913,7 +906,7 @@ RoiManagementActionView::selectRegion( int row )
 
   mySelectingRegion = true ;
   _private->myRoiManagementAction->selectRegion(
-    region->text().toStdString(), _private->mySelectRegion->currentRow() );
+    region->text().toStdString() );
   mySelectingRegion = false ;
 }
 
@@ -925,11 +918,6 @@ RoiManagementActionView::newRegion( )
     _private->myFreeFrameworkAction->isChecked() );
   if( regionName != "" )
     _private->myRoiManagementAction->newRegion( regionName ) ;
-
-//   if( _private->myRoiManagementAction->savableGraph() )
-//     _private->mySaveGraphAction->setEnabled( true );
-//   else
-//     _private->mySaveGraphAction->setEnabled( false );
 }
 
 void
@@ -940,8 +928,7 @@ RoiManagementActionView::renameRegion( QListWidgetItem * region )
       "region",
       region->text().toStdString(),
       "Please enter selected region's new name",
-      _private->myFreeFrameworkAction->isChecked() ),
-    _private->mySelectRegion->currentRow() ) ;
+      _private->myFreeFrameworkAction->isChecked() ) ) ;
 }
 
 void
@@ -1339,7 +1326,9 @@ RoiManagementActionView::update( const anatomist::Observable *,
 
   int id = _private->myRoiManagementAction->selectedHierarchyId() ;
 
-  if (!(myUpdatingFlag || mySelectingGraph || mySelectingImage || mySelectingRegion )  ){
+  if( !( myUpdatingFlag || mySelectingGraph || mySelectingImage
+      || mySelectingRegion ) )
+  {
     _private->myNeuroAction->setChecked(
       id == RoiManagementActionView_Private::NEURO ? true : false );
     _private->myLateralNeuroAction->setChecked(
@@ -1365,45 +1354,60 @@ RoiManagementActionView::update( const anatomist::Observable *,
   if( !mySelectingGraph && !myGettingGraphNames )
   {
     QStringList graphNames = getGraphNames() ;
-    if ( graphNames != myGraphNames ){
+    if ( graphNames != myGraphNames )
+    {
       myGraphNames = graphNames ;
       _private->mySelectGraph->clear() ;
       _private->mySelectGraph->addItems( myGraphNames ) ;
-      _private->mySelectGraph
-	->setCurrentRow( _private->myRoiManagementAction->currentGraphId() );
-    } else if( _private->mySelectGraph->currentRow() !=
-	       _private->myRoiManagementAction->currentGraphId() )
-      _private->mySelectGraph
-	->setCurrentRow( _private->myRoiManagementAction->currentGraphId() );
+      _private->mySelectGraph->setCurrentRow(
+        graphId( _private->myRoiManagementAction->currentGraph() ) );
+    }
+
+    int graph_row = graphId( _private->myRoiManagementAction->currentGraph() );
+    if( _private->mySelectGraph->currentRow() != graph_row )
+      _private->mySelectGraph->setCurrentRow( graph_row );
   }
 
-  if( !mySelectingImage && !myGettingImageNames ){
+  if( !mySelectingImage && !myGettingImageNames )
+  {
     QStringList imageNames = getImageNames() ;
-    if ( imageNames != myImageNames ){
+    if ( imageNames != myImageNames )
+    {
       myImageNames = imageNames ;
       _private->mySelectImage->clear() ;
       _private->mySelectImage->addItems( myImageNames ) ;
-      _private->mySelectImage
-	->setCurrentRow( _private->myRoiManagementAction->currentImageId() ) ;
-    } else if ( _private->mySelectImage->currentRow() !=
-		_private->myRoiManagementAction->currentImageId() )
-      _private->mySelectImage
-	->setCurrentRow( _private->myRoiManagementAction->currentImageId() ) ;
+    }
+    int image_row = imageId( _private->myRoiManagementAction->currentImage() );
+    if ( _private->mySelectImage->currentRow() != image_row )
+      _private->mySelectImage->setCurrentRow( image_row );
   }
 
-  if( !mySelectingRegion && !myGettingRegionNames ){
+  if( !mySelectingRegion && !myGettingRegionNames )
+  {
+    // cout << "check region\n";
+    // cout << "currentRegion: " << _private->myRoiManagementAction->currentRegionName() << endl;
     QStringList regions = getCurrentGraphRegions() ;
-    if ( regions != myRegions ){
+    if ( regions != myRegions )
+    {
       myRegions = regions ;
       _private->mySelectRegion->clear();
       _private->mySelectRegion->addItems( myRegions );
-      _private->mySelectRegion->setCurrentRow(
-        _private->myRoiManagementAction->currentRegionId() );
+      string region = _private->myRoiManagementAction->currentRegionName();
     }
-    else if( _private->mySelectRegion->currentRow() !=
-             _private->myRoiManagementAction->currentRegionId() )
-      _private->mySelectRegion
-	->setCurrentRow(_private->myRoiManagementAction->currentRegionId() );
+    string region = _private->myRoiManagementAction->currentRegionName();
+    int i, id = -1;
+    QStringList::iterator ir, er = regions.end();
+    for( i=0, ir=regions.begin(); ir!=er; ++i, ++ir )
+    {
+      if( ir->toStdString() == region )
+        break;
+    }
+    if( i < regions.size() )
+      id = i;
+    // cout << "regionid: " << id << ", current view id: " << _private->mySelectRegion->currentRow() << endl;
+
+    if( _private->mySelectRegion->currentRow() != id )
+      _private->mySelectRegion->setCurrentRow( id );
   }
   myUpdatingFlag = false ;
   //cout << "RoiManagementActionView::update done\n";
@@ -1419,6 +1423,31 @@ RoiManagementActionView::update( const anatomist::Observable *,
     _private->myGraphTransparencyLabel->setText( QString::number( transparency ) ) ;
   }
 }
+
+
+int RoiManagementActionView::graphId( const string & graphName )
+{
+  int i, n = _private->mySelectGraph->count();
+  for( i=0; i<n; ++i )
+  {
+    if( _private->mySelectGraph->item( i )->text().toStdString() == graphName )
+      return i;
+  }
+  return -1;
+}
+
+
+int RoiManagementActionView::imageId( const string & imageName )
+{
+  int i, n = _private->mySelectImage->count();
+  for( i=0; i<n; ++i )
+  {
+    if( _private->mySelectImage->item( i )->text().toStdString() == imageName )
+      return i;
+  }
+  return -1;
+}
+
 
 void
 RoiManagementActionView::objectLoaded( anatomist::Observable* o )
@@ -1507,8 +1536,8 @@ RoiManagementActionSharedData::RoiManagementActionSharedData()
     myCurrentHierarchyRoiNamesChanged(true), mySelectedHierarchy(""),
     mySelectedHierarchyId( RoiManagementActionView_Private::NEURO ),
     myCurrentGraph(""),
-    myCurrentGraphId(-1), myCurrentImage(""), myCurrentImageId(-1),
-    myRegionName(""), myPartialRegionName(""), myCurrentRegionId(-1)
+    myCurrentImage(""),
+    myRegionName(""), myPartialRegionName("")
 {
 }
 
@@ -1518,9 +1547,9 @@ RoiManagementActionSharedData::~RoiManagementActionSharedData()
 
 void RoiManagementActionSharedData::refresh()
 {
-  #ifdef ANA_DEBUG
+#ifdef ANA_DEBUG
   cout << "RoiManagementActionSharedData::refresh()\n";
-  #endif
+#endif
   myImageNamesChanged = true ;
   myGraphNamesChanged = true ;
   myHierarchyNamesChanged = true ;
@@ -1535,14 +1564,12 @@ void
 RoiManagementActionSharedData::update( const anatomist::Observable* /*obs*/,
                                        void* )
 {
-  #ifdef ANA_DEBUG
+#ifdef ANA_DEBUG
   cout << "RoiManagementActionSharedData::update" << endl ;
 #endif
 
   setChanged() ;
   notifyObservers(  ) ;
-
-  //PaintActionSharedData::instance()->update( obs, 0 ) ;
 }
 
 
@@ -1681,23 +1708,15 @@ RoiManagementAction::getGraphNames()
       if( is == es )
         {
           _sharedData->myCurrentGraph = "";
-          _sharedData->myCurrentGraphId = -1;
-          _sharedData->myCurrentGraphRegionsChanged = true ;
-          setChanged();
-        }
-      else if( _sharedData->myCurrentGraphId != n )
-        {
-          _sharedData->myCurrentGraphId = n;
           _sharedData->myCurrentGraphRegionsChanged = true ;
           setChanged();
         }
     }
 
-  if( _sharedData->myCurrentGraphId == -1
+  if( _sharedData->myCurrentGraph == ""
       && _sharedData->myGraphNames.size() != 0 )
     {
       _sharedData->myCurrentGraph = *( _sharedData->myGraphNames.begin() ) ;
-      _sharedData->myCurrentGraphId = 0 ;
       _sharedData->myCurrentGraphRegionsChanged = true ;
       setChanged() ;
     }
@@ -1705,6 +1724,7 @@ RoiManagementAction::getGraphNames()
   _sharedData->myGraphNamesChanged = false ;
   return _sharedData->myGraphNames ;
 }
+
 
 set<string>
 RoiManagementAction::getImageNames()
@@ -1755,36 +1775,34 @@ RoiManagementAction::getImageNames()
       if( is == es )
         {
           _sharedData->myCurrentImage = "";
-          _sharedData->myCurrentImageId = -1;
-          setChanged();
-        }
-      else if( _sharedData->myCurrentImageId != n )
-        {
-          _sharedData->myCurrentImageId = n;
           setChanged();
         }
     }
 
-  if( _sharedData->myCurrentImageId == -1
+  if( _sharedData->myCurrentImage == ""
       && _sharedData->myImageNames.size() != 0 )
     {
       bool foundImage = false ;
       std::set< AObject * > objs = view()->aWindow()->Objects() ;
       std::set< AObject * >::iterator it = objs.begin() ;
-      while( it != objs.end() && !foundImage ){
-	if( (*it)->type() == AObject::VOLUME ){
-	  foundImage = true ;
-	  _sharedData->myCurrentImage = (*it)->name() ;
-	}
-	++it ;
+      while( it != objs.end() && !foundImage )
+      {
+        if( (*it)->type() == AObject::VOLUME )
+        {
+          foundImage = true ;
+          _sharedData->myCurrentImage = (*it)->name() ;
+        }
+        ++it ;
       }
 
-      if( foundImage ){
+      if( foundImage )
+      {
 	int n = 0 ;
 	set<string>::iterator itS = _sharedData->myImageNames.begin() ;
-	while( itS != _sharedData->myImageNames.end() ){
-	  if( _sharedData->myCurrentImage == *itS ){
-	    _sharedData->myCurrentImageId = n;
+	while( itS != _sharedData->myImageNames.end() )
+        {
+	  if( _sharedData->myCurrentImage == *itS )
+          {
 	    setChanged();
 	    break ;
 	  }
@@ -1792,7 +1810,6 @@ RoiManagementAction::getImageNames()
 	}
       }else{
 	_sharedData->myCurrentImage = *( _sharedData->myImageNames.begin() ) ;
-	_sharedData->myCurrentImageId = 0 ;
 	setChanged() ;
       }
     }
@@ -1847,10 +1864,10 @@ RoiManagementAction::getCurrentGraphRegions()
     ++iter;
   }
 
-  if( _sharedData->myCurrentGraphId == -1 && _sharedData->myGraphNames.size() != 0 )
+  if( _sharedData->myCurrentGraph == ""
+      && _sharedData->myGraphNames.size() != 0 )
   {
     _sharedData->myCurrentGraph = *( _sharedData->myGraphNames.begin() ) ;
-    _sharedData->myCurrentGraphId = 0 ;
     setChanged() ;
   }
 
@@ -2321,29 +2338,52 @@ RoiManagementAction::modifyUDFWRegionColor( const std::string & name,
 // }
 
 void
-RoiManagementAction::selectGraph( const string & graphName, int graphId  )
+RoiManagementAction::selectGraph( const string & graphName )
 {
-  #ifdef ANA_DEBUG
+#ifdef ANA_DEBUG
   cout << "RoiManagementAction::selectGraph( " << graphName << " )" << endl ;
 #endif
 
-  if ( _sharedData->myCurrentGraph == graphName && _sharedData->myCurrentGraphId == graphId )
-    return ;
+  if( _sharedData->myCurrentGraph == graphName )
+    return;
 
-  _sharedData->myCurrentGraph = graphName ;
-  _sharedData->myCurrentGraphId = graphId ;
-
-  _sharedData->myCurrentGraphRegionsChanged = true ;
+  _sharedData->myCurrentGraph = graphName;
+  setChanged();
+  _sharedData->myCurrentGraphRegionsChanged = true;
   getCurrentGraphRegions() ;
+  RoiChangeProcessor::instance()->setUndoable( RoiChangeProcessor::instance()->undoable() ) ;
 
   if( _sharedData->myCurrentGraphRegions.size() != 0 )
-    selectRegion( *( _sharedData->myCurrentGraphRegions.begin() ), 0 ) ;
+  {
+    selectRegion( *( _sharedData->myCurrentGraphRegions.begin() ), true );
+  }
   else
-    selectRegion( "", -1 ) ;
+  {
+    selectRegion( "", true );
+  }
+}
 
+
+void
+RoiManagementAction::selectGraph( const string & graphName,
+                                  const std::string & regionName )
+{
+#ifdef ANA_DEBUG
+  cout << "RoiManagementAction::selectGraph( " << graphName << ", "
+    << regionName << " )" << endl ;
+#endif
+
+  if( _sharedData->myCurrentGraph == graphName
+      && _sharedData->myRegionName == regionName )
+    return;
+
+  _sharedData->myCurrentGraph = graphName;
+  _sharedData->myCurrentGraphRegionsChanged = true;
+  setChanged();
+  getCurrentGraphRegions() ;
   RoiChangeProcessor::instance()->setUndoable( RoiChangeProcessor::instance()->undoable() ) ;
-  setChanged() ;
-  notifyObservers() ;
+
+  selectRegion( regionName, true ) ;
 }
 
 
@@ -2398,19 +2438,7 @@ RoiManagementAction::newGraph( const string& /* name */ )
 
   set<string>::const_iterator iterName( _sharedData->myGraphNames.begin() ),
     lastName( _sharedData->myGraphNames.end() ) ;
-  int id = 0 ;
-  while ( iterName != lastName )
-  {
-    if ( *iterName == graphName )
-      break ;
-    ++id ;
-    ++iterName ;
-  }
-
-  if ( iterName != lastName )
-  {
-    selectGraph( graphName, id ) ;
-  }
+  selectGraph( graphName ) ;
   // If no hierarchy is loaded, load neuronames.hie
   set<AObject *> objs = theAnatomist->getObjects() ;
   set<AObject *>::iterator iter( objs.begin() ), last( objs.end() ), found ;
@@ -2505,14 +2533,13 @@ RoiManagementAction::newGraph( const string& /* name */ )
 }
 
 void
-RoiManagementAction::selectImage( const string& imageName, int id )
+RoiManagementAction::selectImage( const string& imageName )
 {
-  #ifdef ANA_DEBUG
+#ifdef ANA_DEBUG
   cout << "RoiManagementAction::selectImage( " << imageName << " )" << endl ;
 #endif
 
   _sharedData->myCurrentImage = imageName ;
-  _sharedData->myCurrentImageId = id ;
 
   setChanged() ;
   notifyObservers() ;
@@ -2525,7 +2552,7 @@ RoiManagementAction::refresh()
 }
 
 void
-RoiManagementAction::renameGraph( const string& name, int id )
+RoiManagementAction::renameGraph( const string& name )
 {
   //cout << "renameGraph( " << name << " )" << endl ;
   if( name == "" )
@@ -2533,8 +2560,6 @@ RoiManagementAction::renameGraph( const string& name, int id )
 
   AObject * obj = _sharedData->getObjectByName(AObject::GRAPH, _sharedData->myCurrentGraph ) ;
   AGraph * graph = dynamic_cast<AGraph*>( obj ) ;
-
-  _sharedData->myCurrentGraphId = id ;
 
   if ( !graph )
     {
@@ -2579,13 +2604,12 @@ RoiManagementAction::deleteGraph( )
   theProcessor->execute( cmd );
 
   _sharedData->myGraphNamesChanged = true ;
-  getGraphNames() ;
+  getGraphNames();
 
   if ( _sharedData->myGraphNames.size() != 0 )
-    selectGraph( *( _sharedData->myGraphNames.begin() ), 0 ) ;
+    selectGraph( *( _sharedData->myGraphNames.begin() ) ) ;
   else{
     _sharedData->myCurrentGraph = "" ;
-    _sharedData->myCurrentGraphId = -1 ;
   }
 
   _sharedData->myCurrentGraphRegionsChanged = true ;
@@ -2637,19 +2661,8 @@ RoiManagementAction::loadGraph( const QStringList& filenames )
 
   getGraphNames() ;
 
-  int newId = 0 ;
-  std::set<string>::const_iterator iterName( _sharedData->myGraphNames.begin() ),
-    lastName( _sharedData->myGraphNames.end() ) ;
-  while( iterName != lastName ){
-    if( *iterName == loadedObj->name() )
-      break ;
-
-    ++iterName ; ++newId ;
-  }
-
   _sharedData->myCurrentGraph = "" ;
-  _sharedData->myCurrentGraphId = 0 ;
-  selectGraph( loadedObj->name(), newId ) ;
+  selectGraph( loadedObj->name() );
 
 
   // If no hierarchy is loaded, load neuronames.hie
@@ -2840,31 +2853,34 @@ RoiManagementAction::saveGraph( )
 }
 
 void
-RoiManagementAction::selectRegion( const string& regionName, int id )
+RoiManagementAction::selectRegion( const string& regionName, bool force )
 {
-//   cout << "selectRegion( " << regionName << " )" << endl ;
-  set<AObject*> objSet ;
-
-  if( id != -1 )
+  if( force || regionName != currentRegionName() )
   {
-    AGraphObject * graphObject
-      = _sharedData->getGraphObjectByName( _sharedData->myCurrentGraph,
-                                           regionName ) ;
-    if( ! graphObject )
+    // cout << "selectRegion( " << regionName << " )" << endl ;
+    set<AObject*> objSet ;
+    setChanged();
+
+    if( !regionName.empty() )
     {
-      AWarning( "No such region exists" ) ;
-      return ;
+      AGraphObject * graphObject
+        = _sharedData->getGraphObjectByName( _sharedData->myCurrentGraph,
+                                            regionName ) ;
+      if( ! graphObject )
+      {
+        AWarning( "No such region exists" ) ;
+        return ;
+      }
+      objSet.insert( graphObject ) ;
+      // cout << "select: " << graphObject << ", " << regionName << endl;
     }
-    objSet.insert( graphObject ) ;
+    selectRegionName( regionName );
+
+    Command	*cmd = new SelectCommand( objSet );
+    theProcessor->execute( cmd );
+
+    notifyObservers();
   }
-
-  Command	*cmd = new SelectCommand( objSet );
-  theProcessor->execute( cmd );
-
-  _sharedData->myCurrentRegionId = id ;
-
-  setChanged() ;
-  notifyObservers() ;
 }
 
 void
@@ -2872,7 +2888,11 @@ RoiManagementAction::selectRegionName( const string& regionName )
 {
   //cout << "selectRegionName( " << regionName << " )" << endl ;
 
-  _sharedData->myRegionName = regionName ;
+  if( _sharedData->myRegionName != regionName )
+  {
+    _sharedData->myRegionName = regionName;
+    setChanged();
+  }
 }
 
 void
@@ -2883,6 +2903,56 @@ RoiManagementAction::smartSelectRegionName( const string & partialRegionName )
   _sharedData->myPartialRegionName = partialRegionName ;
   //...
 }
+
+
+void RoiManagementAction::updateFromSelection()
+{
+  // cout << "updateFromSelection for " << this << endl;
+  AObject *g = _sharedData->getSelectedObject( AObject::GRAPH );
+  AObject *roi = _sharedData->getSelectedObject( AObject::GRAPHOBJECT );
+  // cout << "sel region: " << roi << endl;
+
+  if( roi && !g )
+  {
+    AObject::ParentList::iterator ip = roi->parents().begin(),
+      ep = roi->parents().end();
+    if( ip != ep )
+      g = *ip;
+  }
+
+  string name, regionname;
+
+  if( g )
+  {
+    AGraph *gr = dynamic_cast<AGraph *>( g );
+    if( gr )
+    {
+      name = gr->name();
+      // cout << "graph name: " << name << endl;
+    }
+  }
+
+  if( roi )
+  {
+    AGraphObject *go = dynamic_cast<AGraphObject *>( roi );
+    if( go )
+    {
+      go->attributed()->getProperty( "name", regionname );
+      // cout << "region name: " << regionname << endl;
+    }
+  }
+
+  if( _sharedData->myCurrentGraph != name
+      || _sharedData->myRegionName != regionname )
+  {
+    _sharedData->myCurrentGraph = name;
+    _sharedData->myRegionName = regionname;
+
+    setChanged();
+  }
+  notifyObservers();
+}
+
 
 void
 RoiManagementAction::newRegion( const string& name )
@@ -2914,28 +2984,14 @@ RoiManagementAction::newRegion( const string& name )
   _sharedData->myCurrentGraphRegionsChanged = true ;
   getCurrentGraphRegions() ;
 
-  set<string>::const_iterator iter( _sharedData->myCurrentGraphRegions.begin() ),
-    last( _sharedData->myCurrentGraphRegions.end() ) ;
-  int id = 0 ;
-  while ( iter != last )
-    {
-      if ( *iter == _sharedData->myRegionName )
-	break ;
-      ++id ;
-      ++iter ;
-    }
-
-  if ( iter != last )
-    _sharedData->myCurrentRegionId = id ;
-
-  selectRegion( _sharedData->myRegionName, _sharedData->myCurrentRegionId ) ;
+  selectRegion( _sharedData->myRegionName ) ;
 
   setChanged() ;
   notifyObservers() ;
 }
 
 void
-RoiManagementAction::renameRegion( const string & name, int id )
+RoiManagementAction::renameRegion( const string & name )
 {
   //cout << "renameRegion( " << name << " )" << endl ;
 
@@ -2951,8 +3007,6 @@ RoiManagementAction::renameRegion( const string & name, int id )
   obj = _sharedData->getObjectByName(AObject::GRAPH, _sharedData->myCurrentGraph ) ;
   AGraph * graph = dynamic_cast<AGraph*>( obj ) ;
 
-  _sharedData->myCurrentRegionId = id ;
-
   if( graphObject ){
     theAnatomist->unregisterObjectName( graphObject->name() ) ;
     graphObject->setName( theAnatomist->makeObjectName( name ) ) ;
@@ -2960,7 +3014,7 @@ RoiManagementAction::renameRegion( const string & name, int id )
     graphObject->attributed()->setProperty("name", name ) ;
     _sharedData->myRegionName = name ;
 
-    selectRegion( _sharedData->myRegionName, _sharedData->myCurrentRegionId ) ;
+    selectRegion( _sharedData->myRegionName );
     theAnatomist->NotifyObjectChange( graph ) ;
     theAnatomist->NotifyObjectChange( graphObject ) ;
   }
@@ -2972,19 +3026,7 @@ RoiManagementAction::renameRegion( const string & name, int id )
   set<string>::const_iterator iter( _sharedData->myCurrentGraphRegions.begin() ),
     last( _sharedData->myCurrentGraphRegions.end() ) ;
 
-  int newId = 0 ;
-  while ( iter != last )
-    {
-      if ( *iter == _sharedData->myRegionName )
-	break ;
-      ++newId ;
-      ++iter ;
-    }
-
-  if ( iter != last )
-    _sharedData->myCurrentRegionId = newId ;
-
-  selectRegion( _sharedData->myRegionName, _sharedData->myCurrentRegionId ) ;
+  selectRegion( _sharedData->myRegionName );
 
   setChanged() ;
   notifyObservers() ;
@@ -3067,12 +3109,11 @@ RoiManagementAction::deleteRegion( )
   theAnatomist->NotifyObjectChange( graph ) ;
 
   _sharedData->myCurrentGraphRegionsChanged = true ;
-  _sharedData->myCurrentRegionId = -1 ;
 
   getCurrentGraphRegions() ;
 
   if( _sharedData->myCurrentGraphRegions.size() != 0 )
-    selectRegion( *( _sharedData->myCurrentGraphRegions.begin() ), 0 ) ;
+    selectRegion( *( _sharedData->myCurrentGraphRegions.begin() ) ) ;
 
   setChanged() ;
   notifyObservers() ;
@@ -3273,12 +3314,11 @@ RoiManagementAction::regionsFusion( const set<string>& regions,
   theAnatomist->NotifyObjectChange( graph ) ;
 
   _sharedData->myCurrentGraphRegionsChanged = true ;
-  _sharedData->myCurrentRegionId = -1 ;
 
   getCurrentGraphRegions() ;
 
   if( _sharedData->myCurrentGraphRegions.size() != 0 )
-    selectRegion( *( _sharedData->myCurrentGraphRegions.begin() ), 0 ) ;
+    selectRegion( *( _sharedData->myCurrentGraphRegions.begin() ) ) ;
 
   PaintActionSharedData::instance()->noMoreUndoable() ;
 
@@ -3474,10 +3514,10 @@ RoiManagementActionSharedData::printState()
   cout << "\tcurrentHierarchyRoiNames " << myCurrentHierarchyRoiNames.size() << endl ;
 
   cout << "\nParameters :" << endl ;
-  cout << "\tselectedHierarchy : " << mySelectedHierarchy << " , " << mySelectedHierarchyId << endl ;
-  cout << "\tcurrentGraph : " << myCurrentGraph << " , " << myCurrentGraphId << endl ;
-  cout << "\tcurrentImage : " << myCurrentImage << " , " << myCurrentImageId << endl ;
-  cout << "\tcurrentRegion : " << myRegionName << " , " << myCurrentRegionId << endl ;
+  cout << "\tselectedHierarchy : " << mySelectedHierarchy << endl ;
+  cout << "\tcurrentGraph : " << myCurrentGraph << endl ;
+  cout << "\tcurrentImage : " << myCurrentImage << endl ;
+  cout << "\tcurrentRegion : " << myRegionName << endl ;
 
   set<string>::const_iterator iter( myCurrentGraphRegions.begin() ), last( myCurrentGraphRegions.end() ) ;
 
