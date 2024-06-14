@@ -109,12 +109,21 @@
   </li>
   <li>It is now possible to load multiple objects in parallal in the C++ and python APIs.The GUI still uses sequential loading for safety (data formats are not all guananteed to be thread-safe).
   </li>
+  <li>Ensure thread safety in all code involved in object loading</li>
+  <li>Fixed selection issues in the ROI toolbox</li>
 </ul>
 
 <h5>Internal changes (programmers):</h5>
 <ul>
   <li>The <tt>anatomist</tt> command is no longer the C++ executable, but a python (pyanatomist) wrapper. It starts an IPython engine from the startup, in order to avoid hangups in recent versions of jupyter qtconsole. The former C++ executable is renamed <tt>anatomist-bin</tt>.
   </li>
+  <li>Use the newer QOpenGLWidget class instead of the old QGLWidget (from Qt 1 or 2...). This had consequences in offscreen displays, we think all issues are fixed.
+  </li>
+  <li>Switch to Qt offscreen mode instead of Xvfb + VirtualGL for headless Anatomist. The code is much simpler.
+  </li>
+  <li>Porting to Qt6. The source code may be compiled for Qt5 or Qt6 as a build configuration option.
+  </li>
+  <li>new command: LoadObjects to load multiple objects at once.</li>
   <li>Various bugfixes.</li>
 </ul>
 
