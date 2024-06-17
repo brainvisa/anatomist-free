@@ -189,6 +189,31 @@ void LoadObjectCommandThread::doRun()
   list<AObject *> object = ObjectReader::reader()->load( _filename,
                                                   subObjectsToRegister, true,
                                                   _options, cmd );
+  list<AObject *>::iterator i, e = object.end();
+  for( i=object.begin(); i!=e; ++i )
+  {
+    bool  visible = true;
+    if( _options )
+    {
+      try
+      {
+        Object x = _options->getProperty( "hidden" );
+        if( x && (bool) x->getScalar() )
+          visible = false;
+      }
+      catch( ... )
+      {
+      }
+    }
+    theAnatomist->registerObject( *i, visible );
+
+    // register sub-objects also created (if any)
+    ObjectReader::PostRegisterList::const_iterator ipr,
+      epr = subObjectsToRegister.end();
+    for( ipr=subObjectsToRegister.begin(); ipr!=epr; ++ipr )
+      theAnatomist->registerObject( ipr->first, ipr->second );
+  }
+
 //   if( !_objectname.empty() )
 //     object->setName( theAnatomist->makeObjectName( _objectname ) );
   delete this; // suicide

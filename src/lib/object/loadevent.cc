@@ -123,30 +123,8 @@ bool ObjectReaderNotifier::event( QEvent *e )
     AObjectLoadEvent *lev = static_cast<AObjectLoadEvent *>( e );
     AObject *object = lev->newObject();
     if( object )
-    {
-      bool  visible = true;
-      Object options = lev->loadOptions();
-      if( options )
-      {
-        try
-        {
-          Object x = options->getProperty( "hidden" );
-          if( x && (bool) x->getScalar() )
-            visible = false;
-        }
-        catch( ... )
-        {
-        }
-      }
-      theAnatomist->registerObject( object, visible );
-      // register sub-objects also created (if any)
-      ObjectReader::PostRegisterList::const_iterator ipr,
-        epr = lev->subObjects().end();
-      for( ipr=lev->subObjects().begin(); ipr!=epr; ++ipr )
-        theAnatomist->registerObject( ipr->first, ipr->second );
-
       object->notifyObservers( (void *) this );
-    }
+
     emit( objectLoaded( lev->newObject(), lev->subObjects(),
                         lev->clientid(), lev->isLast() ) );
     return true;

@@ -404,12 +404,13 @@ void LoadObjectsCommand::objectLoadedCallback( AObject* obj,
 
 
 void LoadObjectsCommand::objectLoadDone( AObject* obj,
-  const ObjectReader::PostRegisterList &, int index )
+  const ObjectReader::PostRegisterList &pl, int index )
 {
   /* slot called after loading is done in ObjectReader, either from a
      different thread, or in the main thread */
 //   cout << "objectLoadDone index: " << index << endl << flush;
-  if( Thread::currentIsMainThread() )
+
+  if( obj )
   {
     bool visible = true;
     if( d->_options )
@@ -421,10 +422,13 @@ void LoadObjectsCommand::objectLoadDone( AObject* obj,
       {
       }
     theAnatomist->registerObject( obj, visible );
-  }
 
-  if( obj )
-  {
+    // register sub-objects also created (if any)
+    ObjectReader::PostRegisterList::const_iterator ipr,
+      epr = pl.end();
+    for( ipr=pl.begin(); ipr!=epr; ++ipr )
+      theAnatomist->registerObject( ipr->first, ipr->second );
+
     if( context() && context()->unserial )
       context()->unserial->registerPointer( obj, d->_id[index], "AObject" );
     // send event
