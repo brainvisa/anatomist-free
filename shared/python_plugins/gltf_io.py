@@ -55,7 +55,7 @@ class GLTFCreateWindowNotifier(object):
                 return
             scene_menu = menu.addMenu('Export')
             num = len(GLTFCreateWindowNotifier.actions)
-            ac2 = scene_menu.addAction('Impot GLTF scene...',
+            ac2 = scene_menu.addAction('Import GLTF scene...',
                                        partial(self.import_gltf, num))
             ac = scene_menu.addAction('Export scene as GLTF file...',
                                       partial(self.export_gltf, num))
@@ -143,7 +143,7 @@ class GLTFCreateWindowNotifier(object):
         if not filename:
             return
         filename = filename[0]
-        tex_format = 'png'
+        tex_format = 'webp'
         images_as_buffers = True
         if not filename:
             return
