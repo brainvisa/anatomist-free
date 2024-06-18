@@ -94,6 +94,8 @@ AObjectPalette::AObjectPalette( rc_ptr<APalette> pal )
     _zeroCentered1( false ), _zeroCentered2( false )
 {
   _colors.reset( 0 );
+  if( pal->getSizeY() > 1 )
+    set2dMode( true );
 }
 
 
