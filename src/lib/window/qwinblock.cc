@@ -231,7 +231,7 @@ void QAWindowBlock::addWindowToBlock( QWidget *item, bool withborders )
   }
   if( withborders && !dynamic_cast<DraggableWrapper *>( item ) )
   {
-    DraggableWrapper *dwrap = new DraggableWrapper( item, d->layout );
+    DraggableWrapper *dwrap = new DraggableWrapper( item );
     item->setParent( dwrap );
     d->layout->addWidget( dwrap, row, col );
   }
@@ -789,8 +789,8 @@ void QAWindowBlock::reorderViews( const list<QWidget *> & wins )
 
     if( withborders && !dynamic_cast<DraggableWrapper *>( wid ) )
     {
-      DraggableWrapper *dwrap = new DraggableWrapper( wid, d->layout );
-      (*iw)->setParent( dwrap );
+      DraggableWrapper *dwrap = new DraggableWrapper( wid );
+      wid->setParent( dwrap );
       d->layout->addWidget( dwrap, rc[0], rc[1] );
     }
     else
@@ -980,8 +980,8 @@ void QAWindowBlock::setDefaultBlockGui( bool enabled )
 
 // ----
 
-BlockBorderWidget::BlockBorderWidget( int sides, QGridLayout *gridLayout )
-  : QWidget(), _sides( sides ), _gridLayout( gridLayout ), _pressed( false ),
+BlockBorderWidget::BlockBorderWidget( int sides )
+  : QWidget(), _sides( sides ), _pressed( false ),
   _last_x( 0 ), _last_y( 0 )
 {
   QPalette pal = palette();
@@ -1003,6 +1003,21 @@ BlockBorderWidget::BlockBorderWidget( int sides, QGridLayout *gridLayout )
 
 BlockBorderWidget::~BlockBorderWidget()
 {
+}
+
+
+QGridLayout* BlockBorderWidget::parentGridLayout() const
+{
+  QWidget *pw = parentWidget();  // DraggableWrapper
+  if( !pw )
+    return 0;
+  QWidget *qwb = pw->parentWidget();  // QAWindowBlock
+  if( !qwb )
+    return 0;
+  QLayout *layout = qwb->layout();
+  if( !layout )
+    return 0;
+  return dynamic_cast<QGridLayout *>( layout );
 }
 
 
@@ -1029,7 +1044,8 @@ void BlockBorderWidget::mouseReleaseEvent( QMouseEvent *event )
 
 void BlockBorderWidget::mouseMoveEvent( QMouseEvent *event )
 {
-  if( _pressed && _gridLayout )
+  QGridLayout *gridLayout = parentGridLayout();
+  if( _pressed && gridLayout )
   {
 #if QT_VERSION >= 0x060000
     int dx = int( event->globalPosition().x() ) - _last_x;
@@ -1050,21 +1066,21 @@ void BlockBorderWidget::mouseMoveEvent( QMouseEvent *event )
 
     if( dx != 0 && col >= 0 )
     {
-      if( col < _gridLayout->columnCount() )
+      if( col < gridLayout->columnCount() )
       {
         int new_stretch = std::max(
-          1, _gridLayout->columnStretch( col ) - dx );
-        _gridLayout->setColumnStretch( col, new_stretch );
+          1, gridLayout->columnStretch( col ) - dx );
+        gridLayout->setColumnStretch( col, new_stretch );
       }
     }
 
     if( dy != 0 && row >= 0 )
     {
-      if( row < _gridLayout->rowCount() )
+      if( row < gridLayout->rowCount() )
       {
         int new_stretch = std::max(
-          1, _gridLayout->rowStretch( row ) - dy );
-        _gridLayout->setRowStretch( row, new_stretch );
+          1, gridLayout->rowStretch( row ) - dy );
+        gridLayout->setRowStretch( row, new_stretch );
       }
     }
   }
@@ -1079,10 +1095,11 @@ void BlockBorderWidget::mouseDoubleClickEvent( QMouseEvent *event )
   int row, col, dirx, diry;
   getRowCol( row, col, dirx, diry );
 
+  QGridLayout *gridLayout = parentGridLayout();
   if( _sides & 3 )
-    _gridLayout->setColumnStretch( col, default_stretch );
+    gridLayout->setColumnStretch( col, default_stretch );
   if( _sides & 12 )
-    _gridLayout->setRowStretch( row, default_stretch );
+    gridLayout->setRowStretch( row, default_stretch );
 }
 
 
@@ -1092,7 +1109,16 @@ void BlockBorderWidget::getRowCol( int & row, int & col,
   int index;
   int rspan, cspan;
 
-  index = _gridLayout->indexOf( parentWidget() );
+  QGridLayout *gridLayout = parentGridLayout();
+
+  if( !gridLayout )
+  {
+    row = -1;
+    col = -1;
+    return;
+  }
+
+  index = gridLayout->indexOf( parentWidget() );
   dirx = 1;
   diry = 1;
   if( index < 0 )
@@ -1101,7 +1127,7 @@ void BlockBorderWidget::getRowCol( int & row, int & col,
     col = -1;
     return;
   }
-  _gridLayout->getItemPosition( index, &row, &col, &rspan, &cspan );
+  gridLayout->getItemPosition( index, &row, &col, &rspan, &cspan );
 
   if( _sides & 2 )
       dirx *= -1;
@@ -1220,8 +1246,7 @@ void DragWinLabel::mouseMoveEvent( QMouseEvent *event )
 
 //
 
-DraggableWrapper::DraggableWrapper( QWidget *widget, QGridLayout *main_layout,
-                                    bool withDragGrip )
+DraggableWrapper::DraggableWrapper( QWidget *widget, bool withDragGrip )
   : QWidget(), _enableDragGrip( withDragGrip ), _dragWidget( 0 )
 {
   QGridLayout *layout = new QGridLayout;
@@ -1229,19 +1254,19 @@ DraggableWrapper::DraggableWrapper( QWidget *widget, QGridLayout *main_layout,
   layout->setSpacing( 0 );
   layout->setContentsMargins( 0, 0, 0, 0 );
 
-  BlockBorderWidget *border_top = new BlockBorderWidget( 4, main_layout );
-  BlockBorderWidget *border_bottom = new BlockBorderWidget( 8, main_layout );
-  BlockBorderWidget *border_left = new BlockBorderWidget( 1, main_layout );
-  BlockBorderWidget *border_right = new BlockBorderWidget( 2, main_layout );
+  BlockBorderWidget *border_top = new BlockBorderWidget( 4 );
+  BlockBorderWidget *border_bottom = new BlockBorderWidget( 8 );
+  BlockBorderWidget *border_left = new BlockBorderWidget( 1 );
+  BlockBorderWidget *border_right = new BlockBorderWidget( 2 );
 
   BlockBorderWidget *border_top_left_horizontal
-    = new BlockBorderWidget( 5, main_layout );
+    = new BlockBorderWidget( 5 );
   BlockBorderWidget *border_top_right_horizontal
-    = new BlockBorderWidget( 6, main_layout );
+    = new BlockBorderWidget( 6 );
   BlockBorderWidget *border_bottom_left_horizontal
-    = new BlockBorderWidget( 9, main_layout );
+    = new BlockBorderWidget( 9 );
   BlockBorderWidget *border_bottom_right_horizontal
-    = new BlockBorderWidget( 10, main_layout );
+    = new BlockBorderWidget( 10 );
 
   layout->addWidget( widget, 1, 1 );
   layout->addWidget( border_top, 0, 1 );

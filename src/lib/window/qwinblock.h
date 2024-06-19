@@ -110,9 +110,14 @@ namespace anatomist
   class BlockBorderWidget : public QWidget
   {
   public:
-    BlockBorderWidget( int sides, QGridLayout *gridLayout = 0 );
+    BlockBorderWidget( int sides );
     virtual ~BlockBorderWidget();
     void getRowCol( int & row, int & col, int & dirx, int & diry ) const;
+    /** get the layout where the parent of this (which should be a
+        DraggableWrapper) is: that is, the QAWindowBlock grid layout.
+        If not found, return 0.
+    */
+    QGridLayout* parentGridLayout() const;
 
   protected:
     void mousePressEvent( QMouseEvent *event );
@@ -122,7 +127,6 @@ namespace anatomist
 
   private:
     int _sides;
-    QGridLayout *_gridLayout;
     bool _pressed;
     int _last_x;
     int _last_y;
@@ -135,8 +139,7 @@ namespace anatomist
   class DraggableWrapper : public QWidget
   {
   public:
-    DraggableWrapper( QWidget *widget, QGridLayout *main_layout,
-                      bool withDragGrip = true );
+    DraggableWrapper( QWidget *widget, bool withDragGrip = true );
     virtual ~DraggableWrapper();
 
   protected:
