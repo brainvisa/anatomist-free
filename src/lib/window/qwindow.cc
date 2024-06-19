@@ -320,7 +320,7 @@ void QAWindow::setTitle( const string & title )
 
 void QAWindow::Refresh()
 {
-  //cout << "QAWindow::Refresh\n";
+  // cout << "QAWindow::Refresh\n";
   if( !d->refreshtimer )
     {
       d->refreshtimer = new QTimer( this );
@@ -347,7 +347,7 @@ void QAWindow::triggeredRefresh()
 {
   if( d->refreshneeded )
     {
-      //cout << "QAWindow::refreshNow\n";
+      // cout << "QAWindow::triggeredRefresh\n";
       AWindow::Refresh();
       refreshNow();
       d->refreshneeded = false;

@@ -79,7 +79,7 @@ public:
     overload refreshNow() instead, which is the effective drawing function
     called when the timer timesout. That's why Refresh is not virtual
     anymore. */
-  void Refresh();
+  virtual void Refresh();
   virtual QToolBar* addToolBar( const QString & title, const QString & name );
   virtual QToolBar* addToolBar( Qt::ToolBarArea area, const QString & title,
                                 const QString & name );
