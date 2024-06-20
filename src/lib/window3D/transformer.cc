@@ -1133,6 +1133,11 @@ namespace
     }
     tui->transform_tabWidget->setStyle( s );
 
+    wid->setWindowOpacity( 0.99 ); // otherwise text (and more) is not drawn
+    wid->setWindowTitle("trans_spec"); // same idea: side effect
+    wid->setStyleSheet(
+      "color: rgb(192, 88, 0); background: rgba(255, 255, 255, 0); border: 1px solid rgb(120, 60, 0);" );
+
     if( ob )
     {
       ob->connect( tui->reset_pushButton, SIGNAL( pressed() ),
@@ -1174,7 +1179,7 @@ namespace
       gv->setScene( scene );
     }
     QGraphicsProxyWidget *item = scene->addWidget(
-      wid, Qt::Window | Qt::FramelessWindowHint );
+      wid, Qt::Window ); // | Qt::FramelessWindowHint );
     if( !d->show_info )
       item->hide();
     QTransform tr = item->transform();

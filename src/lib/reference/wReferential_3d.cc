@@ -1387,10 +1387,12 @@ void RefWindow::selectReferential( AObject* mesh )
     QLabel *label = new QLabel;
     QString text( rmesh->toolTip().c_str() );
     label->setText( text );
-    QGraphicsProxyWidget *pw = gs->addWidget( label );
+    label->setWindowOpacity( 0.99 ); // otherwise text (and more) is not drawn
+    label->setWindowTitle("ref_spec"); // same idea: side effect
     label->setAutoFillBackground( false );
     label->setStyleSheet(
       "color: rgb(192, 88, 0); background: rgba(255, 255, 255, 0); border: 1px solid rgb(120, 60, 0);" );
+    QGraphicsProxyWidget *pw = gs->addWidget( label, Qt::Window );
     QPointF pos = pw->mapToScene( 0, gs->height() - pw->size().height() );
     if( pos.y() < 0 )
       pos.setY( 0 );
@@ -1424,7 +1426,9 @@ void RefWindow::selectTransformation( AObject* mesh )
     QLabel *label = new QLabel;
     QString text( tmesh->toolTip().c_str() );
     label->setText( text );
-    QGraphicsProxyWidget *pw = gs->addWidget( label );
+    label->setWindowOpacity( 0.99 ); // otherwise text (and more) is not drawn
+    label->setWindowTitle("trans_spec"); // same idea: side effect
+    QGraphicsProxyWidget *pw = gs->addWidget( label, Qt::Window );
     label->setAutoFillBackground( false );
     label->setStyleSheet(
       "color: rgb(192, 88, 0); background: rgba(255, 255, 255, 0); border: 1px solid rgb(120, 60, 0);" );
