@@ -134,7 +134,7 @@ void QAGLWidget::paintGL()
   _paintDone = true;
 }
 
-#if QT_VERSION >= 0x040600
+
 bool QAGLWidget::event( QEvent * event )
 {
   /* QOpenGLWidget produces an uncontrolled swapBuffers() on the followning
@@ -168,7 +168,6 @@ bool QAGLWidget::event( QEvent * event )
   return QGLWidget::event(event);
 #endif
 }
-#endif
 
 
 void QAGLWidget::mousePressEvent( QMouseEvent* me )
@@ -210,12 +209,18 @@ void QAGLWidget::keyReleaseEvent( QKeyEvent* ev )
 void QAGLWidget::focusInEvent( QFocusEvent * ev )
 {
   GLWidgetManager::focusInEvent( ev );
+#ifdef ANA_USE_QOPENGLWIDGET
+  QOpenGLWidget::focusInEvent( ev );
+#endif
 }
 
 
 void QAGLWidget::focusOutEvent( QFocusEvent * ev )
 {
   GLWidgetManager::focusOutEvent( ev );
+#ifdef ANA_USE_QOPENGLWIDGET
+  QOpenGLWidget::focusOutEvent( ev );
+#endif
 }
 
 
