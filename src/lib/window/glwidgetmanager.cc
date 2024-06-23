@@ -595,8 +595,12 @@ void GLWidgetManager::bindOtherFramebuffer( DrawMode m )
           h *= win->devicePixelRatio();
         }
         GLCaps::glGenFramebuffers( 1, &_pd->z_framebuffer );
-        GLCaps::glBindFramebuffer( GL_FRAMEBUFFER, _pd->z_framebuffer );
         GLenum status = glGetError();
+        if( status != GL_NO_ERROR )
+          cerr << "bindOtherFramebuffer 0.9 : OpenGL error: "
+            << gluErrorString(status) << endl;
+        GLCaps::glBindFramebuffer( GL_FRAMEBUFFER, _pd->z_framebuffer );
+        status = glGetError();
         if( status != GL_NO_ERROR )
           cerr << "bindOtherFramebuffer 1.0 : OpenGL error: "
             << gluErrorString(status) << endl;
@@ -607,6 +611,7 @@ void GLWidgetManager::bindOtherFramebuffer( DrawMode m )
         GLCaps::glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
                                            GL_RENDERBUFFER,
                                            _pd->z_renderbuffer );
+        status = glGetError();
         if( status != GL_NO_ERROR )
           cerr << "bindOtherFramebuffer 1.1 : OpenGL error: "
             << gluErrorString(status) << endl;
@@ -619,6 +624,7 @@ void GLWidgetManager::bindOtherFramebuffer( DrawMode m )
                                            GL_COLOR_ATTACHMENT0,
                                            GL_RENDERBUFFER,
                                            _pd->select_renderbuffer );
+        status = glGetError();
         if( status != GL_NO_ERROR )
           cerr << "bindOtherFramebuffer 2.0 : OpenGL error: "
             << gluErrorString(status) << endl;
