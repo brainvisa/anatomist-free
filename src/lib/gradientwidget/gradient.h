@@ -137,6 +137,8 @@ public:
 		return qRgb((int)r, (int)g, (int)b);
 	}
 
+	void fromString( const std::string & grad_def );
+
 private:
 	bool _isHsv;
 	Spline _spline[4];

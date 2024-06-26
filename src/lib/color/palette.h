@@ -54,6 +54,8 @@ namespace anatomist
     void setName( const std::string & name ) { _name = name; }
     bool isTransparent() const { return _transp; }
     void update();
+    bool hasGradients() const;
+    void fillFromGradients();
 
   protected:
     std::string	_name;

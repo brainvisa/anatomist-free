@@ -211,11 +211,7 @@ QString Spline::toString() const
 
 void Spline::fromString(const QString& string)
 {
-#if QT_VERSION >= 0x040000
   QStringList list = string.split(';');
-#else
-  QStringList list = QStringList::split(';', string);
-#endif
 
   _array.clear();
   double lx = 0.0;

@@ -11,23 +11,13 @@
 #include <qimage.h>
 #include <iostream>
 #include <cmath>
-#if QT_VERSION >= 0x040000
 #include <QMouseEvent>
-#endif
 
 GradientWidget::GradientWidget(
-#if QT_VERSION >= 0x040000
                                QWidget* parent, const char* /*name*/, 
-#else
-                               QWidget* parent, const char* name, 
-#endif
                                const QString& gradString, double vMin,
                                double vMax) :
-#if QT_VERSION >= 0x040000
   QWidget( parent ),
-#else
-  QWidget(parent, name, Qt::WNoAutoErase),
-#endif
   _hasAlpha( false )
 {
   _pointerPos = QPoint();
@@ -43,11 +33,7 @@ GradientWidget::GradientWidget(
   newRgb();
   calcRects();
   update();
-#if QT_VERSION >= 0x040000
   QStringList l = gradString.split('#');
-#else
-  QStringList l = QStringList::split('#', gradString);
-#endif
   int i = 0;
   for (QStringList::iterator it = l.begin(); it != l.end() && i < 4; ++it,i++)
   {
@@ -197,11 +183,7 @@ void GradientWidget::paintEvent(QPaintEvent*)
 {
   QPixmap pm(size());
   QPainter p;
-#if QT_VERSION >= 0x040000
   p.begin(&pm);
-#else
-  p.begin(&pm, this);
-#endif
 
   p.eraseRect(rect());
   
@@ -211,15 +193,9 @@ void GradientWidget::paintEvent(QPaintEvent*)
     qDrawShadeLine(&p, lx, 0, lx, height(), colorGroup(), true, 1, 1);
   }
   */
-#if QT_VERSION >= 0x040000
   qDrawShadePanel(&p, _gradRect.left() - 1, _gradRect.top() - 1,
                   _gradRect.width() + 2, _gradRect.height() + 2,
                   palette(), true, 1, NULL);
-#else
-  qDrawShadePanel(&p, _gradRect.left() - 1, _gradRect.top() - 1,
-                  _gradRect.width() + 2, _gradRect.height() + 2,
-                  colorGroup(), true, 1, NULL);
-#endif
 
   /*
   for (int i = 0; i < 3; i++) {
@@ -296,11 +272,7 @@ void GradientWidget::paintEvent(QPaintEvent*)
         }
       p.drawLine(x, yTop, x, yTop-th);
       p.setBackgroundMode(Qt::OpaqueMode);
-#if QT_VERSION >= 0x040000
       p.setBackground(txtBgColor);
-#else
-      p.setBackgroundColor(txtBgColor);
-#endif
 
       br = p.boundingRect(QRect(x-20, yTop, 40, 40),
                          Qt::AlignHCenter | Qt::AlignTop,
@@ -347,11 +319,7 @@ void GradientWidget::paintEvent(QPaintEvent*)
       p.drawLine(x1 + x, y1, x1 + x, y2);
     }
   } else {
-#if QT_VERSION >= 0x040000
     QImage image(_splineRect[0].size(), QImage::Format_RGB32 );
-#else
-    QImage image(_splineRect[0].size(), 32);
-#endif
     y1 = _splineRect[0].top();
     y2 = _splineRect[0].bottom();
     int h = _splineRect[0].height();
@@ -362,11 +330,7 @@ void GradientWidget::paintEvent(QPaintEvent*)
     }
     p.drawImage(x1, y1, image);
 
-#if QT_VERSION >= 0x040000
     image = QImage( _splineRect[1].size(), QImage::Format_RGB32 );
-#else
-    image.create(_splineRect[1].size(), 32);
-#endif
     y1 = _splineRect[1].top();
     h = _splineRect[1].height() - 1;
     for (int x = 0; x < length; x++) {
@@ -383,11 +347,7 @@ void GradientWidget::paintEvent(QPaintEvent*)
     }
     p.drawImage(x1, y1, image);
 
-#if QT_VERSION >= 0x040000
     image = QImage( _splineRect[2].size(), QImage::Format_RGB32 );
-#else
-    image.create(_splineRect[2].size(), 32);
-#endif
     y1 = _splineRect[2].top();
     h = _splineRect[2].height();
     for (int x = 0; x < length; x++) {
@@ -419,19 +379,11 @@ void GradientWidget::paintEvent(QPaintEvent*)
       y2 = _gradRect.bottom();
 
       // Display xPosition vertical indicator on top gradient:
-#if QT_VERSION >= 0x040000
       p.setBackground(Qt::black);
-#else
-      p.setBackgroundColor(Qt::black);
-#endif
       p.drawLine(_pointerPos.x(), y1, _pointerPos.x(), y2);
 
       p.setPen(Qt::SolidLine);
-#if QT_VERSION >= 0x040000
       p.setBackground(Qt::white);
-#else
-      p.setBackgroundColor(Qt::white);
-#endif
       p.setBackgroundMode(Qt::OpaqueMode);
 
       br = p.boundingRect(_pointerPos.x(),(int) y1+38, 40, 40,
@@ -444,18 +396,11 @@ void GradientWidget::paintEvent(QPaintEvent*)
 
   p.setPen(dottedPen);
   p.setBackgroundMode(Qt::OpaqueMode);
-#if QT_VERSION >= 0x040000
-      p.setBackground(Qt::black);
-#else
-  p.setBackgroundColor(Qt::black);
-#endif
+  p.setBackground(Qt::black);
 
-#if QT_VERSION >= 0x040000
-    QPolygon arr( length );
-#else
-    QPointArray arr(length);
-#endif
-for (int i = 0; i < ncomps; i++) {
+  QPolygon arr( length );
+
+  for (int i = 0; i < ncomps; i++) {
     y1 = _splineRect[i].top();
     y2 = _splineRect[i].bottom();
     int h = _splineRect[i].height() - 1;
@@ -486,12 +431,8 @@ for (int i = 0; i < ncomps; i++) {
   // display position mapping at pointer position:
 
   p.end();
-#if QT_VERSION >= 0x040000
   QPainter pq( this );
   pq.drawPixmap( 0, 0, pm );
-#else
-  bitBlt(this, 0, 0, &pm);
-#endif
 }
 
 void GradientWidget::resizeEvent(QResizeEvent* e)
@@ -573,11 +514,7 @@ QString GradientWidget::getGradientString() const
 
 void GradientWidget::setGradient(const QString& s)
 {
-#if QT_VERSION >= 0x040000
   QStringList list = s.split('#');
-#else
-  QStringList list = QStringList::split('#', s);
-#endif
   int i=0;
   for (QStringList::iterator it = list.begin(); it != list.end() && i < 4;
        ++it,i++) {

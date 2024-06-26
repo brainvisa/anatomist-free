@@ -33,6 +33,7 @@
 
 
 #include <anatomist/color/palette.h>
+#include <anatomist/gradientwidget/gradient.h>
 
 
 using namespace anatomist;
@@ -54,6 +55,7 @@ APalette::~APalette()
 
 void APalette::update()
 {
+  fillFromGradients();
   unsigned x, y, z, t, dx = getSizeX(), dy = getSizeY(), dz = getSizeZ(),
     dt = getSizeT();
   _transp = false;
@@ -66,5 +68,50 @@ void APalette::update()
             _transp = true;
             break;
           }
+}
+
+
+bool APalette::hasGradients() const
+{
+  return header().hasProperty( "palette_gradients" );
+}
+
+
+void APalette::fillFromGradients()
+{
+  string grad_def;
+  try
+  {
+    grad_def = header().getProperty( "palette_gradients" )->getString();
+  }
+  catch( ... )
+  {
+    return;
+  }
+
+  string grad_mode;
+  try
+  {
+    grad_mode = header().getProperty( "palette_gradients_mode" )->getString();
+  }
+  catch( ... )
+  {
+  }
+
+  bool hsv = ( grad_mode == "HSV" );
+
+  Gradient grad( hsv );
+  grad.fromString( grad_def );
+
+  unsigned i, psize = getSizeX();
+  vector<QRgb> buf( psize );
+
+  grad.fillGradient( &buf[0], psize, 0, true );
+  for( i=0; i<psize; ++i )
+  {
+    QRgb & rgb = buf[i];
+    (*this)( i ) = AimsRGBA( qRed( rgb ), qGreen( rgb ), qBlue( rgb ),
+                             qAlpha( rgb ));
+  }
 }
 

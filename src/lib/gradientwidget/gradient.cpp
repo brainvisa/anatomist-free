@@ -5,6 +5,11 @@
 **************************************************************************/
 
 #include "gradient.h"
+#include <cartobase/stream/stringutil.h>
+
+using namespace carto;
+using namespace std;
+
 
 Gradient::Gradient() :
 	_isHsv(false)
@@ -73,4 +78,16 @@ void Gradient::invert()
 {
 	for (int i=0; i<3; i++)
 		_spline[i].invert();
+}
+
+
+void Gradient::fromString( const string & graddef )
+{
+  vector<string> l = StringUtil::split( graddef, "#" );
+  int i = 0;
+
+  for( i=0; i<l.size() && i < 4; ++i )
+  {
+    getSpline(i).fromString( QString::fromStdString( l[i] ) );
+  }
 }
