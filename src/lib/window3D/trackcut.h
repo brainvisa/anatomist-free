@@ -43,6 +43,7 @@
 namespace anatomist
 {
   class AObject;
+  class SelfSliceable;
 
   class TrackCutAction : public Trackball
   {
@@ -62,6 +63,8 @@ namespace anatomist
     void coronalSlice();
     void sagittalSlice();
     void setSlice( const aims::Quaternion & q );
+    void invertSlice();
+    std::map<SelfSliceable *, AObject *> selectedObjects() const;
 
   protected:
     aims::Quaternion			_begin;

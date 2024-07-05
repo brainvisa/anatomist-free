@@ -51,17 +51,18 @@ namespace anatomist {
     Action ( ) : myView( 0 ) {}
     virtual ~Action();
     
-    virtual std::string name() const = 0 ;
+    virtual std::string name() const = 0;
     
     void setView ( View * view ) 
-      {
-	myView = view ;
-      }
+    {
+      myView = view;
+    }
     virtual QWidget * actionView( QWidget * ) { return 0 ; }
     virtual bool viewableAction( ) const { return false ; }
-    virtual bool isSingleton() { return false ; }
+    virtual bool isSingleton() const { return false ; }
     View * view() { return myView ; }
-    
+    const View * view() const { return myView ; }
+
   private:
     View * myView ;
   } ;

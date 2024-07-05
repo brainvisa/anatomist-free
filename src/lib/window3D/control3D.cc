@@ -2336,6 +2336,12 @@ void CutControl::eventAutoSubscription( ActionPool * actionPool )
                           ( actionPool->action( "TrackCutAction" ),
                             &TrackCutAction::sagittalSlice ),
                           "sagittal_slice_cut" );
+  // plane inversion
+  keyPressEventSubscribe( Qt::Key_I, Qt::ControlModifier,
+                          KeyActionLinkOf<TrackCutAction>
+                          ( actionPool->action( "TrackCutAction" ),
+                            &TrackCutAction::invertSlice ),
+                          "invert_slice" );
 
   // oblique slice trackball
 

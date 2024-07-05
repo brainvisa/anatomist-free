@@ -107,6 +107,14 @@ void SelfSliceable::setPlaneSilent( const Point4df & plane )
 }
 
 
+void SelfSliceable::invertSlice()
+{
+  Quaternion r = Quaternion();
+  r.fromAxis( Point3df( 1, 0, 0 ), M_PI );
+  setQuaternion( _quaternion * r );
+}
+
+
 Point4df SelfSliceable::plane() const
 {
   Point4df	plane;

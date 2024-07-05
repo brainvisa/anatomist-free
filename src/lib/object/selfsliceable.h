@@ -59,6 +59,7 @@ namespace anatomist
     void setPlane( const Point4df & plane );
     /// another way to get the slice plane
     Point4df plane() const;
+    void invertSlice();
 
     /// called when the slice definition has changed
     virtual void sliceChanged() {}
