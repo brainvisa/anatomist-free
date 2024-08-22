@@ -553,9 +553,11 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
       int                   mniref = -1;
       int                   acpcref = -1;
 
+      // cout << "get referential for: " << (*io)->name() << endl;
       string uid;
       if( ps->getProperty( "referential", uid ) )
         ownref = Referential::referentialOfUUID( uid );
+      // cout << "ref uid: " << uid << ", ownref: " << ownref << endl;
 
       // Nifti-like transformations
       vector<string>    refs;
@@ -594,7 +596,7 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
         }
         Object      it;
         n = refs.size();
-        // cout << "nifti transfo: " << n << endl;
+        cout << "nifti transfo: " << n << endl;
         for( it=transs->objectIterator(), i=0; i<n && it->isValid();
              ++i, it->next() )
         {
@@ -603,8 +605,9 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
           ref = 0;
           string sref = refs[i];
           if( sref == StandardReferentials::mniTemplateReferential()
-              || ( i == 0 && ownref == Referential::mniTemplateReferential() )
-            )
+              || sref == StandardReferentials::mniTemplateReferentialID() )
+//               || ( i == 0 && ownref == Referential::mniTemplateReferential() ) // Denis 2024/08/22 why this case? It leads to problems so I remove it.
+//             )
           {
             // cout << "MNI\n";
             if( mniref < 0 )
@@ -649,6 +652,7 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
           }
           else
           {
+            // cout << "OTHER\n";
             if( commonScannerRef && sref
               == StandardReferentials::commonScannerBasedReferential() )
               sref = StandardReferentials::commonScannerBasedReferentialID();
