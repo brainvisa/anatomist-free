@@ -1,21 +1,22 @@
-varying vec3 transformedNormal;
-varying vec4 eyeVertexPosition;
-varying vec3 modelNormal;
 uniform bool normalIsDirection;
+
+varying vec3 transformedNormal;
+varying vec3 modelNormal;
+varying vec4 eyeVertexPosition;
 //#if __VERSION__ >= 130
 // varying float gl_ClipDistance[gl_MaxClipPlanes];
 //#endif
 
 void main(void)
 {
-  // texture
+  // ------------------------------------- texture -------------------------------------
   gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
 
-  // vertex
+  // ------------------------------------- vertex -------------------------------------
   eyeVertexPosition = gl_ModelViewMatrix * gl_Vertex;
   gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 
-  // normal
+  // ------------------------------------- normal -------------------------------------
   transformedNormal = gl_NormalMatrix * gl_Normal;
   transformedNormal = normalize(transformedNormal);
   if( normalIsDirection )

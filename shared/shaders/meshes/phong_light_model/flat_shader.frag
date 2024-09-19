@@ -30,6 +30,7 @@
 // uniform gl_LightSourceParameters gl_LightSource[gl_MaxLights];
 uniform sampler1D sampler1d;
 uniform sampler2D sampler2d;
+uniform bool hasTexture;
 uniform int is2dtexture;
 uniform int coloringModel;
 
@@ -42,14 +43,14 @@ uniform bool normalIsDirection;
 
 void main()
 {
-  // normal
+  // ------------------------------------- normal -------------------------------------
   vec3 normal = normalize(cross(dFdx(eyeVertexPosition.xyz),
                           dFdy(eyeVertexPosition.xyz)));
 
-  // ambient
+  // ------------------------------------- ambient -------------------------------------
   vec4 ambientColor = (gl_LightSource[0].ambient + gl_LightModel.ambient) * gl_FrontMaterial.ambient;
 
-  // diffuse
+  // ------------------------------------- diffuse -------------------------------------
   vec3 directionLight = normalize(gl_LightSource[0].position.xyz);
   if( normalIsDirection )
   {
@@ -59,7 +60,7 @@ void main()
     normal = vec3( 1, 1, 1 );
   }
   float cos_theta = max(dot(normal, directionLight), 0.0);
-  if (gl_TexCoord[0].s == 0. && gl_TexCoord[0].t == 0.)
+  if (!hasTexture)
   {
     if (coloringModel == 0)
             diffuseMaterial = gl_FrontMaterial.diffuse;
@@ -90,7 +91,7 @@ void main()
   }
   vec4 diffuseColor = diffuseMaterial * gl_LightSource[0].diffuse * cos_theta;
 
-  // specular
+  // ------------------------------------- specular -------------------------------------
   //if (local_viewer)
   //{
           // anatomist local viewer behaviour
@@ -108,6 +109,6 @@ void main()
   float specularFactor = pow(cos_alpha, gl_FrontMaterial.shininess);
   vec4 specularColor = gl_LightSource[0].specular * gl_FrontMaterial.specular * specularFactor;
 
-  //final color
+  // ------------------------------------- final color -------------------------------------
   gl_FragColor = vec4(ambientColor.rgb + diffuseColor.rgb + specularColor.rgb, gl_FrontMaterial.diffuse.a);
 }

@@ -39,21 +39,21 @@ uniform bool normalIsDirection;
 
 void main()
 {
-  // texture
+  // ------------------------------------- texture -------------------------------------
   gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
 
-  // vertex
+  // ------------------------------------- vertex -------------------------------------
   vec4 eyeVertexPosition = gl_ModelViewMatrix * gl_Vertex;
   gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 
-  // normal
+  // ------------------------------------- normal -------------------------------------
   vec3 transformedNormal = gl_NormalMatrix * gl_Normal;
   transformedNormal = normalize(transformedNormal);
 
-  // ambient
+  // ------------------------------------- ambient -------------------------------------
   vec4 ambientColor = (gl_LightSource[0].ambient + gl_LightModel.ambient) * gl_FrontMaterial.ambient;
 
-  // diffuse
+  // ------------------------------------- diffuse -------------------------------------
   vec3 directionLight = normalize(gl_LightSource[0].position.xyz);
   if( normalIsDirection )
   {
@@ -70,7 +70,7 @@ void main()
                 interpolatedDiffuseMaterial = abs(vec4(gl_Normal, 1));
   else  interpolatedDiffuseMaterial = vec4(1, 0, 1, 1); // should not happend
 
-  // specular
+  // ------------------------------------- specular -------------------------------------
   //if (local_viewer)
   //{
     // anatomist local viewer behaviour
@@ -87,6 +87,7 @@ void main()
   float specularFactor = pow(cos_alpha, gl_FrontMaterial.shininess);
   vec4 specularColor = gl_LightSource[0].specular * gl_FrontMaterial.specular * specularFactor;
 
+  // ------------------------------------- color -------------------------------------
   gl_FrontColor = ambientColor + specularColor;
 
   gl_ClipVertex = eyeVertexPosition;

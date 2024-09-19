@@ -30,6 +30,7 @@
 // uniform gl_LightSourceParameters gl_LightSource[gl_MaxLights];
 uniform sampler1D sampler1d;
 uniform sampler2D sampler2d;
+uniform bool hasTexture;
 uniform int is2dtexture;
 uniform int coloringModel;
 
@@ -42,72 +43,96 @@ uniform bool normalIsDirection;
 
 void main()
 {
-  // normal
-  vec3 normal = normalize(cross(dFdx(eyeVertexPosition.xyz),
-        dFdy(eyeVertexPosition.xyz)));
+  // ------------------------------------- normal -------------------------------------
 
-  // ambient
+  vec3 normal = normalize(cross(dFdx(eyeVertexPosition.xyz), dFdy(eyeVertexPosition.xyz)));
+
+
+
+  // ------------------------------------- ambient -------------------------------------
+
   vec4 ambientColor = (gl_LightSource[0].ambient + gl_LightModel.ambient) * gl_FrontMaterial.ambient;
 
-  // diffuse
+  
+  // ------------------------------------- diffuse -------------------------------------
+
   vec3 directionLight = normalize(gl_LightSource[0].position.xyz);
   if( normalIsDirection )
   {
-    // get a normal in the (light direction, direction) plane
-//           normal = normalize(dFdx(eyeVertexPosition.xyz) + dFdy(eyeVertexPosition.xyz));
-    // FIXME: I cannot do better for now...
-    normal = vec3( 1, 1, 1 );
-  }
-  float cos_theta = max(dot(normal, directionLight), 0.0);
-  if (gl_TexCoord[0].s == 0. && gl_TexCoord[0].t == 0.)
-  {
-    if (coloringModel == 0)
-      diffuseMaterial = gl_FrontMaterial.diffuse;
-    else if (coloringModel == 1)
-    {
-      vec3 modelNormal;
-      if( normalIsDirection )
-      {
         // get a normal in the (light direction, direction) plane
-        modelNormal = normalize(dFdx(vertexPosition.xyz)
-          + dFdy(vertexPosition.xyz));
-      }
-      else
-        modelNormal =
-          normalize(cross(dFdx(vertexPosition.xyz),
-                    dFdy(vertexPosition.xyz)));
-      diffuseMaterial = abs(vec4(modelNormal, 1));
-    }
-    // should not happen
-    else diffuseMaterial = vec4(1, 0, 1, 1);
+        //           normal = normalize(dFdx(eyeVertexPosition.xyz) + dFdy(eyeVertexPosition.xyz));
+        // FIXME: I cannot do better for now...
+        normal = vec3( 1, 1, 1 );
+  }
+
+  float cos_theta = max(dot(normal, directionLight), 0.0);
+
+  if (!hasTexture)
+  {
+
+        if (coloringModel == 0)
+        {
+                diffuseMaterial = gl_FrontMaterial.diffuse;
+        }
+        else if (coloringModel == 1)
+        {
+                vec3 modelNormal;
+                if( normalIsDirection )
+                {
+                        // get a normal in the (light direction, direction) plane
+                        modelNormal = normalize(dFdx(vertexPosition.xyz) + dFdy(vertexPosition.xyz));
+                }
+                else
+                {
+                        modelNormal = normalize(cross(dFdx(vertexPosition.xyz), dFdy(vertexPosition.xyz)));
+                }
+
+                diffuseMaterial = abs(vec4(modelNormal, 1));
+        }
+        // should not happen but happens when "Direction" is selected multiple times
+        else 
+        {
+                diffuseMaterial = vec4(1, 0, 1, 1);
+        }
   }
   else
   {
-    if (is2dtexture == 1)
-      diffuseMaterial = texture2D(sampler2d, gl_TexCoord[0].st);
-    else  diffuseMaterial = texture1D(sampler1d, gl_TexCoord[0].s);
+        if (is2dtexture == 1)
+        {
+                diffuseMaterial = texture2D(sampler2d, gl_TexCoord[0].st);
+        }
+        else
+        {
+               diffuseMaterial = texture1D(sampler1d, gl_TexCoord[0].s);
+        } 
   }
+ 
+        
   vec4 diffuseColor = diffuseMaterial * gl_LightSource[0].diffuse * cos_theta;
 
-  // specular
-  //if (local_viewer)
-  //{
-    // anatomist local viewer behaviour
-  //  eyeDirection = normalize(-eyeVertexPosition.xyz);
-  //} else {
-  // anatomist non local viewer behaviour (default)
-  eyeDirection = vec3(0, 0, 1);
-  //}
-  //XXX : add this mode
-  // my suggestion (use this trick because the light is inside the object)
-  //eyeDirection = normalize(eyeVertexPosition.xyz);
 
-  vec3 half_vector = directionLight + eyeDirection;
-  half_vector = normalize(half_vector);
-  float cos_alpha = max(dot(half_vector, normal), 0.0);
-  float specularFactor = pow(cos_alpha, gl_FrontMaterial.shininess);
-  vec4 specularColor = gl_LightSource[0].specular * gl_FrontMaterial.specular * specularFactor;
 
-  //final color
-  gl_FragColor = vec4(ambientColor.rgb + diffuseColor.rgb + specularColor.rgb, gl_FrontMaterial.diffuse.a);
+  // ------------------------------------- specular -------------------------------------
+
+//if (local_viewer)
+//{
+// anatomist local viewer behaviour
+//  eyeDirection = normalize(-eyeVertexPosition.xyz);
+//} else {
+// anatomist non local viewer behaviour (default)
+eyeDirection = vec3(0, 0, 1);
+//}
+//XXX : add this mode
+// my suggestion (use this trick because the light is inside the object)
+//eyeDirection = normalize(eyeVertexPosition.xyz);
+
+vec3 half_vector = directionLight + eyeDirection;
+half_vector = normalize(half_vector);
+float cos_alpha = max(dot(half_vector, normal), 0.0);
+float specularFactor = pow(cos_alpha, gl_FrontMaterial.shininess);
+vec4 specularColor = gl_LightSource[0].specular * gl_FrontMaterial.specular * specularFactor;
+
+// ------------------------------------- final color -------------------------------------
+
+gl_FragColor = vec4(ambientColor.rgb + diffuseColor.rgb + specularColor.rgb, gl_FrontMaterial.diffuse.a);
 }
