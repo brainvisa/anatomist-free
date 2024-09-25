@@ -6,14 +6,14 @@ uniform bool normalIsDirection;
 
 void main(void)
 {
-  // texture
+  // ------------------------------------- texture -------------------------------------
   gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
 
-  // vertex
+  // ------------------------------------- vertex -------------------------------------
   eyeVertexPosition = gl_ModelViewMatrix * gl_Vertex;
   gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 
-  // normal
+  // ------------------------------------- normal -------------------------------------
   transformedNormal = gl_NormalMatrix * gl_Normal;
   transformedNormal = normalize(transformedNormal);
   if( normalIsDirection )
@@ -25,7 +25,7 @@ void main(void)
   }
   modelNormal = normalize(gl_Normal);
 
-  //color
+  // ------------------------------------- color -------------------------------------
   gl_FrontColor = gl_Color;
 
   gl_ClipVertex = eyeVertexPosition;

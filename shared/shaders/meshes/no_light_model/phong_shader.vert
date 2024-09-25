@@ -3,17 +3,17 @@ varying vec3 transformedNormal;
 
 void main(void)
 {
-  // texture
+  // ------------------------------------- texture -------------------------------------
   gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
 
-  // vertex
+  // ------------------------------------- vertex -------------------------------------
   vec4 eyeVertexPosition = gl_ModelViewMatrix * gl_Vertex;
   gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 
-  // normal
+  // ------------------------------------- normal -------------------------------------
   transformedNormal = normalize(gl_Normal);
 
-  //color
+  // ------------------------------------- color -------------------------------------
   gl_FrontColor = gl_Color;
 
   gl_ClipVertex = eyeVertexPosition;

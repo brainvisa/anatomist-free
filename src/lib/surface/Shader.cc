@@ -452,7 +452,7 @@ void Shader::setShaderParameters(const GLMObject &obj, const ViewState & state) 
 
 
 void Shader::setShaderParameters( const GLComponent &obj,
-                                  const ViewState & /*state*/ ) const
+                                  const ViewState & state ) const
 {
   bool normalIsDirection = false;
   if( obj.glMaterial() )
@@ -467,6 +467,16 @@ void Shader::setShaderParameters( const GLComponent &obj,
 #endif
   int id = shader_program->uniformLocation( "normalIsDirection" );
   shader_program->setUniformValue( id, normalIsDirection );
+
+  unsigned int nb_textures = obj.glNumTextures(state);
+
+  if(nb_textures==0)
+  {
+    shader_program->setUniformValue(shader_program->uniformLocation("hasTexture"), false);
+    shader_program->setUniformValue(shader_program->uniformLocation("is2dtexture"), 0); //
+    shader_program->setUniformValue(shader_program->uniformLocation("sampler2d"), 1);   // Unused value but must be set for the shader to work
+    shader_program->setUniformValue(shader_program->uniformLocation("sampler1d"), 0);   //
+  }
 }
 
 
@@ -478,15 +488,22 @@ void Shader::setShaderParameters(const ATexSurface &obj, const ViewState & state
 #else
   QGLShaderProgram *shader_program = (*(d->_shader_program_p));
 #endif
-
-  int id = shader_program->uniformLocation("is2dtexture");	
   unsigned int dim = obj.glDimTex(state);
   
-  if (dim == 1)
-    shader_program->setUniformValue(id, 0);
-  else if (dim == 2)
-    shader_program->setUniformValue(id, 1);
+  shader_program->setUniformValue(shader_program->uniformLocation("hasTexture"), true);
 
+  if(dim == 1)
+  {
+    shader_program->setUniformValue(shader_program->uniformLocation("is2dtexture"), 0);
+    shader_program->setUniformValue(shader_program->uniformLocation("sampler1d"), 0);
+    shader_program->setUniformValue(shader_program->uniformLocation("sampler2d"), 1); // Unused value but must be set for the shader to work
+  }
+  else if(dim == 2)
+  {
+    shader_program->setUniformValue(shader_program->uniformLocation("is2dtexture"), 1);
+    shader_program->setUniformValue(shader_program->uniformLocation("sampler1d"), 1); // Unused value but must be set for the shader to work
+    shader_program->setUniformValue(shader_program->uniformLocation("sampler2d"), 0);
+  }
 }
 
 

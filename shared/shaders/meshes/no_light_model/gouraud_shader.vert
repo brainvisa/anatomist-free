@@ -6,14 +6,14 @@ uniform bool normalIsDirection;
 
 void main(void)
 {
-  // texture
+  // ------------------------------------- texture -------------------------------------
   gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
 
-  // vertex
+  // ------------------------------------- vertex -------------------------------------
   vec4 eyeVertexPosition = gl_ModelViewMatrix * gl_Vertex;
   gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 
-  // normal
+  // ------------------------------------- normal -------------------------------------
   vec3 transformedNormal = gl_NormalMatrix * gl_Normal;
   transformedNormal = normalize(transformedNormal);
   if( normalIsDirection )
@@ -24,14 +24,14 @@ void main(void)
     transformedNormal = normalize(cross(realNormal, transformedNormal));
   }
 
-  // diffuse
+  // ------------------------------------- diffuse -------------------------------------
   if (coloringModel == 0)
     interpolatedDiffuseMaterial = gl_FrontMaterial.diffuse;
   else if (coloringModel == 1)
                 interpolatedDiffuseMaterial = abs(vec4(gl_Normal, 1));
   else  interpolatedDiffuseMaterial = vec4(1, 0, 1, 1); // should not happend
 
-  //color
+  // ------------------------------------- color -------------------------------------
   gl_FrontColor = gl_Color;
 
   gl_ClipVertex = eyeVertexPosition;

@@ -44,10 +44,10 @@ uniform bool normalIsDirection;
 
 void main()
 {
-  // texture
+  // ------------------------------------- texture -------------------------------------
   gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
 
-  // vertex
+  // ------------------------------------- vertex -------------------------------------
   vec4 eyeVertexPosition = gl_ModelViewMatrix * gl_Vertex;
   gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
   //if (local_viewer)
@@ -62,14 +62,14 @@ void main()
   // my suggestion (use this trick because the light is inside the object)
   //eyeDirection = normalize(eyeVertexPosition.xyz);
 
-  // normal
+  // ------------------------------------- normal -------------------------------------
   vec3 transformedNormal = gl_NormalMatrix * gl_Normal;
   transformedNormal = normalize(transformedNormal);
 
-  // ambient
+  // ------------------------------------- ambient -------------------------------------
   vec4 ambientColor = (gl_LightSource[0].ambient + gl_LightModel.ambient) * gl_FrontMaterial.ambient;
 
-  // diffuse
+  // ------------------------------------- diffuse -------------------------------------
   vec3 directionLight = normalize(gl_LightSource[0].position.xyz);
   if( normalIsDirection )
   {
@@ -98,7 +98,7 @@ void main()
           interpolatedDiffuseMaterial = abs(vec4(gl_Normal, 1));
   else	interpolatedDiffuseMaterial = vec4(1, 0, 1, 1); // should not happend
 
-  // specular
+  /// ------------------------------------- specular -------------------------------------
   vec3 half_vector = directionLight + eyeDirection;
   half_vector = normalize(half_vector);
   float cos_alpha = max(dot(half_vector, transformedNormal), 0.0);

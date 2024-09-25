@@ -1,5 +1,6 @@
 uniform sampler2D sampler2d;
 uniform sampler1D sampler1d;
+uniform bool hasTexture;
 uniform int is2dtexture;
 
 varying vec4 diffuseFactor;
@@ -9,7 +10,7 @@ void main(void)
 {
   vec4 diffuseMaterial;
 
-  if (gl_TexCoord[0].s != 0. || gl_TexCoord[0].t != 0.)
+  if (hasTexture)
   {
     if (is2dtexture == 1)
       diffuseMaterial = texture2D(sampler2d, gl_TexCoord[0].st);

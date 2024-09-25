@@ -1,5 +1,6 @@
 uniform sampler1D sampler1d;
 uniform sampler2D sampler2d;
+uniform bool hasTexture;
 uniform int is2dtexture;
 uniform int coloringModel;
 
@@ -9,11 +10,11 @@ vec4 diffuseMaterial;
 
 void main()
 {
-  // normal
+  // ------------------------------------- normal -------------------------------------
   vec3 normal = abs(normalize(transformedNormal));
 
-  // diffuse
-  if (gl_TexCoord[0].s == 0. && gl_TexCoord[0].t == 0.)
+  // ------------------------------------- diffuse -------------------------------------
+  if (!hasTexture)
   {
     if (coloringModel == 0)
       diffuseMaterial = gl_FrontMaterial.diffuse;
@@ -31,6 +32,6 @@ void main()
   }
   vec4 diffuseColor = diffuseMaterial;
 
-  //final color
+  // ------------------------------------- final color -------------------------------------
   gl_FragColor = vec4(diffuseColor.rgb, gl_FrontMaterial.diffuse.a);
 }
