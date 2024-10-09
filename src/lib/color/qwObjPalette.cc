@@ -1507,23 +1507,27 @@ void QAPaletteWin::min1EditChanged()
   double curval = double( d->dimBox1->minSlider->value() ) * 0.001
     * ( double(d->dimBox1->slrelmax) - d->dimBox1->slrelmin )
     + d->dimBox1->slrelmin;
+  double maxcurval = d->dimBox1->maxSlider->value() * 0.001
+    * ( double(d->dimBox1->slrelmax) - d->dimBox1->slrelmin )
+    + d->dimBox1->slrelmin;
   int	ival;
   if( !d->dimBox1->symbox->isChecked() )
   {
     d->dimBox1->slrelmin = (val - d->objMin )
       / ( double(d->objMax) - d->objMin );
-    ival = (int) rint( ( curval - d->dimBox1->slrelmin ) * 1000
-      / ( double(d->dimBox1->slrelmax) - d->dimBox1->slrelmin ) );
   }
   else
   {
     double absmax = std::max( std::abs( d->objMin ),
                               std::abs( d->objMax ) );
     d->dimBox1->slrelmin = float( ( val + absmax ) / ( absmax * 2. ) );
-    ival = (int) rint( ( curval - d->dimBox1->slrelmin ) * 1000
-      / ( double(d->dimBox1->slrelmax) - d->dimBox1->slrelmin ) );
   }
+  ival = (int) rint( ( curval - d->dimBox1->slrelmin ) * 1000
+    / ( double(d->dimBox1->slrelmax) - d->dimBox1->slrelmin ) );
   d->dimBox1->minSlider->setValue( ival );
+  ival = (int) rint( ( maxcurval - d->dimBox1->slrelmin ) * 1000
+    / ( double(d->dimBox1->slrelmax) - d->dimBox1->slrelmin ) );
+  d->dimBox1->maxSlider->setValue( ival );
 }
 
 
@@ -1536,25 +1540,29 @@ void QAPaletteWin::max1EditChanged()
   double curval = double( d->dimBox1->maxSlider->value() ) * 0.001
     * ( double(d->dimBox1->slrelmax) - d->dimBox1->slrelmin )
     + d->dimBox1->slrelmin;
+  double mincurval = d->dimBox1->minSlider->value() * 0.001
+    * ( double(d->dimBox1->slrelmax) - d->dimBox1->slrelmin )
+    + d->dimBox1->slrelmin;
   int	ival;
   if( !d->dimBox1->symbox->isChecked() )
   {
     d->dimBox1->slrelmax = float( (val - d->objMin )
       / ( double(d->objMax) - d->objMin ) );
-    ival = (int) rint( ( curval - d->dimBox1->slrelmin ) * 1000
-                       / ( double(d->dimBox1->slrelmax)
-                                - d->dimBox1->slrelmin ) );
   }
   else
   {
     double absmax = std::max( std::abs( d->objMin ),
                               std::abs( d->objMax ) );
     d->dimBox1->slrelmax = float( ( val + absmax ) / ( absmax * 2. ) );
-    ival = (int) rint( ( curval - d->dimBox1->slrelmin ) * 1000
-                       / ( double(d->dimBox1->slrelmax)
-                                - d->dimBox1->slrelmin ) );
   }
+  ival = (int) rint( ( curval - d->dimBox1->slrelmin ) * 1000
+                      / ( double(d->dimBox1->slrelmax)
+                              - d->dimBox1->slrelmin ) );
   d->dimBox1->maxSlider->setValue( ival );
+  ival = (int) rint( ( mincurval - d->dimBox1->slrelmin ) * 1000
+                      / ( double(d->dimBox1->slrelmax)
+                              - d->dimBox1->slrelmin ) );
+  d->dimBox1->minSlider->setValue( ival );
 }
 
 
@@ -1717,7 +1725,7 @@ void QAPaletteWin::runCommand()
         oma = pal->max1() * ( double(d->objMax) - d->objMin ) + d->objMin;
       }
       double omi2, oma2;
-      if( d->objpal->zeroCenteredAxis1() )
+      if( d->objpal->zeroCenteredAxis2() )
       {
         double omax = std::max( std::abs( d->objMax2 ),
                                 std::abs( d->objMin2 ) );
@@ -1726,7 +1734,7 @@ void QAPaletteWin::runCommand()
       }
       else
       {
-        omi = pal->min2() * ( double(d->objMax2) - d->objMin2 ) + d->objMin2;
+        omi2 = pal->min2() * ( double(d->objMax2) - d->objMin2 ) + d->objMin2;
         oma2 = pal->max2() * ( double(d->objMax2) - d->objMin2 ) + d->objMin2;
       }
 
