@@ -1799,23 +1799,37 @@ void QAPaletteWin::extensionActionTriggered( QAction *action )
 void QAPaletteWin::zeroCentered1Changed( int state )
 {
   d->objpal->setZeroCenteredAxis1( bool( state ) );
-  d->objpal->setMin1( 0. );
 
+  double absmax = std::max( std::abs( d->objMin ),
+                            std::abs( d->objMax ) );
   if( !state )
   {
-    d->dimBox1->slrelmin = float( -d->objMin
-      / ( double(d->objMax) - d->objMin ) );
-    d->dimBox1->minEd->setText( QString::number( d->objMin ) );
-    d->dimBox1->slrelmin = 0.f;
-    d->dimBox1->minSlider->setValue( 0 );
+    float maxval = d->objpal->max1() * absmax;
+    float curmin = std::min( -maxval, d->objMin );
+    float curmax = std::max( maxval, d->objMax );
+    d->objpal->setMin1( (-maxval - d->objMin)
+                        / ( double(d->objMax) - d->objMin ) );
+    d->dimBox1->minEd->setText( QString::number( curmin ) );
+    d->dimBox1->maxEd->setText( QString::number( curmax ) );
+    d->dimBox1->slrelmin = ( curmin - d->objMin )
+      / ( double(d->objMax) - d->objMin );
+    d->dimBox1->slrelmax = ( curmax - d->objMin )
+      / ( double(d->objMax) - d->objMin );
+    d->dimBox1->minSlider->setValue( int( ( -maxval - curmin ) / ( curmax - curmin ) * 1000 ) );
+    d->dimBox1->maxSlider->setValue( int( ( maxval - curmin ) / ( curmax - curmin ) * 1000 ) );
   }
   else
   {
-    double absmax = std::max( std::abs( d->objMin ),
-                              std::abs( d->objMax ) );
+    float maxval = d->objMin
+      + d->objpal->max1() * ( double(d->objMax) - d->objMin );
+    d->objpal->setMin1( 0. );
+    d->objpal->setMax1( maxval / absmax );
     d->dimBox1->minEd->setText( QString::number( -absmax ) );
+    d->dimBox1->maxEd->setText( QString::number( absmax ) );
     d->dimBox1->slrelmin = 0.f;
+    d->dimBox1->slrelmax = std::max( 1.f, std::abs( d->objpal->max1() ) );
     d->dimBox1->minSlider->setValue( 500 );
+    d->dimBox1->maxSlider->setValue( 500 + int( d->objpal->max1() * 500 ) );
   }
 
   d->modified = true;
