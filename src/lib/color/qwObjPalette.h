@@ -79,6 +79,10 @@ protected slots:
   void max1Changed( int value );
   void min2Changed( int value );
   void max2Changed( int value );
+  void min1Released();
+  void max1Released();
+  void min2Released();
+  void max2Released();
   void responsiveToggled( bool val );
   void updateClicked();
   void dimChanged( int );

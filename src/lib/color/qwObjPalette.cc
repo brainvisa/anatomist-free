@@ -61,6 +61,7 @@
 #include <qtoolbar.h>
 #include <qheaderview.h>
 #include <QActionGroup>
+#include <chrono>
 
 
 using namespace anatomist;
@@ -132,13 +133,15 @@ struct QAPaletteWin::Private
   bool				modified;
   QToolBar                      *toolbar;
   QActionGroup                  *toolactions;
+  long                          lastSliderRelease;
 };
 
 
 QAPaletteWin::Private::Private( const set<AObject *> & o )
   : responsive( true ), objpal( 0 ), dim( 1 ), objMin( 0 ), objMax( 1 ),
     objMin2( 0 ), objMax2( 1 ), recursive( false ), updatingFlag( false ),
-    initial( o ), main( 0 ), modified( false ), toolbar( 0 ), toolactions( 0 )
+    initial( o ), main( 0 ), modified( false ), toolbar( 0 ), toolactions( 0 ),
+    lastSliderRelease( 0 )
 {
 }
 
@@ -350,9 +353,13 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
   connect( d->palettes, SIGNAL( itemSelectionChanged() ),
            this, SLOT( palette1Changed() ) );
   connect( d->dimBox1->minSlider, SIGNAL( valueChanged( int ) ),
-	   this, SLOT( min1Changed( int ) ) );
+           this, SLOT( min1Changed( int ) ) );
   connect( d->dimBox1->maxSlider, SIGNAL( valueChanged( int ) ),
 	   this, SLOT( max1Changed( int ) ) );
+  connect( d->dimBox1->minSlider, SIGNAL( sliderReleased() ),
+           this, SLOT( min1Released() ) );
+  connect( d->dimBox1->maxSlider, SIGNAL( sliderReleased() ),
+           this, SLOT( max1Released() ) );
   connect( d->dimBox1->minEd, SIGNAL( returnPressed() ), this,
 	   SLOT( min1EditChanged() ) );
   connect( d->dimBox1->minEd, SIGNAL( focusLost() ), this,
@@ -369,9 +376,13 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
            this, SLOT( zeroCentered1Changed( int ) ) );
 
   connect( d->dimBox2->minSlider, SIGNAL( valueChanged( int ) ),
-	   this, SLOT( min2Changed( int ) ) );
+           this, SLOT( min2Changed( int ) ) );
   connect( d->dimBox2->maxSlider, SIGNAL( valueChanged( int ) ),
 	   this, SLOT( max2Changed( int ) ) );
+  connect( d->dimBox2->minSlider, SIGNAL( sliderReleased() ),
+           this, SLOT( min2Released() ) );
+  connect( d->dimBox2->maxSlider, SIGNAL( sliderReleased() ),
+           this, SLOT( max2Released() ) );
   connect( d->dimBox2->minEd, SIGNAL( returnPressed() ), this,
 	   SLOT( min2EditChanged() ) );
   connect( d->dimBox2->minEd, SIGNAL( focusLost() ), this,
@@ -1052,12 +1063,16 @@ void QAPaletteWin::setValues( DimBox* dimBox, float m, float M,
     double omax = std::max( std::abs( objMin ), std::abs( objMax ) );
     max = omax * M;
     min = omax * m;
-    dimBox->minSlider->setValue( (int) ( ( m/2 + 0.5 - dimBox->slrelmin ) * 1000
-                                        / ( dimBox->slrelmax
-                                            - dimBox->slrelmin ) ) );
-    dimBox->maxSlider->setValue( (int) ( ( M/2 + 0.5 - dimBox->slrelmin ) * 1000
-                                        / ( dimBox->slrelmax
-                                            - dimBox->slrelmin ) ) );
+    float cmin = std::min( m, M );
+    float cmax = std::max( m, M );
+    dimBox->slrelmin = std::min( cmin / 2 + 0.5f, dimBox->slrelmin );
+    dimBox->slrelmax = std::max( cmax / 2 + 0.5f, dimBox->slrelmax );
+    float frmin = -omax + dimBox->slrelmin * omax * 2;
+    float frmax = -omax + dimBox->slrelmax * omax * 2;
+    float fval = (min - frmin) / (frmax - frmin);
+    dimBox->minSlider->setValue( int( fval * 1000 ) );
+    fval = (max - frmin) / (frmax - frmin);
+    dimBox->maxSlider->setValue( int( fval * 1000 ) );
     dimBox->minLabel->setText( QString::number( min ) );
     dimBox->maxLabel->setText( QString::number( max ) );
     min = -omax + omax * 2 * dimBox->slrelmin;
@@ -1575,23 +1590,27 @@ void QAPaletteWin::min2EditChanged()
   double curval = double( d->dimBox2->minSlider->value() ) * 0.001
     * ( double(d->dimBox2->slrelmax) - d->dimBox2->slrelmin )
     + d->dimBox2->slrelmin;
+  double maxcurval = d->dimBox2->maxSlider->value() * 0.001
+    * ( double(d->dimBox2->slrelmax) - d->dimBox2->slrelmin )
+    + d->dimBox2->slrelmin;
   int	ival;
   if( !d->dimBox2->symbox->isChecked() )
   {
     d->dimBox2->slrelmin = (val - d->objMin2 )
       / ( double(d->objMax2) - d->objMin2 );
-    ival = (int) rint( ( curval - d->dimBox2->slrelmin ) * 1000
-      / ( double(d->dimBox2->slrelmax) - d->dimBox2->slrelmin ) );
   }
   else
   {
     double absmax = std::max( std::abs( d->objMin2 ),
                               std::abs( d->objMax2 ) );
     d->dimBox2->slrelmin = float( ( val + absmax ) / ( absmax * 2. ) );
-    ival = (int) rint( ( curval - d->dimBox2->slrelmin ) * 1000
-      / ( double(d->dimBox2->slrelmax) - d->dimBox2->slrelmin ) );
   }
+  ival = (int) rint( ( curval - d->dimBox2->slrelmin ) * 1000
+    / ( double(d->dimBox2->slrelmax) - d->dimBox2->slrelmin ) );
   d->dimBox2->minSlider->setValue( ival );
+  ival = (int) rint( ( maxcurval - d->dimBox2->slrelmin ) * 1000
+    / ( double(d->dimBox2->slrelmax) - d->dimBox2->slrelmin ) );
+  d->dimBox2->maxSlider->setValue( ival );
 }
 
 
@@ -1604,25 +1623,29 @@ void QAPaletteWin::max2EditChanged()
   double curval = double( d->dimBox2->maxSlider->value() ) * 0.001
     * ( double(d->dimBox2->slrelmax) - d->dimBox2->slrelmin )
     + d->dimBox2->slrelmin;
+  double mincurval = d->dimBox2->minSlider->value() * 0.001
+    * ( double(d->dimBox2->slrelmax) - d->dimBox2->slrelmin )
+    + d->dimBox2->slrelmin;
   int	ival;
   if( !d->dimBox2->symbox->isChecked() )
   {
     d->dimBox2->slrelmax = float( (val - d->objMin2 )
       / ( double(d->objMax2) - d->objMin2 ) );
-    ival = (int) rint( ( curval - d->dimBox2->slrelmin ) * 1000
-                       / ( double(d->dimBox2->slrelmax)
-                                - d->dimBox2->slrelmin ) );
   }
   else
   {
     double absmax = std::max( std::abs( d->objMin2 ),
                               std::abs( d->objMax2 ) );
     d->dimBox2->slrelmax = float( ( val + absmax ) / ( absmax * 2. ) );
-    ival = (int) rint( ( curval - d->dimBox2->slrelmin ) * 1000
-                       / ( double(d->dimBox2->slrelmax)
-                                - d->dimBox2->slrelmin ) );
   }
+  ival = (int) rint( ( curval - d->dimBox2->slrelmin ) * 1000
+                      / ( double(d->dimBox2->slrelmax)
+                              - d->dimBox2->slrelmin ) );
   d->dimBox2->maxSlider->setValue( ival );
+  ival = (int) rint( ( mincurval - d->dimBox2->slrelmin ) * 1000
+                      / ( double(d->dimBox2->slrelmax)
+                              - d->dimBox2->slrelmin ) );
+  d->dimBox2->minSlider->setValue( ival );
 }
 
 
@@ -1631,8 +1654,21 @@ void QAPaletteWin::resetValues1()
   AObject	*obj = *_parents.begin();
   obj->adjustPalette();
   AObjectPalette	*op = objPalette(),*rp = obj->palette();
-  op->setMin1( rp->min1() );
-  op->setMax1( rp->max1() );
+  float m = rp->min1();
+  float M = rp->max1();
+  if( op->zeroCenteredAxis1() )
+  {
+    // fix min/max which have been calculated in non-centered mode
+    float vmin = rp->min1() * ( d->objMax - d->objMin ) + d->objMin;
+    float vmax = rp->max1() * ( d->objMax - d->objMin ) + d->objMin;
+    float omax = std::max( std::abs( d->objMin ), std::abs( d->objMax ) );
+    m = vmin / omax;
+    M = vmax / omax;
+    if( m < 0. )
+      m = 0.;
+  }
+  op->setMin1( m );
+  op->setMax1( M );
   setValues1();
   d->modified = true;
   if( d->responsive )
@@ -1871,6 +1907,122 @@ void QAPaletteWin::zeroCentered2Changed( int state )
   d->modified = true;
   if( d->responsive )
     updateObjects();
+}
+
+
+void QAPaletteWin::min1Released()
+{
+  // Get the current time from the system clock
+  auto now = chrono::system_clock::now();
+  // Convert the current time to time since epoch
+  auto duration = now.time_since_epoch();
+  // Convert duration to milliseconds
+  auto milliseconds
+      = chrono::duration_cast<chrono::milliseconds>( duration ).count();
+
+  if( d->lastSliderRelease + 300 < milliseconds )
+  {
+    d->lastSliderRelease = milliseconds;
+    return;
+  }
+
+  float val = 0;
+  int ival = 0;
+  float cmin = 0.f, cmax = 1.f;
+  if( d->objpal->zeroCenteredAxis1() )
+  {
+    float absmax = std::max( std::abs( d->objMin ), std::abs( d->objMax ) );
+    cmin = d->dimBox1->slrelmin * absmax * 2 - absmax;
+    cmax = d->dimBox1->slrelmax * absmax * 2 - absmax;
+  }
+  else
+  {
+    val = d->objMin;
+    cmin = d->dimBox1->slrelmin * ( double(d->objMax) - d->objMin )
+      + d->objMin;
+    cmax = d->dimBox1->slrelmax * ( double(d->objMax) - d->objMin )
+      + d->objMin;
+  }
+  ival = int( ( val - cmin ) / ( cmax - cmin ) * 1000 );
+  d->dimBox1->minSlider->setValue( ival );
+}
+
+
+void QAPaletteWin::max1Released()
+{
+  // Get the current time from the system clock
+  auto now = chrono::system_clock::now();
+  // Convert the current time to time since epoch
+  auto duration = now.time_since_epoch();
+  // Convert duration to milliseconds
+  auto milliseconds
+      = chrono::duration_cast<chrono::milliseconds>( duration ).count();
+
+  if( d->lastSliderRelease + 300 < milliseconds )
+  {
+    d->lastSliderRelease = milliseconds;
+    return;
+  }
+
+  resetValues1();
+}
+
+
+void QAPaletteWin::min2Released()
+{
+  // Get the current time from the system clock
+  auto now = chrono::system_clock::now();
+  // Convert the current time to time since epoch
+  auto duration = now.time_since_epoch();
+  // Convert duration to milliseconds
+  auto milliseconds
+      = chrono::duration_cast<chrono::milliseconds>( duration ).count();
+
+  if( d->lastSliderRelease + 300 < milliseconds )
+  {
+    d->lastSliderRelease = milliseconds;
+    return;
+  }
+
+  float val = 0;
+  int ival = 0;
+  float cmin = 0.f, cmax = 1.f;
+  if( d->objpal->zeroCenteredAxis2() )
+  {
+    float absmax = std::max( std::abs( d->objMin2 ), std::abs( d->objMax2 ) );
+    cmin = d->dimBox2->slrelmin * absmax * 2 - absmax;
+    cmax = d->dimBox2->slrelmax * absmax * 2 - absmax;
+  }
+  else
+  {
+    val = d->objMin2;
+    cmin = d->dimBox2->slrelmin * ( double(d->objMax2) - d->objMin2 )
+      + d->objMin2;
+    cmax = d->dimBox2->slrelmax * ( double(d->objMax2) - d->objMin2 )
+      + d->objMin2;
+  }
+  ival = int( ( val - cmin ) / ( cmax - cmin ) * 1000 );
+  d->dimBox2->minSlider->setValue( ival );
+}
+
+
+void QAPaletteWin::max2Released()
+{
+  // Get the current time from the system clock
+  auto now = chrono::system_clock::now();
+  // Convert the current time to time since epoch
+  auto duration = now.time_since_epoch();
+  // Convert duration to milliseconds
+  auto milliseconds
+      = chrono::duration_cast<chrono::milliseconds>( duration ).count();
+
+  if( d->lastSliderRelease + 300 < milliseconds )
+  {
+    d->lastSliderRelease = milliseconds;
+    return;
+  }
+
+  resetValues2();
 }
 
 
