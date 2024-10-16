@@ -44,6 +44,7 @@ class QImage;
 
 namespace anatomist
 {
+  class AObject;
 
   class AObjectPalette
   {
@@ -94,7 +95,25 @@ namespace anatomist
     { _max = x; if( isnan( x ) || isinf( x ) ) _max = 0; }
     void setMin2( float x ) { _min2 = x; }
     void setMax2( float x ) { _max2 = x; }
-    void setPalette1DMapping( Palette1DMapping palette1DMapping ) 
+
+    /// get the absolute min for a given object
+    float absMin1( const AObject * obj ) const;
+    /// get the absolute max for a given object
+    float absMax1( const AObject * obj ) const;
+    /// get the absolute min for a given object
+    float absMin2( const AObject * obj ) const;
+    /// get the absolute max for a given object
+    float absMax2( const AObject * obj ) const;
+    /// set the min from an absolute value for a given object
+    void setAbsMin1( const AObject * obj, float x );
+    /// set the max from an absolute value for a given object
+    void setAbsMax1( const AObject * obj, float x );
+    /// set the min from an absolute value for a given object
+    void setAbsMin2( const AObject * obj, float x );
+    /// set the max from an absolute value for a given object
+    void setAbsMax2( const AObject * obj, float x );
+
+    void setPalette1DMapping( Palette1DMapping palette1DMapping )
     { _palette1DMapping = palette1DMapping ; }
     void setPalette1DMappingName( std::string palette1DMappingName ) 
     { _palette1DMapping = ( palette1DMappingName == "FirstLine" ? 
