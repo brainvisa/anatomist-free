@@ -112,6 +112,10 @@ namespace anatomist
     void setAbsMin2( const AObject * obj, float x );
     /// set the max from an absolute value for a given object
     void setAbsMax2( const AObject * obj, float x );
+    float relValue1( const AObject * obj, float absval ) const;
+    float relValue2( const AObject * obj, float absval ) const;
+    float absValue1( const AObject * obj, float relval ) const;
+    float absValue2( const AObject * obj, float relval ) const;
 
     void setPalette1DMapping( Palette1DMapping palette1DMapping )
     { _palette1DMapping = palette1DMapping ; }
@@ -169,7 +173,8 @@ namespace anatomist
     void copyOrFillColors( const AObjectPalette & pal );
 
     static std::map<std::string, MixMethod>	mixMethods;
-    QImage* toQImage( int w = 0, int h = 0 ) const;
+    QImage* toQImage( int w = 0, int h = 0, float min1 = 0., float max1 = 1.,
+                      float min2 = 0., float max2 = 1. ) const;
     carto::rc_ptr<carto::Volume<AimsRGBA> >
       toVolume( int w = 0, int h = 0, bool scaled = true ) const;
 
