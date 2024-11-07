@@ -202,7 +202,9 @@ void AObjectPalette::fill()
       dy = 0;
     else if( _maxSizeY > 0 && dimpy > (unsigned) _maxSizeY )
       dy = _maxSizeY;
+    bool is2d = _mode2d;
     create( dx, dy );
+    set2dMode( is2d );  // create may force 2D mode
   }
   if( _colors.get() == _refPal.get() )
   {
@@ -663,7 +665,9 @@ void AObjectPalette::copyOrFillColors( const AObjectPalette & pal )
 QImage* AObjectPalette::toQImage( int w, int h, float mi1, float ma1,
                                   float mi2, float ma2 ) const
 {
-  const Volume<AimsRGBA>    *col = colors();
+  AObjectPalette *pal = new AObjectPalette( *this );
+
+  const Volume<AimsRGBA>    *col = pal->colors();
 
   if( !col || col->getSizeX() == 0 || col->getSizeY() == 0 )
     return 0;
@@ -682,13 +686,12 @@ QImage* AObjectPalette::toQImage( int w, int h, float mi1, float ma1,
     dimx = w;
   if( h > 0 )
     dimy = h;
+  else if( !is2dMode() && dimy > 32 )
+    dimy = 32;
 
   shx = -int(dimx) / 2;
   shy = -int(dimy) / 2;
 
-  AObjectPalette *pal = new AObjectPalette( *this );
-  pal->setZeroCenteredAxis1( zeroCenteredAxis1() );
-  pal->setZeroCenteredAxis2( zeroCenteredAxis2() );
   if( zeroCenteredAxis1() )
   {
     pal->setMax1( max1() / ma1 );
