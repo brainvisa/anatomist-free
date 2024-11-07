@@ -173,6 +173,15 @@ namespace anatomist
     void copyOrFillColors( const AObjectPalette & pal );
 
     static std::map<std::string, MixMethod>	mixMethods;
+    /** Get the palette image in a QImage.
+
+        The image takes into account the palette min/max settings.
+
+        Extra optional parameters allow to scale the image. They are not
+        interpreted the same way as min/max bounds (which determine where on
+        the palette image the object extrema are mapped), but at the contrary,
+        allow to zoom the palette view on specific object values bounds.
+    */
     QImage* toQImage( int w = 0, int h = 0, float min1 = 0., float max1 = 1.,
                       float min2 = 0., float max2 = 1. ) const;
     carto::rc_ptr<carto::Volume<AimsRGBA> >
