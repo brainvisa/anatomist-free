@@ -37,11 +37,8 @@ non-overlapping), according to the guessed type of volume (anatomical,
 functional, diffusion, labels)
 '''
 
-from __future__ import absolute_import
 import anatomist.direct.api as ana
 from soma.aims import colormaphints
-import sip
-from six.moves import zip
 
 
 class SetAutoPalettes(ana.cpp.ObjectMenuCallback):

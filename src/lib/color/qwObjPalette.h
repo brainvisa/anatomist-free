@@ -73,7 +73,7 @@ public:
 signals:
 
 protected slots:
-  void palette1Changed();
+  void palette1Changed( const std::string & );
   void palette2Changed( const QString & );
   void min1Changed( int value );
   void max1Changed( int value );
@@ -116,8 +116,6 @@ protected:
   void fillPalettes();
   void fillPalette1();
   void fillPalette2();
-  void fillPalette( const carto::rc_ptr<anatomist::APalette> pal,
-                    QPixmap & pix );
   void fillObjPal();
   anatomist::AObjectPalette* objPalette();
   virtual QWidget* makeDimBox( const QString & title, QWidget* parent, 

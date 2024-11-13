@@ -38,6 +38,7 @@
 #include <anatomist/color/paletteList.h>
 #include <anatomist/color/palette.h>
 #include <anatomist/color/objectPalette.h>
+#include <anatomist/color/paletteselectwidget.h>
 #include <anatomist/processor/Processor.h>
 #include <anatomist/commands/cSetObjectPalette.h>
 #include <anatomist/dialogs/qScopeLineEdit.h>
@@ -59,7 +60,6 @@
 #include <qapplication.h>
 #include <qaction.h>
 #include <qtoolbar.h>
-#include <qheaderview.h>
 #include <QActionGroup>
 #include <chrono>
 
@@ -105,7 +105,7 @@ struct QAPaletteWin::Private
 {
   Private( const set<AObject *> & );
 
-  QTableWidget			*palettes;
+  PaletteSelectWidget		*palettes;
   DimBox			*dimBox1;
   DimBox			*dimBox2;
   QLabel			*view;
@@ -213,19 +213,9 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
 
   ltPanell->addWidget( new QLabel( tr( "Available palettes :" ), ltPanel ) );
 
-  d->palettes = new QTableWidget( ltPanel );
+  d->palettes = new PaletteSelectWidget( ltPanel );
   ltPanell->addWidget( d->palettes );
   d->palettes->setObjectName( "palettes" );
-  d->palettes->setMinimumSize( 200, 200 );
-  d->palettes->setSortingEnabled( true );
-  d->palettes->setCornerButtonEnabled( false );
-  d->palettes->setAlternatingRowColors( true );
-  d->palettes->setSelectionBehavior( QTableWidget::SelectRows );
-  d->palettes->setSelectionMode( QTableWidget::SingleSelection );
-  d->palettes->setEditTriggers( QTableWidget::NoEditTriggers );
-  d->palettes->verticalHeader()->setVisible( false );
-  d->palettes->setIconSize( QSize( 64, 20 ) );
-  fillPalettes();
 
   QWidget *rtPanel = new QWidget( d->main );
   rtPanel->setObjectName( "rtPanel" );
@@ -350,8 +340,8 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
 
   connect( d->dimBgp, SIGNAL( buttonClicked( int ) ), this,
            SLOT( dimChanged( int ) ) );
-  connect( d->palettes, SIGNAL( itemSelectionChanged() ),
-           this, SLOT( palette1Changed() ) );
+  connect( d->palettes, SIGNAL( paletteSelected( const std::string & ) ),
+           this, SLOT( palette1Changed( const std::string & ) ) );
   connect( d->dimBox1->minSlider, SIGNAL( valueChanged( int ) ),
            this, SLOT( min1Changed( int ) ) );
   connect( d->dimBox1->maxSlider, SIGNAL( valueChanged( int ) ),
@@ -546,7 +536,7 @@ void QAPaletteWin::fillPalettes()
     d->palettes->setItem( i, 0, item );
     // icon
     QPixmap pix;
-    fillPalette( *ip, pix );
+    PaletteSelectWidget::fillPalette( *ip, pix );
     QTableWidgetItem *iconitem = new QTableWidgetItem;
     iconitem->setIcon( QIcon( pix ) );
     d->palettes->setItem( i, 1, iconitem );
@@ -690,24 +680,8 @@ void QAPaletteWin::updateInterface()
 
   d->objsel->updateLabel( _parents );
   d->dimBgp->button( d->dim - 1 )->setChecked( true );
-  int i, n = d->palettes->rowCount();
-  QString	name = d->objpal->refPalette()->name().c_str();
-  QList<QTableWidgetItem *> items = d->palettes->findItems(
-    name, Qt::MatchCaseSensitive | Qt::MatchExactly );
-  QTableWidgetItem *item = 0;
-  if( items.count() != 0 )
-    item = items.front();
-  if( item )
-    d->palettes->setCurrentItem( item );
-  else
-  {
-    d->palettes->setCurrentItem( 0 );
-    items = d->palettes->selectedItems();
-    if( items.count() != 0 )
-      item = items.front();
-    if( item )
-      item->setSelected( false );
-  }
+
+  d->palettes->selectPalette( d->objpal->refPalette()->name() );
 
   fillPalette1();
   setValues1();
@@ -721,6 +695,8 @@ void QAPaletteWin::updateInterface()
   d->mixSlid->setValue( (int) ( 100 * objPalette()->linearMixFactor() ) );
   d->mixValueLabel->setText
     ( QString::number( 100 * objPalette()->linearMixFactor() ) );
+
+  int i, n;
 
   if( objPalette()->refPalette2() )
   {
@@ -877,42 +853,6 @@ AObjectPalette* QAPaletteWin::objPalette()
 }
 
 
-void QAPaletteWin::fillPalette( const rc_ptr<APalette> pal, QPixmap & pm )
-{
-  unsigned		dimpx = pal->getSizeX(), dimpy = pal->getSizeY();
-  unsigned		dimx = dimpx, dimy = dimpy;
-  unsigned		x, y;
-
-  if( dimy < 32 )
-    dimy = 32;
-  if( dimx > 256 )
-    dimx = 256;
-  else if( dimx == 0 )
-    dimx = 1;
-  if( dimy > 256 )
-    dimy = 256;
-
-  float		facx = ((float) dimpx) / dimx;
-  float		facy = ((float) dimpy) / dimy;
-  AimsRGBA	rgb;
-
-  QImage	im( dimx, dimy, QImage::Format_ARGB32 );
-
-  for( y=0; y<dimy; ++y )
-    for( x=0; x<dimx; ++x )
-    {
-      rgb = (*pal)( (unsigned) ( facx * x), (unsigned) ( facy * y ) );
-      im.setPixel( x, y, qRgb( rgb.red(), rgb.green(), rgb.blue() ) );
-    }
-#if QT_VERSION < 0x040700
-  // convertFromImage is in Qt3Support before officialized in Qt 4.7
-  pm = QPixmap::fromImage( im, Qt::AutoColor );
-#else
-  pm.convertFromImage( im );
-#endif
-}
-
-
 void QAPaletteWin::fillPalette1()
 {
   AObjectPalette	*objpal = objPalette();
@@ -932,7 +872,7 @@ void QAPaletteWin::fillPalette1()
 
   QPixmap	pm;
 
-  fillPalette( pal, pm );
+  PaletteSelectWidget::fillPalette( pal, pm );
 
   d->dimBox1->palView->setPixmap( pm );
 }
@@ -948,7 +888,7 @@ void QAPaletteWin::fillPalette2()
     const rc_ptr<APalette> pal = objpal->refPalette2();
     if( pal )
     {
-      fillPalette( pal, pm );
+      PaletteSelectWidget::fillPalette( pal, pm );
       d->dimBox2->palView->setPixmap( pm );
     }
   }
@@ -964,12 +904,7 @@ void QAPaletteWin::fillObjPal()
 
   QImage *im = objpal->toQImage();
   QPixmap pm;
-#if QT_VERSION < 0x040700
-  // convertFromImage is in Qt3Support before officialized in Qt 4.7
-  pm = QPixmap::fromImage( *im, Qt::AutoColor );
-#else
   pm.convertFromImage( *im );
-#endif
   delete im;
   d->view->setPixmap( pm );
   d->view->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
@@ -977,18 +912,11 @@ void QAPaletteWin::fillObjPal()
 }
 
 
-void QAPaletteWin::palette1Changed()
+void QAPaletteWin::palette1Changed( const string & name )
 {
   if( d->recursive )
     return;
 
-  QTableWidgetItem* item = 0;
-  QList<QTableWidgetItem *> selected = d->palettes->selectedItems();
-  if( selected.count() == 0 )
-    return;
-  item = selected.front();
-
-  string		name = item->text().toStdString();
   PaletteList		& pallist = theAnatomist->palettes();
   const rc_ptr<APalette> pal = pallist.find( name );
 
