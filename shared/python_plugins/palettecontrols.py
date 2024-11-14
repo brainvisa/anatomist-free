@@ -39,7 +39,11 @@ ctrl+right mouse button: left-right: change min, up-down: change max
 
 import anatomist.cpp as anatomist
 from anatomist.cpp import palettecontrastaction
+from soma import aims
+from soma.qt_gui.qt_backend import Qt
+from soma.qt_gui.qt_backend import sip
 import types
+import gc
 
 import six
 
@@ -82,6 +86,38 @@ def makePalettedSubclass(c):
     cd.addControl(c.name(), cl, c.priority(), True)
 
 
+class MiniPaletteExtensionAction(anatomist.APaletteExtensionAction):
+
+    widgets = []
+
+    def __init__(self, icon, text, parent):
+        super().__init__(icon, text, parent)
+
+    def extensionTriggered(self, objects):
+        from anatomist.cpp import minipalettewidget as mpw
+
+        if len(objects) != 0:
+            w = mpw.MiniPaletteWidget(object=next(iter(objects)),
+                                      allow_edit=True,
+                                      edit_parent=0, click_to_edit=True,
+                                      auto_range=False)
+            w.setAttribute(Qt.Qt.WA_DeleteOnClose, True)
+            w.resize(260, 60)
+            w.show()
+            sip.transferto(w, None)
+            MiniPaletteExtensionAction.widgets.append(w)
+            w.destroyed.connect(MiniPaletteExtensionAction.clear_widget)
+
+    @staticmethod
+    def clear_widget(obj):
+        # print('clear_widget')
+        MiniPaletteExtensionAction.widgets = [
+            w for w in MiniPaletteExtensionAction.widgets
+            if not sip.isdeleted(w)]
+        gc.collect()
+        # print('widgets:', len(MiniPaletteExtensionAction.widgets))
+
+
 cd = anatomist.ControlDictionary.instance()
 c = cd.getControlInstance('Default 3D control')
 makePalettedSubclass(c)
@@ -100,5 +136,10 @@ c = cd.getControlInstance('CutControl')
 makePalettedSubclass(c)
 c = cd.getControlInstance('Flight control')
 makePalettedSubclass(c)
+
+icon = Qt.QIcon(aims.carto.Paths.findResourceFile(
+    'icons/palette.jpg', 'anatomist'))
+ac = MiniPaletteExtensionAction(icon, 'minpalette', None)
+anatomist.QAPaletteWin.addExtensionAction(ac)
 
 del c, cd
