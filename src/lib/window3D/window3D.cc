@@ -1658,9 +1658,9 @@ void AWindow3D::getInfos3DFromPosition( const vector<float> & fpos,
     Point3df & positionNearestVertex, int* indexNearestVertex,
     vector<string> & texlabels )
 {
-  // cout << "getInfos3DFromPosition, obj: " << objselect->name() << ", poly: " << poly << ", pos: " << fpos[0] << ", " << fpos[1] << ", " << fpos[2] << ", " << fpos[3] << endl;
+  // cout << "getInfos3DFromPosition, obj: " << ( objselect ? objselect->name() : "<no object>" ) << ", poly: " << poly << ", pos: " << fpos[0] << ", " << fpos[1] << ", " << fpos[2] << ", " << fpos[3] << endl;
+
   *indexNearestVertex = -1;
-  *indexNearestVertex = 0;
 
   if( !objselect )
     return;
@@ -1674,7 +1674,7 @@ void AWindow3D::getInfos3DFromPosition( const vector<float> & fpos,
     return;
 
   float dist = -1;
-  objselect->nearestVertex( fpos, indexNearestVertex, &dist, -1, 0, true,
+  objselect->nearestVertex( fpos, indexNearestVertex, &dist, -1, 0, false,
                             poly );
   texvalue = objselect->texValues( fpos, getReferential(), poly );
   objselect->getTextureLabels( texvalue, texlabels, textype );
