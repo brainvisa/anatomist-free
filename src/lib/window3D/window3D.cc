@@ -792,6 +792,8 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
         SLOT(setAutoRotationCenter()) );
     scene->addAction( tr("Manually specify linked cursor position"), this,
         SLOT(setLinkedCursorPos()), Qt::CTRL | Qt::Key_P );
+    scene->addAction( tr("Find vertex / polygon / texture"), this,
+        SLOT(findPrimitive()), Qt::CTRL | Qt::Key_V );
 
     //	Mutation toolbar
 
@@ -3978,9 +3980,8 @@ void AWindow3D::setLinkedCursorOnSliderChange(bool x)
 void AWindow3D::setLinkedCursorPos()
 {
   QDialog dial( this );
-  dial.setWindowTitle( "set linked cursor position" );
+  dial.setWindowTitle( "Set linked cursor position" );
   dial.setModal( true );
-  dial.setWindowTitle("Set linked cursor position");
   QVBoxLayout *l = new QVBoxLayout(&dial);
   l->setContentsMargins( 5, 5, 5, 5 );
   l->setSpacing(5);
@@ -4052,10 +4053,166 @@ void AWindow3D::setLinkedCursorPos()
   }
 }
 
+
+void AWindow3D::findPrimitive()
+{
+  AObject *obj = 0;
+  SelectFactory *sf = SelectFactory::factory();
+  const map<unsigned, set<AObject *> > & sel = sf->selected();
+  map<unsigned, set<AObject *> >::const_iterator is = sel.find( Group() );
+  bool ambiguous = false;
+  if( is != sel.end() )
+  {
+    const set<AObject *> & so = is->second;
+    set<AObject *>::const_iterator io, eo = so.end();
+    string s;
+    for( io=so.begin(); io!=eo; ++io )
+      if( hasObject( *io ) )
+      {
+        if( obj )
+        {
+          obj = 0;
+          ambiguous = true;
+          break;
+        }
+        else
+          obj = *io;
+      }
+  }
+  if( !obj && !ambiguous )
+  {
+    const set<AObject *> & objs = Objects();
+    if( objs.size() == 1 )
+      obj = *objs.begin();
+  }
+
+  if( !obj )
+  {
+    statusBar()->showMessage( "select one object", 1500 );
+    return;
+  }
+
+  rc_ptr<ViewState> vs = viewState();
+  GLComponent *glc = obj->glAPI();
+  if( !glc || glc->glNumVertex( *vs ) == 0 )
+  {
+    statusBar()->showMessage( "object has no vertices", 1500 );
+    return;
+  }
+
+  const anatomist::Referential *oref = obj->getReferential();
+  const anatomist::Referential *wref = getReferential();
+  anatomist::Transformation *trans = 0;
+  if( oref && wref )
+    trans = theAnatomist->getTransformation( oref, wref );
+
+  QDialog dial( this );
+  dial.setWindowTitle( "Find vertex, polygon or texture" );
+  dial.setModal( true );
+  QGridLayout *l = new QGridLayout;
+  l->setContentsMargins( 5, 5, 5, 5 );
+  l->setSpacing( 5 );
+  dial.setLayout( l );
+
+  l->addWidget( new QLabel( "Vertex:" ), 0, 0 );
+  l->addWidget( new QLabel( "Poygon:" ), 1, 0 );
+  l->addWidget( new QLabel( "Texture value:" ), 2, 0 );
+
+  QLineEdit *vle = new QLineEdit;
+  QLineEdit *ple = new QLineEdit;
+  QLineEdit *tle = new QLineEdit;
+  l->addWidget( vle, 0, 1 );
+  l->addWidget( ple, 1, 1 );
+  l->addWidget( tle, 2, 1 );
+  tle->setEnabled( false ); // not implemented yet.
+
+  QHBoxLayout *hlay = new QHBoxLayout;
+  l->addLayout( hlay, 3, 0, 1, 2 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
+  hlay->setSpacing( 5 );
+  QPushButton *pb = new QPushButton( tr("OK") );
+  hlay->addWidget( pb );
+  pb->setAutoDefault( true );
+  pb->setDefault( true );
+  connect(pb, SIGNAL(clicked()), &dial, SLOT(accept()));
+  pb = new QPushButton( tr("Cancel") );
+  hlay->addWidget( pb );
+  connect(pb, SIGNAL(clicked()), &dial, SLOT(reject()));
+
+  if( dial.exec() )
+  {
+    if( vle->text() != QString() )
+    {
+      bool ok = false;
+      size_t nv = glc->glNumVertex( *vs );
+
+      int v = vle->text().toInt( &ok );
+      if( !ok || v < 0 || v >= nv )
+      {
+        statusBar()->showMessage( "incorrect vertex number", 1500 );
+        return;
+      }
+      const GLfloat* va = glc->glVertexArray( *vs );
+      vector<float> vp( 3 );
+      vp[0] = va[v * 3];
+      vp[1] = va[v * 3 + 1];
+      vp[2] = va[v * 3 + 2];
+
+      if( trans )
+      {
+        Point3df tp = trans->transform( Point3df( vp ) );
+        vp[0] = tp[0];
+        vp[1] = tp[1];
+        vp[2] = tp[2];
+      }
+
+      LinkedCursorCommand *c = new LinkedCursorCommand( this, vp );
+      theProcessor->execute(c);
+    }
+    else if( ple->text() != QString() )
+    {
+      bool ok = false;
+      size_t np = glc->glNumPolygon( *vs );
+
+      int p = ple->text().toInt( &ok );
+      if( !ok || p < 0 || p >= np )
+      {
+        statusBar()->showMessage( "incorrect polygon number", 1500 );
+        return;
+      }
+
+      unsigned ps = glc->glPolygonSize( *vs );
+      const GLfloat* va = glc->glVertexArray( *vs );
+      const GLuint* pa = glc->glPolygonArray( *vs );
+
+      Point3df vp( 0, 0, 0 );
+      for( unsigned i=0; i<ps; ++i )
+      {
+        unsigned ip = pa[p * ps + i];
+        vp += Point3df( va[ip * 3], va[ip * 3 + 1], va[ip * 3 + 2] );
+      }
+      vp /= ps;
+
+      if( trans )
+      {
+        vp = trans->transform( Point3df( vp ) );
+      }
+
+      LinkedCursorCommand *c = new LinkedCursorCommand( this, vp.toStdVector() );
+      theProcessor->execute(c);
+    }
+    else if( tle->text() != QString() )
+    {
+    }
+  }
+}
+
+
 AWindow3D* AWindow3D::rightEyeWindow()
 {
   return d->righteye;
 }
+
 
 AWindow3D* AWindow3D::leftEyeWindow()
 {

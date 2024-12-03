@@ -342,6 +342,7 @@ public slots:
   void setTimeSliderPosition( int position ) ;
   void switchToolbox();
   void setLinkedCursorPos();
+  void findPrimitive();
   void openStereoView();
   void toggleStatusBarVisibility();
   bool toopTipsEnabled() const;
