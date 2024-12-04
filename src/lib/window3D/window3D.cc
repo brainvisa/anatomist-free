@@ -793,7 +793,7 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
     scene->addAction( tr("Manually specify linked cursor position"), this,
         SLOT(setLinkedCursorPos()), Qt::CTRL | Qt::Key_P );
     scene->addAction( tr("Find vertex / polygon / texture"), this,
-        SLOT(findPrimitive()), Qt::CTRL | Qt::Key_V );
+        SLOT(findPrimitive()), Qt::CTRL | Qt::Key_F );
 
     //	Mutation toolbar
 
