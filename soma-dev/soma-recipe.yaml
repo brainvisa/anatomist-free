@@ -1,0 +1,24 @@
+package:
+  name: anatomist
+
+soma-dev:
+  components:
+    anatomist-gpl: ["https://github.com/brainvisa/anatomist-gpl.git", "master"]
+
+  internal-dependencies:
+    - soma
+  
+  type: compiled
+
+requirements:
+  run:
+    - qwt
+    - matplotlib
+    - virtualgl
+    - qtconsole
+    - ipycanvas
+    - ipywidgets
+    - ipyevents
+    - notebook
+    - pygltflib
+    - nodejs
