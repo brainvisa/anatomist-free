@@ -49,23 +49,24 @@ import six
 
 
 def neweventAutoSubscription(self, pool):
-    key = palettecontrastaction.QtCore.Qt
-    NoModifier = key.NoModifier
-    ShiftModifier = key.ShiftModifier
-    ControlModifier = key.ControlModifier
-    AltModifier = key.AltModifier
+    NoModifier = Qt.Qt.KeyboardModifier.NoModifier
+    ControlModifier = Qt.Qt.KeyboardModifier.ControlModifier
     if hasattr(self, '_initial_eventAutoSubscription'):
         self._initial_eventAutoSubscription(pool)
     else:
         self.__class__.__base__.eventAutoSubscription(self, pool)
-    self.mouseLongEventSubscribe(key.RightButton, ControlModifier,
+    self.mouseLongEventSubscribe(Qt.Qt.MouseButton.RightButton,
+                                 ControlModifier,
                                  pool.action(
                                      'PaletteContrastAction').startContrast,
                                  pool.action(
                                      'PaletteContrastAction').moveContrast,
-                                 pool.action('PaletteContrastAction').stopContrast, True)
-    self.keyPressEventSubscribe(key.Key_C, NoModifier,
-                                pool.action("PaletteContrastAction").resetPalette)
+                                 pool.action(
+                                     'PaletteContrastAction').stopContrast,
+                                 True)
+    self.keyPressEventSubscribe(Qt.Qt.Key.Key_C, NoModifier,
+                                pool.action(
+                                    "PaletteContrastAction").resetPalette)
 
 
 def makePalettedSubclass(c):

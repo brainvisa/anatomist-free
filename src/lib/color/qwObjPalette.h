@@ -74,7 +74,7 @@ signals:
 
 protected slots:
   void palette1Changed( const std::string & );
-  void palette2Changed( const QString & );
+  void palette2Changed( int );
   void min1Changed( int value );
   void max1Changed( int value );
   void min2Changed( int value );
@@ -86,8 +86,8 @@ protected slots:
   void responsiveToggled( bool val );
   void updateClicked();
   void dimChanged( int );
-  void mixMethodChanged( const QString & );
-  void palette1DMappingMethodChanged( const QString & );
+  void mixMethodChanged( int );
+  void palette1DMappingMethodChanged( int );
   void enablePalette2( bool );
   void mixFactorChanged( int );
   void min1EditChanged();

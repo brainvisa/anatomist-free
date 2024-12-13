@@ -338,7 +338,7 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
 
   updateInterface();
 
-  connect( d->dimBgp, SIGNAL( buttonClicked( int ) ), this,
+  connect( d->dimBgp, SIGNAL( idClicked( int ) ), this,
            SLOT( dimChanged( int ) ) );
   connect( d->palettes, SIGNAL( paletteSelected( const std::string & ) ),
            this, SLOT( palette1Changed( const std::string & ) ) );
@@ -392,12 +392,12 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
 	   this, SLOT( responsiveToggled( bool ) ) );
   connect( updateBtn, SIGNAL( clicked() ), this, SLOT( updateClicked() ) );
 
-  connect( d->palette2Box, SIGNAL( activated( const QString & ) ),
-	   this, SLOT( palette2Changed( const QString & ) ) );
-  connect( d->mixBox, SIGNAL( activated( const QString & ) ),
-	   this, SLOT( mixMethodChanged( const QString & ) ) );
-  connect( d->palette1dMappingBox, SIGNAL( activated( const QString & ) ),
-	   this, SLOT( palette1DMappingMethodChanged( const QString & ) ) );
+  connect( d->palette2Box, SIGNAL( activated( int ) ),
+	   this, SLOT( palette2Changed( int ) ) );
+  connect( d->mixBox, SIGNAL( activated( int ) ),
+	   this, SLOT( mixMethodChanged( int ) ) );
+  connect( d->palette1dMappingBox, SIGNAL( activated( int ) ),
+	   this, SLOT( palette1DMappingMethodChanged( int ) ) );
   connect( d->usepal2, SIGNAL( toggled( bool ) ),
 	   this, SLOT( enablePalette2( bool ) ) );
   connect( d->mixSlid, SIGNAL( valueChanged( int ) ),
@@ -938,11 +938,12 @@ void QAPaletteWin::palette1Changed( const string & name )
 }
 
 
-void QAPaletteWin::palette2Changed( const QString & palname )
+void QAPaletteWin::palette2Changed( int pid )
 {
   if( d->recursive )
     return;
 
+  QString palname = d->palette2Box->itemText( pid );
   AObjectPalette	*objpal = objPalette();
 
   if( palname == tr( "None" ) )
@@ -1355,11 +1356,12 @@ void QAPaletteWin::fillMixMethods()
 }
 
 
-void QAPaletteWin::mixMethodChanged( const QString & methname )
+void QAPaletteWin::mixMethodChanged( int mid )
 {
   if( d->recursive )
     return;
 
+  QString methname = d->mixBox->itemText( mid );
   AObjectPalette	*objpal = objPalette();
 
   objpal->setMixMethod( string( methname.toStdString() ) );
@@ -1378,11 +1380,12 @@ QAPaletteWin::fillPalette1DMappingMethods()
 }
 
 void
-QAPaletteWin::palette1DMappingMethodChanged( const QString & methname )
+QAPaletteWin::palette1DMappingMethodChanged( int mid )
 {
   if( d->recursive )
     return;
 
+  QString methname = d->palette1dMappingBox->itemText( mid );
   AObjectPalette	*objpal = objPalette();
 
   if( methname == "FirstLine" )

@@ -288,7 +288,7 @@ PaintActionView::PaintActionView(PaintAction * paintAction, QWidget * parent)
 
   lay->addStretch();
 
-  connect(_private->myBrushes, SIGNAL(buttonClicked(int)),
+  connect(_private->myBrushes, SIGNAL(idClicked(int)),
 	  this, SLOT(brushSelection(int)));
 
   connect(_private->myBrushSize, SIGNAL(valueChanged(int)),

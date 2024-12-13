@@ -133,7 +133,7 @@ void ChooseReferentialWindow::drawContents( const char *name )
     }
   }
 
-  connect( bg, SIGNAL( buttonClicked( int ) ), this,
+  connect( bg, SIGNAL( idClicked( int ) ), this,
             SLOT( chooseRef( int ) ) );
 }
 
