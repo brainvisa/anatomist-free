@@ -54,7 +54,7 @@ class LeftSelect3DControl(selection.SelectionControl):
 
     def eventAutoSubscription(self, pool):
         key = Qt.Qt
-        NoModifier = key.KeyboardModifiers.NoModifier
+        NoModifier = key.KeyboardModifier.NoModifier
         ShiftModifier = key.ShiftModifier
         ControlModifier = key.ControlModifier
         super(LeftSelect3DControl, self).eventAutoSubscription(pool)
@@ -94,7 +94,7 @@ class Left3DControl(selection.SelectionControl):
 
     def eventAutoSubscription(self, pool):
         key = Qt.Qt
-        NoModifier = key.KeyboardModifiers.NoModifier
+        NoModifier = key.KeyboardModifier.NoModifier
         ShiftModifier = key.ShiftModifier
         ControlModifier = key.ControlModifier
         super(Left3DControl, self).eventAutoSubscription(pool)
