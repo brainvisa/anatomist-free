@@ -3,7 +3,7 @@ package:
 
 soma-env:
   components:
-    anatomist-gpl: ["https://github.com/brainvisa/anatomist-gpl.git", "master"]
+    anatomist-gpl: ["https://github.com/brainvisa/anatomist-gpl.git", "soma-env-6.0"]
 
   internal-dependencies:
     - soma
