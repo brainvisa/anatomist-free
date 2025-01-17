@@ -2,6 +2,7 @@ package:
   name: anatomist
 
 soma-env:
+  publication: neuro-forge
   components:
     anatomist-gpl: ["https://github.com/brainvisa/anatomist-gpl.git", "master"]
 
