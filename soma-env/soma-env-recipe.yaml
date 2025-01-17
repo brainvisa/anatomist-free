@@ -22,3 +22,5 @@ requirements:
     - notebook
     - pygltflib
     - nodejs
+    - libglu
+    - xvfb
