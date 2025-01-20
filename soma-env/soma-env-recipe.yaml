@@ -25,3 +25,4 @@ requirements:
     - nodejs
     - libglu
     - xvfb
+    - mesalib_software
