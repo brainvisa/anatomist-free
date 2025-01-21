@@ -2,6 +2,7 @@ package:
   name: anatomist
 
 soma-env:
+  publication: neuro-forge
   components:
     anatomist-gpl: ["https://github.com/brainvisa/anatomist-gpl.git", "soma-env-6.0"]
 
@@ -22,3 +23,6 @@ requirements:
     - notebook
     - pygltflib
     - nodejs
+    - libglu
+    - xvfb
+    - mesalib_software
