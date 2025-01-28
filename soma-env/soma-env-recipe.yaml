@@ -4,7 +4,8 @@ package:
 soma-env:
   publication: neuro-forge
   components:
-    anatomist-gpl: ["https://github.com/brainvisa/anatomist-gpl.git", "master"]
+    - anatomist-free
+    - anatomist-gpl
 
   internal-dependencies:
     - soma
