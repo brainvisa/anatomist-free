@@ -128,6 +128,7 @@ set( _headers
     controler/controlswitch.h
     controler/view.h
     control/windowdrag.h
+    dialogs/qclickgraphicsview.h
     dialogs/colorDialog.h
     dialogs/colorWidget.h
     dialogs/qScopeLineEdit.h
@@ -380,6 +381,7 @@ set( _sources
     controler/control.cc
     controler/controlswitch.cc
     controler/view.cc
+    dialogs/qclickgraphicsview.cc
     dialogs/colorDialog.cc
     dialogs/colorWidget.cc
     dialogs/qScopeLineEdit.cc
