@@ -63,6 +63,7 @@ namespace anatomist
   struct RoiManagementActionView_Private ;
 }
 
+
 class RegionsFusionWindow : public QDialog 
 {
   Q_OBJECT
@@ -82,6 +83,7 @@ private:
   QListWidget * selectRegions ;
   QComboBox * selectRegionName ;
 } ;
+
 
 class RoiManagementActionView : public QWidget, public anatomist::Observer
 {

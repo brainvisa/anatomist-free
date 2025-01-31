@@ -190,7 +190,8 @@ RoiChangeProcessor::change( bool forward )
   set<AGraphObject*>::const_iterator objIter(modifiedObjList.begin()), 
     objLast(modifiedObjList.end()) ;
   //set<AWindow3D*> winList ;
-  while(objIter != objLast) {
+  while(objIter != objLast)
+  {
     (*objIter)->attributed()->setProperty( "modified", true );
     (*objIter)->notifyObservers( this );
     /*set<AWindow*> subWinList = (*objIter)->WinList() ;
@@ -205,6 +206,8 @@ RoiChangeProcessor::change( bool forward )
     */
     ++objIter ;
   }
+  AGraph * graph = getGraph( 0 );
+  graph->notifyObservers( this );
 
   /*
   set<AWindow3D*>::iterator iter( winList.begin() ), 

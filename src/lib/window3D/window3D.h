@@ -287,6 +287,9 @@ public:
   bool polygonsSortingDirection() const;
   void setPolygonsSortingDirection( bool dir );
   virtual void sortPolygons( bool force = false );
+  bool positionToVertex( const anatomist::AObject* obj, unsigned vert );
+  bool positionToPolygon( const anatomist::AObject* obj, unsigned poly );
+  bool positionToTexture( const anatomist::AObject* obj, float texval );
 
 
 signals:
@@ -342,6 +345,7 @@ public slots:
   void setTimeSliderPosition( int position ) ;
   void switchToolbox();
   void setLinkedCursorPos();
+  void findPrimitive();
   void openStereoView();
   void toggleStatusBarVisibility();
   bool toopTipsEnabled() const;

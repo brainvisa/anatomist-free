@@ -422,7 +422,7 @@ QGraphParam::QGraphParam( QWidget* parent, const char* name )
   lay1->addWidget( iobox );
   setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum ) );
 
-  connect( grb, SIGNAL( buttonClicked( int ) ), 
+  connect( grb, SIGNAL( idClicked( int ) ),
            this, SLOT( btnClicked( int ) ) );
   connect( col, SIGNAL( toggled( bool ) ), this, 
 	   SLOT( colorClicked( bool ) ) );
@@ -443,7 +443,7 @@ QGraphParam::QGraphParam( QWidget* parent, const char* name )
 	   SLOT( saveModifChanged( bool ) ) );
   connect( d->autodir, SIGNAL( toggled( bool ) ), this, 
 	   SLOT( autoDirChanged( bool ) ) );
-  connect( iog, SIGNAL( buttonClicked( int ) ), this, 
+  connect( iog, SIGNAL( idClicked( int ) ), this,
 	   SLOT( saveModeSelected( int ) ) );
   connect( seltype, SIGNAL( activated(int) ), this,
            SLOT( setSelectionRenderingMode( int ) ) );

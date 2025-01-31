@@ -812,7 +812,7 @@ PreferencesWindow::PreferencesWindow()
   connect( _pdat->cursShape, SIGNAL( activated( const QString & ) ), this, 
 	   SLOT( setCursorShape( const QString & ) ) );
   connect( cursShapeBtn, SIGNAL( clicked() ), this, SLOT( loadCursor() ) );
-  connect( bgp, SIGNAL( buttonClicked( int ) ), this, 
+  connect( bgp, SIGNAL( idClicked( int ) ), this,
 	   SLOT( setCursorColorMode( int ) ) );
   connect( _pdat->cursEdit, SIGNAL( returnPressed() ), this, 
 	   SLOT( cursorEditChanged() ) );
@@ -825,7 +825,7 @@ PreferencesWindow::PreferencesWindow()
 	   SLOT( enableLRDisplay( bool ) ) );
   connect(leftRightDisplaySizeSb, SIGNAL(valueChanged(int)), this,
   	      	  	  	  	  	  	  SLOT(leftRightDisplaySizeChanged(int)));
-  connect( flipg, SIGNAL( buttonClicked( int ) ), this, 
+  connect( flipg, SIGNAL( idClicked( int ) ), this,
 	   SLOT( setAxialConvention( int ) ) );
   connect( _pdat->winszed, SIGNAL( returnPressed() ), this, 
            SLOT( defaultWinSizeChanged() ) );

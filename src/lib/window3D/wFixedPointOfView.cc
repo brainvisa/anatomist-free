@@ -236,7 +236,7 @@ FixedPointOfViewWindow::FixedPointOfViewWindow( AWindow3D* win,
   vlay->addWidget( but );
   vlay->addItem( new QSpacerItem( 1, 1, QSizePolicy::Expanding,
                                   QSizePolicy::Expanding ) );
-  connect( bg, SIGNAL( buttonClicked( int ) ), this,
+  connect( bg, SIGNAL( idClicked( int ) ), this,
            SLOT( straightPOV( int ) ) );
 
   QGroupBox  *edge = new QGroupBox( tr( "Edge view :" ), this );
@@ -295,7 +295,7 @@ FixedPointOfViewWindow::FixedPointOfViewWindow( AWindow3D* win,
   vlay->addItem( new QSpacerItem( 1, 1, QSizePolicy::Expanding,
                                   QSizePolicy::Expanding ) );
 
-  connect( bg, SIGNAL( buttonClicked( int ) ), this,
+  connect( bg, SIGNAL( idClicked( int ) ), this,
            SLOT( edgePOV( int ) ) );
 
   QGroupBox *corner = new QGroupBox( tr( "Corner view :" ), this );
@@ -338,7 +338,7 @@ FixedPointOfViewWindow::FixedPointOfViewWindow( AWindow3D* win,
   vlay->addItem( new QSpacerItem( 1, 1, QSizePolicy::Expanding,
                                   QSizePolicy::Expanding ) );
 
-  connect( bg, SIGNAL( buttonClicked( int ) ), this,
+  connect( bg, SIGNAL( idClicked( int ) ), this,
            SLOT( cornerPOV( int ) ) );
 
   lay->addWidget( straight );

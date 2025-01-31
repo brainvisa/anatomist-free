@@ -284,9 +284,9 @@ QTexturePanel::QTexturePanel( const set<AObject *> & obj,
            SLOT( wrapModeChanged( int ) ) );
   connect( d->wrapmodes[2], SIGNAL( activated( int ) ),
            SLOT( wrapModeChanged( int ) ) );
-  connect( d->filtg, SIGNAL( buttonClicked( int ) ),
+  connect( d->filtg, SIGNAL( idClicked( int ) ),
            SLOT( filteringChanged( int ) ) );
-  connect( d->geng, SIGNAL( buttonClicked( int ) ),
+  connect( d->geng, SIGNAL( idClicked( int ) ),
            SLOT( generationChanged( int ) ) );
   connect( d->mixsl, SIGNAL( valueChanged( int ) ), 
            SLOT( rateChanged( int ) ) );

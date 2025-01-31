@@ -31,14 +31,11 @@
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL-B license and that you accept its terms.
 
-from __future__ import print_function
 
-from __future__ import absolute_import
 import anatomist.cpp as anatomist
 from soma import aims, aimsalgo
 import numpy
 import os
-import sys
 import soma.qt_gui.qt_backend.QtCore as qt
 import soma.qt_gui.qt_backend.QtGui as qtgui
 
@@ -457,34 +454,39 @@ class SplitFoldControl(anatomist.Control):
 
     def __init__(self, prio=150):
         anatomist.Control.__init__(self, prio,
-                                   qt.QT_TRANSLATE_NOOP('ControlledWindow', 'SplitFoldControl'))
+                                   qt.QT_TRANSLATE_NOOP('ControlledWindow',
+                                                        'SplitFoldControl'))
         self.setUserLevel(2)
 
     def eventAutoSubscription(self, pool):
         self.mousePressButtonEventSubscribe(
-            qt.Qt.LeftButton, qt.Qt.NoModifier,
-          pool.action('SplitFoldAction').split)
+            qt.Qt.LeftButton, qt.Qt.KeyboardModifier.NoModifier,
+            pool.action('SplitFoldAction').split)
         self.mousePressButtonEventSubscribe(
             qt.Qt.RightButton, qt.Qt.ControlModifier,
-          pool.action('SplitFoldAction').subdivize)
+            pool.action('SplitFoldAction').subdivize)
         self.mousePressButtonEventSubscribe(
             qt.Qt.RightButton, qt.Qt.ShiftModifier,
-          pool.action('SplitFoldAction').subdivizeGraph)
+            pool.action('SplitFoldAction').subdivizeGraph)
         self.mousePressButtonEventSubscribe(
             qt.Qt.LeftButton, qt.Qt.ControlModifier,
-          pool.action('SplitFoldAction').splitDotted)
-        self.keyPressEventSubscribe(qt.Qt.Key_S, qt.Qt.NoModifier,
+            pool.action('SplitFoldAction').splitDotted)
+        self.keyPressEventSubscribe(qt.Qt.Key_S,
+                                    qt.Qt.KeyboardModifier.NoModifier,
                                     pool.action('SplitFoldAction').doSplit)
-        self.keyPressEventSubscribe(qt.Qt.Key_Escape, qt.Qt.NoModifier,
+        self.keyPressEventSubscribe(qt.Qt.Key_Escape,
+                                    qt.Qt.KeyboardModifier.NoModifier,
                                     pool.action('SplitFoldAction').cleanup)
         # std actions
         self.mousePressButtonEventSubscribe(
-            qt.Qt.RightButton, qt.Qt.NoModifier,
-          pool.action("MenuAction").execMenu)
-        self.mouseLongEventSubscribe(qt.Qt.MiddleButton, qt.Qt.NoModifier,
+            qt.Qt.RightButton, qt.Qt.KeyboardModifier.NoModifier,
+            pool.action("MenuAction").execMenu)
+        self.mouseLongEventSubscribe(qt.Qt.MiddleButton,
+                                     qt.Qt.KeyboardModifier.NoModifier,
                                      pool.action("Trackball").beginTrackball,
                                      pool.action("Trackball").moveTrackball,
-                                     pool.action("Trackball").endTrackball, True)
+                                     pool.action("Trackball").endTrackball,
+                                     True)
         self.mouseLongEventSubscribe(qt.Qt.MiddleButton, qt.Qt.ShiftModifier,
                                      pool.action("Zoom3DAction").beginZoom,
                                      pool.action("Zoom3DAction").moveZoom,

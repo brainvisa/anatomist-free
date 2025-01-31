@@ -44,6 +44,7 @@ class QImage;
 
 namespace anatomist
 {
+  class AObject;
 
   class AObjectPalette
   {
@@ -94,7 +95,29 @@ namespace anatomist
     { _max = x; if( isnan( x ) || isinf( x ) ) _max = 0; }
     void setMin2( float x ) { _min2 = x; }
     void setMax2( float x ) { _max2 = x; }
-    void setPalette1DMapping( Palette1DMapping palette1DMapping ) 
+
+    /// get the absolute min for a given object
+    float absMin1( const AObject * obj ) const;
+    /// get the absolute max for a given object
+    float absMax1( const AObject * obj ) const;
+    /// get the absolute min for a given object
+    float absMin2( const AObject * obj ) const;
+    /// get the absolute max for a given object
+    float absMax2( const AObject * obj ) const;
+    /// set the min from an absolute value for a given object
+    void setAbsMin1( const AObject * obj, float x );
+    /// set the max from an absolute value for a given object
+    void setAbsMax1( const AObject * obj, float x );
+    /// set the min from an absolute value for a given object
+    void setAbsMin2( const AObject * obj, float x );
+    /// set the max from an absolute value for a given object
+    void setAbsMax2( const AObject * obj, float x );
+    float relValue1( const AObject * obj, float absval ) const;
+    float relValue2( const AObject * obj, float absval ) const;
+    float absValue1( const AObject * obj, float relval ) const;
+    float absValue2( const AObject * obj, float relval ) const;
+
+    void setPalette1DMapping( Palette1DMapping palette1DMapping )
     { _palette1DMapping = palette1DMapping ; }
     void setPalette1DMappingName( std::string palette1DMappingName ) 
     { _palette1DMapping = ( palette1DMappingName == "FirstLine" ? 
@@ -150,7 +173,17 @@ namespace anatomist
     void copyOrFillColors( const AObjectPalette & pal );
 
     static std::map<std::string, MixMethod>	mixMethods;
-    QImage* toQImage( int w = 0, int h = 0 ) const;
+    /** Get the palette image in a QImage.
+
+        The image takes into account the palette min/max settings.
+
+        Extra optional parameters allow to scale the image. They are not
+        interpreted the same way as min/max bounds (which determine where on
+        the palette image the object extrema are mapped), but at the contrary,
+        allow to zoom the palette view on specific object values bounds.
+    */
+    QImage* toQImage( int w = 0, int h = 0, float min1 = 0., float max1 = 1.,
+                      float min2 = 0., float max2 = 1. ) const;
     carto::rc_ptr<carto::Volume<AimsRGBA> >
       toVolume( int w = 0, int h = 0, bool scaled = true ) const;
 

@@ -351,11 +351,11 @@ Tools3DWindow::Tools3DWindow( AWindow3D *win )
 	   SLOT( enableCube( bool ) ) );
   connect( boundEn, SIGNAL( toggled( bool ) ), this, 
 	   SLOT( enableBoundingFrame( bool ) ) );
-  connect( renderbg, SIGNAL( buttonClicked( int ) ), this, 
+  connect( renderbg, SIGNAL( idClicked( int ) ), this,
 	   SLOT( setRenderMode( int ) ) );
   connect( pmode, SIGNAL( toggled( bool ) ), this, 
 	   SLOT( enablePerspective( bool ) ) );
-  connect( clipbg, SIGNAL( buttonClicked( int ) ), 
+  connect( clipbg, SIGNAL( idClicked( int ) ),
            this, SLOT( setClipMode( int ) ) );
   connect( cld, SIGNAL( valueChanged( int ) ), this, 
 	   SLOT( setClipDistance( int ) ) );
@@ -373,7 +373,7 @@ Tools3DWindow::Tools3DWindow( AWindow3D *win )
 	   SLOT( enableDepthPeeling( bool ) ) );
   connect( dppass, SIGNAL( valueChanged( int ) ), this, 
 	   SLOT( setDepthPeelingPasses( int ) ) );
-  connect( wsgg, SIGNAL( buttonClicked( int ) ), this, 
+  connect( wsgg, SIGNAL( idClicked( int ) ), this,
 	   SLOT( toggleSavingMode( int ) ) );
 }
 
