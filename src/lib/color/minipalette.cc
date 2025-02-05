@@ -89,9 +89,18 @@ void MiniPaletteGraphics::setObject( AObject *obj, int dim )
     {
       const GLComponent::TexExtrema & extr = glc->glTexExtrema( 0 );
       AObjectPalette *pal = obj->palette();
-      float valmin = extr.minquant[0];
-      float valmax = extr.maxquant[0];
-      if( pal->zeroCenteredAxis1() )
+      float valmin, valmax;
+      if( dim >= extr.maxquant.size() )
+      {
+        valmin = 0.;
+        valmax = 1.;
+      }
+      else
+      {
+        valmin = extr.minquant[dim];
+        valmax = extr.maxquant[dim];
+      }
+      if( pal->zeroCenteredAxis( dim ) )
       {
         valmax = std::max( std::abs( valmin), std::abs( valmax ) );
         valmin = -valmax;
@@ -213,9 +222,24 @@ void MiniPaletteGraphics::_drawPaletteInGraphicsView()
   if( baseh > 30 )
     baseh = 30;
   int baseh2 = gheight - baseh + 3;
-  QImage *img( pal->toQImage( w, baseh2 - baseh - 1,
-                              pal->relValue1( obj, d->min1 ),
-                              pal->relValue1( obj, d->max1 ) ) );
+  float m1, M1, m2, M2;
+  int dim = observedDimension();
+  if( dim == 1 )
+  {
+    m2 = pal->relValue2( obj, d->min1 );
+    M2 = pal->relValue2( obj, d->max1 );
+    m1 = pal->min1();
+    M1 = pal->max1();
+  }
+  else
+  {
+    m1 = pal->relValue1( obj, d->min1 );
+    M1 = pal->relValue1( obj, d->max1 );
+    m2 = pal->min2();
+    M2 = pal->max2();
+  }
+
+  QImage *img( pal->toQImage( w, baseh2 - baseh - 1, m1, M1, m2, M2 ) );
   QPixmap pix = QPixmap::fromImage( *img );
   delete img;
   clear();
@@ -244,14 +268,14 @@ void MiniPaletteGraphics::_drawPaletteInGraphicsView()
   QTransform tr = pixitem->transform();
   tr.translate( 6, baseh + 1 );
   pixitem->setTransform( tr );
-  float palmin = pal->absMin1( obj );
-  float palmax = pal->absMax1( obj );
+  float palmin = pal->absMin( dim, obj );
+  float palmax = pal->absMax( dim, obj );
   float valmin = d->min1;
   float valmax = d->max1;
 
   float xmin = 6 + w * ( palmin - valmin ) / ( valmax - valmin );
   float xmax = 6 + w * ( palmax - valmin ) / ( valmax - valmin );
-  float pmin = pal->min1();
+  float pmin = pal->min( dim );
   if( xmin >= 0 && xmin < w )
   {
     QGraphicsLineItem *line = new QGraphicsLineItem(
@@ -680,7 +704,7 @@ MiniPaletteWidgetEdit::~MiniPaletteWidgetEdit()
 void MiniPaletteWidgetEdit::setObject( AObject *obj, int dim )
 {
   d->minipw->setObject( obj, dim );
-  if( !obj->glAPI() || obj->glAPI()->glNumTextures() == 0 )
+  if( !obj || !obj->glAPI() || obj->glAPI()->glNumTextures() == 0 )
     return;
   obj->addObserver( this );
   adjustRange();
