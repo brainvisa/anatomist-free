@@ -20,11 +20,11 @@ public:
 
 signals:
   /// signal emitted upon mouse press event
-  void mousePressed( const QMouseEvent * );
+  void mousePressed( QMouseEvent * );
   /// signal emitted upon mouse move event
-  void mouseMoved( const QMouseEvent * );
+  void mouseMoved( QMouseEvent * );
   /// signal emitted upon mouse release event
-  void mouseReleased( const QMouseEvent * );
+  void mouseReleased( QMouseEvent * );
 
 protected:
   virtual void mousePressEvent( QMouseEvent *event ) override;

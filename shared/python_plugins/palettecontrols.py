@@ -38,7 +38,7 @@ ctrl+right mouse button: left-right: change min, up-down: change max
 """
 
 import anatomist.cpp as anatomist
-from anatomist.cpp import palettecontrastaction
+from anatomist.cpp import palettecontrastaction  # noqa: F401
 from soma import aims
 from soma.qt_gui.qt_backend import Qt
 from soma.qt_gui.qt_backend import sip
@@ -95,13 +95,15 @@ class MiniPaletteExtensionAction(anatomist.APaletteExtensionAction):
         super().__init__(icon, text, parent)
 
     def extensionTriggered(self, objects):
-        from anatomist.cpp import minipalettewidget as mpw
+        import anatomist.cpp as mpw
 
         if len(objects) != 0:
-            w = mpw.MiniPaletteWidget(object=next(iter(objects)),
-                                      allow_edit=True,
-                                      edit_parent=0, click_to_edit=True,
-                                      auto_range=False)
+            w = mpw.MiniPaletteWidget(next(iter(objects)),
+                                      True,
+                                      True,
+                                      None,
+                                      True,
+                                      False)
             w.setAttribute(Qt.Qt.WA_DeleteOnClose, True)
             w.resize(260, 60)
             w.show()
@@ -138,6 +140,7 @@ makePalettedSubclass(c)
 c = cd.getControlInstance('Flight control')
 makePalettedSubclass(c)
 
+print('Minipalette ext')
 icon = Qt.QIcon(aims.carto.Paths.findResourceFile(
     'icons/palette.jpg', 'anatomist'))
 ac = MiniPaletteExtensionAction(icon, 'minpalette', None)

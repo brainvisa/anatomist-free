@@ -28,8 +28,8 @@ set( _headers
     browser/qwObjectBrowser.h
     bucket/Bucket.h
     color/colortraits.h
+    color/minipalette.h
     color/qwObjPalette.h
-    color/wObjPalette.h
     color/objectPalette.h
     color/palette.h
     color/paletteList.h
@@ -37,6 +37,7 @@ set( _headers
     color/Material.h
     color/Light.h
     color/wMaterial.h
+    color/wObjPalette.h
     color/wRendering.h
     commands/cActivateAction.h
     commands/cAddObject.h
@@ -129,6 +130,7 @@ set( _headers
     controler/view.h
     control/windowdrag.h
     dialogs/qclickgraphicsview.h
+    dialogs/qmagnetslider.h
     dialogs/colorDialog.h
     dialogs/colorWidget.h
     dialogs/qScopeLineEdit.h
@@ -282,8 +284,8 @@ set( _sources
     browser/qwObjectBrowser.cc
     bucket/Bucket.cc
     color/colortraits.cc
+    color/minipalette.cc
     color/qwObjPalette.cc
-    color/wObjPalette.cc
     color/objectPalette.cc
     color/palette.cc
     color/paletteList.cc
@@ -291,6 +293,7 @@ set( _sources
     color/Material.cc
     color/Light.cc
     color/wMaterial.cc
+    color/wObjPalette.cc
     color/wRendering.cc
     commands/cActivateAction.cc
     commands/cAddObject.cc
@@ -382,6 +385,7 @@ set( _sources
     controler/controlswitch.cc
     controler/view.cc
     dialogs/qclickgraphicsview.cc
+    dialogs/qmagnetslider.cc
     dialogs/colorDialog.cc
     dialogs/colorWidget.cc
     dialogs/qScopeLineEdit.cc
