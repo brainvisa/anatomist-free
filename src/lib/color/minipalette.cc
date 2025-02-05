@@ -28,7 +28,7 @@ struct MiniPaletteGraphics::Private
            float left, float top )
     : aobj( 0 ), width( width ), height( height ),
       left( left ), top( top ), min1( 0. ), max1( 1. ),
-      graphicsview( graphicsview )
+      graphicsview( graphicsview ), dim( 0 )
   {
   }
 
@@ -41,18 +41,20 @@ struct MiniPaletteGraphics::Private
   float max1;
   list<QGraphicsItem *> tmpitems;
   QGraphicsView *graphicsview;
+  int dim;
 };
 
 
 MiniPaletteGraphics::MiniPaletteGraphics( QGraphicsView *graphicsview,
                                           AObject *object,
+                                          int dim,
                                           float width, float height,
                                           float left, float top )
   : Observer(),
   d( new Private( graphicsview, width, height, left, top ) )
 {
   if( object )
-    setObject( object );
+    setObject( object, dim );
 }
 
 
@@ -72,7 +74,7 @@ AObject *MiniPaletteGraphics::getObject()
 }
 
 
-void MiniPaletteGraphics::setObject( AObject *obj )
+void MiniPaletteGraphics::setObject( AObject *obj, int dim )
 {
   if( !d->aobj.isNull() )
     d->aobj->deleteObserver( this );
@@ -81,6 +83,7 @@ void MiniPaletteGraphics::setObject( AObject *obj )
   if( obj )
   {
     d->aobj = weak_shared_ptr<AObject>( obj );
+    d->dim = dim;
     GLComponent *glc = obj->glAPI();
     if( glc )
     {
@@ -327,6 +330,12 @@ QGraphicsSimpleTextItem* MiniPaletteGraphics::_textGraphicsItem(
 }
 
 
+int MiniPaletteGraphics::observedDimension() const
+{
+  return d->dim;
+}
+
+
 // --
 
 
@@ -357,9 +366,10 @@ struct MiniPaletteWidget::Private
 };
 
 
-MiniPaletteWidget::MiniPaletteWidget( AObject *object, bool allow_edit,
-                       bool self_parent, QWidget *edit_parent,
-                       bool click_to_edit, bool auto_range )
+MiniPaletteWidget::MiniPaletteWidget( AObject *object, int dim,
+                                      bool allow_edit, bool self_parent,
+                                      QWidget *edit_parent, bool click_to_edit,
+                                      bool auto_range )
   : QWidget(),
     d( new Private( allow_edit, self_parent, edit_parent, click_to_edit,
                     auto_range ) )
@@ -369,9 +379,9 @@ MiniPaletteWidget::MiniPaletteWidget( AObject *object, bool allow_edit,
   d->graphicsview = new QClickGraphicsView;
   lay->addWidget( d->graphicsview );
   d->graphicsview->setFocusPolicy( Qt::NoFocus );
-  d->minipg = new MiniPaletteGraphics( d->graphicsview, object );
+  d->minipg = new MiniPaletteGraphics( d->graphicsview, object, dim );
   if( object )
-    setObject( object );
+    setObject( object, dim );
   allowEdit( allow_edit, self_parent, edit_parent );
   connect( d->graphicsview, SIGNAL( mouseReleased( QMouseEvent * ) ),
            this, SLOT( gvReleased( QMouseEvent * ) ) );
@@ -391,9 +401,9 @@ AObject *MiniPaletteWidget::getObject()
 }
 
 
-void MiniPaletteWidget::setObject( AObject *obj )
+void MiniPaletteWidget::setObject( AObject *obj, int dim )
 {
-  d->minipg->setObject( obj );
+  d->minipg->setObject( obj, dim );
   updateDisplay();
 }
 
@@ -441,7 +451,8 @@ void MiniPaletteWidget::showEditor()
     if( d->self_parent )
         parent = this;
     d->editor = new MiniPaletteWidgetTranscient(
-        obj, this, parent, d->click_to_edit, d->auto_range );
+        obj, observedDimension(), this, parent, d->click_to_edit,
+        d->auto_range );
     connect( d->editor, SIGNAL( editorClosed() ),
              this, SLOT( editorClosed() ) );
   }
@@ -597,6 +608,12 @@ QGraphicsView *MiniPaletteWidget::graphicsView()
 }
 
 
+int MiniPaletteWidget::observedDimension() const
+{
+  return d->minipg->observedDimension();
+}
+
+
 // ---
 
 struct MiniPaletteWidgetEdit::Private
@@ -623,6 +640,7 @@ struct MiniPaletteWidgetEdit::Private
 
 
 MiniPaletteWidgetEdit::MiniPaletteWidgetEdit( AObject *object,
+                                              int dim,
                                               bool auto_range )
   : QWidget(), Observer(), d( new Private() )
 {
@@ -630,14 +648,14 @@ MiniPaletteWidgetEdit::MiniPaletteWidgetEdit( AObject *object,
   setLayout( layout );
   d->minslider = new QMagnetSlider( Qt::Horizontal, this );
   d->minslider->setObjectName( "min_slider" );
-  d->minipw = new MiniPaletteWidget( 0, false, true, 0, false );
+  d->minipw = new MiniPaletteWidget( 0, 0, false, true, 0, false );
   d->minipw->setParent( this );
   d->maxslider = new QMagnetSlider( Qt::Horizontal, this );
   d->maxslider->setObjectName( "max_slider" );
   layout->addWidget( d->minslider );
   layout->addWidget( d->minipw );
   layout->addWidget( d->maxslider );
-  setObject( object );
+  setObject( object, dim );
   d->minipw->graphicsView()->setMouseTracking( true );
   connect( d->minipw->graphicsView(), SIGNAL( mouseMoved( QMouseEvent * ) ),
            this, SLOT( gvMoved( QMouseEvent * ) ) );
@@ -659,9 +677,9 @@ MiniPaletteWidgetEdit::~MiniPaletteWidgetEdit()
 }
 
 
-void MiniPaletteWidgetEdit::setObject( AObject *obj )
+void MiniPaletteWidgetEdit::setObject( AObject *obj, int dim )
 {
-  d->minipw->setObject( obj );
+  d->minipw->setObject( obj, dim );
   if( !obj->glAPI() || obj->glAPI()->glNumTextures() == 0 )
     return;
   obj->addObserver( this );
@@ -958,7 +976,7 @@ struct MiniPaletteWidgetTranscient::Private
 
 
 MiniPaletteWidgetTranscient::MiniPaletteWidgetTranscient(
-  AObject *object, MiniPaletteWidget* pw, QWidget *parent,
+  AObject *object, int dim, MiniPaletteWidget* pw, QWidget *parent,
   bool opened_by_click, bool auto_range )
   : QWidget( parent, Qt::Popup | Qt::FramelessWindowHint ),
     d( new Private )
@@ -969,7 +987,7 @@ MiniPaletteWidgetTranscient::MiniPaletteWidgetTranscient(
   setLayout( layout );
   d->pw = pw;
   d->opened_by_click = opened_by_click;
-  d->minipw = new MiniPaletteWidgetEdit( object, auto_range );
+  d->minipw = new MiniPaletteWidgetEdit( object, dim, auto_range );
   layout->addWidget( d->minipw );
   reposition();
   connect( d->minipw->minSlider(), SIGNAL( sliderPressed() ),

@@ -99,6 +99,7 @@ class MiniPaletteExtensionAction(anatomist.APaletteExtensionAction):
 
         if len(objects) != 0:
             w = mpw.MiniPaletteWidget(next(iter(objects)),
+                                      0,
                                       True,
                                       True,
                                       None,

@@ -45,13 +45,14 @@ namespace anatomist
           means centered in scene.
     */
     MiniPaletteGraphics( QGraphicsView *graphicsview, AObject *object=0,
+                         int dim = 0,
                          float width=-10000, float height=-10000,
                          float left=-10000, float top=-10000 );
     virtual ~MiniPaletteGraphics();
 
     AObject *getObject();
     /// set or change the observed object
-    void setObject( AObject *obj );
+    void setObject( AObject *obj, int dim = 0 );
     void setRange( float min1, float max1 );
     void updateDisplay();
     void resize( float x, float y, float w, float h );
@@ -63,6 +64,7 @@ namespace anatomist
     void update( const Observable *observable, void *arg );
     float min1() const;
     float max1() const;
+    int observedDimension() const;
 
   private:
     struct Private;
@@ -111,6 +113,8 @@ namespace anatomist
 
         object: AObject or null
             object to display or edit the palette for
+        dim: int
+            texture dimension of the object
         allow_edit: bool
             if True, an editor will popup, either by clicking on the widget, or
             by "hovering" it if ``click_to_edit`` is False.
@@ -128,13 +132,15 @@ namespace anatomist
             For edition mode, allow the auto-zoom mode when palette range is
             modified.
     */
-    MiniPaletteWidget( AObject *object = 0, bool allow_edit = true,
+    MiniPaletteWidget( AObject *object = 0, int dim = 0,
+                       bool allow_edit = true,
                        bool self_parent = true, QWidget *edit_parent = 0,
                        bool click_to_edit = true, bool auto_range = false );
     virtual ~MiniPaletteWidget();
     AObject *getObject();
-    /// set or change the observed object
-    void setObject( AObject *obj );
+    /** set or change the observed object, dim is the texture dimension
+        observed */
+    void setObject( AObject *obj, int dim = 0 );
     /** Enalbes or disable the edition capabilities
 
     Parameters
@@ -161,6 +167,7 @@ namespace anatomist
     void hideEditor();
     MiniPaletteGraphics *miniPaletteGraphics();
     QGraphicsView *graphicsView();
+    int observedDimension() const;
 
   signals:
     /** signal emitted when the zoom range has changed (after a mouse wheel
@@ -220,11 +227,12 @@ namespace anatomist
     Q_OBJECT
 
   public:
-    MiniPaletteWidgetEdit( AObject *object=0, bool auto_range=false );
+    MiniPaletteWidgetEdit( AObject *object=0, int dim = 0,
+                           bool auto_range=false );
     virtual ~MiniPaletteWidgetEdit();
 
     /// set or change the observed object
-    void setObject( AObject *obj );
+    void setObject( AObject *obj, int dim = 0 );
     /// redraws the palette and sliders values
     void updateDisplay();
     virtual void update( const Observable *observable, void *arg );
@@ -272,6 +280,7 @@ namespace anatomist
 
   public:
     MiniPaletteWidgetTranscient( AObject *object = 0,
+                                 int dim = 0,
                                  MiniPaletteWidget* pw = 0,
                                  QWidget *parent = 0,
                                  bool opened_by_click = false,
