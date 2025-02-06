@@ -10,8 +10,12 @@ using namespace carto;
 using namespace std;
 
 
-PaletteSelectWidget::PaletteSelectWidget( QWidget *parent )
-  : QTableWidget( parent )
+PaletteSelectWidget::PaletteSelectWidget( QWidget *parent,
+                                          const string & selected,
+                                          bool allow_none )
+  : QTableWidget( parent ),
+    _init_selected( selected ),
+    _allow_none( allow_none )
 {
   setMinimumSize( 200, 200 );
   setSortingEnabled( true );
@@ -24,6 +28,7 @@ PaletteSelectWidget::PaletteSelectWidget( QWidget *parent )
   setIconSize( QSize( 64, 20 ) );
 
   fillPalettes();
+  selectPalette( selected );
 
   connect( this, SIGNAL( itemSelectionChanged() ), SLOT( paletteChanged() ) );
 }
@@ -39,13 +44,24 @@ void PaletteSelectWidget::fillPalettes()
   const list<rc_ptr<APalette> >	& pal = theAnatomist->palettes().palettes();
   list<rc_ptr<APalette> >::const_iterator	ip, fp=pal.end();
   int				i = 0;
+  int ps = pal.size();
 
-  setRowCount( pal.size() );
+  if( _allow_none )
+    ++ps;
+
+  setRowCount( ps );
   setColumnCount( 2 );
   setHorizontalHeaderItem( 0, new QTableWidgetItem( tr( "name" ) ) );
   setHorizontalHeaderItem( 1, new QTableWidgetItem( tr( "look" ) ) );
   map<string, int> cols;
-  for( i=0, ip=pal.begin(); ip!=fp; ++ip, ++i )
+
+  if( _allow_none )
+  {
+    QTableWidgetItem *item = new QTableWidgetItem( "<None>" );
+    setItem( 0, 0, item );
+  }
+
+  for( i=int(_allow_none), ip=pal.begin(); ip!=fp; ++ip, ++i )
   {
     QTableWidgetItem *item = new QTableWidgetItem( (*ip)->name().c_str() );
     setItem( i, 0, item );
@@ -145,6 +161,9 @@ string PaletteSelectWidget::selectedPalette() const
   item = selected.front();
 
   string		name = item->text().toStdString();
+  if( _allow_none && name == "<None>" )
+    return "";
+
   PaletteList		& pallist = theAnatomist->palettes();
   const rc_ptr<APalette> pal = pallist.find( name );
 
@@ -159,9 +178,6 @@ void PaletteSelectWidget::paletteChanged()
 {
   string name = selectedPalette();
 
-  if( name.empty() )
-    return;
-
   emit paletteSelected( name );
 }
 
@@ -170,15 +186,26 @@ void PaletteSelectWidget::selectPalette( const string & name )
 {
   blockSignals( true );
 
-  int i, n = rowCount();
-  QString	qname( name.c_str() );
-  QList<QTableWidgetItem *> items = findItems(
-    qname, Qt::MatchCaseSensitive | Qt::MatchExactly );
   QTableWidgetItem *item = 0;
-  if( items.count() != 0 )
-    item = items.front();
+  QList<QTableWidgetItem *> items;
+  if( _allow_none && ( name == "" || name == "<None>" ) )
+  {
+    item = QTableWidget::item( 0, 0 );
+  }
+  else
+  {
+    int i, n = rowCount();
+    QString	qname( name.c_str() );
+    items = findItems( qname, Qt::MatchCaseSensitive | Qt::MatchExactly );
+    if( items.count() != 0 )
+      item = items.front();
+  }
   if( item )
+  {
     setCurrentItem( item );
+    item->setSelected( true );
+    scrollToItem( item );
+  }
   else
   {
     setCurrentItem( 0 );
