@@ -219,7 +219,7 @@ namespace anatomist
 
     /**	Creates or updates object palette according to object values 
 	(if needed) */
-    virtual void adjustPalette() {}
+    virtual void adjustPalette();
     /**	Normally, getOrCreatePalette() should be used instead of this function 
 	in most cases */
     virtual AObjectPalette* palette() { return( _palette ); }
