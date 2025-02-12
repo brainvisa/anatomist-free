@@ -35,22 +35,39 @@
 #define ISHADER_MODULE_H
 
 #include <string>
+#include <QGLShaderProgram>
+#include "glcomponent.h"
+#include "../window3D/window3D.h"
 
-class IShaderModule
+
+
+namespace anatomist
 {
-  /** This class is the base interface for creating a new module for the shader
-   * program. The module is responsible for creating the specific uniforms declaration,
-   * the function implementation and the function call for the shader program.
-  */
-  public:
-    /// Returns the uniform declarations for the shader module
-    virtual std::string getUniformDeclarations() const = 0;
-    /// Returns the function implementation for the shader module
-    virtual std::string getFunctionImplementation() const = 0;
-    /// Returns the function call module
-    virtual std::string getFunctionCall() const = 0;
-    virtual ~IShaderModule() = default;
-};
+  // class GLComponent;
+  // class AWindow3D;
+
+  class IShaderModule
+  {
+    /** This class is the base interface for creating a new module for the shader
+    * program. The module is responsible for creating the specific uniforms declaration,
+    * the function implementation and the function call for the shader program.
+    */
+
+
+    public:
+      /// Returns the uniform declarations for the shader module
+      virtual std::string getUniformDeclarations() const = 0;
+      /// Returns the function implementation for the shader module
+      virtual std::string getFunctionImplementation() const = 0;
+      /// Returns the function call module
+      virtual std::string getFunctionCall() const = 0;
+      virtual ~IShaderModule() = default;
+
+      /// Sets up the uniforms for the shader module
+      virtual void setupObjectUniforms(QGLShaderProgram& program, GLComponent& obj) const = 0;
+      virtual void setupSceneUniforms(QGLShaderProgram& program, AWindow3D& scene) const  = 0;
+  };
+}
 
 
 

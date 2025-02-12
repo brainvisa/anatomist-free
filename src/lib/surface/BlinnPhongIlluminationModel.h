@@ -35,18 +35,22 @@
 
 #include "IShaderModule.h"
 
-class BlinnPhongIlluminationModel : public IShaderModule
+namespace anatomist
 {
-  /** This class is a shader module that implements the Blinn-Phong illumination model.
-   * It provides the uniform declarations, the function implementation and the
-   * function call for the Blinn-Phong illumination model.
-  */
-  public:
-    BlinnPhongIlluminationModel();
-    std::string getUniformDeclarations() const override;
-    std::string getFunctionImplementation() const override;
-    std::string getFunctionCall() const override;
-    static void setupUniforms(QOpenGLShaderProgram& shaderProgram, Light light, Material material);
-};
+  class BlinnPhongIlluminationModel : public IShaderModule
+  {
+    /** This class is a shader module that implements the Blinn-Phong illumination model.
+    * It provides the uniform declarations, the function implementation and the
+    * function call for the Blinn-Phong illumination model.
+    */
+    public:
+      BlinnPhongIlluminationModel();
+      std::string getUniformDeclarations() const override;
+      std::string getFunctionImplementation() const override;
+      std::string getFunctionCall() const override;
+      void setupObjectUniforms(QGLShaderProgram& program, GLComponent& obj) const override;
+      void setupSceneUniforms(QGLShaderProgram& program, AWindow3D& scene) const  override;
+  };
+}
 
 #endif // BLINN_PHONG_ILLUMINATION_MODEL_H

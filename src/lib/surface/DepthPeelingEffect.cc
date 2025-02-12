@@ -1,5 +1,8 @@
 #include "DepthPeelingEffect.h"
 
+using namespace anatomist;
+
+
 DepthPeelingEffect::DepthPeelingEffect()
 {
 }
@@ -41,8 +44,18 @@ std::string DepthPeelingEffect::getFunctionCall() const
   return "peeling(color);";
 }
 
-void DepthPeelingEffect::setupUniforms(QOpenGLShaderProgram& shaderProgram, int layer)
+
+void DepthPeelingEffect::setupObjectUniforms(QGLShaderProgram& program, GLComponent& obj) const
 {
-  shaderProgram.setUniformValue("u_previousDepthTexture", 0);
-  shaderProgram.setUniformValue("u_layer", layer);
 }
+
+void DepthPeelingEffect::setupSceneUniforms(QGLShaderProgram& program, AWindow3D& scene) const
+{
+  int previousDepthTextureLocation = program.uniformLocation("u_previousDepthTexture");
+  program.setUniformValue(previousDepthTextureLocation, 0 /*nbUnitTexture*/);
+
+  int nbLayerLocation = program.uniformLocation("u_layer");
+  program.setUniformValue(nbLayerLocation, 8/* scene.nbLayer*/);
+
+}
+

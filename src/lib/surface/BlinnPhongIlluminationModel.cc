@@ -1,5 +1,8 @@
 #include "BlinnPhongIlluminationModel.h"
 
+using namespace anatomist;
+
+
 BlinnPhongIlluminationModel::BlinnPhongIlluminationModel()
 {
 }
@@ -54,14 +57,40 @@ std::string BlinnPhongIlluminationModel::getFunctionCall() const
   return "BlinnPhong(color, gl_FragCoord.xyz, v_normal);";
 }
 
-void BlinnPhongIlluminationModel::setupUniforms(QOpenGLShaderProgram& shaderProgram, Light light, Material material)
+void BlinnPhongIlluminationModel::setupObjectUniforms(QGLShaderProgram& program, GLComponent& obj) const
 {
-  shaderProgram.setUniformValue("u_lightDirection", light.direction);
-  shaderProgram.setUniformValue("u_lightAmbient", light.ambient);
-  shaderProgram.setUniformValue("u_lightDiffuse", light.diffuse);
-  shaderProgram.setUniformValue("u_lightSpecular", light.specular);
-  shaderProgram.setUniformValue("u_lightIntensity", light.intensity);
-  shaderProgram.setUniformValue("u_materialDiffuse", material.diffuse);
-  shaderProgram.setUniformValue("u_materialSpecular", material.specular);
-  shaderProgram.setUniformValue("u_materialShininess", material.shininess);
+  int materialAmbientLocation = program.uniformLocation("u_materialAmbient");
+  program.setUniformValue(materialAmbientLocation, 0 /*value*/);
+
+  int materialDiffuseLocation = program.uniformLocation("u_materialDiffuse");
+  program.setUniformValue(materialDiffuseLocation, 0/* value*/);
+
+  int materialSpecularLocation = program.uniformLocation("u_materialSpecular");
+  program.setUniformValue(materialSpecularLocation, 0 /* value*/);
+
+  int materialShininessLocation = program.uniformLocation("u_materialShininess");
+  program.setUniformValue(materialShininessLocation, 0 /*, value*/);
 }
+
+
+void BlinnPhongIlluminationModel::setupSceneUniforms(QGLShaderProgram& program, AWindow3D& scene) const
+{
+    int lightDirectionLocation = program.uniformLocation("u_lightDirection");
+    program.setUniformValue(lightDirectionLocation, 0 /* value*/);
+
+    int lightAmbientLocation = program.uniformLocation("u_lightAmbient");
+    program.setUniformValue(lightAmbientLocation, 0 /* value*/);
+
+    int lightDiffuseLocation = program.uniformLocation("u_lightDiffuse");
+    program.setUniformValue(lightDiffuseLocation, 0 /* value*/);
+
+    int lightSpecularLocation = program.uniformLocation("u_lightSpecular");
+    program.setUniformValue(lightSpecularLocation, 0 /* value*/);
+
+    int lightIntensityLocation = program.uniformLocation("u_lightIntensity");
+    program.setUniformValue(lightIntensityLocation, 0 /* value*/);
+
+    int viewPositionLocation = program.uniformLocation("u_viewPosition");
+    program.setUniformValue(viewPositionLocation, 0 /* value*/);
+}
+

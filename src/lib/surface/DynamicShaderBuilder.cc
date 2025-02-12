@@ -8,6 +8,8 @@
 
 #include "DynamicShaderBuilder.h"
 
+using namespace anatomist;
+
 DynamicShaderBuilder::DynamicShaderBuilder()
 {
 }
@@ -123,6 +125,3 @@ std::string DynamicShaderBuilder::generateShaderSource() const
 
   return shaderSource;
 }
-
-
-// void DynamicShaderBuilder::setupUniforms(uint shaderProgram){}

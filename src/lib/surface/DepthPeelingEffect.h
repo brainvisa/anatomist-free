@@ -34,19 +34,24 @@
 #define DEPTH_PEELING_EFFECT_H
 
 #include "IShaderModule.h"
-
-class DepthPeelingEffect : public IShaderModule
+namespace anatomist
 {
-  /** This class is a shader module that implements the depth peeling effect.
-   * It provides the uniform declarations, the function implementation and the
-   * function call for a pass of depth peeling effect.
-  */
-  public:
-    DepthPeelingEffect();
-    std::string getUniformDeclarations() const override;
-    std::string getFunctionImplementation() const override;
-    std::string getFunctionCall() const override;
-    static void setupUniforms(QOpenGLShaderProgram& shaderProgram, int layer);
-};
+  class DepthPeelingEffect : public IShaderModule
+  {
+    /** This class is a shader module that implements the depth peeling effect.
+    * It provides the uniform declarations, the function implementation and the
+    * function call for a pass of depth peeling effect.
+    */
+    public:
+      DepthPeelingEffect();
+      std::string getUniformDeclarations() const override;
+      std::string getFunctionImplementation() const override;
+      std::string getFunctionCall() const override;
+      void setupObjectUniforms(QGLShaderProgram& program, GLComponent& obj) const override;
+      void setupSceneUniforms(QGLShaderProgram& program, AWindow3D& scene) const override;
+
+  };
+}
+
 
 #endif // DEPTH_PEELING_EFFECT_H

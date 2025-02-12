@@ -120,6 +120,9 @@
 #include <AvailabilityMacros.h>
 #endif
 
+#include "anatomist/surface/BlinnPhongIlluminationModel.h"
+#include "anatomist/surface/DepthPeelingEffect.h"
+
 /* whith ANA_USE_QGRAPHICSVIEW defined, 3D windows will contain a 
    QGraphicsView, in which the OpenGL widget is the background (viewport).
 */
@@ -2049,7 +2052,7 @@ void AWindow3D::setupSliceSlider(float mins, float maxs)
   {
     d->slicepanel->hide();
     updateGeometry();
-  }
+  } 
   else
   {
     d->slicepanel->show();
