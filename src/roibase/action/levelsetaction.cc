@@ -239,7 +239,7 @@ RoiLevelSetActionView::RoiLevelSetActionView(
             this, SLOT(lowLevelChanged(int) ) ) ;
   connect( _private->myHighLevelSlider, SIGNAL(valueChanged(int)),
             this, SLOT(highLevelChanged(int) ) ) ;
-  connect( _private->myDimensions, SIGNAL(buttonClicked(int)),
+  connect( _private->myDimensions, SIGNAL(idClicked(int)),
             this, SLOT(dimensionModeChanged(int) ) ) ;
 
   connect( _private->myMaxSizeLineEdit, SIGNAL(textChanged(const QString&)),

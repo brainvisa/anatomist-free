@@ -120,7 +120,7 @@ QAProfileWindow::QAProfileWindow( QWidget *p, const char *name,
   bt3->setEnabled( false );
   bt4->setEnabled( false );
   bg->setFixedSize( bg->sizeHint() );
-  connect( bgbg, SIGNAL( buttonClicked( int ) ),
+  connect( bgbg, SIGNAL( idClicked( int ) ),
            this, SLOT( dirChange( int ) ) );
 
 #if QWT_VERSION >= 0x050000

@@ -153,7 +153,7 @@ RoiMorphoMathActionView::RoiMorphoMathActionView( anatomist::RoiMorphoMathAction
 
   connect( _private->myStructElRadiusSlider, SIGNAL( valueChanged(int) ),
           this, SLOT( structuringElementRadiusChanged(int) ) ) ;
-  connect( _private->myDistanceMode, SIGNAL( buttonClicked(int) ),
+  connect( _private->myDistanceMode, SIGNAL( idClicked(int) ),
            this, SLOT( distanceModeChanged(int) ) ) ;
   connect( _private->myErosionButton, SIGNAL( clicked() ),
            this, SLOT( erosion() ) ) ;
@@ -163,7 +163,7 @@ RoiMorphoMathActionView::RoiMorphoMathActionView( anatomist::RoiMorphoMathAction
            this, SLOT( opening() ) ) ;
   connect( _private->myClosureButton, SIGNAL( clicked() ),
            this, SLOT( closure() ) ) ;
-  connect( _private->myRegionMode, SIGNAL( buttonClicked(int) ),
+  connect( _private->myRegionMode, SIGNAL( idClicked(int) ),
 	   this, SLOT( regionModeChanged(int) ) ) ;
 }
 

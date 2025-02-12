@@ -795,6 +795,8 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
         SLOT(setAutoRotationCenter()) );
     scene->addAction( tr("Manually specify linked cursor position"), this,
         SLOT(setLinkedCursorPos()), Qt::CTRL | Qt::Key_P );
+    scene->addAction( tr("Find vertex / polygon / texture"), this,
+        SLOT(findPrimitive()), Qt::CTRL | Qt::Key_F );
 
     //	Mutation toolbar
 
@@ -1661,9 +1663,9 @@ void AWindow3D::getInfos3DFromPosition( const vector<float> & fpos,
     Point3df & positionNearestVertex, int* indexNearestVertex,
     vector<string> & texlabels )
 {
-  // cout << "getInfos3DFromPosition, obj: " << objselect->name() << ", poly: " << poly << ", pos: " << fpos[0] << ", " << fpos[1] << ", " << fpos[2] << ", " << fpos[3] << endl;
+  // cout << "getInfos3DFromPosition, obj: " << ( objselect ? objselect->name() : "<no object>" ) << ", poly: " << poly << ", pos: " << fpos[0] << ", " << fpos[1] << ", " << fpos[2] << ", " << fpos[3] << endl;
+
   *indexNearestVertex = -1;
-  *indexNearestVertex = 0;
 
   if( !objselect )
     return;
@@ -1677,7 +1679,7 @@ void AWindow3D::getInfos3DFromPosition( const vector<float> & fpos,
     return;
 
   float dist = -1;
-  objselect->nearestVertex( fpos, indexNearestVertex, &dist, -1, 0, true,
+  objselect->nearestVertex( fpos, indexNearestVertex, &dist, -1, 0, false,
                             poly );
   texvalue = objselect->texValues( fpos, getReferential(), poly );
   objselect->getTextureLabels( texvalue, texlabels, textype );
@@ -3981,9 +3983,8 @@ void AWindow3D::setLinkedCursorOnSliderChange(bool x)
 void AWindow3D::setLinkedCursorPos()
 {
   QDialog dial( this );
-  dial.setWindowTitle( "set linked cursor position" );
+  dial.setWindowTitle( "Set linked cursor position" );
   dial.setModal( true );
-  dial.setWindowTitle("Set linked cursor position");
   QVBoxLayout *l = new QVBoxLayout(&dial);
   l->setContentsMargins( 5, 5, 5, 5 );
   l->setSpacing(5);
@@ -4055,10 +4056,258 @@ void AWindow3D::setLinkedCursorPos()
   }
 }
 
+
+void AWindow3D::findPrimitive()
+{
+  AObject *obj = 0;
+  SelectFactory *sf = SelectFactory::factory();
+  const map<unsigned, set<AObject *> > & sel = sf->selected();
+  map<unsigned, set<AObject *> >::const_iterator is = sel.find( Group() );
+  bool ambiguous = false;
+  if( is != sel.end() )
+  {
+    const set<AObject *> & so = is->second;
+    set<AObject *>::const_iterator io, eo = so.end();
+    string s;
+    for( io=so.begin(); io!=eo; ++io )
+      if( hasObject( *io ) )
+      {
+        if( obj )
+        {
+          obj = 0;
+          ambiguous = true;
+          break;
+        }
+        else
+          obj = *io;
+      }
+  }
+  if( !obj && !ambiguous )
+  {
+    const set<AObject *> & objs = Objects();
+    if( objs.size() == 1 )
+      obj = *objs.begin();
+  }
+
+  if( !obj )
+  {
+    statusBar()->showMessage( "select one object", 1500 );
+    return;
+  }
+
+  rc_ptr<ViewState> vs = viewState();
+  GLComponent *glc = obj->glAPI();
+  if( !glc || glc->glNumVertex( *vs ) == 0 )
+  {
+    statusBar()->showMessage( "object has no vertices", 1500 );
+    return;
+  }
+
+  QDialog dial( this );
+  dial.setWindowTitle( "Find vertex, polygon or texture" );
+  dial.setModal( true );
+  QGridLayout *l = new QGridLayout;
+  l->setContentsMargins( 5, 5, 5, 5 );
+  l->setSpacing( 5 );
+  dial.setLayout( l );
+
+  l->addWidget( new QLabel( "Vertex:" ), 0, 0 );
+  l->addWidget( new QLabel( "Poygon:" ), 1, 0 );
+  l->addWidget( new QLabel( "Texture value:" ), 2, 0 );
+
+  QLineEdit *vle = new QLineEdit;
+  QLineEdit *ple = new QLineEdit;
+  QLineEdit *tle = new QLineEdit;
+  l->addWidget( vle, 0, 1 );
+  l->addWidget( ple, 1, 1 );
+  l->addWidget( tle, 2, 1 );
+//   tle->setEnabled( false ); // not implemented yet.
+
+  QHBoxLayout *hlay = new QHBoxLayout;
+  l->addLayout( hlay, 3, 0, 1, 2 );
+  hlay->setContentsMargins( 0, 0, 0, 0 );
+  hlay->setSpacing( 5 );
+  QPushButton *pb = new QPushButton( tr("OK") );
+  hlay->addWidget( pb );
+  pb->setAutoDefault( true );
+  pb->setDefault( true );
+  connect(pb, SIGNAL(clicked()), &dial, SLOT(accept()));
+  pb = new QPushButton( tr("Cancel") );
+  hlay->addWidget( pb );
+  connect(pb, SIGNAL(clicked()), &dial, SLOT(reject()));
+
+  if( dial.exec() )
+  {
+    if( vle->text() != QString() )
+    {
+      bool ok = false;
+      int v = vle->text().toInt( &ok );
+      if( ok && v >= 0 )
+        ok = positionToVertex( obj, unsigned( v ) );
+      if( !ok || v < 0 )
+      {
+        statusBar()->showMessage( "incorrect vertex number", 1500 );
+        return;
+      }
+    }
+    else if( ple->text() != QString() )
+    {
+      bool ok = false;
+      int p = ple->text().toInt( &ok );
+      if( ok && p >= 0 )
+        ok = positionToPolygon( obj, unsigned( p ) );
+      if( !ok || p < 0 )
+      {
+        statusBar()->showMessage( "incorrect polygon number", 1500 );
+        return;
+      }
+    }
+    else if( tle->text() != QString() )
+    {
+      unsigned nt = glc->glNumTextures( *vs );
+      if( nt == 0 )
+      {
+        statusBar()->showMessage( "object has no texture", 1500 );
+        return;
+      }
+
+      bool ok = false;
+      float t = tle->text().toFloat( &ok );
+      if( !ok )
+      {
+        statusBar()->showMessage( "incorrect texture value", 1500 );
+        return;
+      }
+
+      if( !positionToTexture( obj, t ) )
+        statusBar()->showMessage( "could not find texture value", 1500 );
+    }
+  }
+}
+
+
+bool AWindow3D::positionToVertex( const AObject* obj, unsigned vert )
+{
+  const GLComponent *glc = obj->glAPI();
+  if( !glc )
+    return false;
+
+  rc_ptr<ViewState> vs = viewState();
+  size_t nv = glc->glNumVertex( *vs );
+  if( vert >= nv )
+    return false;
+
+  const GLfloat* va = glc->glVertexArray( *vs );
+  vector<float> vp( 3 );
+  vp[0] = va[vert * 3];
+  vp[1] = va[vert * 3 + 1];
+  vp[2] = va[vert * 3 + 2];
+
+  const anatomist::Referential *oref = obj->getReferential();
+  const anatomist::Referential *wref = getReferential();
+  anatomist::Transformation *trans = 0;
+  if( oref && wref )
+    trans = theAnatomist->getTransformation( oref, wref );
+
+  if( trans )
+  {
+    Point3df tp = trans->transform( Point3df( vp ) );
+    vp[0] = tp[0];
+    vp[1] = tp[1];
+    vp[2] = tp[2];
+  }
+
+  LinkedCursorCommand *c = new LinkedCursorCommand( this, vp );
+  theProcessor->execute(c);
+
+  return true;
+}
+
+
+bool AWindow3D::positionToPolygon( const AObject* obj, unsigned poly )
+{
+  const GLComponent *glc = obj->glAPI();
+  if( !glc )
+    return false;
+
+  rc_ptr<ViewState> vs = viewState();
+  size_t np = glc->glNumPolygon( *vs );
+  if( poly >= np )
+    return false;
+
+  unsigned ps = glc->glPolygonSize( *vs );
+  const GLfloat* va = glc->glVertexArray( *vs );
+  const GLuint* pa = glc->glPolygonArray( *vs );
+
+  Point3df vp( 0, 0, 0 );
+  for( unsigned i=0; i<ps; ++i )
+  {
+    unsigned ip = pa[poly * ps + i];
+    vp += Point3df( va[ip * 3], va[ip * 3 + 1], va[ip * 3 + 2] );
+  }
+  vp /= ps;
+
+  const anatomist::Referential *oref = obj->getReferential();
+  const anatomist::Referential *wref = getReferential();
+  anatomist::Transformation *trans = 0;
+  if( oref && wref )
+    trans = theAnatomist->getTransformation( oref, wref );
+
+  if( trans )
+  {
+    vp = trans->transform( Point3df( vp ) );
+  }
+
+  LinkedCursorCommand *c = new LinkedCursorCommand( this, vp.toStdVector() );
+  theProcessor->execute(c);
+
+  return true;
+}
+
+
+bool AWindow3D::positionToTexture( const AObject* obj, float texval )
+{
+  const GLComponent *glc = obj->glAPI();
+  if( !glc )
+    return false;
+
+  rc_ptr<ViewState> vs = viewState();
+  unsigned nt = glc->glNumTextures( *vs );
+  if( nt == 0 )
+    return false;
+
+  unsigned dt = glc->glDimTex( *vs, 0 );
+  unsigned ts = glc->glTexCoordSize( *vs, 0 );
+  const GLfloat* ta = glc->glTexCoordArray( *vs, 0 );
+  const GLComponent::TexExtrema & te = glc->glTexExtrema( 0 );
+
+  float unscaled = ( texval - te.minquant[0] )
+    / ( te.maxquant[0] - te.minquant[0] );
+  cout << "unscaled tex: " << unscaled << endl;
+  float eps = 1e-5;
+  unsigned i, sel = 0;
+  for( i=0; i<ts; ++i )
+  {
+    float tc = ta[i * dt];
+    if( tc == unscaled )
+    {
+      sel = i;
+      break;
+    }
+    if( std::abs( tc - unscaled ) < eps && sel == 0 )
+      sel = i;
+  }
+  cout << "sel vertex: " << sel << endl;
+
+  return positionToVertex( obj, sel );
+}
+
+
 AWindow3D* AWindow3D::rightEyeWindow()
 {
   return d->righteye;
 }
+
 
 AWindow3D* AWindow3D::leftEyeWindow()
 {

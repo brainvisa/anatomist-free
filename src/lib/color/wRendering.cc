@@ -131,23 +131,23 @@ RenderingWindow::RenderingWindow( const set<AObject *> &objL, QWidget* parent,
            this, 
            SLOT( objectsChosen( const std::set<anatomist::AObject *> & ) ) );
 
-  connect( rendering_buttonGroup, SIGNAL( buttonClicked( int ) ), this, 
+  connect( rendering_buttonGroup, SIGNAL( idClicked( int ) ), this,
            SLOT( renderModeChanged( int ) ) );
-  connect( selection_buttonGroup, SIGNAL( buttonClicked( int ) ), this,
+  connect( selection_buttonGroup, SIGNAL( idClicked( int ) ), this,
            SLOT( selectionModeChanged( int ) ) );
   connect( lineWidth_lineEdit, SIGNAL( editingFinished() ), this,
            SLOT( lineWidthChanged() ) );
-  connect( display_buttonGroup, SIGNAL( buttonClicked( int) ), this,
+  connect( display_buttonGroup, SIGNAL( idClicked( int) ), this,
            SLOT( renderPropertyChanged( int ) ) );
   connect( unlitColor_pushButton, SIGNAL( clicked() ), this,
            SLOT( unlitColorClicked() ) );
   connect( enable_shaders_checkBox, SIGNAL( stateChanged( int ) ), this,
            SLOT( enableShadersClicked( int ) ) );
-  connect( lighting_model_buttonGroup, SIGNAL( buttonClicked( int) ), this,
+  connect( lighting_model_buttonGroup, SIGNAL( idClicked( int) ), this,
            SLOT( lightingModelChanged( int ) ) );
-  connect( interpolation_model_buttonGroup, SIGNAL( buttonClicked( int)), this, 
+  connect( interpolation_model_buttonGroup, SIGNAL( idClicked( int)), this,
            SLOT( interpolationModelChanged( int ) ) );
-  connect( coloring_model_buttonGroup, SIGNAL( buttonClicked( int) ), this, 
+  connect( coloring_model_buttonGroup, SIGNAL( idClicked( int) ), this,
            SLOT( coloringModelChanged( int ) ) );
   connect( reload_pushButton, SIGNAL( clicked( ) ), this, 
            SLOT( reloadClicked( ) ) );
@@ -338,7 +338,7 @@ void RenderingWindow::updateInterface()
         Material::ShaderColorNormals );
       if( coloring_model < 0 )
         coloring_model = 0;
-      if( _material.renderProperty( Material::NormalIsDirection ) )
+      if( _material.renderProperty( Material::NormalIsDirection ) > 0 )
         coloring_model = 2;
       coloring_model_buttonGroup->button(-coloring_model - 3)->setChecked(true);
       if (shader)

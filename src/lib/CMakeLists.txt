@@ -31,8 +31,9 @@ set( _headers
     color/qwObjPalette.h
     color/wObjPalette.h
     color/objectPalette.h
-    color/paletteList.h
     color/palette.h
+    color/paletteList.h
+    color/paletteselectwidget.h
     color/Material.h
     color/Light.h
     color/wMaterial.h
@@ -287,8 +288,9 @@ set( _sources
     color/qwObjPalette.cc
     color/wObjPalette.cc
     color/objectPalette.cc
-    color/paletteList.cc
     color/palette.cc
+    color/paletteList.cc
+    color/paletteselectwidget.cc
     color/Material.cc
     color/Light.cc
     color/wMaterial.cc

@@ -2984,7 +2984,7 @@ RoiManagementAction::newRegion( const string& name )
   _sharedData->myCurrentGraphRegionsChanged = true ;
   getCurrentGraphRegions() ;
 
-  selectRegion( _sharedData->myRegionName ) ;
+  selectRegion( _sharedData->myRegionName, true ) ;
 
   setChanged() ;
   notifyObservers() ;

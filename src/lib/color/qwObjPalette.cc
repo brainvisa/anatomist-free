@@ -38,6 +38,7 @@
 #include <anatomist/color/paletteList.h>
 #include <anatomist/color/palette.h>
 #include <anatomist/color/objectPalette.h>
+#include <anatomist/color/paletteselectwidget.h>
 #include <anatomist/processor/Processor.h>
 #include <anatomist/commands/cSetObjectPalette.h>
 #include <anatomist/dialogs/qScopeLineEdit.h>
@@ -59,8 +60,8 @@
 #include <qapplication.h>
 #include <qaction.h>
 #include <qtoolbar.h>
-#include <qheaderview.h>
 #include <QActionGroup>
+#include <chrono>
 
 
 using namespace anatomist;
@@ -104,7 +105,7 @@ struct QAPaletteWin::Private
 {
   Private( const set<AObject *> & );
 
-  QTableWidget			*palettes;
+  PaletteSelectWidget		*palettes;
   DimBox			*dimBox1;
   DimBox			*dimBox2;
   QLabel			*view;
@@ -132,13 +133,15 @@ struct QAPaletteWin::Private
   bool				modified;
   QToolBar                      *toolbar;
   QActionGroup                  *toolactions;
+  long                          lastSliderRelease;
 };
 
 
 QAPaletteWin::Private::Private( const set<AObject *> & o )
   : responsive( true ), objpal( 0 ), dim( 1 ), objMin( 0 ), objMax( 1 ),
     objMin2( 0 ), objMax2( 1 ), recursive( false ), updatingFlag( false ),
-    initial( o ), main( 0 ), modified( false ), toolbar( 0 ), toolactions( 0 )
+    initial( o ), main( 0 ), modified( false ), toolbar( 0 ), toolactions( 0 ),
+    lastSliderRelease( 0 )
 {
 }
 
@@ -210,19 +213,9 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
 
   ltPanell->addWidget( new QLabel( tr( "Available palettes :" ), ltPanel ) );
 
-  d->palettes = new QTableWidget( ltPanel );
+  d->palettes = new PaletteSelectWidget( ltPanel );
   ltPanell->addWidget( d->palettes );
   d->palettes->setObjectName( "palettes" );
-  d->palettes->setMinimumSize( 200, 200 );
-  d->palettes->setSortingEnabled( true );
-  d->palettes->setCornerButtonEnabled( false );
-  d->palettes->setAlternatingRowColors( true );
-  d->palettes->setSelectionBehavior( QTableWidget::SelectRows );
-  d->palettes->setSelectionMode( QTableWidget::SingleSelection );
-  d->palettes->setEditTriggers( QTableWidget::NoEditTriggers );
-  d->palettes->verticalHeader()->setVisible( false );
-  d->palettes->setIconSize( QSize( 64, 20 ) );
-  fillPalettes();
 
   QWidget *rtPanel = new QWidget( d->main );
   rtPanel->setObjectName( "rtPanel" );
@@ -345,14 +338,18 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
 
   updateInterface();
 
-  connect( d->dimBgp, SIGNAL( buttonClicked( int ) ), this,
+  connect( d->dimBgp, SIGNAL( idClicked( int ) ), this,
            SLOT( dimChanged( int ) ) );
-  connect( d->palettes, SIGNAL( itemSelectionChanged() ),
-           this, SLOT( palette1Changed() ) );
+  connect( d->palettes, SIGNAL( paletteSelected( const std::string & ) ),
+           this, SLOT( palette1Changed( const std::string & ) ) );
   connect( d->dimBox1->minSlider, SIGNAL( valueChanged( int ) ),
-	   this, SLOT( min1Changed( int ) ) );
+           this, SLOT( min1Changed( int ) ) );
   connect( d->dimBox1->maxSlider, SIGNAL( valueChanged( int ) ),
 	   this, SLOT( max1Changed( int ) ) );
+  connect( d->dimBox1->minSlider, SIGNAL( sliderReleased() ),
+           this, SLOT( min1Released() ) );
+  connect( d->dimBox1->maxSlider, SIGNAL( sliderReleased() ),
+           this, SLOT( max1Released() ) );
   connect( d->dimBox1->minEd, SIGNAL( returnPressed() ), this,
 	   SLOT( min1EditChanged() ) );
   connect( d->dimBox1->minEd, SIGNAL( focusLost() ), this,
@@ -369,9 +366,13 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
            this, SLOT( zeroCentered1Changed( int ) ) );
 
   connect( d->dimBox2->minSlider, SIGNAL( valueChanged( int ) ),
-	   this, SLOT( min2Changed( int ) ) );
+           this, SLOT( min2Changed( int ) ) );
   connect( d->dimBox2->maxSlider, SIGNAL( valueChanged( int ) ),
 	   this, SLOT( max2Changed( int ) ) );
+  connect( d->dimBox2->minSlider, SIGNAL( sliderReleased() ),
+           this, SLOT( min2Released() ) );
+  connect( d->dimBox2->maxSlider, SIGNAL( sliderReleased() ),
+           this, SLOT( max2Released() ) );
   connect( d->dimBox2->minEd, SIGNAL( returnPressed() ), this,
 	   SLOT( min2EditChanged() ) );
   connect( d->dimBox2->minEd, SIGNAL( focusLost() ), this,
@@ -391,12 +392,12 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
 	   this, SLOT( responsiveToggled( bool ) ) );
   connect( updateBtn, SIGNAL( clicked() ), this, SLOT( updateClicked() ) );
 
-  connect( d->palette2Box, SIGNAL( activated( const QString & ) ),
-	   this, SLOT( palette2Changed( const QString & ) ) );
-  connect( d->mixBox, SIGNAL( activated( const QString & ) ),
-	   this, SLOT( mixMethodChanged( const QString & ) ) );
-  connect( d->palette1dMappingBox, SIGNAL( activated( const QString & ) ),
-	   this, SLOT( palette1DMappingMethodChanged( const QString & ) ) );
+  connect( d->palette2Box, SIGNAL( activated( int ) ),
+	   this, SLOT( palette2Changed( int ) ) );
+  connect( d->mixBox, SIGNAL( activated( int ) ),
+	   this, SLOT( mixMethodChanged( int ) ) );
+  connect( d->palette1dMappingBox, SIGNAL( activated( int ) ),
+	   this, SLOT( palette1DMappingMethodChanged( int ) ) );
   connect( d->usepal2, SIGNAL( toggled( bool ) ),
 	   this, SLOT( enablePalette2( bool ) ) );
   connect( d->mixSlid, SIGNAL( valueChanged( int ) ),
@@ -535,7 +536,7 @@ void QAPaletteWin::fillPalettes()
     d->palettes->setItem( i, 0, item );
     // icon
     QPixmap pix;
-    fillPalette( *ip, pix );
+    PaletteSelectWidget::fillPalette( *ip, pix );
     QTableWidgetItem *iconitem = new QTableWidgetItem;
     iconitem->setIcon( QIcon( pix ) );
     d->palettes->setItem( i, 1, iconitem );
@@ -679,24 +680,8 @@ void QAPaletteWin::updateInterface()
 
   d->objsel->updateLabel( _parents );
   d->dimBgp->button( d->dim - 1 )->setChecked( true );
-  int i, n = d->palettes->rowCount();
-  QString	name = d->objpal->refPalette()->name().c_str();
-  QList<QTableWidgetItem *> items = d->palettes->findItems(
-    name, Qt::MatchCaseSensitive | Qt::MatchExactly );
-  QTableWidgetItem *item = 0;
-  if( items.count() != 0 )
-    item = items.front();
-  if( item )
-    d->palettes->setCurrentItem( item );
-  else
-  {
-    d->palettes->setCurrentItem( 0 );
-    items = d->palettes->selectedItems();
-    if( items.count() != 0 )
-      item = items.front();
-    if( item )
-      item->setSelected( false );
-  }
+
+  d->palettes->selectPalette( d->objpal->refPalette()->name() );
 
   fillPalette1();
   setValues1();
@@ -710,6 +695,8 @@ void QAPaletteWin::updateInterface()
   d->mixSlid->setValue( (int) ( 100 * objPalette()->linearMixFactor() ) );
   d->mixValueLabel->setText
     ( QString::number( 100 * objPalette()->linearMixFactor() ) );
+
+  int i, n;
 
   if( objPalette()->refPalette2() )
   {
@@ -866,42 +853,6 @@ AObjectPalette* QAPaletteWin::objPalette()
 }
 
 
-void QAPaletteWin::fillPalette( const rc_ptr<APalette> pal, QPixmap & pm )
-{
-  unsigned		dimpx = pal->getSizeX(), dimpy = pal->getSizeY();
-  unsigned		dimx = dimpx, dimy = dimpy;
-  unsigned		x, y;
-
-  if( dimy < 32 )
-    dimy = 32;
-  if( dimx > 256 )
-    dimx = 256;
-  else if( dimx == 0 )
-    dimx = 1;
-  if( dimy > 256 )
-    dimy = 256;
-
-  float		facx = ((float) dimpx) / dimx;
-  float		facy = ((float) dimpy) / dimy;
-  AimsRGBA	rgb;
-
-  QImage	im( dimx, dimy, QImage::Format_ARGB32 );
-
-  for( y=0; y<dimy; ++y )
-    for( x=0; x<dimx; ++x )
-    {
-      rgb = (*pal)( (unsigned) ( facx * x), (unsigned) ( facy * y ) );
-      im.setPixel( x, y, qRgb( rgb.red(), rgb.green(), rgb.blue() ) );
-    }
-#if QT_VERSION < 0x040700
-  // convertFromImage is in Qt3Support before officialized in Qt 4.7
-  pm = QPixmap::fromImage( im, Qt::AutoColor );
-#else
-  pm.convertFromImage( im );
-#endif
-}
-
-
 void QAPaletteWin::fillPalette1()
 {
   AObjectPalette	*objpal = objPalette();
@@ -921,7 +872,7 @@ void QAPaletteWin::fillPalette1()
 
   QPixmap	pm;
 
-  fillPalette( pal, pm );
+  PaletteSelectWidget::fillPalette( pal, pm );
 
   d->dimBox1->palView->setPixmap( pm );
 }
@@ -937,7 +888,7 @@ void QAPaletteWin::fillPalette2()
     const rc_ptr<APalette> pal = objpal->refPalette2();
     if( pal )
     {
-      fillPalette( pal, pm );
+      PaletteSelectWidget::fillPalette( pal, pm );
       d->dimBox2->palView->setPixmap( pm );
     }
   }
@@ -953,12 +904,7 @@ void QAPaletteWin::fillObjPal()
 
   QImage *im = objpal->toQImage();
   QPixmap pm;
-#if QT_VERSION < 0x040700
-  // convertFromImage is in Qt3Support before officialized in Qt 4.7
-  pm = QPixmap::fromImage( *im, Qt::AutoColor );
-#else
   pm.convertFromImage( *im );
-#endif
   delete im;
   d->view->setPixmap( pm );
   d->view->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
@@ -966,18 +912,11 @@ void QAPaletteWin::fillObjPal()
 }
 
 
-void QAPaletteWin::palette1Changed()
+void QAPaletteWin::palette1Changed( const string & name )
 {
   if( d->recursive )
     return;
 
-  QTableWidgetItem* item = 0;
-  QList<QTableWidgetItem *> selected = d->palettes->selectedItems();
-  if( selected.count() == 0 )
-    return;
-  item = selected.front();
-
-  string		name = item->text().toStdString();
   PaletteList		& pallist = theAnatomist->palettes();
   const rc_ptr<APalette> pal = pallist.find( name );
 
@@ -999,11 +938,12 @@ void QAPaletteWin::palette1Changed()
 }
 
 
-void QAPaletteWin::palette2Changed( const QString & palname )
+void QAPaletteWin::palette2Changed( int pid )
 {
   if( d->recursive )
     return;
 
+  QString palname = d->palette2Box->itemText( pid );
   AObjectPalette	*objpal = objPalette();
 
   if( palname == tr( "None" ) )
@@ -1052,12 +992,16 @@ void QAPaletteWin::setValues( DimBox* dimBox, float m, float M,
     double omax = std::max( std::abs( objMin ), std::abs( objMax ) );
     max = omax * M;
     min = omax * m;
-    dimBox->minSlider->setValue( (int) ( ( m/2 + 0.5 - dimBox->slrelmin ) * 1000
-                                        / ( dimBox->slrelmax
-                                            - dimBox->slrelmin ) ) );
-    dimBox->maxSlider->setValue( (int) ( ( M/2 + 0.5 - dimBox->slrelmin ) * 1000
-                                        / ( dimBox->slrelmax
-                                            - dimBox->slrelmin ) ) );
+    float cmin = std::min( m, M );
+    float cmax = std::max( m, M );
+    dimBox->slrelmin = std::min( cmin / 2 + 0.5f, dimBox->slrelmin );
+    dimBox->slrelmax = std::max( cmax / 2 + 0.5f, dimBox->slrelmax );
+    float frmin = -omax + dimBox->slrelmin * omax * 2;
+    float frmax = -omax + dimBox->slrelmax * omax * 2;
+    float fval = (min - frmin) / (frmax - frmin);
+    dimBox->minSlider->setValue( int( fval * 1000 ) );
+    fval = (max - frmin) / (frmax - frmin);
+    dimBox->maxSlider->setValue( int( fval * 1000 ) );
     dimBox->minLabel->setText( QString::number( min ) );
     dimBox->maxLabel->setText( QString::number( max ) );
     min = -omax + omax * 2 * dimBox->slrelmin;
@@ -1412,11 +1356,12 @@ void QAPaletteWin::fillMixMethods()
 }
 
 
-void QAPaletteWin::mixMethodChanged( const QString & methname )
+void QAPaletteWin::mixMethodChanged( int mid )
 {
   if( d->recursive )
     return;
 
+  QString methname = d->mixBox->itemText( mid );
   AObjectPalette	*objpal = objPalette();
 
   objpal->setMixMethod( string( methname.toStdString() ) );
@@ -1435,11 +1380,12 @@ QAPaletteWin::fillPalette1DMappingMethods()
 }
 
 void
-QAPaletteWin::palette1DMappingMethodChanged( const QString & methname )
+QAPaletteWin::palette1DMappingMethodChanged( int mid )
 {
   if( d->recursive )
     return;
 
+  QString methname = d->palette1dMappingBox->itemText( mid );
   AObjectPalette	*objpal = objPalette();
 
   if( methname == "FirstLine" )
@@ -1507,23 +1453,27 @@ void QAPaletteWin::min1EditChanged()
   double curval = double( d->dimBox1->minSlider->value() ) * 0.001
     * ( double(d->dimBox1->slrelmax) - d->dimBox1->slrelmin )
     + d->dimBox1->slrelmin;
+  double maxcurval = d->dimBox1->maxSlider->value() * 0.001
+    * ( double(d->dimBox1->slrelmax) - d->dimBox1->slrelmin )
+    + d->dimBox1->slrelmin;
   int	ival;
   if( !d->dimBox1->symbox->isChecked() )
   {
     d->dimBox1->slrelmin = (val - d->objMin )
       / ( double(d->objMax) - d->objMin );
-    ival = (int) rint( ( curval - d->dimBox1->slrelmin ) * 1000
-      / ( double(d->dimBox1->slrelmax) - d->dimBox1->slrelmin ) );
   }
   else
   {
     double absmax = std::max( std::abs( d->objMin ),
                               std::abs( d->objMax ) );
     d->dimBox1->slrelmin = float( ( val + absmax ) / ( absmax * 2. ) );
-    ival = (int) rint( ( curval - d->dimBox1->slrelmin ) * 1000
-      / ( double(d->dimBox1->slrelmax) - d->dimBox1->slrelmin ) );
   }
+  ival = (int) rint( ( curval - d->dimBox1->slrelmin ) * 1000
+    / ( double(d->dimBox1->slrelmax) - d->dimBox1->slrelmin ) );
   d->dimBox1->minSlider->setValue( ival );
+  ival = (int) rint( ( maxcurval - d->dimBox1->slrelmin ) * 1000
+    / ( double(d->dimBox1->slrelmax) - d->dimBox1->slrelmin ) );
+  d->dimBox1->maxSlider->setValue( ival );
 }
 
 
@@ -1536,25 +1486,29 @@ void QAPaletteWin::max1EditChanged()
   double curval = double( d->dimBox1->maxSlider->value() ) * 0.001
     * ( double(d->dimBox1->slrelmax) - d->dimBox1->slrelmin )
     + d->dimBox1->slrelmin;
+  double mincurval = d->dimBox1->minSlider->value() * 0.001
+    * ( double(d->dimBox1->slrelmax) - d->dimBox1->slrelmin )
+    + d->dimBox1->slrelmin;
   int	ival;
   if( !d->dimBox1->symbox->isChecked() )
   {
     d->dimBox1->slrelmax = float( (val - d->objMin )
       / ( double(d->objMax) - d->objMin ) );
-    ival = (int) rint( ( curval - d->dimBox1->slrelmin ) * 1000
-                       / ( double(d->dimBox1->slrelmax)
-                                - d->dimBox1->slrelmin ) );
   }
   else
   {
     double absmax = std::max( std::abs( d->objMin ),
                               std::abs( d->objMax ) );
     d->dimBox1->slrelmax = float( ( val + absmax ) / ( absmax * 2. ) );
-    ival = (int) rint( ( curval - d->dimBox1->slrelmin ) * 1000
-                       / ( double(d->dimBox1->slrelmax)
-                                - d->dimBox1->slrelmin ) );
   }
+  ival = (int) rint( ( curval - d->dimBox1->slrelmin ) * 1000
+                      / ( double(d->dimBox1->slrelmax)
+                              - d->dimBox1->slrelmin ) );
   d->dimBox1->maxSlider->setValue( ival );
+  ival = (int) rint( ( mincurval - d->dimBox1->slrelmin ) * 1000
+                      / ( double(d->dimBox1->slrelmax)
+                              - d->dimBox1->slrelmin ) );
+  d->dimBox1->minSlider->setValue( ival );
 }
 
 
@@ -1567,23 +1521,27 @@ void QAPaletteWin::min2EditChanged()
   double curval = double( d->dimBox2->minSlider->value() ) * 0.001
     * ( double(d->dimBox2->slrelmax) - d->dimBox2->slrelmin )
     + d->dimBox2->slrelmin;
+  double maxcurval = d->dimBox2->maxSlider->value() * 0.001
+    * ( double(d->dimBox2->slrelmax) - d->dimBox2->slrelmin )
+    + d->dimBox2->slrelmin;
   int	ival;
   if( !d->dimBox2->symbox->isChecked() )
   {
     d->dimBox2->slrelmin = (val - d->objMin2 )
       / ( double(d->objMax2) - d->objMin2 );
-    ival = (int) rint( ( curval - d->dimBox2->slrelmin ) * 1000
-      / ( double(d->dimBox2->slrelmax) - d->dimBox2->slrelmin ) );
   }
   else
   {
     double absmax = std::max( std::abs( d->objMin2 ),
                               std::abs( d->objMax2 ) );
     d->dimBox2->slrelmin = float( ( val + absmax ) / ( absmax * 2. ) );
-    ival = (int) rint( ( curval - d->dimBox2->slrelmin ) * 1000
-      / ( double(d->dimBox2->slrelmax) - d->dimBox2->slrelmin ) );
   }
+  ival = (int) rint( ( curval - d->dimBox2->slrelmin ) * 1000
+    / ( double(d->dimBox2->slrelmax) - d->dimBox2->slrelmin ) );
   d->dimBox2->minSlider->setValue( ival );
+  ival = (int) rint( ( maxcurval - d->dimBox2->slrelmin ) * 1000
+    / ( double(d->dimBox2->slrelmax) - d->dimBox2->slrelmin ) );
+  d->dimBox2->maxSlider->setValue( ival );
 }
 
 
@@ -1596,25 +1554,29 @@ void QAPaletteWin::max2EditChanged()
   double curval = double( d->dimBox2->maxSlider->value() ) * 0.001
     * ( double(d->dimBox2->slrelmax) - d->dimBox2->slrelmin )
     + d->dimBox2->slrelmin;
+  double mincurval = d->dimBox2->minSlider->value() * 0.001
+    * ( double(d->dimBox2->slrelmax) - d->dimBox2->slrelmin )
+    + d->dimBox2->slrelmin;
   int	ival;
   if( !d->dimBox2->symbox->isChecked() )
   {
     d->dimBox2->slrelmax = float( (val - d->objMin2 )
       / ( double(d->objMax2) - d->objMin2 ) );
-    ival = (int) rint( ( curval - d->dimBox2->slrelmin ) * 1000
-                       / ( double(d->dimBox2->slrelmax)
-                                - d->dimBox2->slrelmin ) );
   }
   else
   {
     double absmax = std::max( std::abs( d->objMin2 ),
                               std::abs( d->objMax2 ) );
     d->dimBox2->slrelmax = float( ( val + absmax ) / ( absmax * 2. ) );
-    ival = (int) rint( ( curval - d->dimBox2->slrelmin ) * 1000
-                       / ( double(d->dimBox2->slrelmax)
-                                - d->dimBox2->slrelmin ) );
   }
+  ival = (int) rint( ( curval - d->dimBox2->slrelmin ) * 1000
+                      / ( double(d->dimBox2->slrelmax)
+                              - d->dimBox2->slrelmin ) );
   d->dimBox2->maxSlider->setValue( ival );
+  ival = (int) rint( ( mincurval - d->dimBox2->slrelmin ) * 1000
+                      / ( double(d->dimBox2->slrelmax)
+                              - d->dimBox2->slrelmin ) );
+  d->dimBox2->minSlider->setValue( ival );
 }
 
 
@@ -1623,8 +1585,21 @@ void QAPaletteWin::resetValues1()
   AObject	*obj = *_parents.begin();
   obj->adjustPalette();
   AObjectPalette	*op = objPalette(),*rp = obj->palette();
-  op->setMin1( rp->min1() );
-  op->setMax1( rp->max1() );
+  float m = rp->min1();
+  float M = rp->max1();
+  if( op->zeroCenteredAxis1() )
+  {
+    // fix min/max which have been calculated in non-centered mode
+    float vmin = rp->min1() * ( d->objMax - d->objMin ) + d->objMin;
+    float vmax = rp->max1() * ( d->objMax - d->objMin ) + d->objMin;
+    float omax = std::max( std::abs( d->objMin ), std::abs( d->objMax ) );
+    m = vmin / omax;
+    M = vmax / omax;
+    if( m < 0. )
+      m = 0.;
+  }
+  op->setMin1( m );
+  op->setMax1( M );
   setValues1();
   d->modified = true;
   if( d->responsive )
@@ -1717,7 +1692,7 @@ void QAPaletteWin::runCommand()
         oma = pal->max1() * ( double(d->objMax) - d->objMin ) + d->objMin;
       }
       double omi2, oma2;
-      if( d->objpal->zeroCenteredAxis1() )
+      if( d->objpal->zeroCenteredAxis2() )
       {
         double omax = std::max( std::abs( d->objMax2 ),
                                 std::abs( d->objMin2 ) );
@@ -1726,7 +1701,7 @@ void QAPaletteWin::runCommand()
       }
       else
       {
-        omi = pal->min2() * ( double(d->objMax2) - d->objMin2 ) + d->objMin2;
+        omi2 = pal->min2() * ( double(d->objMax2) - d->objMin2 ) + d->objMin2;
         oma2 = pal->max2() * ( double(d->objMax2) - d->objMin2 ) + d->objMin2;
       }
 
@@ -1799,23 +1774,37 @@ void QAPaletteWin::extensionActionTriggered( QAction *action )
 void QAPaletteWin::zeroCentered1Changed( int state )
 {
   d->objpal->setZeroCenteredAxis1( bool( state ) );
-  d->objpal->setMin1( 0. );
 
+  double absmax = std::max( std::abs( d->objMin ),
+                            std::abs( d->objMax ) );
   if( !state )
   {
-    d->dimBox1->slrelmin = float( -d->objMin
-      / ( double(d->objMax) - d->objMin ) );
-    d->dimBox1->minEd->setText( QString::number( d->objMin ) );
-    d->dimBox1->slrelmin = 0.f;
-    d->dimBox1->minSlider->setValue( 0 );
+    float maxval = d->objpal->max1() * absmax;
+    float curmin = std::min( -maxval, d->objMin );
+    float curmax = std::max( maxval, d->objMax );
+    d->objpal->setMin1( (-maxval - d->objMin)
+                        / ( double(d->objMax) - d->objMin ) );
+    d->dimBox1->minEd->setText( QString::number( curmin ) );
+    d->dimBox1->maxEd->setText( QString::number( curmax ) );
+    d->dimBox1->slrelmin = ( curmin - d->objMin )
+      / ( double(d->objMax) - d->objMin );
+    d->dimBox1->slrelmax = ( curmax - d->objMin )
+      / ( double(d->objMax) - d->objMin );
+    d->dimBox1->minSlider->setValue( int( ( -maxval - curmin ) / ( curmax - curmin ) * 1000 ) );
+    d->dimBox1->maxSlider->setValue( int( ( maxval - curmin ) / ( curmax - curmin ) * 1000 ) );
   }
   else
   {
-    double absmax = std::max( std::abs( d->objMin ),
-                              std::abs( d->objMax ) );
+    float maxval = d->objMin
+      + d->objpal->max1() * ( double(d->objMax) - d->objMin );
+    d->objpal->setMin1( 0. );
+    d->objpal->setMax1( maxval / absmax );
     d->dimBox1->minEd->setText( QString::number( -absmax ) );
+    d->dimBox1->maxEd->setText( QString::number( absmax ) );
     d->dimBox1->slrelmin = 0.f;
+    d->dimBox1->slrelmax = std::max( 1.f, std::abs( d->objpal->max1() ) );
     d->dimBox1->minSlider->setValue( 500 );
+    d->dimBox1->maxSlider->setValue( 500 + int( d->objpal->max1() * 500 ) );
   }
 
   d->modified = true;
@@ -1849,6 +1838,122 @@ void QAPaletteWin::zeroCentered2Changed( int state )
   d->modified = true;
   if( d->responsive )
     updateObjects();
+}
+
+
+void QAPaletteWin::min1Released()
+{
+  // Get the current time from the system clock
+  auto now = chrono::system_clock::now();
+  // Convert the current time to time since epoch
+  auto duration = now.time_since_epoch();
+  // Convert duration to milliseconds
+  auto milliseconds
+      = chrono::duration_cast<chrono::milliseconds>( duration ).count();
+
+  if( d->lastSliderRelease + 300 < milliseconds )
+  {
+    d->lastSliderRelease = milliseconds;
+    return;
+  }
+
+  float val = 0;
+  int ival = 0;
+  float cmin = 0.f, cmax = 1.f;
+  if( d->objpal->zeroCenteredAxis1() )
+  {
+    float absmax = std::max( std::abs( d->objMin ), std::abs( d->objMax ) );
+    cmin = d->dimBox1->slrelmin * absmax * 2 - absmax;
+    cmax = d->dimBox1->slrelmax * absmax * 2 - absmax;
+  }
+  else
+  {
+    val = d->objMin;
+    cmin = d->dimBox1->slrelmin * ( double(d->objMax) - d->objMin )
+      + d->objMin;
+    cmax = d->dimBox1->slrelmax * ( double(d->objMax) - d->objMin )
+      + d->objMin;
+  }
+  ival = int( ( val - cmin ) / ( cmax - cmin ) * 1000 );
+  d->dimBox1->minSlider->setValue( ival );
+}
+
+
+void QAPaletteWin::max1Released()
+{
+  // Get the current time from the system clock
+  auto now = chrono::system_clock::now();
+  // Convert the current time to time since epoch
+  auto duration = now.time_since_epoch();
+  // Convert duration to milliseconds
+  auto milliseconds
+      = chrono::duration_cast<chrono::milliseconds>( duration ).count();
+
+  if( d->lastSliderRelease + 300 < milliseconds )
+  {
+    d->lastSliderRelease = milliseconds;
+    return;
+  }
+
+  resetValues1();
+}
+
+
+void QAPaletteWin::min2Released()
+{
+  // Get the current time from the system clock
+  auto now = chrono::system_clock::now();
+  // Convert the current time to time since epoch
+  auto duration = now.time_since_epoch();
+  // Convert duration to milliseconds
+  auto milliseconds
+      = chrono::duration_cast<chrono::milliseconds>( duration ).count();
+
+  if( d->lastSliderRelease + 300 < milliseconds )
+  {
+    d->lastSliderRelease = milliseconds;
+    return;
+  }
+
+  float val = 0;
+  int ival = 0;
+  float cmin = 0.f, cmax = 1.f;
+  if( d->objpal->zeroCenteredAxis2() )
+  {
+    float absmax = std::max( std::abs( d->objMin2 ), std::abs( d->objMax2 ) );
+    cmin = d->dimBox2->slrelmin * absmax * 2 - absmax;
+    cmax = d->dimBox2->slrelmax * absmax * 2 - absmax;
+  }
+  else
+  {
+    val = d->objMin2;
+    cmin = d->dimBox2->slrelmin * ( double(d->objMax2) - d->objMin2 )
+      + d->objMin2;
+    cmax = d->dimBox2->slrelmax * ( double(d->objMax2) - d->objMin2 )
+      + d->objMin2;
+  }
+  ival = int( ( val - cmin ) / ( cmax - cmin ) * 1000 );
+  d->dimBox2->minSlider->setValue( ival );
+}
+
+
+void QAPaletteWin::max2Released()
+{
+  // Get the current time from the system clock
+  auto now = chrono::system_clock::now();
+  // Convert the current time to time since epoch
+  auto duration = now.time_since_epoch();
+  // Convert duration to milliseconds
+  auto milliseconds
+      = chrono::duration_cast<chrono::milliseconds>( duration ).count();
+
+  if( d->lastSliderRelease + 300 < milliseconds )
+  {
+    d->lastSliderRelease = milliseconds;
+    return;
+  }
+
+  resetValues2();
 }
 
 

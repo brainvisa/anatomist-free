@@ -197,13 +197,13 @@ RoiDynSegmentActionView::RoiDynSegmentActionView(
             this, SLOT( faithIntervalChanged(int) ) ) ;
   connect( _private->myOrderSlider, SIGNAL( valueChanged(int) ),
             this, SLOT( orderChanged(int) ) ) ;
-  connect( _private->myDimensions, SIGNAL( buttonClicked(int) ),
+  connect( _private->myDimensions, SIGNAL( idClicked(int) ),
             this, SLOT( dimensionModeChanged(int) ) ) ;
-  connect( _private->myComputeMode, SIGNAL( buttonClicked(int) ),
+  connect( _private->myComputeMode, SIGNAL( idClicked(int) ),
             this, SLOT( computeModeChanged(int) ) ) ;
-  connect( _private->myRefineMode, SIGNAL( buttonClicked(int) ),
+  connect( _private->myRefineMode, SIGNAL( idClicked(int) ),
             this, SLOT( refineModeChanged(int) ) ) ;
-  connect( _private->myFindNearestMinimum, SIGNAL( buttonClicked(int) ),
+  connect( _private->myFindNearestMinimum, SIGNAL( idClicked(int) ),
             this, SLOT( findNearestMinimumModeChanged(int) ) ) ;
 }
 

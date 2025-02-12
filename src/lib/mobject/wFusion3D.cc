@@ -303,7 +303,7 @@ void Fusion3DWindow::drawContents()
   connect( linbtn, SIGNAL( clicked() ), this, SLOT( linearMode() ) );
   connect( d->linratesl, SIGNAL( valueChanged( int ) ), 
            this, SLOT( linRateChanged( int ) ) );
-  connect( methg, SIGNAL( buttonClicked( int ) ), 
+  connect( methg, SIGNAL( idClicked( int ) ),
            this, SLOT( changeMethod( int ) ) );
   connect( maxbtn, SIGNAL( clicked() ), this, SLOT( maxSubMethod() ) );
   connect( minbtn, SIGNAL( clicked() ), this, SLOT( minSubMethod() ) );
