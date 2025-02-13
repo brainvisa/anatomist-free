@@ -43,11 +43,14 @@ namespace anatomist
       top:
           top position of the display in the graphics view. -10000 (default)
           means centered in scene.
+      with_view: bool
+          if false, the palette view will not be displayed.
     */
-    MiniPaletteGraphics( QGraphicsView *graphicsview, AObject *object=0,
+    MiniPaletteGraphics( QGraphicsView *graphicsview, AObject *object = 0,
                          int dim = 0,
-                         float width=-10000, float height=-10000,
-                         float left=-10000, float top=-10000 );
+                         float width = -10000, float height = -10000,
+                         float left = -10000, float top = -10000,
+                         bool with_view = true );
     virtual ~MiniPaletteGraphics();
 
     AObject *getObject();
@@ -131,11 +134,14 @@ namespace anatomist
         auto_range: bool
             For edition mode, allow the auto-zoom mode when palette range is
             modified.
+      with_view: bool
+          if false, the palette view will not be displayed.
     */
     MiniPaletteWidget( AObject *object = 0, int dim = 0,
                        bool allow_edit = true,
                        bool self_parent = true, QWidget *edit_parent = 0,
-                       bool click_to_edit = true, bool auto_range = false );
+                       bool click_to_edit = true, bool auto_range = false,
+                       bool with_view = true );
     virtual ~MiniPaletteWidget();
     AObject *getObject();
     /** set or change the observed object, dim is the texture dimension
@@ -218,7 +224,7 @@ namespace anatomist
     The editor thus presents a palette view, plus 2 sliders to set the min and
     max range of the palette. The view may be zoomed using the mouse wheel (see
     MiniPaletteWidget), and it can also use an automatic zoom mode, if
-    ``auto_range=Ttrue`` is passed to the constructor, or set_auto_range()
+    ``auto_range=true`` is passed to the constructor, or set_auto_range()
     is called. In auto range mode, the zoom range is adapted after each user
     interaction on sliders (after the mouse is released).
   */
@@ -227,18 +233,21 @@ namespace anatomist
     Q_OBJECT
 
   public:
-    MiniPaletteWidgetEdit( AObject *object=0, int dim = 0,
-                           bool auto_range=false );
+    MiniPaletteWidgetEdit( AObject *object = 0, int dim = 0,
+                           bool auto_range = false, bool with_view = true,
+                           bool allow_no_palette = false );
     virtual ~MiniPaletteWidgetEdit();
 
     /// set or change the observed object
     void setObject( AObject *obj, int dim = 0 );
+    AObject* getObject();
     /// redraws the palette and sliders values
     void updateDisplay();
     virtual void update( const Observable *observable, void *arg );
     MiniPaletteWidget *miniPaletteWidget();
     QSlider *minSlider();
     QSlider *maxSlider();
+    int observedDimension() const;
 
   public slots:
     /// auto-range function

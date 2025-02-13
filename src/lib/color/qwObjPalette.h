@@ -119,7 +119,7 @@ protected:
   void fillObjPal();
   anatomist::AObjectPalette* objPalette();
   virtual QWidget* makeDimBox( const QString & title, QWidget* parent, 
-                               DimBox* dbox );
+                               DimBox* dbox, bool secondary );
   virtual void setValues( DimBox* dimBox, float min, float max, 
                           float objMin, float objMax, bool zeroCentered );
   virtual void setValues1();
