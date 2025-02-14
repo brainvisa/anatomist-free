@@ -297,7 +297,7 @@ void ReferentialWindow::resizeEvent( QResizeEvent* ev )
 void ReferentialWindow::openSelectBox()
 {
   QString filter = tr( "Transformation" );
-  filter += " (*.trm *TO*);; ";
+  filter += " (*.trm *TO* *.xfm *.lta);; ";
   filter += ControlWindow::tr( "All files" );
   filter += " (*)";
   QFileDialog	& fd = fileDialog();
