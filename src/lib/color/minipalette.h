@@ -47,7 +47,7 @@ namespace anatomist
           if false, the palette view will not be displayed.
     */
     MiniPaletteGraphics( QGraphicsView *graphicsview, AObject *object = 0,
-                         int dim = 0,
+                         int dims = 0,
                          float width = -10000, float height = -10000,
                          float left = -10000, float top = -10000,
                          bool with_view = true );
@@ -55,8 +55,8 @@ namespace anatomist
 
     AObject *getObject();
     /// set or change the observed object
-    void setObject( AObject *obj, int dim = 0 );
-    void setRange( float min1, float max1 );
+    void setObject( AObject *obj, int dims = 1 );
+    void setRange( float min, float max, int dim );
     void updateDisplay();
     void resize( float x, float y, float w, float h );
     float width() const;
@@ -65,9 +65,9 @@ namespace anatomist
     float left() const;
     void clear();
     void update( const Observable *observable, void *arg );
-    float min1() const;
-    float max1() const;
-    int observedDimension() const;
+    float min( int dim ) const;
+    float max( int dim ) const;
+    int observedDimensions() const;
 
   private:
     struct Private;

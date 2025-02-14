@@ -27,8 +27,8 @@ struct MiniPaletteGraphics::Private
   Private( QGraphicsView *graphicsview, float width, float height,
            float left, float top, bool with_view )
     : aobj( 0 ), width( width ), height( height ),
-      left( left ), top( top ), min1( 0. ), max1( 1. ),
-      graphicsview( graphicsview ), dim( 0 ), with_view( with_view )
+      left( left ), top( top ), min( 2, 0. ), max( 2, 1. ),
+      graphicsview( graphicsview ), dims( 1 ), with_view( with_view )
   {
   }
 
@@ -37,18 +37,18 @@ struct MiniPaletteGraphics::Private
   float height;
   float left;
   float top;
-  float min1;
-  float max1;
+  vector<float> min;
+  vector<float> max;
   list<QGraphicsItem *> tmpitems;
   QGraphicsView *graphicsview;
-  int dim;
+  int dims;
   bool with_view;
 };
 
 
 MiniPaletteGraphics::MiniPaletteGraphics( QGraphicsView *graphicsview,
                                           AObject *object,
-                                          int dim,
+                                          int dims,
                                           float width, float height,
                                           float left, float top,
                                           bool with_view )
@@ -56,7 +56,7 @@ MiniPaletteGraphics::MiniPaletteGraphics( QGraphicsView *graphicsview,
   d( new Private( graphicsview, width, height, left, top, with_view ) )
 {
   if( object )
-    setObject( object, dim );
+    setObject( object, dims );
 }
 
 
@@ -76,7 +76,7 @@ AObject *MiniPaletteGraphics::getObject()
 }
 
 
-void MiniPaletteGraphics::setObject( AObject *obj, int dim )
+void MiniPaletteGraphics::setObject( AObject *obj, int dims )
 {
   if( !d->aobj.isNull() )
     d->aobj->deleteObserver( this );
@@ -85,7 +85,7 @@ void MiniPaletteGraphics::setObject( AObject *obj, int dim )
   if( obj )
   {
     d->aobj = weak_shared_ptr<AObject>( obj );
-    d->dim = dim;
+    d->dims = dims;
     const AObjectPalette *pal = obj->getOrCreatePalette();
     GLComponent *glc = obj->glAPI();
     if( pal && glc )
@@ -93,32 +93,35 @@ void MiniPaletteGraphics::setObject( AObject *obj, int dim )
       const GLComponent::TexExtrema & extr = glc->glTexExtrema( 0 );
       AObjectPalette *pal = obj->palette();
       float valmin, valmax;
-      if( dim >= extr.maxquant.size() )
+      for( int dim=0; dim<2; ++dim )
       {
-        valmin = 0.;
-        valmax = 1.;
+        if( dim >= extr.maxquant.size() )
+        {
+          valmin = 0.;
+          valmax = 1.;
+        }
+        else
+        {
+          valmin = extr.minquant[dim];
+          valmax = extr.maxquant[dim];
+        }
+        if( pal->zeroCenteredAxis( dim ) )
+        {
+          valmax = std::max( std::abs( valmin), std::abs( valmax ) );
+          valmin = -valmax;
+        }
+        setRange( valmin, valmax, dim );
       }
-      else
-      {
-        valmin = extr.minquant[dim];
-        valmax = extr.maxquant[dim];
-      }
-      if( pal->zeroCenteredAxis( dim ) )
-      {
-        valmax = std::max( std::abs( valmin), std::abs( valmax ) );
-        valmin = -valmax;
-      }
-      setRange( valmin, valmax );
     }
     obj->addObserver( this );
   }
 }
 
 
-void MiniPaletteGraphics::setRange( float min1, float max1 )
+void MiniPaletteGraphics::setRange( float min, float max, int dim )
 {
-  d->min1 = min1;
-  d->max1 = max1;
+  d->min[dim] = min;
+  d->max[dim] = max;
 }
 
 
@@ -179,15 +182,15 @@ float MiniPaletteGraphics::left() const
 }
 
 
-float MiniPaletteGraphics::min1() const
+float MiniPaletteGraphics::min( int dim ) const
 {
-  return d->min1;
+  return d->min[dim];
 }
 
 
-float MiniPaletteGraphics::max1() const
+float MiniPaletteGraphics::max( int dim ) const
 {
-  return d->max1;
+  return d->max[dim];
 }
 
 
@@ -226,21 +229,19 @@ void MiniPaletteGraphics::_drawPaletteInGraphicsView()
     baseh = 30;
   int baseh2 = gheight - baseh + 3;
   float m1, M1, m2, M2;
-  int dim = observedDimension();
-  if( dim == 1 )
-  {
-    m2 = pal->relValue2( obj, d->min1 );
-    M2 = pal->relValue2( obj, d->max1 );
-    m1 = 0.;
-    M1 = 1.;
-  }
+
+  // FIXME
+  int dims = observedDimensions();
+  int dim;
+  if( dims & 1 )
+    dim = 0;
   else
-  {
-    m1 = pal->relValue1( obj, d->min1 );
-    M1 = pal->relValue1( obj, d->max1 );
-    m2 = 0.;
-    M2 = 1.;
-  }
+    dim = 1;
+
+  m1 = pal->relValue1( obj, d->min[0] );
+  M1 = pal->relValue1( obj, d->max[0] );
+  m2 = pal->relValue2( obj, d->min[1] );
+  M2 = pal->relValue2( obj, d->max[1] );
 
   QPixmap pix;
   if( d->with_view )
@@ -277,8 +278,8 @@ void MiniPaletteGraphics::_drawPaletteInGraphicsView()
   pixitem->setTransform( tr );
   float palmin = pal->absMin( dim, obj );
   float palmax = pal->absMax( dim, obj );
-  float valmin = d->min1;
-  float valmax = d->max1;
+  float valmin = d->min[dim];
+  float valmax = d->max[dim];
 
   float xmin = 6 + w * ( palmin - valmin ) / ( valmax - valmin );
   float xmax = 6 + w * ( palmax - valmin ) / ( valmax - valmin );
@@ -361,9 +362,9 @@ QGraphicsSimpleTextItem* MiniPaletteGraphics::_textGraphicsItem(
 }
 
 
-int MiniPaletteGraphics::observedDimension() const
+int MiniPaletteGraphics::observedDimensions() const
 {
-  return d->dim;
+  return d->dims;
 }
 
 
@@ -373,10 +374,10 @@ int MiniPaletteGraphics::observedDimension() const
 struct MiniPaletteWidget::Private
 {
   Private( bool allow_edit, bool self_parent, QWidget *edit_parent,
-           bool click_to_edit, bool auto_range )
+           bool click_to_edit, bool auto_range, int dim )
     : editor( 0 ), self_parent( self_parent ), edit_parent( edit_parent ),
       click_to_edit( click_to_edit ), auto_range( auto_range ),
-      graphicsview( 0 ), minipg( 0 ), edit_allowed( false )
+      graphicsview( 0 ), minipg( 0 ), edit_allowed( false ), dim( dim )
   {
   }
 
@@ -394,6 +395,7 @@ struct MiniPaletteWidget::Private
   QClickGraphicsView *graphicsview;
   MiniPaletteGraphics *minipg;
   bool edit_allowed;
+  int dim;
 };
 
 
@@ -403,7 +405,7 @@ MiniPaletteWidget::MiniPaletteWidget( AObject *object, int dim,
                                       bool auto_range, bool with_view )
   : QWidget(),
     d( new Private( allow_edit, self_parent, edit_parent, click_to_edit,
-                    auto_range ) )
+                    auto_range, dim ) )
 {
   QVBoxLayout *lay = new QVBoxLayout( this );
   lay->setContentsMargins( 0, 0, 0, 0 );
@@ -411,7 +413,8 @@ MiniPaletteWidget::MiniPaletteWidget( AObject *object, int dim,
   lay->addWidget( d->graphicsview );
   d->graphicsview->setFocusPolicy( Qt::NoFocus );
   d->minipg = new MiniPaletteGraphics(
-    d->graphicsview, object, dim, -10000, -10000, -10000, -10000, with_view );
+    d->graphicsview, object, 1 << dim, -10000, -10000, -10000, -10000,
+    with_view );
   if( !with_view )
     d->graphicsview->setMaximumHeight( 50 );
   if( object )
@@ -437,7 +440,8 @@ AObject *MiniPaletteWidget::getObject()
 
 void MiniPaletteWidget::setObject( AObject *obj, int dim )
 {
-  d->minipg->setObject( obj, dim );
+  d->minipg->setObject( obj, 1 << dim );
+  d->dim = dim;
   updateDisplay();
 }
 
@@ -455,9 +459,9 @@ void MiniPaletteWidget::allowEdit( bool allow, bool self_parent,
 }
 
 
-void MiniPaletteWidget::setRange( float min1, float max1 )
+void MiniPaletteWidget::setRange( float min, float max )
 {
-  d->minipg->setRange( min1, max1 );
+  d->minipg->setRange( min, max, observedDimension() );
 }
 
 
@@ -572,11 +576,13 @@ void MiniPaletteWidget::wheelEvent( QWheelEvent *event )
   int dim = observedDimension();
   float c = 1.;
   if( pal->zeroCenteredAxis( dim ) )
-    c = ( d->minipg->max1() + d->minipg->min1() ) / 2.;
+    c = ( d->minipg->max( dim ) + d->minipg->min( dim ) ) / 2.;
   else
     c = ( pal->absMax( dim, obj ) + pal->absMin( dim, obj ) ) / 2;
-  float nmin = c - ( d->minipg->max1() - d->minipg->min1() ) / 2 * scale;
-  float nmax = c + ( d->minipg->max1() - d->minipg->min1() ) / 2 * scale;
+  float nmin = c
+    - ( d->minipg->max( dim ) - d->minipg->min( dim ) ) / 2 * scale;
+  float nmax = c
+    + ( d->minipg->max( dim ) - d->minipg->min( dim ) ) / 2 * scale;
 
   const GLComponent::TexExtrema & te = obj->glAPI()->glTexExtrema();
   float tmin;
@@ -634,9 +640,12 @@ void MiniPaletteWidget::gvReleased( QMouseEvent *event )
 
 void MiniPaletteWidget::editorClosed()
 {
+  int dim = observedDimension();
   setRange(
-    d->editor->editor()->miniPaletteWidget()->miniPaletteGraphics()->min1(),
-    d->editor->editor()->miniPaletteWidget()->miniPaletteGraphics()->max1() );
+    d->editor->editor()->miniPaletteWidget()->miniPaletteGraphics()->min(
+      dim ),
+    d->editor->editor()->miniPaletteWidget()->miniPaletteGraphics()->max(
+      dim ) );
   updateDisplay();
 }
 
@@ -655,7 +664,7 @@ QGraphicsView *MiniPaletteWidget::graphicsView()
 
 int MiniPaletteWidget::observedDimension() const
 {
-  return d->minipg->observedDimension();
+  return d->dim;
 }
 
 
