@@ -74,15 +74,7 @@ signals:
 
 protected slots:
   void palette1Changed( const std::string & );
-  void palette2Changed( int );
-  void min1Changed( int value );
-  void max1Changed( int value );
-  void min2Changed( int value );
-  void max2Changed( int value );
-  void min1Released();
-  void max1Released();
-  void min2Released();
-  void max2Released();
+  void palette2Changed( const std::string & );
   void responsiveToggled( bool val );
   void updateClicked();
   void dimChanged( int );
@@ -114,10 +106,8 @@ protected:
 
   virtual void unregisterObservable( anatomist::Observable* );
 
-  void fillPalettes();
   void fillPalette1();
   void fillPalette2();
-  void fillObjPal();
   anatomist::AObjectPalette* objPalette();
   virtual QWidget* makeDimBox( const QString & title, QWidget* parent, 
                                DimBox* dbox, bool secondary );
@@ -129,7 +119,6 @@ protected:
   virtual void updateObjPal();
   void fillMixMethods();
   void fillPalette1DMappingMethods() ;
-  void fillPalette2List();
   void runCommand();
   void fillToolBar();
 

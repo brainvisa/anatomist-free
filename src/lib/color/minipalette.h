@@ -252,6 +252,9 @@ namespace anatomist
     int observedDimension() const;
     std::pair<float, float> range() const;
 
+  signals:
+    void paletteSelected( const std::string & );
+
   public slots:
     /// auto-range function
     void adjustRange();

@@ -993,10 +993,12 @@ void MiniPaletteWidgetEdit::selectPalette()
   connect( but, SIGNAL( clicked() ), &dial, SLOT( accept() ) );
   connect( palsel, SIGNAL( paletteSelected( const std::string & ) ),
            this, SLOT( setPalette( const std::string & ) ) );
+  connect( palsel, SIGNAL( paletteSelected( const std::string & ) ),
+           this, SIGNAL( paletteSelected( const std::string & ) ) );
   connect( palsel, SIGNAL( itemDoubleClicked( QTableWidgetItem* ) ),
            &dial, SLOT( accept() ) );
   dial.resize(500, 800);
-  dial.exec();
+  int res = dial.exec();
 }
 
 
