@@ -68,6 +68,7 @@ namespace anatomist
     float min( int dim ) const;
     float max( int dim ) const;
     int observedDimensions() const;
+    std::pair<float, float> range( int dim ) const;
 
   private:
     struct Private;
@@ -174,6 +175,7 @@ namespace anatomist
     MiniPaletteGraphics *miniPaletteGraphics();
     QGraphicsView *graphicsView();
     int observedDimension() const;
+    std::pair<float, float> range() const;
 
   signals:
     /** signal emitted when the zoom range has changed (after a mouse wheel
@@ -248,6 +250,7 @@ namespace anatomist
     QSlider *minSlider();
     QSlider *maxSlider();
     int observedDimension() const;
+    std::pair<float, float> range() const;
 
   public slots:
     /// auto-range function

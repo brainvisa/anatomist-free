@@ -421,6 +421,12 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
            SLOT( objectsChosen( const std::set<anatomist::AObject *> & ) ) );
   connect( d->toolactions, SIGNAL( triggered( QAction * ) ), this, 
            SLOT( extensionActionTriggered( QAction * ) ) );
+  connect( d->dimBox1->paledit->miniPaletteWidget(),
+           SIGNAL( rangeChanged( float, float ) ),
+           this, SLOT( palette1RangeChanged( float, float ) ) );
+  connect( d->dimBox2->paledit->miniPaletteWidget(),
+           SIGNAL( rangeChanged( float, float ) ),
+           this, SLOT( palette2RangeChanged( float, float ) ) );
 
   if( objPalette()->palette1DMapping() == AObjectPalette::DIAGONAL )
     d->dimBgp->button(1)->setChecked( true );
@@ -1515,6 +1521,12 @@ void QAPaletteWin::min1EditChanged()
   ival = (int) rint( ( maxcurval - d->dimBox1->slrelmin ) * 1000
     / ( double(d->dimBox1->slrelmax) - d->dimBox1->slrelmin ) );
   d->dimBox1->maxSlider->setValue( ival );
+
+  if( d->dimBox1->paledit->range().first != val )
+  {
+    d->dimBox1->paledit->setRange( val, d->dimBox1->paledit->range().second );
+    d->dimBox1->paledit->updateDisplay();
+  }
 }
 
 
@@ -1550,6 +1562,12 @@ void QAPaletteWin::max1EditChanged()
                       / ( double(d->dimBox1->slrelmax)
                               - d->dimBox1->slrelmin ) );
   d->dimBox1->minSlider->setValue( ival );
+
+  if( d->dimBox1->paledit->range().second != val )
+  {
+    d->dimBox1->paledit->setRange( d->dimBox1->paledit->range().first, val );
+    d->dimBox1->paledit->updateDisplay();
+  }
 }
 
 
@@ -1583,6 +1601,12 @@ void QAPaletteWin::min2EditChanged()
   ival = (int) rint( ( maxcurval - d->dimBox2->slrelmin ) * 1000
     / ( double(d->dimBox2->slrelmax) - d->dimBox2->slrelmin ) );
   d->dimBox2->maxSlider->setValue( ival );
+
+  if( d->dimBox2->paledit->range().first != val )
+  {
+    d->dimBox2->paledit->setRange( val, d->dimBox2->paledit->range().second );
+    d->dimBox2->paledit->updateDisplay();
+  }
 }
 
 
@@ -1618,6 +1642,12 @@ void QAPaletteWin::max2EditChanged()
                       / ( double(d->dimBox2->slrelmax)
                               - d->dimBox2->slrelmin ) );
   d->dimBox2->minSlider->setValue( ival );
+
+  if( d->dimBox2->paledit->range().second != val )
+  {
+    d->dimBox2->paledit->setRange( d->dimBox2->paledit->range().first, val );
+    d->dimBox2->paledit->updateDisplay();
+  }
 }
 
 
@@ -1995,6 +2025,40 @@ void QAPaletteWin::max2Released()
   }
 
   resetValues2();
+}
+
+
+void QAPaletteWin::palette1RangeChanged( float min, float max )
+{
+  if( d->dimBox1->minEd->text() != QString::number( min ) )
+  {
+    d->dimBox1->minEd->setText( QString::number( min ) );
+    min1EditChanged();
+  }
+  if( d->dimBox1->maxEd->text() != QString::number( max ) )
+  {
+    d->dimBox1->maxEd->setText( QString::number( max ) );
+    max1EditChanged();
+  }
+}
+
+
+void QAPaletteWin::palette2RangeChanged( float min, float max )
+{
+  d->dimBox1->paledit->miniPaletteWidget()->miniPaletteGraphics()->setRange(
+    min, max, 1 );
+  d->dimBox1->paledit->miniPaletteWidget()->miniPaletteGraphics()
+    ->updateDisplay();
+  if( d->dimBox2->minEd->text() != QString::number( min ) )
+  {
+    d->dimBox2->minEd->setText( QString::number( min ) );
+    min2EditChanged();
+  }
+  if( d->dimBox2->maxEd->text() != QString::number( min ) )
+  {
+    d->dimBox2->maxEd->setText( QString::number( max ) );
+    max2EditChanged();
+  }
 }
 
 

@@ -103,7 +103,8 @@ protected slots:
   void extensionActionTriggered( QAction* action );
   void zeroCentered1Changed( int state );
   void zeroCentered2Changed( int state );
-
+  void palette1RangeChanged( float, float );
+  void palette2RangeChanged( float, float );
 
 protected:
   struct DimBox;

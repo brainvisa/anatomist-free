@@ -368,6 +368,12 @@ int MiniPaletteGraphics::observedDimensions() const
 }
 
 
+pair<float, float> MiniPaletteGraphics::range( int dim ) const
+{
+  return make_pair( d->min[dim], d->max[dim] );
+}
+
+
 // --
 
 
@@ -462,6 +468,7 @@ void MiniPaletteWidget::allowEdit( bool allow, bool self_parent,
 void MiniPaletteWidget::setRange( float min, float max )
 {
   d->minipg->setRange( min, max, observedDimension() );
+  emit rangeChanged( min, max );
 }
 
 
@@ -622,7 +629,6 @@ void MiniPaletteWidget::wheelEvent( QWheelEvent *event )
 
   setRange( rmin, rmax );
   updateDisplay();
-  emit rangeChanged( rmin, rmax );
 }
 
 
@@ -665,6 +671,12 @@ QGraphicsView *MiniPaletteWidget::graphicsView()
 int MiniPaletteWidget::observedDimension() const
 {
   return d->dim;
+}
+
+
+pair<float, float> MiniPaletteWidget::range() const
+{
+  return d->minipg->range( d->dim );
 }
 
 
@@ -939,6 +951,8 @@ void MiniPaletteWidgetEdit::setRange( float rmin, float rmax )
 {
   d->minslider->setRange( rmin, rmax );
   d->maxslider->setRange( rmin, rmax );
+  if( d->minipw->range() != make_pair( rmin, rmax ) )
+    d->minipw->setRange( rmin, rmax );
   AObject *obj = d->minipw->getObject();
   int dim = d->minipw->observedDimension();
   if( obj )
@@ -1070,6 +1084,12 @@ QSlider *MiniPaletteWidgetEdit::maxSlider()
 int MiniPaletteWidgetEdit::observedDimension() const
 {
   return d->minipw->observedDimension();
+}
+
+
+pair<float, float> MiniPaletteWidgetEdit::range() const
+{
+  return d->minipw->range();
 }
 
 
