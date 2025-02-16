@@ -65,11 +65,13 @@
 #include <chrono>
 
 
-// check / remove max1Changed(), max1Released(), min1Changed(), min1Released()
-// slrelmin, slrelmax ? resetValues1, resetValues2
+// check / remove
+// slrelmin, slrelmax ?
 // updateObjPal, setValues()
 // add: clamp buttons
 // TODO: pal2changed in update()
+// TODO: non-responsive mode
+// TODO: update all objects
 
 
 using namespace anatomist;
@@ -383,8 +385,15 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
            SIGNAL( paletteSelected( const std::string & ) ),
            this, SLOT( palette2Changed( const std::string & ) ) );
 
-  if( objPalette()->palette1DMapping() == AObjectPalette::DIAGONAL )
+  if( objPalette()->palette1DMapping() == AObjectPalette::DIAGONAL
+      || objPalette()->is2dMode() )
+  {
     d->dimBgp->button(1)->setChecked( true );
+    d->dimBox1->paledit->miniPaletteWidget()->setMinimumHeight( 250 );
+    d->dimBox1->paledit->miniPaletteWidget()->setMaximumHeight(
+      QWIDGETSIZE_MAX );
+  }
+  resize( minimumSize() );
 
   show();
   d->sizes[0][0] = 0;
@@ -406,7 +415,11 @@ QWidget* QAPaletteWin::makeDimBox( const QString & title, QWidget* parent,
   if( second )
     dbox->paledit = new MiniPaletteWidgetEdit( 0, 1, false, false, true );
   else
+  {
     dbox->paledit = new MiniPaletteWidgetEdit;
+    dbox->paledit->miniPaletteWidget()->setMinimumHeight( 80 );
+    dbox->paledit->miniPaletteWidget()->setMaximumHeight( 80 );
+  }
   topBoxl->addWidget( dbox->paledit );
   topBoxl->addStretch( 1 );
 
@@ -735,7 +748,7 @@ void QAPaletteWin::fillPalette2()
 }
 
 
-void QAPaletteWin::palette1Changed( const string & name )
+void QAPaletteWin::palette1Changed( const string & )
 {
   if( d->recursive )
     return;
@@ -748,7 +761,7 @@ void QAPaletteWin::palette1Changed( const string & name )
 }
 
 
-void QAPaletteWin::palette2Changed( const string & name )
+void QAPaletteWin::palette2Changed( const string & )
 {
   if( d->recursive )
     return;
@@ -780,8 +793,6 @@ void QAPaletteWin::setValues( DimBox* dimBox, float m, float M,
     dimBox->slrelmax = std::max( cmax / 2 + 0.5f, dimBox->slrelmax );
     min = -omax + omax * 2 * dimBox->slrelmin;
     max = -omax + omax * 2 * dimBox->slrelmax;
-    dimBox->minEd->setText( QString::number( min ) );
-    dimBox->maxEd->setText( QString::number( max ) );
   }
   else
   {
@@ -789,9 +800,11 @@ void QAPaletteWin::setValues( DimBox* dimBox, float m, float M,
     max = double(objMin) + ( double(objMax) - objMin ) * M;
     min = double(objMin) + ( double(objMax) - objMin ) * dimBox->slrelmin;
     max = double(objMin) + ( double(objMax) - objMin ) * dimBox->slrelmax;
-    dimBox->minEd->setText( QString::number( min ) );
-    dimBox->maxEd->setText( QString::number( max ) );
   }
+  dimBox->minEd->setText( QString::number( min ) );
+  dimBox->maxEd->setText( QString::number( max ) );
+  dimBox->paledit->setRange( min, max );
+  dimBox->paledit->updateDisplay();
 
   d->recursive = rec;
 }
@@ -920,10 +933,20 @@ void QAPaletteWin::dimChanged( int num )
   d->sizes[oldDim-1][1] = size().height();
 
   if( d->dim >= 2 && oldDim == 1 )
+  {
     d->dimBox2->topBox->show();
+    d->dimBox1->paledit->miniPaletteWidget()->setMinimumHeight( 250 );
+    d->dimBox1->paledit->miniPaletteWidget()->setMaximumHeight(
+      QWIDGETSIZE_MAX );
+  }
   else if( d->dim == 1 )
+  {
     d->dimBox2->topBox->hide();
+    d->dimBox1->paledit->miniPaletteWidget()->setMinimumHeight( 80 );
+    d->dimBox1->paledit->miniPaletteWidget()->setMaximumHeight( 80 );
+  }
 
+  objPalette()->set2dMode( num == 1 );
   updateObjPal();
   d->modified = true;
   if( d->responsive )
@@ -1360,6 +1383,7 @@ void QAPaletteWin::zeroCentered1Changed( int state )
 
   double absmax = std::max( std::abs( d->objMin ),
                             std::abs( d->objMax ) );
+  float min, max;
   if( !state )
   {
     float maxval = d->objpal->max1() * absmax;
@@ -1367,8 +1391,8 @@ void QAPaletteWin::zeroCentered1Changed( int state )
     float curmax = std::max( maxval, d->objMax );
     d->objpal->setMin1( (-maxval - d->objMin)
                         / ( double(d->objMax) - d->objMin ) );
-    d->dimBox1->minEd->setText( QString::number( curmin ) );
-    d->dimBox1->maxEd->setText( QString::number( curmax ) );
+    min = curmin;
+    max = curmax;
     d->dimBox1->slrelmin = ( curmin - d->objMin )
       / ( double(d->objMax) - d->objMin );
     d->dimBox1->slrelmax = ( curmax - d->objMin )
@@ -1380,11 +1404,15 @@ void QAPaletteWin::zeroCentered1Changed( int state )
       + d->objpal->max1() * ( double(d->objMax) - d->objMin );
     d->objpal->setMin1( 0. );
     d->objpal->setMax1( maxval / absmax );
-    d->dimBox1->minEd->setText( QString::number( -absmax ) );
-    d->dimBox1->maxEd->setText( QString::number( absmax ) );
     d->dimBox1->slrelmin = 0.f;
     d->dimBox1->slrelmax = std::max( 1.f, std::abs( d->objpal->max1() ) );
+    min = -absmax;
+    max = absmax;
   }
+  d->dimBox1->minEd->setText( QString::number( min ) );
+  d->dimBox1->maxEd->setText( QString::number( max ) );
+  d->dimBox1->paledit->setRange( min, max );
+  d->dimBox1->paledit->updateDisplay();
 
   d->modified = true;
   if( d->responsive )
@@ -1420,15 +1448,24 @@ void QAPaletteWin::zeroCentered2Changed( int state )
 
 void QAPaletteWin::palette1RangeChanged( float min, float max )
 {
+  bool changed = false;
   if( d->dimBox1->minEd->text() != QString::number( min ) )
   {
     d->dimBox1->minEd->setText( QString::number( min ) );
     min1EditChanged();
+    changed = true;
   }
   if( d->dimBox1->maxEd->text() != QString::number( max ) )
   {
     d->dimBox1->maxEd->setText( QString::number( max ) );
     max1EditChanged();
+    changed = true;
+  }
+  if( changed )
+  {
+    d->modified = true;
+    if( d->responsive )
+      updateObjects();
   }
 }
 
