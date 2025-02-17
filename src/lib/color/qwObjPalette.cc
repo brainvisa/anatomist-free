@@ -68,10 +68,7 @@
 // check / remove
 // slrelmin, slrelmax ?
 // updateObjPal, setValues()
-// add: clamp buttons
-// TODO: pal2changed in update()
 // TODO: non-responsive mode
-// TODO: update all objects
 
 
 using namespace anatomist;
@@ -228,6 +225,7 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
   QPushButton	*updateBtn = new QPushButton( tr( "Update" ), updateGrp );
   updateGrpl->addWidget( updateBtn );
   updateGrp->setFixedHeight( updateGrp->sizeHint().height() );
+  updateGrp->hide(); // FIXME: make it work or remove it
 
   QGroupBox *dimBgpw = new QGroupBox( tr( "Dimension :" ), rtPanel );
   d->dimBgp = new QButtonGroup( dimBgpw );
@@ -392,6 +390,18 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
            this, SLOT( cleatMin2() ) );
   connect( d->dimBox2->cleatMax, SIGNAL( clicked() ),
            this, SLOT( cleatMax2() ) );
+  connect( d->dimBox1->paledit->minSlider(),
+           SIGNAL( absValueChanged( float ) ),
+           this, SLOT( min1Changed( float ) ) );
+  connect( d->dimBox1->paledit->maxSlider(),
+           SIGNAL( absValueChanged( float ) ),
+           this, SLOT( max1Changed( float ) ) );
+  connect( d->dimBox2->paledit->minSlider(),
+           SIGNAL( absValueChanged( float ) ),
+           this, SLOT( min2Changed( float ) ) );
+  connect( d->dimBox2->paledit->maxSlider(),
+           SIGNAL( absValueChanged( float ) ),
+           this, SLOT( max2Changed( float ) ) );
 
   if( objPalette()->palette1DMapping() == AObjectPalette::DIAGONAL
       || objPalette()->is2dMode() )
@@ -632,52 +642,49 @@ void QAPaletteWin::update( const anatomist::Observable* obs, void* )
     const AObjectPalette	*pal = obj->getOrCreatePalette();
     if( pal )
     {
+      AObjectPalette oldpal = *d->objpal;
+
       if( d->objpal )
         *d->objpal = *pal ;
       else
         d->objpal = new AObjectPalette( *pal ) ;
 
       if( d->objpal->palette1DMapping() == AObjectPalette::DIAGONAL )
-        {
-          d->dimBgp->button(1)->setChecked( true );
-          d->palette1dMappingBox->setCurrentIndex( 1 ) ;
-          dimChanged(1) ;
-        }
+      {
+        d->dimBgp->button(1)->setChecked( true );
+        d->palette1dMappingBox->setCurrentIndex( 1 ) ;
+        dimChanged(1) ;
+      }
       else
         d->palette1dMappingBox->setCurrentIndex( 0 ) ;
 
-      bool pal2changed = false;
-
-      if ( d->objpal->refPalette2() )
-      {
-        // TODO FIXME
-      }
-      if( pal2changed )
+      if( d->objpal->refPalette() != oldpal.refPalette() )
+        fillPalette1();
+      if( d->objpal->refPalette2() != oldpal.refPalette2() )
         fillPalette2();
 
       d->dimBox1->symbox->setChecked( pal->zeroCenteredAxis1() );
       d->dimBox2->symbox->setChecked( pal->zeroCenteredAxis2() );
 
-    }
-
-    const GLComponent	*gl = obj->glAPI();
-    if( gl )
-    {
-      if( gl->glNumTextures() > 0 )
+      const GLComponent	*gl = obj->glAPI();
+      if( gl )
       {
-        const GLComponent::TexExtrema	& te = gl->glTexExtrema( 0 );
-        if( !te.minquant.empty() )
+        if( gl->glNumTextures() > 0 )
         {
-          d->objMin = te.minquant[0];
+          const GLComponent::TexExtrema	& te = gl->glTexExtrema( 0 );
+          if( !te.minquant.empty() )
+          {
+            d->objMin = te.minquant[0];
+          }
+          if( !te.maxquant.empty() )
+            d->objMax = te.maxquant[0];
+          if( d->objMin == d->objMax )
+            d->objMax = d->objMin + 1;	// avoid pbs of division by 0
+          setValues( d->dimBox1, d->objpal->min1(), d->objpal->max1(),
+                      d->objMin, d->objMax, pal->zeroCenteredAxis1() );
+          setValues( d->dimBox2, d->objpal->min2(), d->objpal->max2(),
+                      d->objMin2, d->objMax2, pal->zeroCenteredAxis2() );
         }
-        if( !te.maxquant.empty() )
-          d->objMax = te.maxquant[0];
-        if( d->objMin == d->objMax )
-          d->objMax = d->objMin + 1;	// avoid pbs of division by 0
-        setValues( d->dimBox1, d->objpal->min1(), d->objpal->max1(),
-                    d->objMin, d->objMax, pal->zeroCenteredAxis1() );
-        setValues( d->dimBox2, d->objpal->min2(), d->objpal->max2(),
-                    d->objMin2, d->objMax2, pal->zeroCenteredAxis2() );
       }
     }
 
@@ -1509,7 +1516,8 @@ void QAPaletteWin::cleatMin1()
   {
     objPalette()->setAbsMin1( *_parents.begin(),
                               d->dimBox1->paledit->range().first );
-    updateObjects();
+    if( d->responsive )
+      updateObjects();
   }
 }
 
@@ -1520,7 +1528,8 @@ void QAPaletteWin::cleatMax1()
   {
     objPalette()->setAbsMax1( *_parents.begin(),
                               d->dimBox1->paledit->range().second );
-    updateObjects();
+    if( d->responsive )
+      updateObjects();
   }
 }
 
@@ -1531,7 +1540,8 @@ void QAPaletteWin::cleatMin2()
   {
     objPalette()->setAbsMin2( *_parents.begin(),
                               d->dimBox2->paledit->range().first );
-    updateObjects();
+    if( d->responsive )
+      updateObjects();
   }
 }
 
@@ -1542,8 +1552,37 @@ void QAPaletteWin::cleatMax2()
   {
     objPalette()->setAbsMax2( *_parents.begin(),
                               d->dimBox2->paledit->range().second );
-    updateObjects();
+    if( d->responsive )
+      updateObjects();
   }
+}
+
+
+void QAPaletteWin::min1Changed( float value )
+{
+  if( d->responsive )
+    updateObjects();
+}
+
+
+void QAPaletteWin::max1Changed( float value )
+{
+  if( d->responsive )
+    updateObjects();
+}
+
+
+void QAPaletteWin::min2Changed( float value )
+{
+  if( d->responsive )
+    updateObjects();
+}
+
+
+void QAPaletteWin::max2Changed( float value )
+{
+  if( d->responsive )
+    updateObjects();
 }
 
 

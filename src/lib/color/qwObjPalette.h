@@ -101,6 +101,10 @@ protected slots:
   void cleatMax1();
   void cleatMin2();
   void cleatMax2();
+  void min1Changed( float );
+  void max1Changed( float );
+  void min2Changed( float );
+  void max2Changed( float );
 
 protected:
   struct DimBox;
