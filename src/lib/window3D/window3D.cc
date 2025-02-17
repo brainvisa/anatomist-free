@@ -120,8 +120,9 @@
 #include <AvailabilityMacros.h>
 #endif
 
-#include "anatomist/surface/BlinnPhongIlluminationModel.h"
-#include "anatomist/surface/DepthPeelingEffect.h"
+// FIX JORDAN
+#include "anatomist/surface/blinnPhongIlluminationModel.h"
+#include "anatomist/surface/depthPeelingEffect.h"
 
 /* whith ANA_USE_QGRAPHICSVIEW defined, 3D windows will contain a 
    QGraphicsView, in which the OpenGL widget is the background (viewport).
