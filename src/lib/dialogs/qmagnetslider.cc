@@ -10,20 +10,22 @@ using namespace std;
 struct QMagnetSlider::Private
 {
   Private()
-    : double_click_time( 0.3 ),
-      last_release_time( 0 ),
+    : double_click_time( 0.2 ),
+      last_press_time( 0 ),
       default_value( 0 ),
       pressval( 0 ),
       mag_size( 20. ),
       min1( 0 ),
       max1( 1000 ),
-      current_val( 500 )
+      current_val( 500 ),
+      released( false ),
+      moved( false )
   {
   }
 
   float double_click_time;
   QPointF presspos;
-  double last_release_time;
+  double last_press_time;
   set<float> magnets;
   float default_value;
   float pressval;
@@ -31,6 +33,8 @@ struct QMagnetSlider::Private
   float min1;
   float max1;
   float current_val;
+  bool released;
+  bool moved;
 };
 
 
@@ -104,6 +108,18 @@ void QMagnetSlider::mousePressEvent( QMouseEvent *event )
 #endif
 
   d->pressval = d->current_val;
+
+  struct timespec ts;
+  timespec_get( &ts, TIME_UTC );
+  double t = ts.tv_sec + ts.tv_nsec / 1000000000L;
+  if( d->last_press_time == 0.
+      || t - d->last_press_time > d->double_click_time )
+  {
+    d->last_press_time = t;
+    d->released = false;
+    d->moved = false;
+  }
+
   QSlider::mousePressEvent( event );
   emit sliderPressed( objectName().toStdString() );
 }
@@ -119,6 +135,7 @@ void QMagnetSlider::mouseMoveEvent( QMouseEvent *event )
   QPointF pos = event->localPos();
 #endif
 
+  d->moved = true;
   float xdiff = pos.x() - d->presspos.x();
   float nval_i = xdiff / width();
   float nval = d->pressval + nval_i * ( d->max1 - d->min1 );
@@ -187,16 +204,29 @@ void QMagnetSlider::mouseReleaseEvent( QMouseEvent *event )
   emit absValueChanged( absval );
   emit sliderReleased( objectName().toStdString() );
 
+  if( d->moved )
+  {
+    // moved: abort double-click check
+    d->last_press_time = 0.;
+    d->released = false;
+    return;
+  }
+
+  if( !d->released )
+  {
+    // one click so far.
+    d->released = true;
+    return;
+  }
+
   struct timespec ts;
   timespec_get( &ts, TIME_UTC );
   double t = ts.tv_sec + ts.tv_nsec / 1000000000L;
-  if( d->last_release_time != 0.
-      && t - d->last_release_time < d->double_click_time )
-  {
+  if( d->last_press_time != 0.
+      && t - d->last_press_time < d->double_click_time )
     emit sliderDoubleClicked();
-    d->last_release_time = 0.;
-  }
-  else
-    d->last_release_time = t;
+
+  d->last_press_time = 0.;
+  d->released = false;
 }
 
