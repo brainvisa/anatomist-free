@@ -826,11 +826,23 @@ A number of palettes are available and any user can add his own personal palette
 
 For RGB and RGBA volumes, the palette is applied to each R, G, B, A chanel.
 
-Some textures are 2D: each mesh vertex has 2 different texture values, which may be interpreted as a 2D coordinate on a palette image. For this it is possible to use a 2D image as a palette, or to mix two 1D palettes.
-
 .. figure:: images/window_palette.png
 
   Palette window
+
+In Anatomist 5.2, the palette window has been hugely reworked and made much smaller. Only useful information is visible. The palette image selection is done by clicking on the current palette image: a popup window will allow to select it:
+
+.. figure:: images/window_palette_select.jpg
+
+  Palette image selection
+
+Sliders allow to change the scaling. The new sliders have "magnetic" values which allow to stop at interesting values (the default, min, max...), or go over the displayed bounds. Bounds may be changed using the number editors (as before), but also using the mouse wheel to zoom into the palette image. A "auto-scale" mode is available: when the mouse goes over the upper right part of the palette image, a button will allow to switch this mode.
+
+Some textures are 2D: each mesh vertex has 2 different texture values, which may be interpreted as a 2D coordinate on a palette image. For this it is possible to use a 2D image as a palette, or to mix two 1D palettes.
+
+.. figure:: images/window_palette_2d.jpg
+
+  Palette window 2D
 
 
 Palettes and positive / negative values

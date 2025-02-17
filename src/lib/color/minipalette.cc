@@ -25,10 +25,10 @@ using namespace std;
 struct MiniPaletteGraphics::Private
 {
   Private( QGraphicsView *graphicsview, float width, float height,
-           float left, float top )
+           float left, float top, bool with_view )
     : aobj( 0 ), width( width ), height( height ),
-      left( left ), top( top ), min1( 0. ), max1( 1. ),
-      graphicsview( graphicsview ), dim( 0 )
+      left( left ), top( top ), min( 2, 0. ), max( 2, 1. ),
+      graphicsview( graphicsview ), dims( 1 ), with_view( with_view )
   {
   }
 
@@ -37,24 +37,26 @@ struct MiniPaletteGraphics::Private
   float height;
   float left;
   float top;
-  float min1;
-  float max1;
+  vector<float> min;
+  vector<float> max;
   list<QGraphicsItem *> tmpitems;
   QGraphicsView *graphicsview;
-  int dim;
+  int dims;
+  bool with_view;
 };
 
 
 MiniPaletteGraphics::MiniPaletteGraphics( QGraphicsView *graphicsview,
                                           AObject *object,
-                                          int dim,
+                                          int dims,
                                           float width, float height,
-                                          float left, float top )
+                                          float left, float top,
+                                          bool with_view )
   : Observer(),
-  d( new Private( graphicsview, width, height, left, top ) )
+  d( new Private( graphicsview, width, height, left, top, with_view ) )
 {
   if( object )
-    setObject( object, dim );
+    setObject( object, dims );
 }
 
 
@@ -74,7 +76,7 @@ AObject *MiniPaletteGraphics::getObject()
 }
 
 
-void MiniPaletteGraphics::setObject( AObject *obj, int dim )
+void MiniPaletteGraphics::setObject( AObject *obj, int dims )
 {
   if( !d->aobj.isNull() )
     d->aobj->deleteObserver( this );
@@ -83,39 +85,43 @@ void MiniPaletteGraphics::setObject( AObject *obj, int dim )
   if( obj )
   {
     d->aobj = weak_shared_ptr<AObject>( obj );
-    d->dim = dim;
+    d->dims = dims;
+    const AObjectPalette *pal = obj->getOrCreatePalette();
     GLComponent *glc = obj->glAPI();
-    if( glc )
+    if( pal && glc )
     {
       const GLComponent::TexExtrema & extr = glc->glTexExtrema( 0 );
       AObjectPalette *pal = obj->palette();
       float valmin, valmax;
-      if( dim >= extr.maxquant.size() )
+      for( int dim=0; dim<2; ++dim )
       {
-        valmin = 0.;
-        valmax = 1.;
+        if( dim >= extr.maxquant.size() )
+        {
+          valmin = 0.;
+          valmax = 1.;
+        }
+        else
+        {
+          valmin = extr.minquant[dim];
+          valmax = extr.maxquant[dim];
+        }
+        if( pal->zeroCenteredAxis( dim ) )
+        {
+          valmax = std::max( std::abs( valmin), std::abs( valmax ) );
+          valmin = -valmax;
+        }
+        setRange( valmin, valmax, dim );
       }
-      else
-      {
-        valmin = extr.minquant[dim];
-        valmax = extr.maxquant[dim];
-      }
-      if( pal->zeroCenteredAxis( dim ) )
-      {
-        valmax = std::max( std::abs( valmin), std::abs( valmax ) );
-        valmin = -valmax;
-      }
-      setRange( valmin, valmax );
     }
     obj->addObserver( this );
   }
 }
 
 
-void MiniPaletteGraphics::setRange( float min1, float max1 )
+void MiniPaletteGraphics::setRange( float min, float max, int dim )
 {
-  d->min1 = min1;
-  d->max1 = max1;
+  d->min[dim] = min;
+  d->max[dim] = max;
 }
 
 
@@ -176,15 +182,15 @@ float MiniPaletteGraphics::left() const
 }
 
 
-float MiniPaletteGraphics::min1() const
+float MiniPaletteGraphics::min( int dim ) const
 {
-  return d->min1;
+  return d->min[dim];
 }
 
 
-float MiniPaletteGraphics::max1() const
+float MiniPaletteGraphics::max( int dim ) const
 {
-  return d->max1;
+  return d->max[dim];
 }
 
 
@@ -223,25 +229,27 @@ void MiniPaletteGraphics::_drawPaletteInGraphicsView()
     baseh = 30;
   int baseh2 = gheight - baseh + 3;
   float m1, M1, m2, M2;
-  int dim = observedDimension();
-  if( dim == 1 )
-  {
-    m2 = pal->relValue2( obj, d->min1 );
-    M2 = pal->relValue2( obj, d->max1 );
-    m1 = pal->min1();
-    M1 = pal->max1();
-  }
-  else
-  {
-    m1 = pal->relValue1( obj, d->min1 );
-    M1 = pal->relValue1( obj, d->max1 );
-    m2 = pal->min2();
-    M2 = pal->max2();
-  }
 
-  QImage *img( pal->toQImage( w, baseh2 - baseh - 1, m1, M1, m2, M2 ) );
-  QPixmap pix = QPixmap::fromImage( *img );
-  delete img;
+  // FIXME
+  int dims = observedDimensions();
+  int dim;
+  if( dims & 1 )
+    dim = 0;
+  else
+    dim = 1;
+
+  m1 = pal->relValue1( obj, d->min[0] );
+  M1 = pal->relValue1( obj, d->max[0] );
+  m2 = pal->relValue2( obj, d->min[1] );
+  M2 = pal->relValue2( obj, d->max[1] );
+
+  QPixmap pix;
+  if( d->with_view )
+  {
+    QImage *img( pal->toQImage( w, baseh2 - baseh - 1, m1, M1, m2, M2 ) );
+    pix = QPixmap::fromImage( *img );
+    delete img;
+  }
   clear();
 
   QGraphicsScene *scene = gv->scene();
@@ -270,8 +278,8 @@ void MiniPaletteGraphics::_drawPaletteInGraphicsView()
   pixitem->setTransform( tr );
   float palmin = pal->absMin( dim, obj );
   float palmax = pal->absMax( dim, obj );
-  float valmin = d->min1;
-  float valmax = d->max1;
+  float valmin = d->min[dim];
+  float valmax = d->max[dim];
 
   float xmin = 6 + w * ( palmin - valmin ) / ( valmax - valmin );
   float xmax = 6 + w * ( palmax - valmin ) / ( valmax - valmin );
@@ -354,9 +362,15 @@ QGraphicsSimpleTextItem* MiniPaletteGraphics::_textGraphicsItem(
 }
 
 
-int MiniPaletteGraphics::observedDimension() const
+int MiniPaletteGraphics::observedDimensions() const
 {
-  return d->dim;
+  return d->dims;
+}
+
+
+pair<float, float> MiniPaletteGraphics::range( int dim ) const
+{
+  return make_pair( d->min[dim], d->max[dim] );
 }
 
 
@@ -366,10 +380,10 @@ int MiniPaletteGraphics::observedDimension() const
 struct MiniPaletteWidget::Private
 {
   Private( bool allow_edit, bool self_parent, QWidget *edit_parent,
-           bool click_to_edit, bool auto_range )
+           bool click_to_edit, bool auto_range, int dim )
     : editor( 0 ), self_parent( self_parent ), edit_parent( edit_parent ),
       click_to_edit( click_to_edit ), auto_range( auto_range ),
-      graphicsview( 0 ), minipg( 0 ), edit_allowed( false )
+      graphicsview( 0 ), minipg( 0 ), edit_allowed( false ), dim( dim )
   {
   }
 
@@ -387,23 +401,28 @@ struct MiniPaletteWidget::Private
   QClickGraphicsView *graphicsview;
   MiniPaletteGraphics *minipg;
   bool edit_allowed;
+  int dim;
 };
 
 
 MiniPaletteWidget::MiniPaletteWidget( AObject *object, int dim,
                                       bool allow_edit, bool self_parent,
                                       QWidget *edit_parent, bool click_to_edit,
-                                      bool auto_range )
+                                      bool auto_range, bool with_view )
   : QWidget(),
     d( new Private( allow_edit, self_parent, edit_parent, click_to_edit,
-                    auto_range ) )
+                    auto_range, dim ) )
 {
   QVBoxLayout *lay = new QVBoxLayout( this );
   lay->setContentsMargins( 0, 0, 0, 0 );
   d->graphicsview = new QClickGraphicsView;
   lay->addWidget( d->graphicsview );
   d->graphicsview->setFocusPolicy( Qt::NoFocus );
-  d->minipg = new MiniPaletteGraphics( d->graphicsview, object, dim );
+  d->minipg = new MiniPaletteGraphics(
+    d->graphicsview, object, 1 << dim, -10000, -10000, -10000, -10000,
+    with_view );
+  if( !with_view )
+    d->graphicsview->setMaximumHeight( 50 );
   if( object )
     setObject( object, dim );
   allowEdit( allow_edit, self_parent, edit_parent );
@@ -427,7 +446,8 @@ AObject *MiniPaletteWidget::getObject()
 
 void MiniPaletteWidget::setObject( AObject *obj, int dim )
 {
-  d->minipg->setObject( obj, dim );
+  d->minipg->setObject( obj, 1 << dim );
+  d->dim = dim;
   updateDisplay();
 }
 
@@ -445,9 +465,10 @@ void MiniPaletteWidget::allowEdit( bool allow, bool self_parent,
 }
 
 
-void MiniPaletteWidget::setRange( float min1, float max1 )
+void MiniPaletteWidget::setRange( float min, float max )
 {
-  d->minipg->setRange( min1, max1 );
+  d->minipg->setRange( min, max, observedDimension() );
+  emit rangeChanged( min, max );
 }
 
 
@@ -559,24 +580,37 @@ void MiniPaletteWidget::wheelEvent( QWheelEvent *event )
   if( !obj )
     return;
   const AObjectPalette *pal = obj->palette();
+  int dim = observedDimension();
   float c = 1.;
-  if( pal->zeroCenteredAxis1() )
-    c = ( d->minipg->max1() + d->minipg->min1() ) / 2.;
+  if( pal->zeroCenteredAxis( dim ) )
+    c = ( d->minipg->max( dim ) + d->minipg->min( dim ) ) / 2.;
   else
-    c = ( pal->absMax1( obj ) + pal->absMin1( obj ) ) / 2;
-  float nmin = c - ( d->minipg->max1() - d->minipg->min1() ) / 2 * scale;
-  float nmax = c + ( d->minipg->max1() - d->minipg->min1() ) / 2 * scale;
+    c = ( pal->absMax( dim, obj ) + pal->absMin( dim, obj ) ) / 2;
+  float nmin = c
+    - ( d->minipg->max( dim ) - d->minipg->min( dim ) ) / 2 * scale;
+  float nmax = c
+    + ( d->minipg->max( dim ) - d->minipg->min( dim ) ) / 2 * scale;
 
   const GLComponent::TexExtrema & te = obj->glAPI()->glTexExtrema();
-  float tmin = te.minquant[0];
-  float tmax = te.maxquant[0];
-  float absmin1 = pal->absMin1( obj );
-  float absmax1 = pal->absMax1( obj );
+  float tmin;
+  float tmax;
+  if( dim >= te.minquant.size() )
+  {
+    tmin = 0.;
+    tmax = 1.;
+  }
+  else
+  {
+    tmin = te.minquant[0];
+    tmax = te.maxquant[0];
+  }
+  float absmin1 = pal->absMin( dim, obj );
+  float absmax1 = pal->absMax( dim, obj );
   float rmax = std::max( std::abs( tmax ), std::abs( tmin ) );
   rmax = std::max( rmax, absmax1 );
   rmax = std::max( rmax, absmin1 );
   float rmin = 0.;
-  if( pal->zeroCenteredAxis1() )
+  if( pal->zeroCenteredAxis( dim ) )
   {
     if( nmax < rmax )
         rmax = nmax;
@@ -595,7 +629,6 @@ void MiniPaletteWidget::wheelEvent( QWheelEvent *event )
 
   setRange( rmin, rmax );
   updateDisplay();
-  emit rangeChanged( rmin, rmax );
 }
 
 
@@ -613,9 +646,12 @@ void MiniPaletteWidget::gvReleased( QMouseEvent *event )
 
 void MiniPaletteWidget::editorClosed()
 {
+  int dim = observedDimension();
   setRange(
-    d->editor->editor()->miniPaletteWidget()->miniPaletteGraphics()->min1(),
-    d->editor->editor()->miniPaletteWidget()->miniPaletteGraphics()->max1() );
+    d->editor->editor()->miniPaletteWidget()->miniPaletteGraphics()->min(
+      dim ),
+    d->editor->editor()->miniPaletteWidget()->miniPaletteGraphics()->max(
+      dim ) );
   updateDisplay();
 }
 
@@ -634,7 +670,13 @@ QGraphicsView *MiniPaletteWidget::graphicsView()
 
 int MiniPaletteWidget::observedDimension() const
 {
-  return d->minipg->observedDimension();
+  return d->dim;
+}
+
+
+pair<float, float> MiniPaletteWidget::range() const
+{
+  return d->minipg->range( d->dim );
 }
 
 
@@ -644,7 +686,8 @@ struct MiniPaletteWidgetEdit::Private
 {
   Private()
     : minslider( 0 ), maxslider( 0 ), minipw( 0 ), auto_range( false ),
-      auto_btn( 0 ), auto_btn_timer( 0 ), defmin( 0 ), defmax( 0 )
+      auto_btn( 0 ), auto_btn_timer( 0 ), defmin( 0 ), defmax( 0 ),
+      allow_no_palette( false )
   {
   }
 
@@ -660,22 +703,27 @@ struct MiniPaletteWidgetEdit::Private
   QTimer *auto_btn_timer;
   float defmin;
   float defmax;
+  bool allow_no_palette;
 };
 
 
 MiniPaletteWidgetEdit::MiniPaletteWidgetEdit( AObject *object,
                                               int dim,
-                                              bool auto_range )
+                                              bool auto_range,
+                                              bool with_view,
+                                              bool allow_no_palette )
   : QWidget(), Observer(), d( new Private() )
 {
   QVBoxLayout *layout = new QVBoxLayout;
   setLayout( layout );
   d->minslider = new QMagnetSlider( Qt::Horizontal, this );
   d->minslider->setObjectName( "min_slider" );
-  d->minipw = new MiniPaletteWidget( 0, 0, false, true, 0, false );
+  d->minipw = new MiniPaletteWidget( 0, 0, false, true, 0, false, false,
+                                     with_view );
   d->minipw->setParent( this );
   d->maxslider = new QMagnetSlider( Qt::Horizontal, this );
   d->maxslider->setObjectName( "max_slider" );
+  d->allow_no_palette = allow_no_palette;
   layout->addWidget( d->minslider );
   layout->addWidget( d->minipw );
   layout->addWidget( d->maxslider );
@@ -711,6 +759,12 @@ void MiniPaletteWidgetEdit::setObject( AObject *obj, int dim )
 }
 
 
+AObject* MiniPaletteWidgetEdit::getObject()
+{
+  return d->minipw->getObject();
+}
+
+
 void MiniPaletteWidgetEdit::setAutoRange( bool auto_range )
 {
   if( auto_range == d->auto_range )
@@ -739,24 +793,41 @@ void MiniPaletteWidgetEdit::adjustRange()
   if( obj && obj->glAPI() )
   {
     AObjectPalette *pal = obj->palette();
+    int dim = d->minipw->observedDimension();
     GLComponent::TexExtrema & te = obj->glAPI()->glTexExtrema();
-    float tmin = te.minquant[0];
-    float tmax = te.maxquant[0];
-    float min1 = pal->min1();
-    float max1 = pal->max1();
-    float absmin1 = pal->absMin1( obj );
-    float absmax1 = pal->absMax1( obj );
+    float tmin;
+    float tmax;
+    if( dim < te.minquant.size() )
+    {
+      tmin = 0.;
+      tmax = 1.;
+    }
+    else
+    {
+      tmin = te.minquant[0];
+      tmax = te.maxquant[0];
+    }
+    float min1 = pal->min( dim );
+    float max1 = pal->max( dim );
+    float mino1 = pal->min1();
+    float maxo1 = pal->max1();
+    float mino2 = pal->min2();
+    float maxo2 = pal->max2();
+    float absmin1 = pal->absMin( dim, obj );
+    float absmax1 = pal->absMax( dim, obj );
     obj->adjustPalette();
     pal = obj->palette();
-    d->defmin = pal->absMin1( obj );
-    d->defmax = pal->absMax1( obj );
-    pal->setMin1( min1 );
-    pal->setMax1( max1 );
+    d->defmin = pal->absMin( dim, obj );
+    d->defmax = pal->absMax( dim, obj );
+    pal->setMin1( mino1 );
+    pal->setMax1( maxo1 );
+    pal->setMin2( mino2 );
+    pal->setMax2( maxo2 );
     float rmax = std::max( std::abs( tmax ), std::abs( tmin ) );
     rmax = std::max( rmax, absmax1 );
     rmax = std::max( rmax, absmin1 );
     float rmin;
-    if( pal->zeroCenteredAxis1() )
+    if( pal->zeroCenteredAxis( dim ) )
     {
       if( rmax > std::max( std::abs( absmin1 ), std::abs( absmax1 ) ) * 2 )
         rmax = std::max( std::abs( absmin1 ), std::abs( absmax1 ) ) * 2;
@@ -801,24 +872,33 @@ void MiniPaletteWidgetEdit::updateDisplay()
   AObject *obj = d->minipw->getObject();
   if( obj && obj->glAPI() )
   {
+    int dim = d->minipw->observedDimension();
     GLComponent::TexExtrema & te = obj->glAPI()->glTexExtrema();
     AObjectPalette *pal = obj->palette();
     std::set<float> mag;
-    mag.insert( te.minquant[0] );
-    mag.insert( te.maxquant[0] );
+    if( dim < te.minquant.size() )
+    {
+      mag.insert( te.minquant[0] );
+      mag.insert( te.maxquant[0] );
+    }
+    else
+    {
+      mag.insert( 0. );
+      mag.insert( 1. );
+    }
     mag.insert( d->defmin );
     mag.insert( d->defmax );
-    if( pal->zeroCenteredAxis1() )
+    if( pal->zeroCenteredAxis( dim ) )
     {
       mag.insert( 0 );
       mag.insert( std::max( std::abs( te.minquant[0] ),
                             std::abs( te.maxquant[0] ) ) );
     }
     d->minslider->setDefault( d->defmin );
-    d->minslider->setValue( pal->absMin1(obj) );
+    d->minslider->setValue( pal->absMin( dim, obj ) );
     d->maxslider->setMagnets( mag );
     d->maxslider->setDefault( d->defmax );
-    d->maxslider->setValue( pal->absMax1( obj ) );
+    d->maxslider->setValue( pal->absMax( dim, obj ) );
     d->minslider->setMagnets( mag );
   }
 }
@@ -836,10 +916,11 @@ void MiniPaletteWidgetEdit::minChanged( float value )
   AObject *obj = d->minipw->getObject();
   if( obj )
   {
+    int dim = d->minipw->observedDimension();
     AObjectPalette *pal = obj->palette();
-    if( pal->absMin1( obj ) != value )
+    if( pal->absMin( dim, obj ) != value )
     {
-      pal->setAbsMin1( obj, value );
+      pal->setAbsMin( dim, obj, value );
       if( obj->glAPI() )
         obj->glAPI()->glSetTexImageChanged();
       obj->notifyObservers();
@@ -853,10 +934,11 @@ void MiniPaletteWidgetEdit::maxChanged( float value )
   AObject *obj = d->minipw->getObject();
   if( obj )
   {
+    int dim = d->minipw->observedDimension();
     AObjectPalette *pal = obj->palette();
-    if( pal->absMax1( obj ) != value )
+    if( pal->absMax( dim, obj ) != value )
     {
-      pal->setAbsMax1( obj, value );
+      pal->setAbsMax( dim, obj, value );
       if( obj->glAPI() )
         obj->glAPI()->glSetTexImageChanged();
       obj->notifyObservers();
@@ -869,12 +951,15 @@ void MiniPaletteWidgetEdit::setRange( float rmin, float rmax )
 {
   d->minslider->setRange( rmin, rmax );
   d->maxslider->setRange( rmin, rmax );
+  if( d->minipw->range() != make_pair( rmin, rmax ) )
+    d->minipw->setRange( rmin, rmax );
   AObject *obj = d->minipw->getObject();
+  int dim = d->minipw->observedDimension();
   if( obj )
   {
     AObjectPalette *pal = obj->palette();
-    d->minslider->setValue( pal->absMin1( obj ) );
-    d->maxslider->setValue( pal->absMax1( obj ) );
+    d->minslider->setValue( pal->absMin( dim, obj ) );
+    d->maxslider->setValue( pal->absMax( dim, obj ) );
   }
 }
 
@@ -884,7 +969,20 @@ void MiniPaletteWidgetEdit::selectPalette()
   QDialog dial( this, Qt::Popup | Qt::FramelessWindowHint );
   QVBoxLayout *lay = new QVBoxLayout;
   dial.setLayout( lay );
-  PaletteSelectWidget* palsel = new PaletteSelectWidget( this );
+  string current;
+  AObject *obj = getObject();
+  if( obj )
+  {
+    AObjectPalette *pal = obj->palette();
+    if( pal )
+    {
+      rc_ptr<APalette> apal = pal->refPalette( observedDimension() );
+      if( !apal.isNull() )
+        current = apal->name();
+    }
+  }
+  PaletteSelectWidget* palsel = new PaletteSelectWidget( this, current,
+                                                         d->allow_no_palette );
   lay->addWidget( palsel );
   QHBoxLayout *butl = new QHBoxLayout;
   lay->addLayout( butl );
@@ -895,10 +993,12 @@ void MiniPaletteWidgetEdit::selectPalette()
   connect( but, SIGNAL( clicked() ), &dial, SLOT( accept() ) );
   connect( palsel, SIGNAL( paletteSelected( const std::string & ) ),
            this, SLOT( setPalette( const std::string & ) ) );
+  connect( palsel, SIGNAL( paletteSelected( const std::string & ) ),
+           this, SIGNAL( paletteSelected( const std::string & ) ) );
   connect( palsel, SIGNAL( itemDoubleClicked( QTableWidgetItem* ) ),
            &dial, SLOT( accept() ) );
   dial.resize(500, 800);
-  dial.exec();
+  int res = dial.exec();
 }
 
 
@@ -907,9 +1007,12 @@ void MiniPaletteWidgetEdit::setPalette( const std::string & palname )
   AObject *obj = d->minipw->getObject();
   if( obj )
   {
+    int dim = d->minipw->observedDimension();
     AObjectPalette *pal = obj->palette();
-    rc_ptr<APalette> apal = theAnatomist->palettes().find( palname );
-    pal->setRefPalette( apal );
+    rc_ptr<APalette> apal;
+    if( palname != "" && palname != "<None>" )
+      apal = theAnatomist->palettes().find( palname );
+    pal->setRefPalette( dim, apal );
     if( obj->glAPI() )
       obj->glAPI()->glSetTexImageChanged();
     obj->notifyObservers();
@@ -980,6 +1083,18 @@ QSlider *MiniPaletteWidgetEdit::maxSlider()
 }
 
 
+int MiniPaletteWidgetEdit::observedDimension() const
+{
+  return d->minipw->observedDimension();
+}
+
+
+pair<float, float> MiniPaletteWidgetEdit::range() const
+{
+  return d->minipw->range();
+}
+
+
 // ----
 
 
@@ -1018,9 +1133,9 @@ MiniPaletteWidgetTranscient::MiniPaletteWidgetTranscient(
            this, SLOT( sliderPressed() ) );
   connect( d->minipw->maxSlider(), SIGNAL( sliderPressed() ),
            this, SLOT( sliderPressed() ) );
-  connect( d->minipw->minSlider(), SIGNAL( sliderPressed() ),
+  connect( d->minipw->minSlider(), SIGNAL( sliderReleased() ),
            this, SLOT( sliderReleased() ) );
-  connect( d->minipw->maxSlider(), SIGNAL( sliderPressed() ),
+  connect( d->minipw->maxSlider(), SIGNAL( sliderReleased() ),
            this, SLOT( sliderReleased() ) );
 }
 
