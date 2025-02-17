@@ -69,9 +69,15 @@ namespace anatomist
 
     virtual AObjectPalette & operator = ( const AObjectPalette & x );
 
-    carto::rc_ptr<APalette> refPalette() const { return( _refPal ); }
+    carto::rc_ptr<APalette> refPalette( int dim = 0 ) const
+    { if( dim == 1 ) return _refPal2; else return( _refPal ); }
     carto::rc_ptr<APalette> refPalette2() const { return( _refPal2 ); }
+    void setRefPalette( int dim, carto::rc_ptr<APalette> pal )
+    { if( dim == 1 ) setRefPalette2( pal );
+      else setRefPalette1( pal ); }
     void setRefPalette( carto::rc_ptr<APalette> pal )
+    { setRefPalette1( pal ); } // FIXME to be removed
+    void setRefPalette1( carto::rc_ptr<APalette> pal )
     { if( _refPal != pal ) { clearColors(); _refPal = pal; } }
     void setRefPalette2( carto::rc_ptr<APalette> pal ) { _refPal2 = pal; }
     const carto::Volume<AimsRGBA>* colors() const
@@ -86,6 +92,8 @@ namespace anatomist
     float max1() const { return( _max ); }
     float min2() const { return( _min2 ); }
     float max2() const { return( _max2 ); }
+    float min( int dim = 0 ) const { return dim == 1 ? min2() : min1(); }
+    float max( int dim = 0 ) const { return dim == 1 ? max2() : max1(); }
     int palette1DMapping() const { return (_palette1DMapping) ; }
     std::string palette1DMappingName() const 
     { return (_palette1DMapping == 1 ? "Diagonal" : "FirstLine" ) ; }
@@ -95,6 +103,10 @@ namespace anatomist
     { _max = x; if( isnan( x ) || isinf( x ) ) _max = 0; }
     void setMin2( float x ) { _min2 = x; }
     void setMax2( float x ) { _max2 = x; }
+    void setMin( int dim, float x )
+    { if( dim == 1 ) setMin2( x ); else setMin1( x ); }
+    void setMax( int dim, float x )
+    { if( dim == 1 ) setMax2( x ); else setMax1( x ); }
 
     /// get the absolute min for a given object
     float absMin1( const AObject * obj ) const;
@@ -104,6 +116,10 @@ namespace anatomist
     float absMin2( const AObject * obj ) const;
     /// get the absolute max for a given object
     float absMax2( const AObject * obj ) const;
+    float absMin( int dim, const AObject* obj ) const
+    { return dim == 1 ? absMin2( obj ) : absMin1( obj ); }
+    float absMax( int dim, const AObject* obj ) const
+    { return dim == 1 ? absMax2( obj ) : absMax1( obj ); }
     /// set the min from an absolute value for a given object
     void setAbsMin1( const AObject * obj, float x );
     /// set the max from an absolute value for a given object
@@ -112,10 +128,18 @@ namespace anatomist
     void setAbsMin2( const AObject * obj, float x );
     /// set the max from an absolute value for a given object
     void setAbsMax2( const AObject * obj, float x );
+    void setAbsMin( int dim, const AObject *obj, float x )
+    { if( dim == 1 ) setAbsMin2( obj, x ); else setAbsMin1( obj, x ); }
+    void setAbsMax( int dim, const AObject *obj, float x )
+    { if( dim == 1 ) setAbsMax2( obj, x ); else setAbsMax1( obj, x ); }
     float relValue1( const AObject * obj, float absval ) const;
     float relValue2( const AObject * obj, float absval ) const;
+    float relValue( int dim, const AObject* obj, float absval ) const
+    { return dim == 1 ? relValue2( obj, absval ) : relValue1( obj, absval ); }
     float absValue1( const AObject * obj, float relval ) const;
     float absValue2( const AObject * obj, float relval ) const;
+    float absValue( int dim, const AObject* obj, float relval ) const
+    { return dim == 1 ? absValue2( obj, relval ) : absValue1( obj, relval ); }
 
     void setPalette1DMapping( Palette1DMapping palette1DMapping )
     { _palette1DMapping = palette1DMapping ; }
@@ -133,8 +157,13 @@ namespace anatomist
     AimsRGBA normColor( const Point2df & pos ) const;
     bool zeroCenteredAxis1() const { return _zeroCentered1; }
     bool zeroCenteredAxis2() const { return _zeroCentered2; }
+    bool zeroCenteredAxis( int dim = 0 ) const
+    { return dim == 1 ? zeroCenteredAxis2() : zeroCenteredAxis1(); }
     void setZeroCenteredAxis1( bool x ) { _zeroCentered1 = x; }
     void setZeroCenteredAxis2( bool x ) { _zeroCentered2 = x; }
+    void setZeroCenteredAxis( int dim, bool x )
+    { if( dim == 1 ) setZeroCenteredAxis2( x ); else setZeroCenteredAxis1( x );
+    }
 
     static AimsRGBA palette2DMixMethod( const carto::Volume<AimsRGBA> & map1,
                                         const carto::Volume<AimsRGBA> *map2,
