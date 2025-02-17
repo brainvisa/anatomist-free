@@ -97,6 +97,10 @@ protected slots:
   void zeroCentered2Changed( int state );
   void palette1RangeChanged( float, float );
   void palette2RangeChanged( float, float );
+  void cleatMin1();
+  void cleatMax1();
+  void cleatMin2();
+  void cleatMax2();
 
 protected:
   struct DimBox;

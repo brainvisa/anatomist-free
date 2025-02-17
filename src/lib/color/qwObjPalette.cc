@@ -105,6 +105,8 @@ struct QAPaletteWin::DimBox
   float			slrelmin;
   float			slrelmax;
   QCheckBox             *symbox;
+  QPushButton           *cleatMin;
+  QPushButton           *cleatMax;
 };
 
 
@@ -384,6 +386,14 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
   connect( d->dimBox2->paledit,
            SIGNAL( paletteSelected( const std::string & ) ),
            this, SLOT( palette2Changed( const std::string & ) ) );
+  connect( d->dimBox1->cleatMin, SIGNAL( clicked() ),
+           this, SLOT( cleatMin1() ) );
+  connect( d->dimBox1->cleatMax, SIGNAL( clicked() ),
+           this, SLOT( cleatMax1() ) );
+  connect( d->dimBox2->cleatMin, SIGNAL( clicked() ),
+           this, SLOT( cleatMin2() ) );
+  connect( d->dimBox2->cleatMax, SIGNAL( clicked() ),
+           this, SLOT( cleatMax2() ) );
 
   if( objPalette()->palette1DMapping() == AObjectPalette::DIAGONAL
       || objPalette()->is2dMode() )
@@ -438,12 +448,18 @@ QWidget* QAPaletteWin::makeDimBox( const QString & title, QWidget* parent,
   boundsboxl->setContentsMargins( 0, 0, 0, 0 );
   boundsboxl->setSpacing( 5 );
   boundsboxl->addWidget( new QLabel( tr( "Bounds:" ), boundsbox ) );
+  dbox->cleatMin = new QPushButton( "⇤" );
+  dbox->cleatMin->setFixedWidth( 32 );
+  boundsboxl->addWidget( dbox->cleatMin );
   dbox->minEd = new QScopeLineEdit( "0", boundsbox, "minEd" );
   boundsboxl->addWidget( dbox->minEd );
   dbox->minEd->setMinimumWidth( 50 );
   dbox->maxEd = new QScopeLineEdit( "1", boundsbox, "maxEd" );
   boundsboxl->addWidget( dbox->maxEd );
   dbox->maxEd->setMinimumWidth( 50 );
+  dbox->cleatMax = new QPushButton( "⇥" );
+  dbox->cleatMax->setFixedWidth( 32 );
+  boundsboxl->addWidget( dbox->cleatMax );
 
   dbox->symbox = new QCheckBox( tr( "Value 0 at center" ), dbox->topBox );
   topBoxl->addWidget( dbox->symbox );
@@ -1485,6 +1501,50 @@ void QAPaletteWin::palette2RangeChanged( float min, float max )
   {
     d->dimBox2->maxEd->setText( QString::number( max ) );
     max2EditChanged();
+  }
+}
+
+
+void QAPaletteWin::cleatMin1()
+{
+  if( !_parents.empty() )
+  {
+    objPalette()->setAbsMin1( *_parents.begin(),
+                              d->dimBox1->paledit->range().first );
+    updateObjects();
+  }
+}
+
+
+void QAPaletteWin::cleatMax1()
+{
+  if( !_parents.empty() )
+  {
+    objPalette()->setAbsMax1( *_parents.begin(),
+                              d->dimBox1->paledit->range().second );
+    updateObjects();
+  }
+}
+
+
+void QAPaletteWin::cleatMin2()
+{
+  if( !_parents.empty() )
+  {
+    objPalette()->setAbsMin2( *_parents.begin(),
+                              d->dimBox2->paledit->range().first );
+    updateObjects();
+  }
+}
+
+
+void QAPaletteWin::cleatMax2()
+{
+  if( !_parents.empty() )
+  {
+    objPalette()->setAbsMax2( *_parents.begin(),
+                              d->dimBox2->paledit->range().second );
+    updateObjects();
   }
 }
 
