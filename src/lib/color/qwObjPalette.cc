@@ -140,15 +140,13 @@ struct QAPaletteWin::Private
   bool				modified;
   QToolBar                      *toolbar;
   QActionGroup                  *toolactions;
-  long                          lastSliderRelease;
 };
 
 
 QAPaletteWin::Private::Private( const set<AObject *> & o )
   : responsive( true ), objpal( 0 ), dim( 1 ), objMin( 0 ), objMax( 1 ),
     objMin2( 0 ), objMax2( 1 ), recursive( false ), updatingFlag( false ),
-    initial( o ), main( 0 ), modified( false ), toolbar( 0 ), toolactions( 0 ),
-    lastSliderRelease( 0 )
+    initial( o ), main( 0 ), modified( false ), toolbar( 0 ), toolactions( 0 )
 {
 }
 
