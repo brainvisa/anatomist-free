@@ -157,10 +157,10 @@ set( _headers
     reference/wReferential.h
     reference/wReferential_3d.h
     reference/wChooseReferential.h
-    surface/BlinnPhongIlluminationModel.h
+    surface/blinnPhongIlluminationModel.h
     surface/cutmesh.h
-    surface/DepthPeelingEffect.h
-    surface/DynamicShaderBuilder.h
+    surface/depthPeelingEffect.h
+    surface/dynamicShaderBuilder.h
     surface/fusion2Dmesh.h
     surface/fusiontexsurf.h
     surface/glcomponent.h
@@ -413,10 +413,10 @@ set( _sources
     reference/wReferential.cc
     reference/wReferential_3d.cc
     reference/wChooseReferential.cc
-    surface/BlinnPhongIlluminationModel.cc
+    surface/blinnPhongIlluminationModel.cc
     surface/cutmesh.cc
-    surface/DepthPeelingEffect.cc
-    surface/DynamicShaderBuilder.cc
+    surface/depthPeelingEffect.cc
+    surface/dynamicShaderBuilder.cc
     surface/fusion2Dmesh.cc
     surface/fusiontexsurf.cc
     surface/glcomponent.cc

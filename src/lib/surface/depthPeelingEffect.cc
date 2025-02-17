@@ -1,4 +1,6 @@
-#include "DepthPeelingEffect.h"
+#include <anatomist/surface/depthPeelingEffect.h>
+#include <anatomist/surface/glcomponent.h>
+#include <anatomist/window3D/window3D.h>
 
 using namespace anatomist;
 
@@ -45,11 +47,11 @@ std::string DepthPeelingEffect::getFunctionCall() const
 }
 
 
-void DepthPeelingEffect::setupObjectUniforms(QGLShaderProgram& program, GLComponent& obj) const
+void DepthPeelingEffect::setupObjectUniforms(QOpenGLShaderProgram& program, GLComponent& obj) const
 {
 }
 
-void DepthPeelingEffect::setupSceneUniforms(QGLShaderProgram& program, AWindow3D& scene) const
+void DepthPeelingEffect::setupSceneUniforms(QOpenGLShaderProgram& program, AWindow3D& scene) const
 {
   int previousDepthTextureLocation = program.uniformLocation("u_previousDepthTexture");
   program.setUniformValue(previousDepthTextureLocation, 0 /*nbUnitTexture*/);

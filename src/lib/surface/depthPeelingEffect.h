@@ -30,27 +30,29 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
- #ifndef BLINN_PHONG_ILLUMINATION_MODEL_H
-#define BLINN_PHONG_ILLUMINATION_MODEL_H
+#ifndef DEPTH_PEELING_EFFECT_H
+#define DEPTH_PEELING_EFFECT_H
 
-#include "IShaderModule.h"
+#include <anatomist/surface/IShaderModule.h>
 
 namespace anatomist
 {
-  class BlinnPhongIlluminationModel : public IShaderModule
+  class DepthPeelingEffect : public IShaderModule
   {
-    /** This class is a shader module that implements the Blinn-Phong illumination model.
+    /** This class is a shader module that implements the depth peeling effect.
     * It provides the uniform declarations, the function implementation and the
-    * function call for the Blinn-Phong illumination model.
+    * function call for a pass of depth peeling effect.
     */
     public:
-      BlinnPhongIlluminationModel();
+      DepthPeelingEffect();
       std::string getUniformDeclarations() const override;
       std::string getFunctionImplementation() const override;
       std::string getFunctionCall() const override;
-      void setupObjectUniforms(QGLShaderProgram& program, GLComponent& obj) const override;
-      void setupSceneUniforms(QGLShaderProgram& program, AWindow3D& scene) const  override;
+      void setupObjectUniforms(QOpenGLShaderProgram& program, GLComponent& obj) const override;
+      void setupSceneUniforms(QOpenGLShaderProgram& program, AWindow3D& scene) const override;
+
   };
 }
 
-#endif // BLINN_PHONG_ILLUMINATION_MODEL_H
+
+#endif // DEPTH_PEELING_EFFECT_H

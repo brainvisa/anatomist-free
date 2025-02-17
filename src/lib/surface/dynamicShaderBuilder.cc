@@ -6,36 +6,36 @@
 #include <memory>
 #include <regex>
 
-#include "DynamicShaderBuilder.h"
+#include "dynamicShaderBuilder.h"
 
 using namespace anatomist;
 
-DynamicShaderBuilder::DynamicShaderBuilder()
+dynamicShaderBuilder::dynamicShaderBuilder()
 {
 }
 
-void DynamicShaderBuilder::setVersion(int version)
+void dynamicShaderBuilder::setVersion(int version)
 {
   m_version = version;
 }
 
-void DynamicShaderBuilder::setBaseTemplate(const std::string &templateSource)
+void dynamicShaderBuilder::setBaseTemplate(const std::string &templateSource)
 {
   m_baseShaderTemplate = templateSource;
 }
 
 
-void DynamicShaderBuilder::setIlluminationModel(std::unique_ptr<IShaderModule>  model)
+void dynamicShaderBuilder::setIlluminationModel(std::unique_ptr<IShaderModule>  model)
 {
   m_illuminationModel = std::move(model);
 }
 
-void DynamicShaderBuilder::addEffect(std::unique_ptr<IShaderModule> effect)
+void dynamicShaderBuilder::addEffect(std::unique_ptr<IShaderModule> effect)
 {
   m_effects.push_back(std::move(effect));
 }
 
-std::string DynamicShaderBuilder::readShaderFile(const std::string &filePath)
+std::string dynamicShaderBuilder::readShaderFile(const std::string &filePath)
 {
   QFile file(QString::fromStdString(filePath));
   if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -51,7 +51,7 @@ std::string DynamicShaderBuilder::readShaderFile(const std::string &filePath)
   return shaderSource;
 }
 
-std::string DynamicShaderBuilder::generateShaderSource() const
+std::string dynamicShaderBuilder::generateShaderSource() const
 {
   std::string shaderSource = m_baseShaderTemplate;
 

@@ -1,4 +1,6 @@
-#include "BlinnPhongIlluminationModel.h"
+#include <anatomist/surface/blinnPhongIlluminationModel.h>
+#include <anatomist/surface/glcomponent.h>
+#include <anatomist/window3D/window3D.h>
 
 using namespace anatomist;
 
@@ -57,7 +59,7 @@ std::string BlinnPhongIlluminationModel::getFunctionCall() const
   return "BlinnPhong(color, gl_FragCoord.xyz, v_normal);";
 }
 
-void BlinnPhongIlluminationModel::setupObjectUniforms(QGLShaderProgram& program, GLComponent& obj) const
+void BlinnPhongIlluminationModel::setupObjectUniforms(QOpenGLShaderProgram& program, GLComponent& obj) const
 {
   int materialAmbientLocation = program.uniformLocation("u_materialAmbient");
   program.setUniformValue(materialAmbientLocation, 0 /*value*/);
@@ -73,7 +75,7 @@ void BlinnPhongIlluminationModel::setupObjectUniforms(QGLShaderProgram& program,
 }
 
 
-void BlinnPhongIlluminationModel::setupSceneUniforms(QGLShaderProgram& program, AWindow3D& scene) const
+void BlinnPhongIlluminationModel::setupSceneUniforms(QOpenGLShaderProgram& program, AWindow3D& scene) const
 {
     int lightDirectionLocation = program.uniformLocation("u_lightDirection");
     program.setUniformValue(lightDirectionLocation, 0 /* value*/);

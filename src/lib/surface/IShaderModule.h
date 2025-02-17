@@ -35,16 +35,16 @@
 #define ISHADER_MODULE_H
 
 #include <string>
-#include <QGLShaderProgram>
-#include "glcomponent.h"
-#include "../window3D/window3D.h"
+#include <QOpenGLShaderProgram>
+//#include "glcomponent.h"
+#include <anatomist/window3D/window3D.h>
 
 
 
 namespace anatomist
 {
-  // class GLComponent;
-  // class AWindow3D;
+  class GLComponent;
+  //class AWindow3D;
 
   class IShaderModule
   {
@@ -64,8 +64,8 @@ namespace anatomist
       virtual ~IShaderModule() = default;
 
       /// Sets up the uniforms for the shader module
-      virtual void setupObjectUniforms(QGLShaderProgram& program, GLComponent& obj) const = 0;
-      virtual void setupSceneUniforms(QGLShaderProgram& program, AWindow3D& scene) const  = 0;
+      virtual void setupObjectUniforms(QOpenGLShaderProgram& program, GLComponent& obj) const = 0;
+      virtual void setupSceneUniforms(QOpenGLShaderProgram& program, AWindow3D& scene) const  = 0;
   };
 }
 

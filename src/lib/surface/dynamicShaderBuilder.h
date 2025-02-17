@@ -41,7 +41,7 @@
 
 namespace anatomist
 {
-  class DynamicShaderBuilder
+  class dynamicShaderBuilder
   {
     /** This class is made to dynamically build a shader program. It allows to set the version of the shader,
       * the base template of the shader, the illumination model and the effects that will be applied to the shader.
@@ -49,7 +49,7 @@ namespace anatomist
       * The Illumination Model is applied first, then the effects are applied in the order they were added.
     */
     public:
-      DynamicShaderBuilder();
+      dynamicShaderBuilder();
 
       /// Sets the version of the shader
       void setVersion(int version);
