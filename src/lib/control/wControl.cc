@@ -131,7 +131,7 @@ struct ControlWindow::Private
   Private() 
     : fusionbtn(0), referencebtn(0), displayLogo( true ), winList( 0 ),
       objList( 0 ), defobjref( 0 ), defwinref( 0 ), updatemenutimer( 0 ),
-      closeEnabled( true ), addAction( 0 )
+      closeEnabled( true ), addAction( 0 ), deleting( false )
 #ifdef ANA_WEBENGINE
       , helpWebWidget( 0 )
 #endif
@@ -149,6 +149,7 @@ struct ControlWindow::Private
   QToolBar		*toolbar;
   bool                  closeEnabled;
   QAction               *addAction;
+  bool                  deleting;
 #ifdef ANA_WEBENGINE
   QWebEngineView        *helpWebWidget;
 #endif
@@ -196,6 +197,7 @@ ControlWindow::ControlWindow()
 
 ControlWindow::~ControlWindow()
 {
+  d->deleting = true;
   bool quitapp = d->closeEnabled;
   if( _theControlWindow == this )
     _theControlWindow = 0;
@@ -209,12 +211,12 @@ ControlWindow::~ControlWindow()
   delete d->winList;
 
   delete _menu;
-  delete d;
 
   // quit the QApplication only if Anatomist is authorized to do so. It may not be the case if Anatomist is embedded in another QApplication (Axon).
-  if (quitapp){
+  if (quitapp)
     this->quit();
-  }
+
+  delete d;
 }
 
 
@@ -1455,7 +1457,11 @@ void ControlWindow::graphParams()
 void ControlWindow::quit()
 {   
   cout << "Exiting QApplication"<<endl;
-  qApp->quit();
+  clearAll();
+  if( !d->deleting )
+    delete this;
+  if( !QApplication::closingDown() )
+    qApp->quit();
 //   if( theAnatomist->exitOnQuit() )
     exit( EXIT_SUCCESS );
 }

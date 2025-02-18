@@ -408,7 +408,12 @@ Anatomist::~Anatomist()
   // cout << "objects deleted.\n";
 
   // cleanup some global variables
-  delete getControlWindow();
+  if( getControlWindow() && QApplication::instance() )
+  {
+    // avoid ctrl win to quit again
+    getControlWindow()->enableClose( false );
+    delete getControlWindow();
+  }
   delete FusionFactory::factory();
   AObject::cleanStatic();
   delete SelectFactory::factory();
@@ -681,6 +686,8 @@ void Anatomist::initialize()
   {
     Command* command = new CreateControlWindowCommand;
     theProcessor->execute(command);
+    qApp->connect( qApp, SIGNAL( aboutToQuit() ),
+                   getControlWindow(), SLOT( quit() ) );
   }
 
   if( args.port != 0 )
