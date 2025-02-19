@@ -74,15 +74,7 @@ signals:
 
 protected slots:
   void palette1Changed( const std::string & );
-  void palette2Changed( int );
-  void min1Changed( int value );
-  void max1Changed( int value );
-  void min2Changed( int value );
-  void max2Changed( int value );
-  void min1Released();
-  void max1Released();
-  void min2Released();
-  void max2Released();
+  void palette2Changed( const std::string & );
   void responsiveToggled( bool val );
   void updateClicked();
   void dimChanged( int );
@@ -103,7 +95,16 @@ protected slots:
   void extensionActionTriggered( QAction* action );
   void zeroCentered1Changed( int state );
   void zeroCentered2Changed( int state );
-
+  void palette1RangeChanged( float, float );
+  void palette2RangeChanged( float, float );
+  void cleatMin1();
+  void cleatMax1();
+  void cleatMin2();
+  void cleatMax2();
+  void min1Changed( float );
+  void max1Changed( float );
+  void min2Changed( float );
+  void max2Changed( float );
 
 protected:
   struct DimBox;
@@ -113,13 +114,11 @@ protected:
 
   virtual void unregisterObservable( anatomist::Observable* );
 
-  void fillPalettes();
   void fillPalette1();
   void fillPalette2();
-  void fillObjPal();
   anatomist::AObjectPalette* objPalette();
   virtual QWidget* makeDimBox( const QString & title, QWidget* parent, 
-                               DimBox* dbox );
+                               DimBox* dbox, bool secondary );
   virtual void setValues( DimBox* dimBox, float min, float max, 
                           float objMin, float objMax, bool zeroCentered );
   virtual void setValues1();
@@ -128,7 +127,6 @@ protected:
   virtual void updateObjPal();
   void fillMixMethods();
   void fillPalette1DMappingMethods() ;
-  void fillPalette2List();
   void runCommand();
   void fillToolBar();
 

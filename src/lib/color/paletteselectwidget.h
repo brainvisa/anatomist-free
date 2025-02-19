@@ -50,7 +50,9 @@ namespace anatomist
     Q_OBJECT
 
   public:
-    PaletteSelectWidget( QWidget *parent = 0 );
+    PaletteSelectWidget( QWidget *parent = 0,
+                         const std::string & selected = "",
+                         bool allow_none = false );
     virtual ~PaletteSelectWidget();
     std::string selectedPalette() const;
     void selectPalette( const std::string & name );
@@ -66,6 +68,10 @@ namespace anatomist
 
   protected slots:
     void paletteChanged();
+
+  private:
+    std::string _init_selected;
+    bool _allow_none;
 
   };
 

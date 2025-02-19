@@ -141,7 +141,6 @@ makePalettedSubclass(c)
 c = cd.getControlInstance('Flight control')
 makePalettedSubclass(c)
 
-print('Minipalette ext')
 icon = Qt.QIcon(aims.carto.Paths.findResourceFile(
     'icons/palette.jpg', 'anatomist'))
 ac = MiniPaletteExtensionAction(icon, 'minpalette', None)

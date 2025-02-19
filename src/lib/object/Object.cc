@@ -2105,6 +2105,19 @@ bool AObject::save( const std::string & filename, bool onlyIfModified )
   return res;
 }
 
+
+void AObject::adjustPalette()
+{
+  getOrCreatePalette();
+  AObjectPalette *pal = palette();
+  if( !pal )
+    return;
+  pal->setMin1( 0. );
+  pal->setMax1( 1. );
+  pal->setMin2( 0. );
+  pal->setMax2( 1. );
+}
+
 // ----
 
 AObject::Private::MenuRegistrersMap &
