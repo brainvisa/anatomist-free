@@ -601,8 +601,8 @@ void MiniPaletteWidget::wheelEvent( QWheelEvent *event )
   }
   else
   {
-    tmin = te.minquant[0];
-    tmax = te.maxquant[0];
+    tmin = te.minquant[dim];
+    tmax = te.maxquant[dim];
   }
   float absmin1 = pal->absMin( dim, obj );
   float absmax1 = pal->absMax( dim, obj );
@@ -797,15 +797,15 @@ void MiniPaletteWidgetEdit::adjustRange()
     GLComponent::TexExtrema & te = obj->glAPI()->glTexExtrema();
     float tmin;
     float tmax;
-    if( dim < te.minquant.size() )
+    if( dim >= te.minquant.size() )
     {
       tmin = 0.;
       tmax = 1.;
     }
     else
     {
-      tmin = te.minquant[0];
-      tmax = te.maxquant[0];
+      tmin = te.minquant[dim];
+      tmax = te.maxquant[dim];
     }
     float min1 = pal->min( dim );
     float max1 = pal->max( dim );
@@ -878,8 +878,8 @@ void MiniPaletteWidgetEdit::updateDisplay()
     std::set<float> mag;
     if( dim < te.minquant.size() )
     {
-      mag.insert( te.minquant[0] );
-      mag.insert( te.maxquant[0] );
+      mag.insert( te.minquant[dim] );
+      mag.insert( te.maxquant[dim] );
     }
     else
     {
@@ -891,8 +891,8 @@ void MiniPaletteWidgetEdit::updateDisplay()
     if( pal->zeroCenteredAxis( dim ) )
     {
       mag.insert( 0 );
-      mag.insert( std::max( std::abs( te.minquant[0] ),
-                            std::abs( te.maxquant[0] ) ) );
+      mag.insert( std::max( std::abs( te.minquant[dim] ),
+                            std::abs( te.maxquant[dim] ) ) );
     }
     d->minslider->setDefault( d->defmin );
     d->minslider->setValue( pal->absMin( dim, obj ) );
