@@ -48,8 +48,8 @@ import six
 
 Qt = QtCore.Qt
 
-bsa_url = 'http://static.brainvisa.info/bsa/base2008_global/bsa_2008_global_atlas.nii'
-labelsfile = 'http://static.brainvisa.info/bsa/base2008_global/bsa_2008_global_atlas.csv'
+bsa_url = 'https://brainvisa.info/static/bsa/base2008_global/bsa_2008_global_atlas.nii'
+labelsfile = 'https://brainvisa.info/static/bsa/base2008_global/bsa_2008_global_atlas.csv'
 use_multirange = True
 
 labels = None
@@ -73,6 +73,7 @@ def bsaClickHandler(eventName, params):
 
     if tr is not None:
         pos = tr.transform(pos[:3])
+        print('MNI pos:', pos)
 
     hdrsz = 352
     imgdim = [91, 109, 91, 145]
@@ -106,13 +107,13 @@ def bsaClickHandler(eventName, params):
         poff = 0
         probs = []
         for i in range(imgdim[3]):
-            p = values.find('Content-range: bytes', poff)
+            p = values.find(b'Content-range: bytes', poff)
             if p < 0:
                 break
-            p = values.find('\n', p)
+            p = values.find(b'\n', p)
             if p < 0:
                 break
-            p = values.find('\n', p + 1)
+            p = values.find(b'\n', p + 1)
             if p < 0:
                 break
             val = values[p + 1:p + 5]
@@ -135,6 +136,7 @@ def bsaClickHandler(eventName, params):
     global labels
     if labels is None:
         labels = urlopen(labelsfile).readlines()
+        labels = [l.decode() for l in labels]
         labels = [l.strip().split(',') for l in labels[1:]]
 
     text = '<html><p>Position: <b>%f, %f, %f</b></p><p><table><tr><td><b>index:</b></td><td><b>proba:</b></td><td><b>label:</b></td><td><b>common name:</b></td></tr>' % tuple(
