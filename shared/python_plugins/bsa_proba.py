@@ -73,7 +73,7 @@ def bsaClickHandler(eventName, params):
 
     if tr is not None:
         pos = tr.transform(pos[:3])
-        print('MNI pos:', pos)
+        # print('MNI pos:', pos)
 
     hdrsz = 352
     imgdim = [91, 109, 91, 145]
