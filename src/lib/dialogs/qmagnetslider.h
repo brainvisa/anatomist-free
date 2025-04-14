@@ -34,12 +34,13 @@ namespace anatomist
     */
     void setMagnets( const std::set<float> & magnets );
     void setDefault( float value );
-    void setRange( float min1, float max1 );
-    void setValue( float value );
+    void setAbsRange( float min1, float max1 );
+    void setAbsValue( float value );
     float absValue() const;
 
   public slots:
     void resetDefault();
+    void valueChangedSlot( int value );
 
   signals:
     // signal emitted when the value changes, in object texture value scale

@@ -634,18 +634,25 @@ void QAPaletteWin::update( const anatomist::Observable* obs, void* )
   // cout << "QAPaletteWin::update\n";
 
   const AObject * obj = dynamic_cast<const AObject*>( obs );
-  if( ( !obj || !theAnatomist->hasObject( obj ) ) && objects().size() == 1 )
-    obj = *objects().begin();
+  if( !obj || !theAnatomist->hasObject( obj ) )
+  {
+    if( objects().size() == 1 )
+      obj = *objects().begin();
+    else
+      return;  // no object to update
+  }
 
   if( obj && theAnatomist->hasObject( obj ) && obj->hasChanged() )
   {
     const AObjectPalette	*pal = obj->getOrCreatePalette();
     if( pal )
     {
-      AObjectPalette oldpal = *d->objpal;
+      rc_ptr<AObjectPalette> oldpal;
+      if( d->objpal )
+        oldpal.reset( new AObjectPalette( *d->objpal ) );
 
       if( d->objpal )
-        *d->objpal = *pal ;
+        *d->objpal = *pal;
       else
         d->objpal = new AObjectPalette( *pal ) ;
 
@@ -658,9 +665,9 @@ void QAPaletteWin::update( const anatomist::Observable* obs, void* )
       else
         d->palette1dMappingBox->setCurrentIndex( 0 ) ;
 
-      if( d->objpal->refPalette() != oldpal.refPalette() )
+      if( !oldpal || d->objpal->refPalette() != oldpal->refPalette() )
         fillPalette1();
-      if( d->objpal->refPalette2() != oldpal.refPalette2() )
+      if( !oldpal || d->objpal->refPalette2() != oldpal->refPalette2() )
         fillPalette2();
 
       d->dimBox1->symbox->setChecked( pal->zeroCenteredAxis1() );
@@ -1560,29 +1567,49 @@ void QAPaletteWin::cleatMax2()
 
 void QAPaletteWin::min1Changed( float value )
 {
-  if( d->responsive )
-    updateObjects();
+  if( !_parents.empty()
+      && objPalette()->absMin1( *_parents.begin() ) != value )
+  {
+    objPalette()->setAbsMin1( *_parents.begin(), value );
+    if( d->responsive )
+      updateObjects();
+  }
 }
 
 
 void QAPaletteWin::max1Changed( float value )
 {
-  if( d->responsive )
-    updateObjects();
+  if( !_parents.empty()
+      && objPalette()->absMax1( *_parents.begin() ) != value )
+  {
+    objPalette()->setAbsMax1( *_parents.begin(), value );
+    if( d->responsive )
+      updateObjects();
+  }
 }
 
 
 void QAPaletteWin::min2Changed( float value )
 {
-  if( d->responsive )
-    updateObjects();
+  if( !_parents.empty()
+      && objPalette()->absMin2( *_parents.begin() ) != value )
+  {
+    objPalette()->setAbsMin2( *_parents.begin(), value );
+    if( d->responsive )
+      updateObjects();
+  }
 }
 
 
 void QAPaletteWin::max2Changed( float value )
 {
-  if( d->responsive )
-    updateObjects();
+  if( !_parents.empty()
+      && objPalette()->absMax2( *_parents.begin() ) != value )
+  {
+    objPalette()->setAbsMax2( *_parents.begin(), value );
+    if( d->responsive )
+      updateObjects();
+  }
 }
 
 
