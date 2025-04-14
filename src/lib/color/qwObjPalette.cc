@@ -104,6 +104,7 @@ struct QAPaletteWin::DimBox
   QCheckBox             *symbox;
   QPushButton           *cleatMin;
   QPushButton           *cleatMax;
+  QPushButton           *palBtn;
 };
 
 
@@ -373,9 +374,13 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
   connect( d->dimBox1->paledit->miniPaletteWidget(),
            SIGNAL( rangeChanged( float, float ) ),
            this, SLOT( palette1RangeChanged( float, float ) ) );
+  connect( d->dimBox1->palBtn, SIGNAL( clicked() ),
+           d->dimBox1->paledit, SLOT( selectPalette() ) );
   connect( d->dimBox2->paledit->miniPaletteWidget(),
            SIGNAL( rangeChanged( float, float ) ),
            this, SLOT( palette2RangeChanged( float, float ) ) );
+  connect( d->dimBox2->palBtn, SIGNAL( clicked() ),
+           d->dimBox2->paledit, SLOT( selectPalette() ) );
   connect( d->dimBox1->paledit,
            SIGNAL( paletteSelected( const std::string & ) ),
            this, SLOT( palette1Changed( const std::string & ) ) );
@@ -485,6 +490,11 @@ QWidget* QAPaletteWin::makeDimBox( const QString & title, QWidget* parent,
   autoboxl->addWidget( dbox->autoValBtn );
   dbox->autoBoundsBtn = new QPushButton( tr( "Reset bounds" ), autobox );
   autoboxl->addWidget( dbox->autoBoundsBtn );
+  QIcon icon = QIcon(
+    Settings::findResourceFile( "icons/palette.jpg" ).c_str() );
+  dbox->palBtn = new QPushButton( icon, "", autobox );
+  dbox->palBtn->setFixedSize( dbox->palBtn->minimumSizeHint() );
+  autoboxl->addWidget( dbox->palBtn );
 
   dbox->palView = new QLabel( dbox->topBox );
   topBoxl->addWidget( dbox->palView );
