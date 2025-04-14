@@ -418,6 +418,9 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
   d->sizes[0][1] = 0;
   d->sizes[1][0] = 0;
   d->sizes[1][1] = 0;
+
+  d->dimBox1->paledit->adjustRange();
+  d->dimBox2->paledit->adjustRange();
 }
 
 
@@ -803,7 +806,7 @@ void QAPaletteWin::palette2Changed( const string & )
 
 
 void QAPaletteWin::setValues( DimBox* dimBox, float m, float M,
-			      float objMin, float objMax, bool zeroCentered )
+                              float objMin, float objMax, bool zeroCentered )
 {
   bool rec = d->recursive;
   d->recursive = true;
@@ -813,8 +816,6 @@ void QAPaletteWin::setValues( DimBox* dimBox, float m, float M,
   if( zeroCentered )
   {
     double omax = std::max( std::abs( objMin ), std::abs( objMax ) );
-    max = omax * M;
-    min = omax * m;
     float cmin = std::min( m, M );
     float cmax = std::max( m, M );
     dimBox->slrelmin = std::min( cmin / 2 + 0.5f, dimBox->slrelmin );
@@ -824,8 +825,6 @@ void QAPaletteWin::setValues( DimBox* dimBox, float m, float M,
   }
   else
   {
-    min = double(objMin) + ( double(objMax) - objMin ) * m;
-    max = double(objMin) + ( double(objMax) - objMin ) * M;
     min = double(objMin) + ( double(objMax) - objMin ) * dimBox->slrelmin;
     max = double(objMin) + ( double(objMax) - objMin ) * dimBox->slrelmax;
   }
