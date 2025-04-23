@@ -1609,9 +1609,9 @@ void AWindow3D::refreshNow()
       {
         if(i==0)
         {
-          modules[i]->setupSceneUniforms(*d->programs[shader], *this);
+          shaderModules[i]->setupSceneUniforms(*d->programs[shader], *this);
         }
-        modules[i]->setupObjectUniforms(*d->programs[shader], *glObj);
+        shaderModules[i]->setupObjectUniforms(*d->programs[shader], *glObj);
       }
      // updateObject(object); // Draw but not with the color that I want  jordan
     }
