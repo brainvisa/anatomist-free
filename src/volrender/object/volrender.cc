@@ -799,7 +799,7 @@ bool VolRender::glMakeTexImage( const ViewState &state,
   double minquant = te.minquant[0];
   double maxquant = te.maxquant[0];
   double A = d->minval, B = d->maxval;
-  if( d->sourcepixtype == GL_FLOAT && ( maxquant - minquant < 100 ) )
+  if( d->sourcepixtype == GL_FLOAT && ( maxquant - minquant < 99 ) )
     // force resampling of float volumes which do not have int-like dynamics
     // to avoid losing precision
     d->ownextrema = false;
@@ -807,8 +807,8 @@ bool VolRender::glMakeTexImage( const ViewState &state,
   if( d->ownextrema )
   {
     A = minquant;
-    dimx = next2pow( (unsigned) ( maxquant - minquant ) );
-    B = dimx - A;
+    dimx = next2pow( (unsigned) ( maxquant - minquant + 1 ) );
+    B = dimx + A;
     if( B == A )
       B = A + 1;
   }
@@ -816,14 +816,14 @@ bool VolRender::glMakeTexImage( const ViewState &state,
   {
     minquant = A; // map to full scale of the type
     maxquant = B;
-    dimx = next2pow( (unsigned) ( B-A ) );
+    dimx = next2pow( (unsigned) ( B - A + 1) );
   }
   /* cout << "optimal dimx: " << dimx << endl;
   cout << "A: " << A << ", B: " << B << endl; */
   // downsample voxel values if needed to fit in mt values
   for( ; (int) dimx > mt; dimx>>=1 )
     --shift;
-  if( shift > 0 )
+  if( shift >= 0 )
     glbias = (int) ( -A * (1 << shift) );
   else if( shift < 0 )
     glbias = (int) ( -A / (1 << -shift ) );
@@ -858,11 +858,12 @@ bool VolRender::glMakeTexImage( const ViewState &state,
       xs = dimpx - 1;
 
     rgb = cols->at( xs, 0 );
-    palR[h % dimx] = (GLfloat) rgb.red()   / 255;
-    palG[h % dimx] = (GLfloat) rgb.green() / 255;
-    palB[h % dimx] = (GLfloat) rgb.blue()  / 255;
-    palA[h % dimx] = (GLfloat) rgb.alpha() / 255;
-    // if( ( h & 0xff ) == 0 ) cout << xs << ": " << rgb << "; ";
+    palR[h] = (GLfloat) rgb.red()   / 255;
+    palG[h] = (GLfloat) rgb.green() / 255;
+    palB[h] = (GLfloat) rgb.blue()  / 255;
+    palA[h] = (GLfloat) rgb.alpha() / 255;
+    // if( ( h & 0xff ) == 0 )
+    //   cout << xs << ": " << rgb << "; ";
   }
   // cout << endl;
 

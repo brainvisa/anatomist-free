@@ -48,8 +48,8 @@ import six
 
 Qt = QtCore.Qt
 
-bsa_url = 'http://static.brainvisa.info/bsa/base2008_global/bsa_2008_global_atlas.nii'
-labelsfile = 'http://static.brainvisa.info/bsa/base2008_global/bsa_2008_global_atlas.csv'
+bsa_url = 'https://brainvisa.info/static/bsa/base2008_global/bsa_2008_global_atlas.nii'
+labelsfile = 'https://brainvisa.info/static/bsa/base2008_global/bsa_2008_global_atlas.csv'
 use_multirange = True
 
 labels = None
@@ -73,6 +73,7 @@ def bsaClickHandler(eventName, params):
 
     if tr is not None:
         pos = tr.transform(pos[:3])
+        # print('MNI pos:', pos)
 
     hdrsz = 352
     imgdim = [91, 109, 91, 145]
@@ -106,13 +107,13 @@ def bsaClickHandler(eventName, params):
         poff = 0
         probs = []
         for i in range(imgdim[3]):
-            p = values.find('Content-range: bytes', poff)
+            p = values.find(b'Content-range: bytes', poff)
             if p < 0:
                 break
-            p = values.find('\n', p)
+            p = values.find(b'\n', p)
             if p < 0:
                 break
-            p = values.find('\n', p + 1)
+            p = values.find(b'\n', p + 1)
             if p < 0:
                 break
             val = values[p + 1:p + 5]
@@ -135,15 +136,25 @@ def bsaClickHandler(eventName, params):
     global labels
     if labels is None:
         labels = urlopen(labelsfile).readlines()
+        labels = [l.decode() for l in labels]
         labels = [l.strip().split(',') for l in labels[1:]]
+
+    pal = a.getPalette('Blue-Red-fusion')
+    paln = pal.shape[0] - 0.01
 
     text = '<html><p>Position: <b>%f, %f, %f</b></p><p><table><tr><td><b>index:</b></td><td><b>proba:</b></td><td><b>label:</b></td><td><b>common name:</b></td></tr>' % tuple(
         pos[:3])
     sp = numpy.argsort(probs)
     for i in range(len(probs) - 1, -1, -1):
-        if probs[sp[i]] >= 1e-6:
-            text += '<tr><td>%d&nbsp;</td><td>%f&nbsp;</td><td>%s&nbsp;</td><td>%s</td></tr>' \
-                % (sp[i], probs[sp[i]], labels[sp[i]][7], labels[sp[i]][8])
+        prob = probs[sp[i]]
+        if prob >= 1e-6:
+            col = '#%02x%02x%02x' % tuple(int(float(x) * 255)
+                                          for x in labels[sp[i]][4:7])
+            pcol = pal.np['v'][int(prob * paln), 0, 0, 0]
+            probcol = '#%02x%02x%02x' % tuple(int(x * 0.8) for x in pcol[:3])
+            text += '<tr><td>%d&nbsp;</td><td><font color="%s">%f</font>&nbsp;</td><td><font color="%s"><b>%s&nbsp;</b></font></td><td>%s</td></tr>' \
+                % (sp[i], probcol, probs[sp[i]], col, labels[sp[i]][7],
+                   labels[sp[i]][8])
     text += '</p></html>'
     lw.setText(text)
 

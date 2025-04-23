@@ -104,6 +104,7 @@ struct QAPaletteWin::DimBox
   QCheckBox             *symbox;
   QPushButton           *cleatMin;
   QPushButton           *cleatMax;
+  QPushButton           *palBtn;
 };
 
 
@@ -373,9 +374,13 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
   connect( d->dimBox1->paledit->miniPaletteWidget(),
            SIGNAL( rangeChanged( float, float ) ),
            this, SLOT( palette1RangeChanged( float, float ) ) );
+  connect( d->dimBox1->palBtn, SIGNAL( clicked() ),
+           d->dimBox1->paledit, SLOT( selectPalette() ) );
   connect( d->dimBox2->paledit->miniPaletteWidget(),
            SIGNAL( rangeChanged( float, float ) ),
            this, SLOT( palette2RangeChanged( float, float ) ) );
+  connect( d->dimBox2->palBtn, SIGNAL( clicked() ),
+           d->dimBox2->paledit, SLOT( selectPalette() ) );
   connect( d->dimBox1->paledit,
            SIGNAL( paletteSelected( const std::string & ) ),
            this, SLOT( palette1Changed( const std::string & ) ) );
@@ -418,6 +423,9 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
   d->sizes[0][1] = 0;
   d->sizes[1][0] = 0;
   d->sizes[1][1] = 0;
+
+  d->dimBox1->paledit->adjustRange();
+  d->dimBox2->paledit->adjustRange();
 }
 
 
@@ -482,6 +490,11 @@ QWidget* QAPaletteWin::makeDimBox( const QString & title, QWidget* parent,
   autoboxl->addWidget( dbox->autoValBtn );
   dbox->autoBoundsBtn = new QPushButton( tr( "Reset bounds" ), autobox );
   autoboxl->addWidget( dbox->autoBoundsBtn );
+  QIcon icon = QIcon(
+    Settings::findResourceFile( "icons/palette.jpg" ).c_str() );
+  dbox->palBtn = new QPushButton( icon, "", autobox );
+  dbox->palBtn->setFixedSize( dbox->palBtn->minimumSizeHint() );
+  autoboxl->addWidget( dbox->palBtn );
 
   dbox->palView = new QLabel( dbox->topBox );
   topBoxl->addWidget( dbox->palView );
@@ -634,18 +647,25 @@ void QAPaletteWin::update( const anatomist::Observable* obs, void* )
   // cout << "QAPaletteWin::update\n";
 
   const AObject * obj = dynamic_cast<const AObject*>( obs );
-  if( ( !obj || !theAnatomist->hasObject( obj ) ) && objects().size() == 1 )
-    obj = *objects().begin();
+  if( !obj || !theAnatomist->hasObject( obj ) )
+  {
+    if( objects().size() == 1 )
+      obj = *objects().begin();
+    else
+      return;  // no object to update
+  }
 
   if( obj && theAnatomist->hasObject( obj ) && obj->hasChanged() )
   {
     const AObjectPalette	*pal = obj->getOrCreatePalette();
     if( pal )
     {
-      AObjectPalette oldpal = *d->objpal;
+      rc_ptr<AObjectPalette> oldpal;
+      if( d->objpal )
+        oldpal.reset( new AObjectPalette( *d->objpal ) );
 
       if( d->objpal )
-        *d->objpal = *pal ;
+        *d->objpal = *pal;
       else
         d->objpal = new AObjectPalette( *pal ) ;
 
@@ -658,9 +678,9 @@ void QAPaletteWin::update( const anatomist::Observable* obs, void* )
       else
         d->palette1dMappingBox->setCurrentIndex( 0 ) ;
 
-      if( d->objpal->refPalette() != oldpal.refPalette() )
+      if( !oldpal || d->objpal->refPalette() != oldpal->refPalette() )
         fillPalette1();
-      if( d->objpal->refPalette2() != oldpal.refPalette2() )
+      if( !oldpal || d->objpal->refPalette2() != oldpal->refPalette2() )
         fillPalette2();
 
       d->dimBox1->symbox->setChecked( pal->zeroCenteredAxis1() );
@@ -796,7 +816,7 @@ void QAPaletteWin::palette2Changed( const string & )
 
 
 void QAPaletteWin::setValues( DimBox* dimBox, float m, float M,
-			      float objMin, float objMax, bool zeroCentered )
+                              float objMin, float objMax, bool zeroCentered )
 {
   bool rec = d->recursive;
   d->recursive = true;
@@ -806,8 +826,6 @@ void QAPaletteWin::setValues( DimBox* dimBox, float m, float M,
   if( zeroCentered )
   {
     double omax = std::max( std::abs( objMin ), std::abs( objMax ) );
-    max = omax * M;
-    min = omax * m;
     float cmin = std::min( m, M );
     float cmax = std::max( m, M );
     dimBox->slrelmin = std::min( cmin / 2 + 0.5f, dimBox->slrelmin );
@@ -817,8 +835,6 @@ void QAPaletteWin::setValues( DimBox* dimBox, float m, float M,
   }
   else
   {
-    min = double(objMin) + ( double(objMax) - objMin ) * m;
-    max = double(objMin) + ( double(objMax) - objMin ) * M;
     min = double(objMin) + ( double(objMax) - objMin ) * dimBox->slrelmin;
     max = double(objMin) + ( double(objMax) - objMin ) * dimBox->slrelmax;
   }
@@ -1560,29 +1576,49 @@ void QAPaletteWin::cleatMax2()
 
 void QAPaletteWin::min1Changed( float value )
 {
-  if( d->responsive )
-    updateObjects();
+  if( !_parents.empty()
+      && objPalette()->absMin1( *_parents.begin() ) != value )
+  {
+    objPalette()->setAbsMin1( *_parents.begin(), value );
+    if( d->responsive )
+      updateObjects();
+  }
 }
 
 
 void QAPaletteWin::max1Changed( float value )
 {
-  if( d->responsive )
-    updateObjects();
+  if( !_parents.empty()
+      && objPalette()->absMax1( *_parents.begin() ) != value )
+  {
+    objPalette()->setAbsMax1( *_parents.begin(), value );
+    if( d->responsive )
+      updateObjects();
+  }
 }
 
 
 void QAPaletteWin::min2Changed( float value )
 {
-  if( d->responsive )
-    updateObjects();
+  if( !_parents.empty()
+      && objPalette()->absMin2( *_parents.begin() ) != value )
+  {
+    objPalette()->setAbsMin2( *_parents.begin(), value );
+    if( d->responsive )
+      updateObjects();
+  }
 }
 
 
 void QAPaletteWin::max2Changed( float value )
 {
-  if( d->responsive )
-    updateObjects();
+  if( !_parents.empty()
+      && objPalette()->absMax2( *_parents.begin() ) != value )
+  {
+    objPalette()->setAbsMax2( *_parents.begin(), value );
+    if( d->responsive )
+      updateObjects();
+  }
 }
 
 
