@@ -1801,8 +1801,8 @@ bool GLComponent::glMakeBodyGLL( const ViewState & state,
   glDisableClientState( GL_COLOR_ARRAY );
 
   glNewList( gllist.item(), GL_COMPILE );
-  if (_shader)
-    _shader->bind(*this, state);
+  // if (_shader)
+  //   _shader->bind(*this, state); jordan
   if( !vnormal )
   {
     glPushAttrib( GL_LIGHTING_BIT );
@@ -1812,7 +1812,7 @@ bool GLComponent::glMakeBodyGLL( const ViewState & state,
   if( !vnormal )
     glPopAttrib();
 
-  if (_shader) _shader->release();
+  // if (_shader) _shader->release(); jordan
   glEndList();
 
   return true;
@@ -2317,32 +2317,32 @@ GLComponent::TexInfo & GLComponent::glTexInfo( unsigned tex ) const
 
 
 void GLComponent::setupShader()
-{
-  if( !glMaterial() )
-    return;
-  int mstate = glMaterial()->renderProperty( Material::UseShader );
-  bool state = (mstate > 0 || (mstate < 0 && Shader::isUsedByDefault() ) );
-  if( state )
-  {
-    if( !_shader )
-      _shader = new Shader;
-    int value = glMaterial()->renderProperty( Material::RenderLighting );
-    if( value < 0 )
-      value = Shader::DefaultLightingModel;
-    _shader->setLightingModel( (Shader::LightingModel) value );
-    value = glMaterial()->renderProperty( Material::RenderSmoothShading );
-    if( value < 0 )
-      value = Shader::DefaultInterpolationModel;
-    _shader->setInterpolationModel( (Shader::InterpolationModel) value );
-    value = glMaterial()->renderProperty( Material::ShaderColorNormals );
-    if( value < 0 )
-      value = Shader::DefaultColoringModel;
-    _shader->setColoringModel( (Shader::ColoringModel) value );
-    // load_if_needed() will be done in bind() now
-    // _shader->load_if_needed();
-  }
-  else
-    removeShader();
+{ //jordan
+  // if( !glMaterial() )
+  //   return;
+  // int mstate = glMaterial()->renderProperty( Material::UseShader );
+  // bool state = (mstate > 0 || (mstate < 0 && Shader::isUsedByDefault() ) );
+  // if( state )
+  // {
+  //   if( !_shader )
+  //     _shader = new Shader;
+  //   int value = glMaterial()->renderProperty( Material::RenderLighting );
+  //   if( value < 0 )
+  //     value = Shader::DefaultLightingModel;
+  //   _shader->setLightingModel( (Shader::LightingModel) value );
+  //   value = glMaterial()->renderProperty( Material::RenderSmoothShading );
+  //   if( value < 0 )
+  //     value = Shader::DefaultInterpolationModel;
+  //   _shader->setInterpolationModel( (Shader::InterpolationModel) value );
+  //   value = glMaterial()->renderProperty( Material::ShaderColorNormals );
+  //   if( value < 0 )
+  //     value = Shader::DefaultColoringModel;
+  //   _shader->setColoringModel( (Shader::ColoringModel) value );
+  //   // load_if_needed() will be done in bind() now
+  //   // _shader->load_if_needed();
+  // }
+  // else
+  //   removeShader();
 }
 
   void GLComponent::addShaderModule(const std::string& moduleID)
