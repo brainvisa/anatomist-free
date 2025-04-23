@@ -137,7 +137,16 @@ std::unique_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initShader(const std
   auto program= std::make_unique<QOpenGLShaderProgram>();
   std::string baseTemplate, vertexSource, fragmentSource;
   std::vector<std::shared_ptr<IShaderModule>> shaderModules = shaderMapping::getModules(shaderIDs);
+  if (shaderModules.empty()) {
+    std::cerr << "Error : no module found for ID " << shaderIDs << std::endl;
+    return nullptr;
+  
+  }
   std::list<std::string> path =  carto::Paths::findResourceFiles("shaders/templates", "anatomist");
+  if (path.empty()) {
+    std::cerr << "Error : No template shader found in shaders/templates." << std::endl;
+    return nullptr;
+  }
 
   program->create();
   this->setVersion(330);
@@ -146,7 +155,10 @@ std::unique_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initShader(const std
   baseTemplate =  readShaderFile(path.front()+"/main.vs.glsl" );
   this->setBaseTemplate(baseTemplate);
   vertexSource = this->generateShaderSource();
-  program->addShaderFromSourceCode(QOpenGLShader::Vertex, QString::fromStdString(vertexSource));
+  if(!program->addShaderFromSourceCode(QOpenGLShader::Vertex, QString::fromStdString(vertexSource)))
+  {
+    std::cout << "Vertex shader error : " << program->log().toStdString() << std::endl;
+  }
 
 
   // fragment shader
@@ -158,8 +170,14 @@ std::unique_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initShader(const std
     this->addEffect(shaderModules[i]); // might look for special effects that needs other shaders (depth peeling)
   } 
   fragmentSource = this->generateShaderSource();
-  program->addShaderFromSourceCode(QOpenGLShader::Fragment, QString::fromStdString(fragmentSource));
+  if(!program->addShaderFromSourceCode(QOpenGLShader::Fragment, QString::fromStdString(fragmentSource)))
+  {
+    std::cout << "Fragment shader error : " << program->log().toStdString() << std::endl;
+  }
 
-  program->link();
+  if(!program->link())
+  {
+    std::cout << "Shader linkage error : " << program->log().toStdString() << std::endl; 
+  }
   return program;
 }

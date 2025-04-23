@@ -1598,6 +1598,15 @@ void AWindow3D::refreshNow()
   {
     d->programs[shader]->bind();
 
+    GLint currentProgram = 0;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgram);
+
+    if (currentProgram == d->programs[shader]->programId()) {
+        std::cout << "Shader binded" << std::endl;
+    } else {
+        std::cout << "Shader not binded" << std::endl;
+    }
+
 
     auto shaderModules = shaderMapping::getModules(objects[0]->glAPI()->getShaderModuleIDs());
 
@@ -1613,7 +1622,7 @@ void AWindow3D::refreshNow()
         }
         shaderModules[i]->setupObjectUniforms(*d->programs[shader], *glObj);
       }
-     // updateObject(object); // Draw but not with the color that I want  jordan
+      updateObject(object); // Draw but not with the color that I want  jordan
     }
     d->programs[shader]->release();
   }
@@ -1622,7 +1631,7 @@ void AWindow3D::refreshNow()
   //	Draw opaque objects
   for (al = renderobj.begin(); al != transparent; ++al)
   {
-    updateObject(*al);
+    //updateObject(*al);
   }
   
   //	Settings between opaque and transparent objects
@@ -1631,7 +1640,7 @@ void AWindow3D::refreshNow()
     //	Draw transparent objects
   for (al = transparent; al != el; ++al)
   {
-   updateObject(*al);
+   //updateObject(*al);
   }
 
   //	Settings after transparent objects
