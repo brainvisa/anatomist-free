@@ -108,6 +108,8 @@
 #include <qpainter.h>
 #include <iostream>
 #include <float.h>
+#include <unordered_set> //jordan
+#include <unordered_map> //jordan
 #ifdef _WIN32
 #define rint(x) floor(x+0.5)
 #endif
@@ -121,8 +123,11 @@
 #endif
 
 // FIX JORDAN
-#include "anatomist/surface/blinnPhongIlluminationModel.h"
-#include "anatomist/surface/depthPeelingEffect.h"
+#include <anatomist/surface/dynamicShaderBuilder.h> //jordan
+#include <anatomist/surface/shaderMapping.h>
+#include <QOpenGLShaderProgram>
+#include <memory>
+
 
 /* whith ANA_USE_QGRAPHICSVIEW defined, 3D windows will contain a 
    QGraphicsView, in which the OpenGL widget is the background (viewport).
@@ -228,6 +233,16 @@ struct AWindow3D::Private
     bool sortPolygonsDirection;
     // auto-fusion volumes or Sliceable objects
     rc_ptr<AObject> autoFusion;
+
+    dynamicShaderBuilder shaderBuilder; //jordan
+    std::unordered_map<std::string, std::unique_ptr<QOpenGLShaderProgram>> programs;
+};
+
+struct TmpCol
+{
+    SelectFactory::HColor diffuse;
+    SelectFactory::HColor unlit;
+    int mode;
 };
 
 namespace
@@ -1139,12 +1154,8 @@ void AWindow3D::freeResize()
   d->draw->qglWidget()->setMinimumSize(QSize(0, 0));
 }
 
-void AWindow3D::refreshNow()
+void AWindow3D::handleRefreshTypes()
 {
-  using carto::shared_ptr;
-
-  sortPolygons();
-
   switch (d->refreshneeded)
   {
     case Private::LightRefresh:
@@ -1157,43 +1168,29 @@ void AWindow3D::refreshNow()
     default:
       break;
   }
-  // cout << "AWindow3D::refreshNow\n";
-  //ControlledWindow::refreshNow();	// common parts
+}
 
-  //	delete tmp objects primitives
+void AWindow3D::clearTemporaryPrimitives()
+{
   d->tmpprims.clear();
+}
+
+void AWindow3D::updateBoundingBox(std::vector<float>& bbmin, std::vector<float>& bbmax)
+{
+    boundingBox(bbmin, bbmax);
+    Point3df bmin(bbmin[0], bbmin[1], bbmin[2]);
+    Point3df bmax(bbmax[0], bbmax[1], bbmax[2]);
+    
+    if (d->needsextrema)
+    {
+        d->draw->setExtrema(bmin, bmax);
+        d->needsextrema = false;
+    }
+}
+
+void AWindow3D::updateGeometryAndSliders(std::vector<float>& bbmin, std::vector<float>& bbmax)
+{
   updateWindowGeometry(); // do this only in special cases ?
-
-  list<shared_ptr<AObject> >::iterator i;
-
-  Point3df vs, bmin, bmax;
-  vector<float> bbmin, bbmax;
-
-  boundingBox( bbmin, bbmax );
-  bmin = Point3df( bbmin[0], bbmin[1], bbmin[2] );
-  bmax = Point3df( bbmax[0], bbmax[1], bbmax[2] );
-  if (d->needsextrema)
-  {
-    d->draw->setExtrema(bmin, bmax);
-    d->needsextrema = false;
-  }
-
-  Geometry *geom = windowGeometry();
-
-  Point4dl dmin;
-  Point4dl dmax;
-
-  if (geom)
-  {
-    dmin = geom->DimMin();
-    dmax = geom->DimMax();
-  }
-  else
-  {
-    dmin = Point4dl(0, 0, 0, 0);
-    dmax = Point4dl(1, 1, 1, 0);
-  }
-
   setupSliceSlider();
   setupTimeSlider( bbmin, bbmax );
   if (d->askedsize.width() >= 0 && d->askedsize.height() > 0)
@@ -1201,349 +1198,68 @@ void AWindow3D::refreshNow()
     resizeView(d->askedsize.width(), d->askedsize.height());
     d->askedsize = QSize(0, 0);
   }
+}
 
-  d->draw->qglWidget()->makeCurrent();
-  d->deleteLists();
+void AWindow3D::setupOpenGLRendering()
+{
+    d->draw->qglWidget()->makeCurrent();
+    d->deleteLists();
+}
 
-  updateLeftRightAnnotations();
-
-  // Denis: selection
-  struct TmpCol
-  {
-      SelectFactory::HColor diffuse;
-      SelectFactory::HColor unlit;
-      int mode;
-  };
-
-  TmpCol *tmpcol = new TmpCol[_objects.size()];
+void AWindow3D::applySelectionHighlight(TmpCol* tmpcol)
+{
   unsigned u = 0;
-
-  // handle selection
-  for (i = _objects.begin(); i != _objects.end(); ++i)
-    if (SelectFactory::factory()->isSelected(Group(), i->get()))
-    {
-      Material & mat = (*i)->GetMaterial();
-      SelectFactory::HColor col = SelectFactory::factory()->highlightColor(
-          i->get());
-      GLfloat *dif = mat.Diffuse();
-      GLfloat *unl = mat.unlitColor();
-
-      TmpCol & tcol = tmpcol[u];
-      tcol.diffuse.r = dif[0]; // sauver les vraies couleurs
-      tcol.diffuse.g = dif[1];
-      tcol.diffuse.b = dif[2];
-      tcol.diffuse.a = dif[3];
-      tcol.unlit.r = unl[0];
-      tcol.unlit.g = unl[1];
-      tcol.unlit.b = unl[2];
-      tcol.unlit.a = unl[3];
-      tcol.mode = mat.renderProperty(Material::RenderMode);
-      switch (GraphParams::graphParams()->selectRenderMode)
+  for (auto i = _objects.begin(); i != _objects.end(); ++i)
+  {
+      if (SelectFactory::factory()->isSelected(Group(), i->get()))
       {
-        case 0:
-          dif[0] = col.r;
-          dif[1] = col.g;
-          dif[2] = col.b;
-          if (!col.na) dif[3] = col.a;
-          break;
-        case 1:
-          unl[0] = col.r;
-          unl[1] = col.g;
-          unl[2] = col.b;
-          if (!col.na) unl[3] = col.a;
-          mat.setRenderProperty(Material::RenderMode, Material::ExtOutlined);
+          Material &mat = (*i)->GetMaterial();
+          SelectFactory::HColor col = SelectFactory::factory()->highlightColor(i->get());
+          GLfloat *dif = mat.Diffuse();
+          GLfloat *unl = mat.unlitColor();
+
+          TmpCol &tcol = tmpcol[u];
+          tcol.diffuse.r = dif[0];
+          tcol.diffuse.g = dif[1];
+          tcol.diffuse.b = dif[2];
+          tcol.diffuse.a = dif[3];
+          tcol.unlit.r = unl[0];
+          tcol.unlit.g = unl[1];
+          tcol.unlit.b = unl[2];
+          tcol.unlit.a = unl[3];
+          tcol.mode = mat.renderProperty(Material::RenderMode);
+
+          switch (GraphParams::graphParams()->selectRenderMode)
+          {
+              case 0:
+                  dif[0] = col.r;
+                  dif[1] = col.g;
+                  dif[2] = col.b;
+                  if (!col.na) dif[3] = col.a;
+                  break;
+              case 1:
+                  unl[0] = col.r;
+                  unl[1] = col.g;
+                  unl[2] = col.b;
+                  if (!col.na) unl[3] = col.a;
+                  mat.setRenderProperty(Material::RenderMode, Material::ExtOutlined);
+                  break;
+          }
+
+          (*i)->SetMaterial(mat);
+          GLComponent *g = (*i)->glAPI();
+          if (g) g->glSetChanged(GLComponent::glMATERIAL);
+          ++u;
       }
-      (*i)->SetMaterial(mat);
-      GLComponent *g = (*i)->glAPI();
-      if (g) g->glSetChanged(GLComponent::glMATERIAL);
-      ++u;
-    }
-
-  list<AObject *> renderobj;
-  list<AObject *>::iterator transparent = processRenderingOrder(renderobj);
-  list<AObject*>::iterator al, el = renderobj.end();
-
-  //	Rendering mode primitive (must be first)
-  GLList *renderpr = new GLList;
-  renderpr->generate();
-  GLuint renderGLL = renderpr->item();
-  if (!renderGLL) AWarning("AWindow3D::Refresh: OpenGL error.");
-
-  glNewList(renderGLL, GL_COMPILE);
-
-  glLineWidth(1);
-  if (flatShading())
-    glShadeModel( GL_FLAT);
-  else
-    glShadeModel( GL_SMOOTH);
-  if (cullingEnabled())
-    glEnable( GL_CULL_FACE);
-  else
-    glDisable(GL_CULL_FACE);
-  if (smoothing())
-  {
-    glEnable( GL_LINE_SMOOTH);
-    glEnable( GL_POLYGON_SMOOTH);
   }
-  else
+}
+
+  
+void AWindow3D::removeSelectionHighlight(TmpCol* tmpcol)
+{
+  unsigned u = 0;
+  for (auto i = _objects.begin(); i != _objects.end(); ++i)
   {
-    glDisable( GL_LINE_SMOOTH);
-    glDisable( GL_POLYGON_SMOOTH);
-  }
-  glEnable( GL_LIGHTING);
-  glPolygonOffset(0, 0);
-  glDisable( GL_POLYGON_OFFSET_FILL);
-  if (fog())
-  {
-    glEnable( GL_FOG);
-    glFogi(GL_FOG_MODE, GL_EXP);
-    glFogf(GL_FOG_DENSITY, 0.01);
-    glFogfv(GL_FOG_COLOR, light()->Background());
-  }
-  else
-    glDisable( GL_FOG);
-
-  switch (renderingMode())
-  {
-    case Wireframe:
-      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-      glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-      break;
-    case HiddenWireframe:
-      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-      glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-      glPolygonOffset(1.05, 1);
-      glEnable(GL_POLYGON_OFFSET_FILL);
-      break;
-    case Material::Outlined:
-      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-      glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-      glPolygonOffset(1.05, 1);
-      glEnable(GL_POLYGON_OFFSET_FILL);
-    default:
-      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-      glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-  }
-
-  glEndList();
-  d->primitives.push_back(RefGLItem(renderpr));
-
-  //	Things to do before rendering objects
-  Primitive *pr = new Primitive;
-
-  GLuint localGLL = glGenLists(2);
-  if (!localGLL) AWarning("AWindow3D::Refresh: OpenGL error.");
-
-  glNewList(localGLL, GL_COMPILE);
-
-  glDisable( GL_BLEND);
-
-  GLdouble plane[4];
-  Point3df dir = d->slicequat.transformInverse( Point3df(0, 0, -1) );
-  plane[0] = dir[0];
-  plane[1] = dir[1];
-  plane[2] = dir[2];
-  plane[3] = -dir.dot(_position) + d->clipdist;
-
-  switch (clipMode())
-  {
-    case Single:
-      glEnable( GL_CLIP_PLANE0);
-      glDisable( GL_CLIP_PLANE1);
-      glClipPlane(GL_CLIP_PLANE0, plane);
-      // glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
-      break;
-    case Double:
-      glEnable(GL_CLIP_PLANE0);
-      glEnable(GL_CLIP_PLANE1);
-      glClipPlane(GL_CLIP_PLANE0, plane);
-      plane[0] *= -1;
-      plane[1] *= -1;
-      plane[2] *= -1;
-      plane[3] = dir.dot(_position) + d->clipdist;
-      glClipPlane(GL_CLIP_PLANE1, plane);
-      // glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
-      break;
-    default:
-      glDisable(GL_CLIP_PLANE0);
-      glDisable(GL_CLIP_PLANE1);
-      // glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE );
-      break;
-  }
-
-  glEndList();
-
-  pr->insertList(localGLL);
-  d->primitives.push_back(RefGLItem(pr));
-
-  //	Draw opaque objects
-  for (al = renderobj.begin(); al != transparent; ++al)
-    updateObject(*al);
-
-  //	Settings between opaque and transparent objects
-  GLPrimitives curspl = cursorGLL();
-
-  Primitive *pr2 = 0;
-
-  /*if( !blended.empty() )
-   {*/
-  d->draw->setTransparentObjects(true);
-  //if( !pr2 )
-  pr2 = new Primitive;
-  pr2->insertList(localGLL + 1);
-  glNewList(localGLL + 1, GL_COMPILE);
-  glEnable(GL_BLEND);
-  if (!transparentZEnabled()) glDepthMask( GL_FALSE); // don't write in z-buffer
-  glEndList();
-  /*}
-   else
-   {
-   glDeleteLists( localGLL+1, 1 );
-   d->draw->setTransparentObjects( false );
-   }*/
-
-  if (pr2) d->primitives.push_back(RefGLItem(pr2));
-
-  //	Draw transparent objects
-  for (al = transparent; al != el; ++al)
-    updateObject(*al);
-
-  //	Settings after transparent objects
-  Primitive *pr3 = 0;
-
-  if (!transparentZEnabled())
-  {
-    pr3 = new Primitive;
-
-    GLuint zGLL = glGenLists(1);
-    if (!zGLL)
-    {
-      cerr << "AWindow3D: OpenGL error.\n";
-    }
-    else
-    {
-      glNewList(zGLL, GL_COMPILE);
-      glDepthMask( GL_TRUE); // write again in z-buffer
-      glEndList();
-      pr3->insertList(zGLL);
-    }
-  }
-
-  if (clipMode() != NoClip)
-  {
-    if (!pr3) pr3 = new Primitive;
-
-    GLuint clipGLL = glGenLists(1);
-    if (!clipGLL)
-    {
-      cerr << "AWindow3D: OpenGL error.\n";
-    }
-    else
-    {
-      glNewList(clipGLL, GL_COMPILE);
-      glDisable( GL_CLIP_PLANE0);
-      glDisable( GL_CLIP_PLANE1);
-      glEndList();
-
-      pr3->insertList(clipGLL);
-    }
-  }
-
-  if (pr3) d->primitives.push_back(RefGLItem(pr3));
-  //	draw the cursor a second time after transparent objects
-  //	(since it's not written in Z-buffer, it always appears behind)
-  /*  if( !curspl.empty() )
-   d->primitives.insert( d->primitives.end(), curspl.begin(), curspl.end() );
-   */
-
-  /*	Finish rendering mode operations: restore initial modes
-   and eventually performs a second rendering of all objects */
-  Primitive *renderoffpr = 0;
-  bool rendertwice = false;
-  switch (renderingMode())
-  {
-    case HiddenWireframe:
-    {
-      renderoffpr = new Primitive;
-      GLuint hwfGLL = glGenLists(1);
-      if (!hwfGLL)
-      {
-        cerr << "AWindow3D: not enough OGL memory.\n";
-        delete renderoffpr;
-        renderoffpr = 0;
-      }
-      else
-      {
-        glNewList(hwfGLL, GL_COMPILE);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-        // glLineWidth( 2 );
-        glEndList();
-
-        renderoffpr->insertList(hwfGLL);
-      }
-      rendertwice = true;
-    }
-      break;
-    case Material::Outlined:
-    {
-      renderoffpr = new Primitive;
-      GLuint hwfGLL = glGenLists(1);
-      if (!hwfGLL)
-      {
-        cerr << "AWindow3D: not enough OGL memory.\n";
-        delete renderoffpr;
-        renderoffpr = 0;
-      }
-      else
-      {
-        glNewList(hwfGLL, GL_COMPILE);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-        //glLineWidth( 2 );
-        //glShadeModel( GL_FLAT );
-        glDisable(GL_LIGHTING);
-        // glColor3f( 0, 0, 0 );
-        glEndList();
-
-        renderoffpr->insertList(hwfGLL);
-      }
-      rendertwice = true;
-    }
-      break;
-    default:
-      break;
-  }
-  if (renderoffpr) d->primitives.push_back(RefGLItem(renderoffpr));
-
-  if (rendertwice)
-  {
-    // copy whole primitives list except first and last (render modes)
-    unsigned i, n = d->primitives.size() - 2;
-    PrimList::iterator ip = d->primitives.begin();
-    for (++ip, i = 0; i < n; ++i, ++ip)
-      d->primitives.push_back(*ip);
-  }
-
-  d->draw->setPrimitives(d->primitives);
-  d->primitives.clear(); // delete local references
-
-  if (d->light)
-  {
-    d->draw->setLightGLList(d->light->getGLList());
-    d->draw->setBackgroundAlpha(d->light->Background(3));
-  }
-  else
-    d->draw->setBackgroundAlpha(1.);
-
-  ResetRefreshFlag();
-
-  d->draw->updateGL();
-
-  // Denis : selection (suite)
-
-  u = 0;
-  for (i = _objects.begin(); i != _objects.end(); ++i)
     if (SelectFactory::factory()->isSelected(Group(), i->get()))
     {
       Material & mat = (*i)->GetMaterial();
@@ -1566,11 +1282,368 @@ void AWindow3D::refreshNow()
       if (g) g->glSetChanged(GLComponent::glMATERIAL);
       ++u;
     }
+  }
+}
+
+ void AWindow3D::setupOpenGLState()
+  {
+    GLList *renderpr = new GLList;
+    renderpr->generate();
+    GLuint renderGLL = renderpr->item();
+    if (!renderGLL) AWarning("AWindow3D::Refresh: OpenGL error.");
+
+    glNewList(renderGLL, GL_COMPILE);
+    glLineWidth(1);
+    flatShading() ? glShadeModel(GL_FLAT) : glShadeModel(GL_SMOOTH);
+    cullingEnabled() ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE);
+    if(smoothing())
+    {
+      glEnable( GL_LINE_SMOOTH);
+      glEnable( GL_POLYGON_SMOOTH);
+    }
+    else
+    {
+      glDisable( GL_LINE_SMOOTH);
+      glDisable( GL_POLYGON_SMOOTH);
+    }
+
+    glEnable( GL_LIGHTING);
+    glPolygonOffset(0, 0);
+    glDisable( GL_POLYGON_OFFSET_FILL);
+    if (fog())
+    {
+      glEnable( GL_FOG);
+      glFogi(GL_FOG_MODE, GL_EXP);
+      glFogf(GL_FOG_DENSITY, 0.01);
+      glFogfv(GL_FOG_COLOR, light()->Background());
+    }
+    else
+    {
+      glDisable( GL_FOG);
+    }
+
+     switch (renderingMode())
+    {
+      case Wireframe:
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        break;
+      case HiddenWireframe:
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+        glPolygonOffset(1.05, 1);
+        glEnable(GL_POLYGON_OFFSET_FILL);
+        break;
+      case Material::Outlined:
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        glPolygonOffset(1.05, 1);
+        glEnable(GL_POLYGON_OFFSET_FILL);
+      default:
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    }
+
+    glEndList();
+    d->primitives.push_back(RefGLItem(renderpr));
+  }
+
+  void AWindow3D::setupClippingPlanes(GLuint localGLL)
+  {
+    Primitive *pr = new Primitive;
+    if (!localGLL) AWarning("AWindow3D::Refresh: OpenGL error.");
+
+    glNewList(localGLL, GL_COMPILE);
+    glDisable( GL_BLEND);
+    GLdouble plane[4];
+    Point3df dir = d->slicequat.transformInverse( Point3df(0, 0, -1) );
+    plane[0] = dir[0];
+    plane[1] = dir[1];
+    plane[2] = dir[2];
+    plane[3] = -dir.dot(_position) + d->clipdist;
+
+    switch (clipMode())
+    {
+      case Single:
+        glEnable( GL_CLIP_PLANE0);
+        glDisable( GL_CLIP_PLANE1);
+        glClipPlane(GL_CLIP_PLANE0, plane);
+        // glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
+        break;
+      case Double:
+        glEnable(GL_CLIP_PLANE0);
+        glEnable(GL_CLIP_PLANE1);
+        glClipPlane(GL_CLIP_PLANE0, plane);
+        plane[0] *= -1;
+        plane[1] *= -1;
+        plane[2] *= -1;
+        plane[3] = dir.dot(_position) + d->clipdist;
+        glClipPlane(GL_CLIP_PLANE1, plane);
+        // glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
+        break;
+      default:
+        glDisable(GL_CLIP_PLANE0);
+        glDisable(GL_CLIP_PLANE1);
+        // glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE );
+        break;
+    }
+
+    glEndList();
+
+    pr->insertList(localGLL);
+    d->primitives.push_back(RefGLItem(pr));
+  }
+
+  void AWindow3D::setupTransparentObjects(GLuint localGLL)
+  {
+    GLPrimitives curspl = cursorGLL();
+    Primitive *pr2 = 0;
+    d->draw->setTransparentObjects(true);
+    pr2 = new Primitive;
+    pr2->insertList(localGLL + 1);
+    glNewList(localGLL + 1, GL_COMPILE);
+    glEnable(GL_BLEND);
+    if (!transparentZEnabled()) glDepthMask( GL_FALSE); // don't write in z-buffer
+    glEndList();
+    if (pr2) d->primitives.push_back(RefGLItem(pr2));
+  }
+
+  void AWindow3D::postTransparentRenderingSetup()
+  {
+      Primitive *pr3 = 0;
+    if (!transparentZEnabled())
+    {
+      pr3 = new Primitive;
+      GLuint zGLL = glGenLists(1);
+      if (!zGLL)
+      {
+        cerr << "AWindow3D: OpenGL error.\n";
+      }
+      else
+      {
+        glNewList(zGLL, GL_COMPILE);
+        glDepthMask( GL_TRUE); // write again in z-buffer
+        glEndList();
+        pr3->insertList(zGLL);
+      }
+    }
+
+    if (clipMode() != NoClip)
+    {
+      if (!pr3) pr3 = new Primitive;
+      GLuint clipGLL = glGenLists(1);
+      if (!clipGLL)
+      {
+        cerr << "AWindow3D: OpenGL error.\n";
+      }
+      else
+      {
+        glNewList(clipGLL, GL_COMPILE);
+        glDisable( GL_CLIP_PLANE0);
+        glDisable( GL_CLIP_PLANE1);
+        glEndList();
+
+        pr3->insertList(clipGLL);
+      }
+    }
+    if (pr3) d->primitives.push_back(RefGLItem(pr3));
+  }
+
+  void AWindow3D::finalizeRendering()
+  {
+    Primitive* renderoffpr = 0;
+    bool rendertwice = false;
+
+    switch (renderingMode())
+    {
+      case HiddenWireframe:
+        renderoffpr = setupHiddenWireframeMode();
+        rendertwice = true;
+        break;
+      case Material::Outlined:
+        renderoffpr = setupOutlinedMode();
+        rendertwice = true;
+        break;
+      default:
+        break;
+    }
+
+    if (renderoffpr)
+    {
+      d->primitives.push_back(RefGLItem(renderoffpr));
+    }
+
+    if (rendertwice)
+    {
+      duplicateRenderPrimitives();
+    }
+
+    finalizeRenderingSettings();
+    d->draw->updateGL();
+  }
+
+  Primitive* AWindow3D::setupHiddenWireframeMode()
+  {
+    Primitive *pr = new Primitive;
+    GLuint hwfGLL = glGenLists(1);
+    if (!hwfGLL)
+    {
+        cerr << "AWindow3D: not enough OGL memory.\n";
+        delete pr;
+        return nullptr;
+    }
+
+    glNewList(hwfGLL, GL_COMPILE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glEndList();
+
+    pr->insertList(hwfGLL);
+    return pr;
+  }
+
+  Primitive* AWindow3D::setupOutlinedMode()
+  {
+    Primitive *pr = new Primitive;
+    GLuint hwfGLL = glGenLists(1);
+    if (!hwfGLL)
+    {
+        cerr << "AWindow3D: not enough OGL memory.\n";
+        delete pr;
+        return nullptr;
+    }
+
+    glNewList(hwfGLL, GL_COMPILE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glDisable(GL_LIGHTING);
+    glEndList();
+
+    pr->insertList(hwfGLL);
+    return pr;
+  }
+
+  void AWindow3D::duplicateRenderPrimitives()
+  {
+    unsigned i, n = d->primitives.size() - 2;
+    PrimList::iterator ip = d->primitives.begin();
+    for (++ip, i = 0; i < n; ++i, ++ip)
+        d->primitives.push_back(*ip);
+  }
+
+  void AWindow3D::finalizeRenderingSettings()
+  {
+    d->draw->setPrimitives(d->primitives);
+    d->primitives.clear();
+
+    if (d->light)
+    {
+        d->draw->setLightGLList(d->light->getGLList());
+        d->draw->setBackgroundAlpha(d->light->Background(3));
+    }
+    else
+    {
+        d->draw->setBackgroundAlpha(1.0);
+    }
+    ResetRefreshFlag();
+  }
+void AWindow3D::refreshNow()
+{
+  shaderMapping::initShaderMapping();
+  shaderMapping::printModules();
+  using carto::shared_ptr;
+  //bounding box
+  std::vector<float> bbmin, bbmax;
+  //selection
+  TmpCol *tmpcol = new TmpCol[_objects.size()];
+
+  sortPolygons();
+  handleRefreshTypes();
+  clearTemporaryPrimitives();
+  updateBoundingBox(bbmin, bbmax);
+  updateGeometryAndSliders(bbmin, bbmax);
+  setupOpenGLRendering();
+  updateLeftRightAnnotations();
+  applySelectionHighlight(tmpcol);
+  setupOpenGLState(); //	Rendering mode primitive (must be first)
+  GLuint localGLL = glGenLists(2);
+  setupClippingPlanes(localGLL); //	Things to do before rendering objects
+
+  list<AObject *> renderobj;
+  list<AObject *>::iterator transparent = processRenderingOrder(renderobj);
+  list<AObject*>::iterator al, el = renderobj.end();
+
+  //associate each drawable object to his shader
+  std::unordered_map<std::string, std::vector<AObject*>> drawable;
+  for(const auto& obj : _objects)
+  {
+    auto glObj = (obj)->glAPI();
+    if(glObj != nullptr)
+    {
+      drawable[glObj->getShaderModuleIDs()].push_back(obj.get());
+    }
+  }
+
+  //Construct all the used shaders
+  for(const auto& [shader,_] : drawable)
+  {
+    if(d->programs[shader] == nullptr)
+    {
+      d->programs[shader] = d->shaderBuilder.initShader(shader);
+    }
+  }
+
+  // Update uniforms and draw
+  for(const auto& [shader, objects] : drawable)
+  {
+    d->programs[shader]->bind();
+
+
+    auto shaderModules = shaderMapping::getModules(objects[0]->glAPI()->getShaderModuleIDs());
+
+    // Setting uniforms & drawing
+    for(const auto& object : objects)
+    {
+      auto glObj = object->glAPI();
+      for(int i=0; i<shaderModules.size(); ++i)
+      {
+        if(i==0)
+        {
+          modules[i]->setupSceneUniforms(*d->programs[shader], *this);
+        }
+        modules[i]->setupObjectUniforms(*d->programs[shader], *glObj);
+      }
+     // updateObject(object); // Draw but not with the color that I want  jordan
+    }
+    d->programs[shader]->release();
+  }
+
+
+  //	Draw opaque objects
+  for (al = renderobj.begin(); al != transparent; ++al)
+  {
+    updateObject(*al);
+  }
+  
+  //	Settings between opaque and transparent objects
+  setupTransparentObjects(localGLL);
+
+    //	Draw transparent objects
+  for (al = transparent; al != el; ++al)
+  {
+   updateObject(*al);
+  }
+
+  //	Settings after transparent objects
+  postTransparentRenderingSetup();
+
+  /*	Finish rendering mode operations: restore initial modes
+   and eventually performs a second rendering of all objects */
+  finalizeRendering();
+
+  removeSelectionHighlight(tmpcol);
   delete[] tmpcol;
-  // fin de modif
-
   showReferential();
-
   emit refreshed();
 }
 
@@ -3891,6 +3964,12 @@ void AWindow3D::update( const Observable* o, void* arg )
   bool temp = false;
   if( ao )
   {
+    if(ao->obsHasChanged(GLComponent::glSHADER)){   //
+      //If the shader has changed, we must create and setup a new one
+      //BUT have to find how to get this info
+      //moreover, i should think about saving shader already created
+      //not to build them often
+    }                                                 
     if( isTemporary(const_cast<AObject *> (ao)) )
       temp = true;
     if( ao->obsHasChanged(GLComponent::glREFERENTIAL) )

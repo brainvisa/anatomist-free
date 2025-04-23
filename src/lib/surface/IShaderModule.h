@@ -66,6 +66,17 @@ namespace anatomist
       /// Sets up the uniforms for the shader module
       virtual void setupObjectUniforms(QOpenGLShaderProgram& program, GLComponent& obj) const = 0;
       virtual void setupSceneUniforms(QOpenGLShaderProgram& program, AWindow3D& scene) const  = 0;
+
+      /// return the list of shader's id
+      virtual std::string getID() const {return id;}
+
+      virtual void printModule() const{std::cout << name<< std::endl;};
+    
+    protected:
+      /// unique id associated to each shader
+      std::string id;
+      bool isIlluminationModel;
+      std::string name;
   };
 }
 

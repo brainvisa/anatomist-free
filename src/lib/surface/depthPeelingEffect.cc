@@ -7,6 +7,9 @@ using namespace anatomist;
 
 DepthPeelingEffect::DepthPeelingEffect()
 {
+  id="1";
+  isIlluminationModel=false;
+  name="depthPeeling";
 }
 
 std::string DepthPeelingEffect::getUniformDeclarations() const

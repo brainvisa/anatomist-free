@@ -122,6 +122,9 @@ namespace anatomist
       /** Material / coloring list. Also handles rendering properties.
       */
       glMATERIAL,
+      /** Shader handles rendering preperties.
+       */
+      glSHADER, //Jordan
       /** Geometry is the polygons, normals arrays. The geometry is not really
           handled by the GLComponent now, it is rather reserved for future use.
           The glBODY part is the one used currently. However, changing
@@ -217,6 +220,10 @@ namespace anatomist
 
     virtual const Material *glMaterial() const;
     virtual const AObjectPalette* glPalette( unsigned tex = 0 ) const;
+
+    // jordan shader
+    virtual void addShaderModule(const std::string & module);
+    virtual std::string getShaderModuleIDs(){return _shaderModuleIDs;}
 
     virtual unsigned glNumVertex( const ViewState & ) const;
     virtual const GLfloat* glVertexArray( const ViewState & ) const;
@@ -388,6 +395,7 @@ namespace anatomist
     struct Private;
     Private	*d;
     Shader      *_shader;
+    std::string _shaderModuleIDs; //jordan
   };
 
 

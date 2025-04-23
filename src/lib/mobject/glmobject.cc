@@ -838,6 +838,8 @@ void GLMObject::update( const Observable* obs, void* arg )
             glSetChanged( glTEXIMAGE );
           if( o->obsHasChanged( glTEXENV ) )
             glSetChanged( glTEXENV );
+          if( o->obsHasChanged( glSHADER ) )
+            glSetChanged( glSHADER );
         }
     }
   MObject::update( obs, arg );

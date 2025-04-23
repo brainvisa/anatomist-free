@@ -328,7 +328,10 @@ void SetMaterialCommand::doit()
         {
           glc->glSetChanged( GLComponent::glMATERIAL );
           if( shaderChanged )
-            glc->glSetChanged( GLComponent::glBODY );
+          {
+            //glc->glSetChanged( GLComponent::glBODY ); //jordan
+            glc->glSetChanged( GLComponent::glSHADER );
+          }
         }
         if( _refresh )
           o->notifyObservers( this );

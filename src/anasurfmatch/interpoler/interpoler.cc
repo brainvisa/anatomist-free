@@ -314,6 +314,7 @@ std::string AInterpoler::viewStateID( glPart part,
           return c->viewStateID( part, state );
         return string();
       }
+    case glSHADER:
     default:
       break;
     }

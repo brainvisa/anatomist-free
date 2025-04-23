@@ -1,12 +1,18 @@
 #include <QFile>
 #include <QTextStream>
 #include <QString>
+#include <cstring>
 #include <string>
 #include <iostream>
 #include <memory>
 #include <regex>
+#include <list>
 
-#include "dynamicShaderBuilder.h"
+#include <anatomist/surface/dynamicShaderBuilder.h>
+#include <anatomist/surface/shaderMapping.h>
+#include <cartobase/config/paths.h>
+#include <anatomist/surface/blinnPhongIlluminationModel.h>
+#include <anatomist/surface/depthPeelingEffect.h>
 
 using namespace anatomist;
 
@@ -25,14 +31,14 @@ void dynamicShaderBuilder::setBaseTemplate(const std::string &templateSource)
 }
 
 
-void dynamicShaderBuilder::setIlluminationModel(std::unique_ptr<IShaderModule>  model)
+void dynamicShaderBuilder::setIlluminationModel(std::shared_ptr<IShaderModule>  model)
 {
-  m_illuminationModel = std::move(model);
+  m_illuminationModel = model;
 }
 
-void dynamicShaderBuilder::addEffect(std::unique_ptr<IShaderModule> effect)
+void dynamicShaderBuilder::addEffect(std::shared_ptr<IShaderModule> effect)
 {
-  m_effects.push_back(std::move(effect));
+  m_effects.push_back(effect);
 }
 
 std::string dynamicShaderBuilder::readShaderFile(const std::string &filePath)
@@ -124,4 +130,36 @@ std::string dynamicShaderBuilder::generateShaderSource() const
   );
 
   return shaderSource;
+}
+
+std::unique_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initShader(const std::string shaderIDs)
+{
+  auto program= std::make_unique<QOpenGLShaderProgram>();
+  std::string baseTemplate, vertexSource, fragmentSource;
+  std::vector<std::shared_ptr<IShaderModule>> shaderModules = shaderMapping::getModules(shaderIDs);
+  std::list<std::string> path =  carto::Paths::findResourceFiles("shaders/templates", "anatomist");
+
+  program->create();
+  this->setVersion(330);
+
+  // vertex shader
+  baseTemplate =  readShaderFile(path.front()+"/main.vs.glsl" );
+  this->setBaseTemplate(baseTemplate);
+  vertexSource = this->generateShaderSource();
+  program->addShaderFromSourceCode(QOpenGLShader::Vertex, QString::fromStdString(vertexSource));
+
+
+  // fragment shader
+  baseTemplate = readShaderFile(path.front()+"/main.fs.glsl");
+  this->setBaseTemplate(baseTemplate);
+  this->setIlluminationModel(shaderModules[0]);
+  for(size_t i=1; i<shaderModules.size(); ++i) //start at 1 because 0 is the illumination model
+  {
+    this->addEffect(shaderModules[i]); // might look for special effects that needs other shaders (depth peeling)
+  } 
+  fragmentSource = this->generateShaderSource();
+  program->addShaderFromSourceCode(QOpenGLShader::Fragment, QString::fromStdString(fragmentSource));
+
+  program->link();
+  return program;
 }

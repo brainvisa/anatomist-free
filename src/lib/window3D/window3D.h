@@ -41,6 +41,8 @@
 #include <anatomist/object/Object.h>
 #include <anatomist/primitive/primitive.h>
 #include <anatomist/window/viewstate.h>
+#include <QOpenGLShaderProgram> //jordan
+
 
 
 namespace aims
@@ -60,6 +62,8 @@ namespace anatomist
   }
 
 }
+struct TmpCol; //jordan
+
 
 #ifdef ANA_USE_QOPENGLWIDGET
 class QOpenGLWidget;
@@ -291,6 +295,24 @@ public:
   bool positionToPolygon( const anatomist::AObject* obj, unsigned poly );
   bool positionToTexture( const anatomist::AObject* obj, float texval );
 
+  //Jordan
+  void handleRefreshTypes();
+  void clearTemporaryPrimitives();
+  void updateBoundingBox(std::vector<float>& bbmin, std::vector<float>& bbmax);
+  void updateGeometryAndSliders(std::vector<float>& bbmin, std::vector<float>& bbmax);
+  void setupOpenGLRendering();
+  void applySelectionHighlight(TmpCol* tmpCol);
+  void removeSelectionHighlight(TmpCol *tmpCol);
+  void setupOpenGLState();
+  void setupClippingPlanes(GLuint localGLL);
+  void setupTransparentObjects(GLuint localGLL);
+  void postTransparentRenderingSetup();
+  void finalizeRendering();
+  anatomist::Primitive* setupHiddenWireframeMode();
+  anatomist::Primitive* setupOutlinedMode();
+  void duplicateRenderPrimitives();
+  void finalizeRenderingSettings();
+
 
 signals:
   void refreshed();
@@ -319,6 +341,7 @@ public slots:
   void povWinDestroyed();
   void lightWinDestroyed();
   virtual void Refresh();
+
   /// Refresh the window (redraw the contained objects).
   virtual void refreshNow();
   /// Redraws temporary objects only

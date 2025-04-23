@@ -45,6 +45,7 @@
 #include <aims/rgb/rgb.h>
 #include <map>
 #include <vector>
+#include <algorithm>
 
 
 // uncomment this to allow lots of output messages about GL lists
@@ -304,6 +305,8 @@ GLComponent::GLComponent() : d( new GLComponent::Private )
   }
   else
     _shader = 0;
+
+  _shaderModuleIDs="01";
 }
 
 
@@ -814,7 +817,6 @@ GLPrimitives GLComponent::glTexEnvGLL( const ViewState & state,
 
 GLPrimitives GLComponent::glMaterialGLL( const ViewState & state ) const
 {
-  // cout << "GLComponent::glMaterialGLL in " << this << endl;
   string 		s = viewStateID( glMATERIAL, state );
   GLPrimitives		p;
   bool			changed = glHasChanged( glMATERIAL );
@@ -2342,6 +2344,13 @@ void GLComponent::setupShader()
   else
     removeShader();
 }
+
+  void GLComponent::addShaderModule(const std::string& moduleID)
+  {
+    _shaderModuleIDs += moduleID;
+    std::sort(_shaderModuleIDs.begin(), _shaderModuleIDs.end());
+
+  }
 
 
 unsigned long GLComponent::glMaxNumDisplayedPolygons() const

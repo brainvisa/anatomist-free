@@ -7,6 +7,9 @@ using namespace anatomist;
 
 BlinnPhongIlluminationModel::BlinnPhongIlluminationModel()
 {
+  id="0";
+  isIlluminationModel=true;
+  name="BlinnPhong";
 }
 
 std::string BlinnPhongIlluminationModel::getUniformDeclarations() const 
@@ -48,7 +51,8 @@ vec4 BlinnPhong(vec4 ambiant, vec3 fragPos, vec3 normal) {
   // final color
   vec3 finalColor = (ambient + diffuse + specular) * u_lightIntensity;
 
-  return vec4(finalColor, ambiant.a);
+  //return vec4(finalColor, ambiant.a);
+  return vec4(1.0, 0.0, 0.0, 1.0);
 }
 )";
 

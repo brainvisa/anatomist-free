@@ -36,6 +36,8 @@
 
 #include <string>
 #include <vector>
+#include <memory>
+#include <QOpenGLShaderProgram>
 
 #include "IShaderModule.h"
 
@@ -56,18 +58,21 @@ namespace anatomist
       /// Sets the string template of the shader, it may contain tags ({Illumination Model Uniforms}, {Illumination Model Function}, {Illumination Model Call}, {Effect Uniforms}, {Effect Functions}, {Effect Call}) that will be replaced by the shader modules.
       void setBaseTemplate(const std::string &templateSource);
       /// Sets the illumination model used in the shader
-      void setIlluminationModel(std::unique_ptr<IShaderModule> model);
+      void setIlluminationModel(std::shared_ptr<IShaderModule> model);
       /// Adds an effect to the list of effects that will be applied to the shader
-      void addEffect(std::unique_ptr<IShaderModule> effect);
-      /// Generates the shader source code by replacing the tags in the base template
-      std::string readShaderFile(const std::string &filePath);
+      void addEffect(std::shared_ptr<IShaderModule> effect);
       /// Returns the base template of the shader with the version added at the top
+      std::string readShaderFile(const std::string &filePath);
+      /// Generates the shader source code by replacing the tags in the base template
       std::string generateShaderSource() const;
+      /// Create the QOpenGLShaderProgram and returns it
+      std::unique_ptr<QOpenGLShaderProgram> initShader(const std::string shaderIDs);
+
     
     private:
       std::string m_baseShaderTemplate;
-      std::unique_ptr<IShaderModule> m_illuminationModel = nullptr;
-      std::vector<std::unique_ptr<IShaderModule>> m_effects;
+      std::shared_ptr<IShaderModule> m_illuminationModel = nullptr;
+      std::vector<std::shared_ptr<IShaderModule>> m_effects;
       int m_version;
   };
 }

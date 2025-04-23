@@ -1609,6 +1609,7 @@ string Bucket::viewStateID( glPart part, const ViewState & state ) const
     case glTEXIMAGE:
     case glTEXENV:
       return s;
+    case glSHADER:
     default:
       return s;
     }
