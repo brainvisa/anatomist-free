@@ -601,8 +601,8 @@ void MiniPaletteWidget::wheelEvent( QWheelEvent *event )
   }
   else
   {
-    tmin = te.minquant[0];
-    tmax = te.maxquant[0];
+    tmin = te.minquant[dim];
+    tmax = te.maxquant[dim];
   }
   float absmin1 = pal->absMin( dim, obj );
   float absmax1 = pal->absMax( dim, obj );
@@ -797,15 +797,15 @@ void MiniPaletteWidgetEdit::adjustRange()
     GLComponent::TexExtrema & te = obj->glAPI()->glTexExtrema();
     float tmin;
     float tmax;
-    if( dim < te.minquant.size() )
+    if( dim >= te.minquant.size() )
     {
       tmin = 0.;
       tmax = 1.;
     }
     else
     {
-      tmin = te.minquant[0];
-      tmax = te.maxquant[0];
+      tmin = te.minquant[dim];
+      tmax = te.maxquant[dim];
     }
     float min1 = pal->min( dim );
     float max1 = pal->max( dim );
@@ -856,10 +856,10 @@ void MiniPaletteWidgetEdit::adjustRange()
           rmax = rmax2;
       }
     }
-    d->minslider->setRange( rmin, rmax );
-    d->maxslider->setRange( rmin, rmax );
-    d->minslider->setValue( absmin1 );
-    d->maxslider->setValue( absmax1 );
+    d->minslider->setAbsRange( rmin, rmax );
+    d->maxslider->setAbsRange( rmin, rmax );
+    d->minslider->setAbsValue( absmin1 );
+    d->maxslider->setAbsValue( absmax1 );
     d->minipw->setRange( rmin, rmax );
     d->minipw->updateDisplay();
   }
@@ -878,8 +878,8 @@ void MiniPaletteWidgetEdit::updateDisplay()
     std::set<float> mag;
     if( dim < te.minquant.size() )
     {
-      mag.insert( te.minquant[0] );
-      mag.insert( te.maxquant[0] );
+      mag.insert( te.minquant[dim] );
+      mag.insert( te.maxquant[dim] );
     }
     else
     {
@@ -891,14 +891,14 @@ void MiniPaletteWidgetEdit::updateDisplay()
     if( pal->zeroCenteredAxis( dim ) )
     {
       mag.insert( 0 );
-      mag.insert( std::max( std::abs( te.minquant[0] ),
-                            std::abs( te.maxquant[0] ) ) );
+      mag.insert( std::max( std::abs( te.minquant[dim] ),
+                            std::abs( te.maxquant[dim] ) ) );
     }
     d->minslider->setDefault( d->defmin );
-    d->minslider->setValue( pal->absMin( dim, obj ) );
+    d->minslider->setAbsValue( pal->absMin( dim, obj ) );
     d->maxslider->setMagnets( mag );
     d->maxslider->setDefault( d->defmax );
-    d->maxslider->setValue( pal->absMax( dim, obj ) );
+    d->maxslider->setAbsValue( pal->absMax( dim, obj ) );
     d->minslider->setMagnets( mag );
   }
 }
@@ -918,7 +918,7 @@ void MiniPaletteWidgetEdit::minChanged( float value )
   {
     int dim = d->minipw->observedDimension();
     AObjectPalette *pal = obj->palette();
-    if( pal->absMin( dim, obj ) != value )
+    if( pal && pal->absMin( dim, obj ) != value )
     {
       pal->setAbsMin( dim, obj, value );
       if( obj->glAPI() )
@@ -936,7 +936,7 @@ void MiniPaletteWidgetEdit::maxChanged( float value )
   {
     int dim = d->minipw->observedDimension();
     AObjectPalette *pal = obj->palette();
-    if( pal->absMax( dim, obj ) != value )
+    if( pal && pal->absMax( dim, obj ) != value )
     {
       pal->setAbsMax( dim, obj, value );
       if( obj->glAPI() )
@@ -949,8 +949,8 @@ void MiniPaletteWidgetEdit::maxChanged( float value )
 
 void MiniPaletteWidgetEdit::setRange( float rmin, float rmax )
 {
-  d->minslider->setRange( rmin, rmax );
-  d->maxslider->setRange( rmin, rmax );
+  d->minslider->setAbsRange( rmin, rmax );
+  d->maxslider->setAbsRange( rmin, rmax );
   if( d->minipw->range() != make_pair( rmin, rmax ) )
     d->minipw->setRange( rmin, rmax );
   AObject *obj = d->minipw->getObject();
@@ -958,8 +958,8 @@ void MiniPaletteWidgetEdit::setRange( float rmin, float rmax )
   if( obj )
   {
     AObjectPalette *pal = obj->palette();
-    d->minslider->setValue( pal->absMin( dim, obj ) );
-    d->maxslider->setValue( pal->absMax( dim, obj ) );
+    d->minslider->setAbsValue( pal->absMin( dim, obj ) );
+    d->maxslider->setAbsValue( pal->absMax( dim, obj ) );
   }
 }
 
