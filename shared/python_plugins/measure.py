@@ -12,7 +12,6 @@ class MeasureAction(anatomist.cpp.Action):
         super().__init__()
         self.temp = []
         self.points = []
-        self.poly_ended = False
         self.redo_pts = []
         self.cyl_radius = 0.2
         self.sphere_radius = 0.5
@@ -21,7 +20,6 @@ class MeasureAction(anatomist.cpp.Action):
         return 'MeasureAction'
 
     def add_point(self, x, y, globx, globy):
-        print('add_point')
         v = self.view()
         link = v.controlSwitch().getAction('LinkAction')
         link.execLink(x, y, globx, globy)
@@ -29,66 +27,51 @@ class MeasureAction(anatomist.cpp.Action):
         w = v.aWindow()
         pos = w.getPosition()
 
-        poly = []
-        if len(self.points) == 0 or self.poly_ended:
-            poly = []
-            self.points.append(poly)
-        else:
-            poly = self.points[-1]
-        poly.append(pos)
-        self.poly_ended = False
+        self.points.append(pos)
         self.update_display()
 
     def end_segment(self):
-        if len(self.points) == 0:
-            self.poly_ended = False
+        if len(self.points) == 0 or self.points[-1] in (None, 0):
             return
 
-        self.poly_ended = True
-
-        if len(self.points[-1]) == 0:
-            self.points = self.points[:-1]
-            return
+        self.points.append(None)  # mark end
+        self.redo_pts = []
         self.update_display()
 
     def cycle_path(self):
-        if len(self.points) == 0:
-            self.poly_ended = False
+        if len(self.points) == 0 or self.points[-1] in (None, 0):
             return
 
-        self.poly_ended = True
-
-        if len(self.points[-1]) == 0:
-            self.points = self.points[:-1]
-            return
-        if self.points[-1][-1] is None:
-            return
-        self.points[-1].append(None)  # mark cycling
+        self.points.append(0)  # mark cycling
+        self.redo_pts = []
         self.update_display()
 
     def cleanup(self):
-        print('cleanup')
         self.temp = []
         self.points = []
-        self.poly_ended = False
         self.redo_pts = []
 
     def mesh_path(self):
-        print('mesh path')
         self.make_mesh()
 
     def length(self):
         leng = 0.
         l1 = 0.
-        for poly in self.points:
-            p0 = None
-            for p in poly:
-                if p is None:
-                    p = poly[0]
-                if p is not None and p0 is not None:
-                    l1 = (p - p0).norm()
-                    leng += l1
+        p0 = None
+        lastp = 0
+        for i, p in enumerate(self.points):
+            if p == 0:
+                p = self.points[lastp]
+                lastp = i + 1
+            elif p is None:
+                lastp = i + 1
+            if p is not None and p0 is not None:
+                l1 = (p - p0).norm()
+                leng += l1
+            if lastp <= i:
                 p0 = p
+            else:
+                p0 = None
         return leng, l1
 
     def update_display(self):
@@ -109,21 +92,27 @@ class MeasureAction(anatomist.cpp.Action):
         sph_mesh = aims.AimsSurfaceTriangle()
         cyl_mesh.header()['material'] = {'diffuse': [0.6, 0.4, 0.1]}
         sph_mesh.header()['material'] = {'diffuse': [1., 0., 0]}
-        for poly in self.points:
-            p0 = None
-            for p in poly:
-                if p is None:
-                    p = poly[0]
-                else:
-                    sph = aims.SurfaceGenerator.icosphere(
-                        p, self.sphere_radius, 20)
-                    aims.SurfaceManip.meshMerge(sph_mesh, sph)
-                if p is not None and p0 is not None:
-                    cyl = aims.SurfaceGenerator.cylinder(
-                        p0, p, self.cyl_radius, self.cyl_radius, 6, False,
-                        True)
-                    aims.SurfaceManip.meshMerge(cyl_mesh, cyl)
+        p0 = None
+        lastp = 0
+        for i, p in enumerate(self.points):
+            if p == 0:
+                p = self.points[lastp]
+                lastp = i + 1
+            elif p is None:
+                lastp = i + 1
+            elif p is not None:
+                sph = aims.SurfaceGenerator.icosphere(
+                    p, self.sphere_radius, 20)
+                aims.SurfaceManip.meshMerge(sph_mesh, sph)
+            if p is not None and p0 is not None:
+                cyl = aims.SurfaceGenerator.cylinder(
+                    p0, p, self.cyl_radius, self.cyl_radius, 6, False,
+                    True)
+                aims.SurfaceManip.meshMerge(cyl_mesh, cyl)
+            if lastp <= i:
                 p0 = p
+            else:
+                p0 = None
         objs = []
         a = anatomist.Anatomist()
         if len(cyl_mesh.vertex()) != 0:
@@ -143,18 +132,21 @@ class MeasureAction(anatomist.cpp.Action):
         vertices = []
         polygons = []
         mesh.header()['material'] = {'diffuse': [0.1, 0.3, 0.8]}
-        for poly in self.points:
-            p0 = None
-            for p in poly:
-                if p is None:
-                    p = poly[0]
-                    polygons.append((len(vertices) - 1,
-                                     len(vertices) - len(poly) + 1))
-                else:
-                    vertices.append(p)
-                if p is not None and p0 is not None:
+        p0 = None
+        lastp = 0
+        for i, p in enumerate(self.points):
+            if p == 0:
+                p = None
+                polygons.append((len(vertices) - 1,
+                                 len(vertices) - i + lastp))
+                lastp = i + 1
+            elif p is None:
+                lastp = i + 1
+            else:
+                vertices.append(p)
+                if p0 is not None:
                     polygons.append((len(vertices) - 2, len(vertices) - 1))
-                p0 = p
+            p0 = p
 
         if len(polygons) == 0:
             return
@@ -175,10 +167,21 @@ class MeasureAction(anatomist.cpp.Action):
         w.Refresh()
 
     def undo(self):
-        print('undo')
+        # print('undo')
+        if len(self.points) == 0:
+            return
+
+        last = self.points.pop(-1)
+        self.redo_pts.append(last)
+        self.update_display()
 
     def redo(self):
-        print('redo')
+        # print('redo')
+        if len(self.redo_pts) == 0:
+            return
+        last = self.redo_pts.pop(-1)
+        self.points.append(last)
+        self.update_display()
 
 
 class MeasureControl(anatomist.cpp.Control3D):
@@ -192,6 +195,8 @@ class MeasureControl(anatomist.cpp.Control3D):
         super().eventAutoSubscription(pool)
         self.mouseLongEventUnsubscribe(
             QtCore.Qt.LeftButton, QtCore.Qt.KeyboardModifier.NoModifier)
+        self.keyPressEventUnsubscribe(
+            QtCore.Qt.Key_Space, QtCore.Qt.KeyboardModifier.NoModifier)
         self.mousePressButtonEventSubscribe(
             QtCore.Qt.LeftButton, QtCore.Qt.KeyboardModifier.NoModifier,
             pool.action('MeasureAction').add_point)
@@ -219,6 +224,21 @@ class MeasureControl(anatomist.cpp.Control3D):
     def doAlsoOnDeselect(self, actionpool):
         super().doAlsoOnDeselect(actionpool)
         actionpool.action("MeasureAction").cleanup()
+
+    def description(self):
+        return '''<b>Measurement control</b><br/><br/>
+Draw paths (continuous or discontinuous), and display the path length.<br/>
+
+<table>
+<tr><td>Left btn:</td><td>add path point</td></tr>
+<tr><td>Space:</td><td>end path - next point will be a disconnected path</td></tr>
+<tr><td>C:</td><td>cycle path: connect to first point of the path, and end path</td></tr>
+<tr><td>Esc:</td><td>Cancel/reset: erase current paths</td></tr>
+<tr><td>M: Mesh:</td><td>make a segments mesh from the paths</td></tr>
+<tr><td>Ctrl-Z:</td><td>undo last point/interruption</td></tr>
+<tr><td>Shift-Ctrl-Z:</td><td>redo</td></tr>
+</table>
+'''
 
 
 a = anatomist.Anatomist()
