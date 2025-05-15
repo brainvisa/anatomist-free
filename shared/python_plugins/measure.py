@@ -177,6 +177,9 @@ class MeasureAction(anatomist.cpp.Action):
     def undo(self):
         print('undo')
 
+    def redo(self):
+        print('redo')
+
 
 class MeasureControl(anatomist.cpp.Control3D):
 
@@ -193,10 +196,10 @@ class MeasureControl(anatomist.cpp.Control3D):
             QtCore.Qt.LeftButton, QtCore.Qt.KeyboardModifier.NoModifier,
             pool.action('MeasureAction').add_point)
         self.keyPressEventSubscribe(
-            QtCore.Qt.Key_Escape, QtCore.Qt.KeyboardModifier.NoModifier,
+            QtCore.Qt.Key_Space, QtCore.Qt.KeyboardModifier.NoModifier,
             pool.action('MeasureAction').end_segment)
         self.keyPressEventSubscribe(
-            QtCore.Qt.Key_Escape, QtCore.Qt.KeyboardModifier.ShiftModifier,
+            QtCore.Qt.Key_Escape, QtCore.Qt.KeyboardModifier.NoModifier,
             pool.action('MeasureAction').cleanup)
         self.keyPressEventSubscribe(
             QtCore.Qt.Key_M, QtCore.Qt.KeyboardModifier.NoModifier,
@@ -207,6 +210,11 @@ class MeasureControl(anatomist.cpp.Control3D):
         self.keyPressEventSubscribe(
             QtCore.Qt.Key_Z, QtCore.Qt.KeyboardModifier.ControlModifier,
             pool.action('MeasureAction').undo)
+        self.keyPressEventSubscribe(
+            QtCore.Qt.Key_Z,
+            QtCore.Qt.KeyboardModifier.ControlModifier
+            | QtCore.Qt.KeyboardModifier.ShiftModifier,
+            pool.action('MeasureAction').redo)
 
     def doAlsoOnDeselect(self, actionpool):
         super().doAlsoOnDeselect(actionpool)
