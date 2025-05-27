@@ -66,8 +66,9 @@ namespace anatomist
       /// Generates the shader source code by replacing the tags in the base template
       std::string generateShaderSource() const;
       /// Create the QOpenGLShaderProgram and returns it
-      std::unique_ptr<QOpenGLShaderProgram> initShader(const std::string shaderIDs);
-
+      std::shared_ptr<QOpenGLShaderProgram> initShader(const std::string shaderIDs, std::string vsTemplate = "main.vs.glsl", std::string fsTemplate = "main.fs.glsl");
+      /// Create and returns the QOpenGLShaderProgram linked to the depth peeling blending effect
+      std::shared_ptr<QOpenGLShaderProgram> initBlendingShader();
     
     private:
       std::string m_baseShaderTemplate;

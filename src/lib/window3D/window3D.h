@@ -296,7 +296,6 @@ public:
   bool positionToTexture( const anatomist::AObject* obj, float texval );
 
   //Jordan
-  void handleRefreshTypes();
   void clearTemporaryPrimitives();
   void updateBoundingBox(std::vector<float>& bbmin, std::vector<float>& bbmax);
   void updateGeometryAndSliders(std::vector<float>& bbmin, std::vector<float>& bbmax);
@@ -312,6 +311,11 @@ public:
   anatomist::Primitive* setupOutlinedMode();
   void duplicateRenderPrimitives();
   void finalizeRenderingSettings();
+  void retrieveShaders();
+  void shaderBuilding();
+  void initBlendingShader();
+  void initTextures();      
+  void initFBOs();
 
 
 signals:

@@ -771,7 +771,9 @@ void GLWidgetManager::paintGL( DrawMode m, int virtualWidth,
   if( _pd->hastransparent && _pd->depthpeelallowed && _pd->depthpeeling )
     depthPeelingRender( m );
   else
+  {
     drawObjects( m );
+  }
 
   glPopAttrib();
   glMatrixMode( GL_PROJECTION );
@@ -811,6 +813,7 @@ void GLWidgetManager::drawObjects( DrawMode m )
     else
       (*il)->callList();
   }
+
 }
 
 

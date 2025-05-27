@@ -31,6 +31,7 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
+#include "window3D.h"
 #include <cstdlib>
 #include <anatomist/surface/texsurface.h>
 #include <anatomist/surface/texture.h>
@@ -110,6 +111,8 @@
 #include <float.h>
 #include <unordered_set> //jordan
 #include <unordered_map> //jordan
+#include <QOpenGLTexture> //jordan
+#include <QOpenGLFramebufferObject> //jordan
 #ifdef _WIN32
 #define rint(x) floor(x+0.5)
 #endif
@@ -234,8 +237,16 @@ struct AWindow3D::Private
     // auto-fusion volumes or Sliceable objects
     rc_ptr<AObject> autoFusion;
 
-    dynamicShaderBuilder shaderBuilder; //jordan
-    std::unordered_map<std::string, std::unique_ptr<QOpenGLShaderProgram>> programs;
+    //jordan
+    dynamicShaderBuilder shaderBuilder; 
+    std::unordered_map<std::string, std::shared_ptr<QOpenGLShaderProgram>> programs;
+    std::unordered_map<std::string, std::vector<AObject*>> opaqueDrawable;
+    std::unordered_map<std::string, std::vector<AObject*>> transparentDrawable;
+    std::vector<QOpenGLTexture*> depthTextures;
+    std::vector<QOpenGLTexture*> colorTextures;
+    std::vector<QOpenGLFramebufferObject*> fbos;
+    int nbLayers;
+
 };
 
 struct TmpCol
@@ -419,7 +430,7 @@ AWindow3D::Private::Private() :
       righteye(0), objvallabel(0), statusbarvisible(false),
       needsextrema(false),
       mouseX(0), mouseY(0), surfpaintState(false), constraintEditorState(false),
-      constraintList(), constraintType(0), texConstraint(0), orientAnnot( 0 ), sortPolygons( false ), sortPolygonsDirection( false ), autoFusion( 0 )
+      constraintList(), constraintType(0), texConstraint(0), orientAnnot( 0 ), sortPolygons( false ), sortPolygonsDirection( false ), autoFusion( 0 ), nbLayers(4)
 {
   try
   {
@@ -1154,21 +1165,6 @@ void AWindow3D::freeResize()
   d->draw->qglWidget()->setMinimumSize(QSize(0, 0));
 }
 
-void AWindow3D::handleRefreshTypes()
-{
-  switch (d->refreshneeded)
-  {
-    case Private::LightRefresh:
-      refreshLightViewNow();
-      return;
-    case Private::TempRefresh:
-      // partial refresh: update only temp objects
-      refreshTempNow();
-      return;
-    default:
-      break;
-  }
-}
 
 void AWindow3D::clearTemporaryPrimitives()
 {
@@ -1397,23 +1393,23 @@ void AWindow3D::removeSelectionHighlight(TmpCol* tmpcol)
   void AWindow3D::setupTransparentObjects(GLuint localGLL)
   {
     GLPrimitives curspl = cursorGLL();
-    Primitive *pr2 = 0;
+    Primitive *pr = 0;
     d->draw->setTransparentObjects(true);
-    pr2 = new Primitive;
-    pr2->insertList(localGLL + 1);
+    pr = new Primitive;
+    pr->insertList(localGLL + 1);
     glNewList(localGLL + 1, GL_COMPILE);
     glEnable(GL_BLEND);
     if (!transparentZEnabled()) glDepthMask( GL_FALSE); // don't write in z-buffer
     glEndList();
-    if (pr2) d->primitives.push_back(RefGLItem(pr2));
+    if (pr) d->primitives.push_back(RefGLItem(pr));
   }
 
   void AWindow3D::postTransparentRenderingSetup()
   {
-      Primitive *pr3 = 0;
+      Primitive *pr = 0;
     if (!transparentZEnabled())
     {
-      pr3 = new Primitive;
+      pr = new Primitive;
       GLuint zGLL = glGenLists(1);
       if (!zGLL)
       {
@@ -1424,13 +1420,13 @@ void AWindow3D::removeSelectionHighlight(TmpCol* tmpcol)
         glNewList(zGLL, GL_COMPILE);
         glDepthMask( GL_TRUE); // write again in z-buffer
         glEndList();
-        pr3->insertList(zGLL);
+        pr->insertList(zGLL);
       }
     }
 
     if (clipMode() != NoClip)
     {
-      if (!pr3) pr3 = new Primitive;
+      if (!pr) pr = new Primitive;
       GLuint clipGLL = glGenLists(1);
       if (!clipGLL)
       {
@@ -1443,10 +1439,10 @@ void AWindow3D::removeSelectionHighlight(TmpCol* tmpcol)
         glDisable( GL_CLIP_PLANE1);
         glEndList();
 
-        pr3->insertList(clipGLL);
+        pr->insertList(clipGLL);
       }
     }
-    if (pr3) d->primitives.push_back(RefGLItem(pr3));
+    if (pr) d->primitives.push_back(RefGLItem(pr));
   }
 
   void AWindow3D::finalizeRendering()
@@ -1547,18 +1543,147 @@ void AWindow3D::removeSelectionHighlight(TmpCol* tmpcol)
     }
     ResetRefreshFlag();
   }
+
+  void AWindow3D::retrieveShaders()
+  {
+    for(const auto& obj : _objects)
+    {
+      auto glObj = (obj)->glAPI();
+      if(glObj)
+      {
+        if(glObj->useDepthPeeling())
+        {
+          d->transparentDrawable[glObj->getShaderModuleIDs()].push_back(obj.get());
+        }
+        else
+        {
+          d->opaqueDrawable[glObj->getShaderModuleIDs()].push_back(obj.get());
+        }
+      }
+    }
+  }
+
+  void AWindow3D::shaderBuilding()
+  {
+    for(const auto& [shader,_] : d->opaqueDrawable)
+    {
+      if(d->programs[shader] == nullptr)
+      {
+        d->programs[shader] = d->shaderBuilder.initShader(shader);
+      }
+    }
+
+    for(const auto& [shader,_] : d->transparentDrawable)
+    {
+      if(d->programs[shader] == nullptr)
+      {
+        d->programs[shader] = d->shaderBuilder.initShader(shader);
+      }
+    }
+
+    // Special case for blending shader
+    if (!d->transparentDrawable.empty())
+    {
+      if(d->programs["blending"] == nullptr)
+      {
+        d->programs["blending"] = d->shaderBuilder.initBlendingShader();
+      }
+    }
+  }
+  
+  void AWindow3D::initTextures()
+{
+  d->depthTextures.clear();
+  d->colorTextures.clear();
+  d->depthTextures.reserve(d->nbLayers);
+  d->colorTextures.reserve(d->nbLayers);
+  for(int i = 0; i<d->nbLayers+1; ++i)
+  {
+    //Depth texture
+    QOpenGLTexture *depthTexture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+    depthTexture->create();
+    depthTexture->setSize(this->width(), this->height());
+    depthTexture->setFormat(QOpenGLTexture::D32F);
+    depthTexture->allocateStorage();
+    depthTexture->setMinificationFilter(QOpenGLTexture::Nearest);
+    depthTexture->setMagnificationFilter(QOpenGLTexture::Nearest);
+    depthTexture->setWrapMode(QOpenGLTexture::ClampToEdge);
+    d->depthTextures.push_back(depthTexture);
+
+    //Color texture
+    QOpenGLTexture *colorTexture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+    colorTexture->create();
+    colorTexture->setSize(this->width(), this->height());
+    colorTexture->setFormat(QOpenGLTexture::RGBA32F);
+    colorTexture->allocateStorage();
+    colorTexture->setMinificationFilter(QOpenGLTexture::Nearest);
+    colorTexture->setMagnificationFilter(QOpenGLTexture::Nearest);
+    colorTexture->setWrapMode(QOpenGLTexture::ClampToEdge);
+    d->colorTextures.push_back(colorTexture);
+  }
+}
+
+void AWindow3D::initFBOs()
+{
+  d->fbos.clear();
+  d->fbos.reserve(d->nbLayers);
+  for(int i = 0; i<d->nbLayers+1; ++i)
+  {
+    QOpenGLFramebufferObject *fbo = new QOpenGLFramebufferObject(this->width(), this->height());
+    if(!fbo->isValid())
+    {
+      std::cout << "Error: Framebuffer is not valid" << std::endl;
+      delete fbo;
+      continue;
+    }
+    fbo->bind();
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, d->colorTextures[i]->textureId(), 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, d->depthTextures[i]->textureId(), 0);
+
+     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+      std::cout << "Error: Framebuffer is not complete" << std::endl;
+      fbo->release();
+      delete fbo;
+      continue;
+    }
+    fbo->release();
+    d->fbos.push_back(fbo);
+  }
+}
+
 void AWindow3D::refreshNow()
 {
   shaderMapping::initShaderMapping();
-  shaderMapping::printModules();
+  //shaderMapping::printModules();
+
   using carto::shared_ptr;
+
   //bounding box
   std::vector<float> bbmin, bbmax;
   //selection
   TmpCol *tmpcol = new TmpCol[_objects.size()];
+  
+  GLuint localGLL = glGenLists(2);
+  setupClippingPlanes(localGLL); //	Things to do before rendering objects
+  list<AObject *> renderobj;
+  list<AObject *>::iterator transparent = processRenderingOrder(renderobj);
+  list<AObject*>::iterator al, el = renderobj.end();
 
   sortPolygons();
-  handleRefreshTypes();
+  switch (d->refreshneeded)
+  {
+    case Private::LightRefresh:
+      refreshLightViewNow();
+      return;
+    case Private::TempRefresh:
+      // partial refresh: update only temp objects
+      refreshTempNow();
+      return;
+    default:
+      break;
+  }
   clearTemporaryPrimitives();
   updateBoundingBox(bbmin, bbmax);
   updateGeometryAndSliders(bbmin, bbmax);
@@ -1566,66 +1691,72 @@ void AWindow3D::refreshNow()
   updateLeftRightAnnotations();
   applySelectionHighlight(tmpcol);
   setupOpenGLState(); //	Rendering mode primitive (must be first)
-  GLuint localGLL = glGenLists(2);
-  setupClippingPlanes(localGLL); //	Things to do before rendering objects
 
-  list<AObject *> renderobj;
-  list<AObject *>::iterator transparent = processRenderingOrder(renderobj);
-  list<AObject*>::iterator al, el = renderobj.end();
+  d->opaqueDrawable.clear(); //re create all objects
+  d->transparentDrawable.clear();
 
   //associate each drawable object to his shader
-  std::unordered_map<std::string, std::vector<AObject*>> drawable;
-  for(const auto& obj : _objects)
-  {
-    auto glObj = (obj)->glAPI();
-    if(glObj != nullptr)
-    {
-      drawable[glObj->getShaderModuleIDs()].push_back(obj.get());
-    }
-  }
+  retrieveShaders();
 
   //Construct all the used shaders
-  for(const auto& [shader,_] : drawable)
-  {
-    if(d->programs[shader] == nullptr)
-    {
-      d->programs[shader] = d->shaderBuilder.initShader(shader);
-    }
-  }
+  shaderBuilding();
 
-  // Update uniforms and draw
-  for(const auto& [shader, objects] : drawable)
-  {
-    d->programs[shader]->bind();
-
-    GLint currentProgram = 0;
-    glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgram);
-
-    if (currentProgram == d->programs[shader]->programId()) {
-        std::cout << "Shader binded" << std::endl;
-    } else {
-        std::cout << "Shader not binded" << std::endl;
-    }
-
-
+  // Update uniforms and draw opaque objects
+  for(const auto& [shader, objects] : d->opaqueDrawable)
+  { 
+    d->primitives.push_back(carto::rc_ptr<GLItem>(new GLBindShader(d->programs[shader])));
+    
     auto shaderModules = shaderMapping::getModules(objects[0]->glAPI()->getShaderModuleIDs());
 
     // Setting uniforms & drawing
-    for(const auto& object : objects)
+    for(size_t i=0; i<objects.size(); ++i)
     {
-      auto glObj = object->glAPI();
-      for(int i=0; i<shaderModules.size(); ++i)
+      auto glObj = objects[i]->glAPI();
+      for(int j=0; j<shaderModules.size(); ++j)
       {
         if(i==0)
         {
-          shaderModules[i]->setupSceneUniforms(*d->programs[shader], *this);
+          shaderModules[j]->setupSceneUniforms(*d->programs[shader], *this);
         }
-        shaderModules[i]->setupObjectUniforms(*d->programs[shader], *glObj);
+        shaderModules[j]->setupObjectUniforms(*d->programs[shader], *glObj);
       }
-      updateObject(object); // Draw but not with the color that I want  jordan
+
+      updateObject(objects[i]);
     }
-    d->programs[shader]->release();
+
+    d->primitives.push_back(carto::rc_ptr<GLItem>(new GLReleaseShader(d->programs[shader])));
   }
+
+  // Update uniforms and draw transparent objects
+  initTextures();
+  initFBOs();
+  for(const auto& [shader, objects] : d->transparentDrawable)
+  {
+    d->primitives.push_back(carto::rc_ptr<GLItem>(new GLBindShader(d->programs[shader])));
+
+    auto shaderModules = shaderMapping::getModules(objects[0]->glAPI()->getShaderModuleIDs());
+
+
+    // Setting uniforms & drawin
+    for(size_t i=0; i<objects.size(); ++i)
+    {
+      auto glObj = objects[i]->glAPI();
+      for(int j=0; j<shaderModules.size(); ++j)
+      {
+        if(i==0)
+        {
+          shaderModules[j]->setupSceneUniforms(*d->programs[shader], *this);
+        }
+        shaderModules[j]->setupObjectUniforms(*d->programs[shader], *glObj);
+      }
+
+      updateObject(objects[i]);
+    }
+
+    d->primitives.push_back(carto::rc_ptr<GLItem>(new GLReleaseShader(d->programs[shader])));
+  }
+
+
 
 
   //	Draw opaque objects
@@ -1640,7 +1771,7 @@ void AWindow3D::refreshNow()
     //	Draw transparent objects
   for (al = transparent; al != el; ++al)
   {
-   //updateObject(*al);
+    //updateObject(*al);
   }
 
   //	Settings after transparent objects
@@ -1650,7 +1781,7 @@ void AWindow3D::refreshNow()
    and eventually performs a second rendering of all objects */
   finalizeRendering();
 
-  removeSelectionHighlight(tmpcol);
+  //removeSelectionHighlight(tmpcol);
   delete[] tmpcol;
   showReferential();
   emit refreshed();
@@ -3854,7 +3985,7 @@ void AWindow3D::refreshTempNow()
           plnewlen = plnew.size();
         }
       }
-
+      
       oldlen = plnewlen;
       updateObject(ao, &plnew);
       plnewlen = plnew.size();

@@ -224,6 +224,7 @@ namespace anatomist
     // jordan shader
     virtual void addShaderModule(const std::string & module);
     virtual std::string getShaderModuleIDs(){return _shaderModuleIDs;}
+    virtual bool useDepthPeeling() const { return _useDepthPeeling; }
 
     virtual unsigned glNumVertex( const ViewState & ) const;
     virtual const GLfloat* glVertexArray( const ViewState & ) const;
@@ -396,6 +397,7 @@ namespace anatomist
     Private	*d;
     Shader      *_shader;
     std::string _shaderModuleIDs; //jordan
+    bool _useDepthPeeling; //jordan
   };
 
 
