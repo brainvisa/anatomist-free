@@ -44,15 +44,20 @@ void dynamicShaderBuilder::addEffect(std::shared_ptr<IShaderModule> effect)
 std::string dynamicShaderBuilder::readShaderFile(const std::string &filePath)
 {
   QFile file(QString::fromStdString(filePath));
+  std::cout << "Reading shader file: " << filePath << std::endl;
+  if (!file.exists()) {
+    std::cout << "Fichier introuvable:" << filePath<< std::endl;
+  }
+
   if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
   {
-    throw std::runtime_error("Error: Could not open shader file");
+    std::cerr << "Error: Could not open shader file : " << filePath << std::endl;
   }
-  
-  QTextStream in(&file);
+
+  // QTextStream in(&file);
   std::string shaderSource = "#version " + std::to_string(m_version) + " compatibility" + '\n';
-  shaderSource += in.readAll().toStdString();
-  file.close();
+  // shaderSource += in.readAll().toStdString();
+  // file.close();
 
   return shaderSource;
 }
@@ -132,9 +137,9 @@ std::string dynamicShaderBuilder::generateShaderSource() const
   return shaderSource;
 }
 
-std::unique_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initShader(const std::string shaderIDs)
+std::shared_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initShader(const std::string shaderIDs, std::string vsTemplate, std::string fsTemplate)
 {
-  auto program= std::make_unique<QOpenGLShaderProgram>();
+  auto program= std::make_shared<QOpenGLShaderProgram>();
   std::string baseTemplate, vertexSource, fragmentSource;
   std::vector<std::shared_ptr<IShaderModule>> shaderModules = shaderMapping::getModules(shaderIDs);
   if (shaderModules.empty()) {
@@ -149,10 +154,10 @@ std::unique_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initShader(const std
   }
 
   program->create();
-  this->setVersion(330);
+  this->setVersion(150);
 
   // vertex shader
-  baseTemplate =  readShaderFile(path.front()+"/main.vs.glsl" );
+  baseTemplate =  readShaderFile(path.front()+"/"+vsTemplate);
   this->setBaseTemplate(baseTemplate);
   vertexSource = this->generateShaderSource();
   if(!program->addShaderFromSourceCode(QOpenGLShader::Vertex, QString::fromStdString(vertexSource)))
@@ -162,12 +167,27 @@ std::unique_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initShader(const std
 
 
   // fragment shader
-  baseTemplate = readShaderFile(path.front()+"/main.fs.glsl");
+  baseTemplate = readShaderFile(path.front()+"/"+fsTemplate);
   this->setBaseTemplate(baseTemplate);
   this->setIlluminationModel(shaderModules[0]);
-  for(size_t i=1; i<shaderModules.size(); ++i) //start at 1 because 0 is the illumination model
+  bool hasIlluminationMoel = false;
+  for(size_t i=0; i<shaderModules.size(); ++i)
   {
-    this->addEffect(shaderModules[i]); // might look for special effects that needs other shaders (depth peeling)
+    if(shaderModules[i]->isIlluminationModel())
+    {
+      if(hasIlluminationMoel)
+      {
+        std::cerr << "Error : Multiple illumination models found in shader modules." << std::endl;
+        return nullptr;
+      }
+      hasIlluminationMoel = true;
+      this->setIlluminationModel(shaderModules[i]);
+    }
+    else
+    {
+          this->addEffect(shaderModules[i]);
+    }
+
   } 
   fragmentSource = this->generateShaderSource();
   if(!program->addShaderFromSourceCode(QOpenGLShader::Fragment, QString::fromStdString(fragmentSource)))
@@ -179,5 +199,40 @@ std::unique_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initShader(const std
   {
     std::cout << "Shader linkage error : " << program->log().toStdString() << std::endl; 
   }
+  return program;
+}
+
+std::shared_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initBlendingShader()
+{
+  auto program = std::make_shared<QOpenGLShaderProgram>();
+  std::string vertexSource, fragmentSource;
+  
+  std::list<std::string> path =  carto::Paths::findResourceFiles("shaders/templates", "anatomist");
+  if (path.empty()) {
+    std::cerr << "Error : No template shader found in shaders/templates." << std::endl;
+    return nullptr;
+  }
+  std::cout << path.front() << std::endl;
+  program->create();
+  this->setVersion(150);
+  vertexSource = readShaderFile(path.front()+"/blend.vs.glsl");
+
+  std::cout << "Vertex shader source: " << vertexSource << std::endl;
+  if(!program->addShaderFromSourceCode(QOpenGLShader::Vertex, QString::fromStdString(vertexSource)))
+  {
+    std::cout << "Vertex shader error : " << program->log().toStdString() << std::endl;
+  }
+
+  fragmentSource = readShaderFile(path.front()+"/blend.fs.glsl");
+  if(!program->addShaderFromSourceCode(QOpenGLShader::Fragment, QString::fromStdString(fragmentSource)))
+  {
+    std::cout << "Fragment shader error : " << program->log().toStdString() << std::endl;
+  }
+
+  if(!program->link())
+  {
+    std::cout << "Shader linkage error : " << program->log().toStdString() << std::endl; 
+  }
+  
   return program;
 }

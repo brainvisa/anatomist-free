@@ -246,7 +246,6 @@ void Primitive::callList() const
 	cerr << "Primitive::callList() Bad GL list ! - " << *igl << " "
 	     << gluErrorString(status) << endl;
     }
-  
 }
 
 
@@ -373,6 +372,26 @@ void GLTexture::generate()
 void GLTexture::callList() const
 {
   // do nothing: texture objects are not callable
+}
+
+GLBindShader::~GLBindShader()
+{
+
+}
+
+void GLBindShader::callList() const
+{
+  _item->bind();
+}
+
+GLReleaseShader::~GLReleaseShader()
+{
+
+}
+
+void GLReleaseShader::callList() const
+{
+  _item->release();
 }
 
 

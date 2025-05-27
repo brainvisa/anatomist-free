@@ -148,9 +148,9 @@ namespace anatomist
     virtual AObject* clone( bool shallow = true );
 
     /// OpenGL objects const API
-    virtual const GLComponent* glAPI() const { return 0; }
+    virtual const GLComponent* glAPI() const { return 0; } 
     /// OpenGL objects API
-    virtual GLComponent* glAPI() { return 0; }
+    virtual GLComponent* glAPI() { return 0; } 
     virtual const MObject* mObjectAPI() const { return 0; }
     virtual MObject* mObjectAPI() { return 0; }
 

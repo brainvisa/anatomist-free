@@ -10,7 +10,7 @@ void main(void)
   // ------------------------------------- vertex -------------------------------------
   eyeVertexPosition = gl_ModelViewMatrix * gl_Vertex;
   vertexPosition = gl_Vertex;
-  gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+  gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex; 
 
   // ------------------------------------- color -------------------------------------
   gl_FrontColor = gl_Color;

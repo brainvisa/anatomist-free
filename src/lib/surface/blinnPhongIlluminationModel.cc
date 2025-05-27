@@ -7,9 +7,9 @@ using namespace anatomist;
 
 BlinnPhongIlluminationModel::BlinnPhongIlluminationModel()
 {
-  id="0";
-  isIlluminationModel=true;
-  name="BlinnPhong";
+  _id="0";
+  _isIlluminationModel=true;
+  _name="BlinnPhong";
 }
 
 std::string BlinnPhongIlluminationModel::getUniformDeclarations() const 
@@ -31,14 +31,14 @@ uniform float u_materialShininess;
 std::string BlinnPhongIlluminationModel::getFunctionImplementation() const
 {
   return R"(
-vec4 BlinnPhong(vec4 ambiant, vec3 fragPos, vec3 normal) {
+vec4 BlinnPhong(vec4 ambient, vec3 fragPos, vec3 normal) {
   vec3 N = normalize(normal);
   vec3 L = normalize(-u_lightDirection);
   vec3 V = normalize(u_viewPosition - fragPos);
   vec3 H = normalize(L + V);
 
-  // ambiant
-  vec3 ambient = u_lightAmbient * ambiant.rgb;
+  // ambient
+  vec3 b_ambient = u_lightAmbient * ambient.rgb;
 
   // diffuse
   float diff = max(dot(N, L), 0.0);
@@ -49,10 +49,10 @@ vec4 BlinnPhong(vec4 ambiant, vec3 fragPos, vec3 normal) {
   vec3 specular = u_lightSpecular * (spec * u_materialSpecular);
 
   // final color
-  vec3 finalColor = (ambient + diffuse + specular) * u_lightIntensity;
+  vec3 finalColor = (b_ambient + diffuse + specular) * u_lightIntensity;
 
-  //return vec4(finalColor, ambiant.a);
-  return vec4(1.0, 0.0, 0.0, 1.0);
+  //return vec4(finalColor, ambient.a);
+  return vec4(0.0, 1.0, 0.0, 0.5);
 }
 )";
 
@@ -65,17 +65,18 @@ std::string BlinnPhongIlluminationModel::getFunctionCall() const
 
 void BlinnPhongIlluminationModel::setupObjectUniforms(QOpenGLShaderProgram& program, GLComponent& obj) const
 {
+  auto material = obj.glMaterial();
   int materialAmbientLocation = program.uniformLocation("u_materialAmbient");
-  program.setUniformValue(materialAmbientLocation, 0 /*value*/);
+  program.setUniformValue(materialAmbientLocation, material->Ambient(0), material->Ambient(1), material->Ambient(2), material->Ambient(3));
 
   int materialDiffuseLocation = program.uniformLocation("u_materialDiffuse");
-  program.setUniformValue(materialDiffuseLocation, 0/* value*/);
+  program.setUniformValue(materialDiffuseLocation, material->Diffuse(0), material->Diffuse(1), material->Diffuse(2), material->Diffuse(3));
 
   int materialSpecularLocation = program.uniformLocation("u_materialSpecular");
-  program.setUniformValue(materialSpecularLocation, 0 /* value*/);
+  program.setUniformValue(materialSpecularLocation, material->Specular(0), material->Specular(1), material->Specular(2), material->Specular(3)); 
 
   int materialShininessLocation = program.uniformLocation("u_materialShininess");
-  program.setUniformValue(materialShininessLocation, 0 /*, value*/);
+  program.setUniformValue(materialShininessLocation, material->Shininess());
 }
 
 

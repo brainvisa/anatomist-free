@@ -37,6 +37,7 @@
 
 #include <cartobase/smart/rcobject.h>
 #include <list>
+#include <QOpenGLShaderProgram>
 
 
 namespace anatomist
@@ -123,6 +124,30 @@ namespace anatomist
 
   private:
     unsigned	_item;
+  };
+
+  // OpenGL Shader binding
+  class GLBindShader : public GLItem
+  {
+  public:
+    GLBindShader(std::shared_ptr<QOpenGLShaderProgram> glShader) : GLItem(), _item(glShader) {}
+    virtual ~GLBindShader();
+    std::shared_ptr<QOpenGLShaderProgram> item() const { return _item; }
+    virtual void callList() const;
+    private:
+      std::shared_ptr<QOpenGLShaderProgram> _item;
+  };
+
+  // OpenGL Shader Release
+  class GLReleaseShader : public GLItem
+  {
+  public:
+    GLReleaseShader(std::shared_ptr<QOpenGLShaderProgram> glShader) : GLItem(), _item(glShader) {}
+    virtual ~GLReleaseShader();
+    std::shared_ptr<QOpenGLShaderProgram> item() const { return _item; }
+    virtual void callList() const;
+    private:
+      std::shared_ptr<QOpenGLShaderProgram> _item;
   };
 
 
