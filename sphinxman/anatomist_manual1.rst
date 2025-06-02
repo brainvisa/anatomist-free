@@ -1305,6 +1305,20 @@ Shift + right click on any node of a graph will apply the automatic subdivizion 
 Note that after splitting, nodes are not automatically remeshed, graph relations have been altered, and all morphometric measurements on altered nodes are out of date. To be usable for sulci recognition and morphometry, the graph should go through an update process, which is available in BrainVISA.
 
 
+.. _d_ctr_measure:
+
+Measurements control
+--------------------
+
+.. |control-measure| image:: images/control-measure.png
+
+*Icon* : |control-measure|
+
+This control (new in Anatomist 5.2) allows to click on 3D objects to place points and draw lines between these points. The line length is displayed in the status bar of the window. It possible to leave interruptions in the line, in order to measure the sum of the length of several items.
+The control thus supports line interruption (space key), cycling lines (C key cycles to the 1st point of the current line), and allows undo (Ctrl-Z) and redo (Shift-Ctrl-Z) during line drawing.
+The drawn lines may be converted to a segmenst mesh (wireframe mesh) using the M key. This allows to save the resulting mesh. Therfore the control may also be used as a very simple mesh drawing tool.
+
+
 =========================
 Anatomist user manual (2)
 =========================
