@@ -1033,15 +1033,18 @@ float AObjectPalette::absValue1( const AObject * obj, float relval ) const
   if( glc )
   {
     const GLComponent::TexExtrema	& te = glc->glTexExtrema();
+    float minq = te.minquant[0];
+    float maxq = te.maxquant[0];
+    if( minq == maxq )
+      maxq = minq + 1.;
     if( zeroCenteredAxis1() )
     {
-      double omax = std::max( std::abs( te.maxquant[0] ),
-                              std::abs( te.minquant[0] ) );
+      double omax = std::max( std::abs( maxq ), std::abs( minq ) );
       return relval * omax;
     }
     else
     {
-      return relval * ( te.maxquant[0] - te.minquant[0] ) + te.minquant[0];
+      return relval * ( maxq - minq ) + minq;
     }
   }
   return relval;
@@ -1056,15 +1059,16 @@ float AObjectPalette::absValue2( const AObject * obj, float relval ) const
     const GLComponent::TexExtrema	& te = glc->glTexExtrema();
     if( te.maxquant.size() >= 2 )
     {
+      float minq = te.minquant[1];
+      float maxq = te.maxquant[1];
       if( zeroCenteredAxis2() )
       {
-        double omax = std::max( std::abs( te.maxquant[1] ),
-                                std::abs( te.minquant[1] ) );
+        double omax = std::max( std::abs( maxq ), std::abs( minq ) );
         return relval * omax;
       }
       else
       {
-        return relval * ( te.maxquant[1] - te.minquant[1] ) + te.minquant[1];
+        return relval * ( maxq - minq ) + minq;
       }
     }
   }
