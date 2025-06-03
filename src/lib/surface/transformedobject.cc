@@ -32,6 +32,7 @@
  */
 
 #include <anatomist/surface/transformedobject.h>
+#include <anatomist/primitive/primitive.h>
 #include <anatomist/window/glwidgetmanager.h>
 #include <anatomist/window/controlledWindow.h>
 #include <anatomist/reference/Transformation.h>

@@ -34,7 +34,7 @@
 #ifndef ANA_SURFACE_GLCOMPONENT_H
 #define ANA_SURFACE_GLCOMPONENT_H
 
-#include <anatomist/primitive/primitive.h>
+#include <anatomist/primitive/primitiveTypes.h>
 #include <anatomist/window/glcaps.h>
 #include <anatomist/window/viewstate.h>
 #include <anatomist/surface/Shader.h>

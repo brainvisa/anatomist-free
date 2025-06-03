@@ -38,6 +38,7 @@
 #include <anatomist/application/settings.h>
 #include <aims/mesh/surfaceOperation.h>
 #include <aims/resampling/quaternion.h>
+#include <anatomist/primitive/primitive.h>
 
 using namespace anatomist;
 using namespace std;

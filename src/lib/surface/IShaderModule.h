@@ -34,9 +34,9 @@
 #ifndef ISHADER_MODULE_H
 #define ISHADER_MODULE_H
 
+#include <iostream>
 #include <string>
 #include <QOpenGLShaderProgram>
-//#include "glcomponent.h"
 #include <anatomist/window3D/window3D.h>
 
 
@@ -44,7 +44,6 @@
 namespace anatomist
 {
   class GLComponent;
-  //class AWindow3D;
 
   class IShaderModule
   {

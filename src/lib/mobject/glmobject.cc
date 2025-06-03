@@ -35,6 +35,7 @@
 #include <anatomist/window/viewstate.h>
 #include <anatomist/reference/Transformation.h>
 #include <anatomist/application/Anatomist.h>
+#include <anatomist/primitive/primitive.h>
 
 using namespace anatomist;
 using namespace aims;

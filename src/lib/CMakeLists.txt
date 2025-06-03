@@ -276,6 +276,7 @@ set( _headers
     sparsematrix/connectivitymatrix.h
     sparsematrix/sparsematrix.h
     primitive/primitive.h
+    primitive/primitiveTypes.h
     constrainteditor/wConstraintEditor.h
 )
 

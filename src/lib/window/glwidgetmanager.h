@@ -36,7 +36,7 @@
 #define ANATOMIST_WINDOW_GLWIDGETMANAGER_H
 
 #include <anatomist/controler/view.h>
-#include <anatomist/primitive/primitive.h>
+#include <anatomist/primitive/primitiveTypes.h>
 #include <anatomist/window/viewstate.h>
 
 #ifdef ANA_USE_QOPENGLWIDGET

@@ -36,6 +36,7 @@
 #include <anatomist/reference/Transformation.h>
 #include <anatomist/reference/Referential.h>
 #include <anatomist/window3D/window3D.h>
+#include <anatomist/primitive/primitive.h>
 #include <anatomist/control/qObjTree.h>
 #include <anatomist/application/settings.h>
 #include <anatomist/surface/glcomponent.h>
@@ -240,7 +241,7 @@ bool ClippedObject::render( PrimList & prim, const ViewState & state )
 
     glClipPlane( GL_CLIP_PLANE2 + d->clipID, pl );
     glEndList();
-    prim.insert( ip, rc_ptr<GLItem>( gll ) );
+    prim.insert( ip, RefGLItem( gll ) );
 
     // finish clipping
     GLList *gll2 = new GLList;
@@ -248,7 +249,7 @@ bool ClippedObject::render( PrimList & prim, const ViewState & state )
     glNewList( gll2->item(), GL_COMPILE );
     glPopAttrib();
     glEndList();
-    prim.insert( prim.end(), rc_ptr<GLItem>( gll2 ) );
+    prim.insert( prim.end(), RefGLItem( gll2 ) );
   }
   return hasrendered;
 }

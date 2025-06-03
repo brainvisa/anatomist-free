@@ -41,7 +41,7 @@
 #include <anatomist/window/Window.h>
 #include <anatomist/window/viewstate.h>
 #include <anatomist/object/actions.h>
-#include <anatomist/primitive/primitive.h>
+#include <anatomist/primitive/primitiveTypes.h>
 #include <graph/tree/tree.h>
 #include <aims/mesh/surfaceOperation.h>
 #include <aims/io/writer.h>

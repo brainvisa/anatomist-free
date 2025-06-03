@@ -130,6 +130,7 @@
 #include <anatomist/surface/shaderMapping.h>
 #include <QOpenGLShaderProgram>
 #include <memory>
+#include <anatomist/primitive/primitive.h>
 
 
 /* whith ANA_USE_QGRAPHICSVIEW defined, 3D windows will contain a 
@@ -1716,9 +1717,9 @@ void AWindow3D::refreshNow()
       {
         if(i==0)
         {
-          shaderModules[j]->setupSceneUniforms(*d->programs[shader], *this);
+          d->primitives.push_back(carto::rc_ptr<GLItem>(new GLSceneUniforms(shaderModules[j], d->programs[shader], this)));
         }
-        shaderModules[j]->setupObjectUniforms(*d->programs[shader], *glObj);
+        d->primitives.push_back(carto::rc_ptr<GLItem>(new GLObjectUniforms(shaderModules[j], d->programs[shader], glObj)));
       }
 
       updateObject(objects[i]);
@@ -1728,54 +1729,60 @@ void AWindow3D::refreshNow()
   }
 
   // Update uniforms and draw transparent objects
-  initTextures();
-  initFBOs();
-  for(const auto& [shader, objects] : d->transparentDrawable)
-  {
-    d->primitives.push_back(carto::rc_ptr<GLItem>(new GLBindShader(d->programs[shader])));
+  // initTextures();
+  // initFBOs();
+  // for(int i = 0; i < d->nbLayers; ++i)
+  // {
+  //   for(const auto& [shader, objects] : d->transparentDrawable)
+  //   {
+  //     d->primitives.push_back(carto::rc_ptr<GLItem>(new GLBindShader(d->programs[shader])));
 
-    auto shaderModules = shaderMapping::getModules(objects[0]->glAPI()->getShaderModuleIDs());
-
-
-    // Setting uniforms & drawin
-    for(size_t i=0; i<objects.size(); ++i)
-    {
-      auto glObj = objects[i]->glAPI();
-      for(int j=0; j<shaderModules.size(); ++j)
-      {
-        if(i==0)
-        {
-          shaderModules[j]->setupSceneUniforms(*d->programs[shader], *this);
-        }
-        shaderModules[j]->setupObjectUniforms(*d->programs[shader], *glObj);
-      }
-
-      updateObject(objects[i]);
-    }
-
-    d->primitives.push_back(carto::rc_ptr<GLItem>(new GLReleaseShader(d->programs[shader])));
-  }
+  //     auto shaderModules = shaderMapping::getModules(objects[0]->glAPI()->getShaderModuleIDs());
 
 
+  //     // Setting uniforms & drawin
+  //     for(size_t j=0; j<objects.size(); ++j)
+  //     {
+  //       auto glObj = objects[j]->glAPI();
+  //       for(int k=0; k<shaderModules.size(); ++k)
+  //       {
+  //         if(j==0)
+  //         {
+  //           shaderModules[k]->setupSceneUniforms(*d->programs[shader], *this);
+  //         }
+  //         shaderModules[k]->setupObjectUniforms(*d->programs[shader], *glObj);
+  //       }
+
+  //       updateObject(objects[j]);
+  //     }
+
+  //     d->primitives.push_back(carto::rc_ptr<GLItem>(new GLReleaseShader(d->programs[shader])));
+  //   }
+  // }
+
+  // d->primitives.push_back(carto::rc_ptr<GLItem>(new GLBindShader(d->programs["blending"])));
+  // // Blending shader for depth peeling
+  // d->primitives.push_back(carto::rc_ptr<GLItem>(new GLReleaseShader(d->programs["blending"])));
 
 
-  //	Draw opaque objects
-  for (al = renderobj.begin(); al != transparent; ++al)
-  {
-    //updateObject(*al);
-  }
+
+  // //	Draw opaque objects
+  // for (al = renderobj.begin(); al != transparent; ++al)
+  // {
+  //   //updateObject(*al);
+  // }
   
-  //	Settings between opaque and transparent objects
-  setupTransparentObjects(localGLL);
+  // //	Settings between opaque and transparent objects
+  // setupTransparentObjects(localGLL);
 
-    //	Draw transparent objects
-  for (al = transparent; al != el; ++al)
-  {
-    //updateObject(*al);
-  }
+  //   //	Draw transparent objects
+  // for (al = transparent; al != el; ++al)
+  // {
+  //   //updateObject(*al);
+  // }
 
-  //	Settings after transparent objects
-  postTransparentRenderingSetup();
+  // //	Settings after transparent objects
+  // postTransparentRenderingSetup();
 
   /*	Finish rendering mode operations: restore initial modes
    and eventually performs a second rendering of all objects */

@@ -35,6 +35,7 @@
 #include <anatomist/control/qObjTree.h>
 #include <anatomist/application/settings.h>
 #include <anatomist/surface/glcomponent_internals.h>
+#include <anatomist/primitive/primitive.h>
 #include <qpixmap.h>
 
 using namespace anatomist;

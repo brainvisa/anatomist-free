@@ -33,6 +33,8 @@
 
 
 #include <anatomist/primitive/primitive.h>
+#include <anatomist/primitive/primitiveTypes.h>
+#include <anatomist/window3D/window3D.h>
 #include <anatomist/window/glcaps.h>
 //#include <anatomist/window/glwidget.h>
 #include <anatomist/window/glwidgetmanager.h>
@@ -42,6 +44,7 @@
 #include <qapplication.h>
 #include <iostream>
 #include <algorithm>
+#include <anatomist/surface/IShaderModule.h>
 
 // uncomment this to allow lots of output messages about GL lists
 //#define ANA_DEBUG_GLLISTS
@@ -381,6 +384,7 @@ GLBindShader::~GLBindShader()
 
 void GLBindShader::callList() const
 {
+  std::cout << "bind shader callList" << std::endl;
   _item->bind();
 }
 
@@ -391,7 +395,37 @@ GLReleaseShader::~GLReleaseShader()
 
 void GLReleaseShader::callList() const
 {
+  std::cout << "release shader callList" << std::endl;
   _item->release();
+}
+
+GLSceneUniforms::~GLSceneUniforms()
+{
+
+}
+
+void GLSceneUniforms::callList() const
+{
+  if(_shader && _scene)
+  {
+    std::cout << "scene uniforms callList" << std::endl;
+    _module->setupSceneUniforms(*_shader, *_scene);
+  }
+    
+}
+
+GLObjectUniforms::~GLObjectUniforms()
+{
+
+}
+
+void GLObjectUniforms::callList() const
+{
+  if(_shader && _glObj)
+  {
+    std::cout << "object uniforms callList" << std::endl;
+    _module->setupObjectUniforms(*_shader, *_glObj);
+  }
 }
 
 

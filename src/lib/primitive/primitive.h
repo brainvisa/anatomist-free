@@ -38,10 +38,14 @@
 #include <cartobase/smart/rcobject.h>
 #include <list>
 #include <QOpenGLShaderProgram>
+#include <anatomist/primitive/primitiveTypes.h>
+#include <anatomist/surface/glcomponent.h>
 
-
+class AWindow3D;
 namespace anatomist
 {
+  
+  class IShaderModule;
 
   /** OpenGL item (display list, texture, ...) with reference counter and 
       cleanup upon destruction */
@@ -151,7 +155,7 @@ namespace anatomist
   };
 
 
-  typedef carto::rc_ptr<GLItem>		RefGLItem;
+
 
 
   class GLItemList : public GLItem
@@ -174,11 +178,35 @@ namespace anatomist
   };
 
 
-  typedef carto::rc_ptr<Primitive>	RefPrimitive;
-  typedef carto::rc_ptr<GLList>		RefGLList;
-  typedef carto::rc_ptr<GLTexture>	RefGLTexture;
-  typedef carto::rc_ptr<GLItemList>	RefGLItemList;
-  typedef std::list<RefGLItem>		GLPrimitives;
+
+    // Setup Scene uniforms for a shader
+  class GLSceneUniforms : public GLItem
+  {
+  public:
+    GLSceneUniforms(std::shared_ptr<IShaderModule> shaderModule ,std::shared_ptr<QOpenGLShaderProgram> glShader, AWindow3D* scene) : GLItem(), _module(shaderModule), _shader(glShader), _scene(scene) {}
+    virtual ~GLSceneUniforms();
+    std::shared_ptr<QOpenGLShaderProgram> shader() const { return _shader; }
+    virtual void callList() const;
+  private:
+    std::shared_ptr<IShaderModule> _module;
+    std::shared_ptr<QOpenGLShaderProgram> _shader;
+    AWindow3D* _scene;
+
+  };
+
+  // Setup Object uniforms for a shader
+  class GLObjectUniforms : public GLItem
+  {
+  public:
+    GLObjectUniforms(std::shared_ptr<IShaderModule> shaderModule, std::shared_ptr<QOpenGLShaderProgram> glShader, GLComponent* glObj) : GLItem(),_module(shaderModule), _shader(glShader), _glObj(glObj) {}
+    virtual ~GLObjectUniforms();
+    std::shared_ptr<QOpenGLShaderProgram> shader() const { return _shader; }
+    virtual void callList() const;
+  private:
+    std::shared_ptr<IShaderModule> _module;
+    std::shared_ptr<QOpenGLShaderProgram> _shader;
+    GLComponent* _glObj;
+  };
 
 }
 

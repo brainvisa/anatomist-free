@@ -35,11 +35,10 @@
 #ifndef ANA_WINDOW3D_WINDOW3D_H
 #define ANA_WINDOW3D_WINDOW3D_H
 
-
+#include <anatomist/primitive/primitiveTypes.h>
 #include <anatomist/window/controlledWindow.h>
 #include <anatomist/observer/Observable.h>
 #include <anatomist/object/Object.h>
-#include <anatomist/primitive/primitive.h>
 #include <anatomist/window/viewstate.h>
 #include <QOpenGLShaderProgram> //jordan
 

@@ -36,6 +36,7 @@
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/surface/texsurface.h>
 #include <anatomist/surface/texture.h>
+#include <anatomist/primitive/primitive.h>
 #include <anatomist/volume/Volume.h>
 #include <anatomist/object/actions.h>
 #include <anatomist/surface/wvectorfield.h>

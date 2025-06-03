@@ -32,6 +32,7 @@
  */
 
 #include <anatomist/surface/textobject.h>
+#include <anatomist/primitive/primitive.h>
 #include <aims/mesh/surface.h>
 #include <qfont.h>
 #include <qfontmetrics.h>

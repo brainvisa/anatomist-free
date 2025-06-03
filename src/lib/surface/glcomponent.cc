@@ -42,6 +42,7 @@
 #include <anatomist/application/globalConfig.h>
 #include <anatomist/object/Object.h>
 #include <anatomist/color/colortraits.h>
+#include <anatomist/primitive/primitive.h>
 #include <aims/rgb/rgb.h>
 #include <map>
 #include <vector>
@@ -306,8 +307,8 @@ GLComponent::GLComponent() : d( new GLComponent::Private )
   else
     _shader = 0;
 
-  _shaderModuleIDs= "01";
-  _useDepthPeeling = true;
+  _shaderModuleIDs= "0";
+  _useDepthPeeling = false;
 }
 
 

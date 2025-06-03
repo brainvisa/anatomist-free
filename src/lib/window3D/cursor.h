@@ -34,7 +34,7 @@
 #ifndef ANA_WINDOW3D_CURSOR_H
 #define ANA_WINDOW3D_CURSOR_H
 
-#include <anatomist/primitive/primitive.h>
+#include <anatomist/primitive/primitiveTypes.h>
 #include <set>
 
 namespace anatomist

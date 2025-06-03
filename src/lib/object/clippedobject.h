@@ -37,6 +37,7 @@
 
 #include <anatomist/mobject/objectVector.h>
 #include <anatomist/object/selfsliceable.h>
+#include <anatomist/primitive/primitiveTypes.h>
 
 
 namespace anatomist

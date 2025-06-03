@@ -44,6 +44,7 @@
 #include <cartobase/smart/rcptr.h>
 #include <cartobase/object/object.h>
 #include <aims/vector/vector.h>
+#include <anatomist/primitive/primitiveTypes.h>
 
 #include <string>
 #include <list>
@@ -68,7 +69,6 @@ namespace anatomist
   class Geometry;
   class AObjectPalette;
   class MObject;
-  class GLItem;
   class GLComponent;
   struct ViewState;
   typedef std::list<carto::rc_ptr<GLItem> > PrimList;

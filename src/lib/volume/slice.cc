@@ -40,6 +40,7 @@
 #include <anatomist/surface/glcomponent.h>
 #include <aims/resampling/quaternion.h>
 #include <anatomist/window/viewstate.h>
+#include <anatomist/primitive/primitive.h>
 #include <qpixmap.h>
 #include <graph/tree/tree.h>
 #include <qtranslator.h>

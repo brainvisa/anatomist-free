@@ -32,6 +32,7 @@
  */
 
 #include <anatomist/object/sliceable.h>
+#include <anatomist/primitive/primitive.h>
 #include <anatomist/window/viewstate.h>
 #include <anatomist/reference/Geometry.h>
 #include <anatomist/reference/Transformation.h>
