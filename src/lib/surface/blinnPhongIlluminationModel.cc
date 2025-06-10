@@ -21,9 +21,9 @@ uniform vec3 u_lightDiffuse;
 uniform vec3 u_lightSpecular;
 uniform float u_lightIntensity;
 uniform vec3 u_viewPosition; 
-//uniform vec4 u_materialAmbient; v_Color is used instead
-uniform vec3 u_materialDiffuse;
-uniform vec3 u_materialSpecular;
+uniform vec4 u_materialAmbient;
+uniform vec4 u_materialDiffuse;
+uniform vec4 u_materialSpecular;
 uniform float u_materialShininess;
   )";
 }
@@ -33,26 +33,26 @@ std::string BlinnPhongIlluminationModel::getFunctionImplementation() const
   return R"(
 vec4 BlinnPhong(vec4 ambient, vec3 fragPos, vec3 normal) {
   vec3 N = normalize(normal);
-  vec3 L = normalize(-u_lightDirection);
-  vec3 V = normalize(u_viewPosition - fragPos);
+  vec3 L = normalize(-v_directionLight);
+  vec3 V = normalize(v_eyeVertexPosition.xyz - fragPos);
   vec3 H = normalize(L + V);
 
   // ambient
-  vec3 b_ambient = u_lightAmbient * ambient.rgb;
+  vec4 b_ambient = (gl_LightSource[0].ambient + gl_LightModel.ambient) * ambient;
 
   // diffuse
-  float diff = max(dot(N, L), 0.0);
-  vec3 diffuse = u_lightDiffuse * (diff * u_materialDiffuse);
+  float cos_theta = max(dot(N, L), 0.0);
+  vec4 diffuse = u_materialDiffuse * gl_LightSource[0].diffuse * cos_theta;
 
   // specular
-  float spec = pow(max(dot(N, H), 0.0), u_materialShininess);
-  vec3 specular = u_lightSpecular * (spec * u_materialSpecular);
+  float cos_alpha = pow(max(dot(N, H), 0.0), u_materialShininess);
+  vec4 specular = gl_LightSource[0].specular * cos_alpha * u_materialSpecular;
 
   // final color
-  vec3 finalColor = (b_ambient + diffuse + specular) * u_lightIntensity;
+  vec4 finalColor = (b_ambient + diffuse + specular);
 
-  //return vec4(finalColor, ambient.a);
-  return vec4(0.0, 1.0, 0.0, 0.5);
+  return vec4(finalColor.rgb, b_ambient.a);
+
 }
 )";
 
@@ -66,6 +66,7 @@ std::string BlinnPhongIlluminationModel::getFunctionCall() const
 void BlinnPhongIlluminationModel::setupObjectUniforms(QOpenGLShaderProgram& program, GLComponent& obj) const
 {
   auto material = obj.glMaterial();
+
   int materialAmbientLocation = program.uniformLocation("u_materialAmbient");
   program.setUniformValue(materialAmbientLocation, material->Ambient(0), material->Ambient(1), material->Ambient(2), material->Ambient(3));
 

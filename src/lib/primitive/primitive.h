@@ -134,24 +134,24 @@ namespace anatomist
   class GLBindShader : public GLItem
   {
   public:
-    GLBindShader(std::shared_ptr<QOpenGLShaderProgram> glShader) : GLItem(), _item(glShader) {}
+    GLBindShader(std::shared_ptr<QOpenGLShaderProgram> glShader) : GLItem(), _shaderProgram(glShader) {}
     virtual ~GLBindShader();
-    std::shared_ptr<QOpenGLShaderProgram> item() const { return _item; }
+    std::shared_ptr<QOpenGLShaderProgram> item() const { return _shaderProgram; }
     virtual void callList() const;
     private:
-      std::shared_ptr<QOpenGLShaderProgram> _item;
+      std::shared_ptr<QOpenGLShaderProgram> _shaderProgram;
   };
 
   // OpenGL Shader Release
   class GLReleaseShader : public GLItem
   {
   public:
-    GLReleaseShader(std::shared_ptr<QOpenGLShaderProgram> glShader) : GLItem(), _item(glShader) {}
+    GLReleaseShader(std::shared_ptr<QOpenGLShaderProgram> glShader) : GLItem(), _shaderProgram(glShader) {}
     virtual ~GLReleaseShader();
-    std::shared_ptr<QOpenGLShaderProgram> item() const { return _item; }
+    std::shared_ptr<QOpenGLShaderProgram> item() const { return _shaderProgram; }
     virtual void callList() const;
     private:
-      std::shared_ptr<QOpenGLShaderProgram> _item;
+      std::shared_ptr<QOpenGLShaderProgram> _shaderProgram;
   };
 
 

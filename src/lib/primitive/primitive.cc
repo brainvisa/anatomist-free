@@ -384,8 +384,11 @@ GLBindShader::~GLBindShader()
 
 void GLBindShader::callList() const
 {
-  std::cout << "bind shader callList" << std::endl;
-  _item->bind();
+
+  GLint currentProgram = 0;
+  glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgram);
+
+  _shaderProgram->bind();
 }
 
 GLReleaseShader::~GLReleaseShader()
@@ -395,8 +398,7 @@ GLReleaseShader::~GLReleaseShader()
 
 void GLReleaseShader::callList() const
 {
-  std::cout << "release shader callList" << std::endl;
-  _item->release();
+  _shaderProgram->release();
 }
 
 GLSceneUniforms::~GLSceneUniforms()
@@ -408,7 +410,6 @@ void GLSceneUniforms::callList() const
 {
   if(_shader && _scene)
   {
-    std::cout << "scene uniforms callList" << std::endl;
     _module->setupSceneUniforms(*_shader, *_scene);
   }
     
@@ -423,7 +424,6 @@ void GLObjectUniforms::callList() const
 {
   if(_shader && _glObj)
   {
-    std::cout << "object uniforms callList" << std::endl;
     _module->setupObjectUniforms(*_shader, *_glObj);
   }
 }
