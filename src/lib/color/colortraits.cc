@@ -177,7 +177,6 @@ void ColorScalarPaletteTraits<T>::setup1D( int dim,
     cmaxn0 = cmaxn;
     minv0 = minv;
     maxv0 = maxv;
-    std::cout << "ColorScalarPaletteTraits scale0: " << scale0 << ", " << decal0 << std::endl;
   }
   else
   {
