@@ -184,7 +184,7 @@ def combine_vols():
                         new_vsize = [max(x, y) for x, y in zip(viewsize,
                                                                nvsize)]
                         mindim[1] = [min(x, y) for x, y in zip(vs, mindim[1])]
-                        mindim[0] = [np.ceil(x / y)
+                        mindim[0] = [int(np.ceil(x / y))
                                      for x, y in zip(new_vsize, mindim[1])]
                         resample = True
                 if resample:
