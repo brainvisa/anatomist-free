@@ -474,8 +474,12 @@ void MiniPaletteWidget::allowEdit( bool allow, bool self_parent,
 
 void MiniPaletteWidget::setRange( float min, float max )
 {
-  d->minipg->setRange( min, max, observedDimension() );
-  emit rangeChanged( min, max );
+  if( d->minipg->min( observedDimension() ) != min
+      || d->minipg->max( observedDimension() ) != max )
+  {
+    d->minipg->setRange( min, max, observedDimension() );
+    emit rangeChanged( min, max );
+  }
 }
 
 
@@ -805,7 +809,7 @@ void MiniPaletteWidgetEdit::setAutoRange( bool auto_range )
 void MiniPaletteWidgetEdit::adjustRange()
 {
   AObject *obj = d->minipw->getObject();
-  if( obj && obj->glAPI() )
+  if( obj && obj->glAPI() && obj->glAPI()->glNumTextures() != 0 )
   {
     AObjectPalette *pal = obj->palette();
     int dim = d->minipw->observedDimension();
@@ -985,12 +989,37 @@ void MiniPaletteWidgetEdit::maxChanged( float value )
 }
 
 
+namespace
+{
+  bool sameRange( const pair<float, float> & r1,
+                  const pair<float, float> & r2 )
+  {
+    bool s1 = ( r1.first == r2.first ), s2 = ( r1.second == r2.second );
+    if( s1 && s2 )
+      return true;
+
+    if( std::isnan( r1.first ) && std::isnan( r2.first ) )
+      s1 = true;
+    else
+      return false;
+    if( std::isnan( r1.second ) && std::isnan( r2.second ) )
+      s2 = true;
+
+    return s1 && s2;
+  }
+}
+
+
 void MiniPaletteWidgetEdit::setRange( float rmin, float rmax )
 {
   d->minslider->setAbsRange( rmin, rmax );
   d->maxslider->setAbsRange( rmin, rmax );
-  if( d->minipw->range() != make_pair( rmin, rmax ) )
+  if( !sameRange( d->minipw->range(), make_pair( rmin, rmax ) ) )
+  {
+    d->minipw->blockSignals( true );
     d->minipw->setRange( rmin, rmax );
+    d->minipw->blockSignals( false );
+  }
   AObject *obj = d->minipw->getObject();
   int dim = d->minipw->observedDimension();
   if( obj )

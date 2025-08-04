@@ -1014,7 +1014,9 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
   float         min = objpal->min1(), max = objpal->max1();
   float         min2 = objpal->min2(), max2 = objpal->max2();
   int           x, y;
-  unsigned      dimpx = cols->getSizeX(), dimpy = cols->getSizeY(), utmp;
+  // dimpx: size of the reference colormap
+  // dimx: size of the cmap we are building
+  unsigned      dimpx = cols->getSizeX(), dimpy = cols->getSizeY();
   int           xs, ys;
   const TexInfo & t = glTexInfo( tex );
   TexInfo & ti = d->textures[ tex ];
@@ -1035,16 +1037,6 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
       dimy = objpal->glMaxSizeY();
   }
 
-  // texture dims must be a power of 2
-  // this is not needed any longer (OpenGL >= 2)
-  /*
-  for( x=0, utmp=1; x<32 && utmp < static_cast<unsigned>(dimx); ++x )
-    utmp = utmp << 1;
-  dimx = utmp;
-  for( x=0, utmp=1; x<32 && utmp < static_cast<unsigned>(dimy); ++x )
-    utmp = utmp << 1;
-  dimy = utmp;
-  */
   if( dimx == 0 )
     dimx = 1;
   if( dimy == 0 )
@@ -1075,12 +1067,25 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
     balance_zero = true;
   }
 
-  ti.texscale[0] = 1.;
-  ti.texscale[1] = 1.;
-  ti.texscale[2] = 1.;
-  ti.texoffset[0] = 0.;
-  ti.texoffset[1] = 0.;
-  ti.texoffset[2] = 0.;
+  if( useTexScale )
+  {
+    float dx =
+    ti.texscale[0] = 1. / ( max - min );
+    ti.texscale[1] = 1. / ( max2 - min2 );
+    ti.texscale[2] = 1.;
+    ti.texoffset[0] = - min * ti.texscale[0];
+    ti.texoffset[1] = - min2 * ti.texscale[1];
+    ti.texoffset[2] = 0.;
+  }
+  else
+  {
+    ti.texscale[0] = 1.;
+    ti.texscale[1] = 1.;
+    ti.texscale[2] = 1.;
+    ti.texoffset[0] = 0.;
+    ti.texoffset[1] = 0.;
+    ti.texoffset[2] = 0.;
+  }
 
   if( balance_zero
       || ( ( te.min[0] != 0. || te.max[0] != 1. ) && te.min[0] != te.max[0] ) )
@@ -1144,7 +1149,7 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
   ColorTraits<int>	coltraits( objpal, shx,
                                    (dimx - 1 + shx),
                                    shy,
-                                   (dimy + shy - 1) );
+                                   (dimy + shy - 1), useTexScale );
 
   for( y=0; y<static_cast<unsigned>(dimy); ++y )
   {

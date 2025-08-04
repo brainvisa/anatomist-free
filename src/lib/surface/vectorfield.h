@@ -86,6 +86,16 @@ namespace anatomist
     virtual void setPalette( const AObjectPalette & palette );
     virtual void createDefaultPalette( const std::string & name = "" );
 
+    virtual unsigned glNumTextures() const;
+    virtual unsigned glNumTextures( const ViewState & ) const;
+    virtual unsigned glDimTex( const ViewState &, unsigned tex = 0 ) const;
+    virtual unsigned glTexCoordSize( const ViewState &,
+                                     unsigned tex = 0 ) const;
+    virtual const GLfloat* glTexCoordArray( const ViewState &,
+                                            unsigned tex = 0 ) const;
+    virtual const TexExtrema & glTexExtrema( unsigned tex = 0 ) const;
+    virtual TexExtrema & glTexExtrema( unsigned tex = 0 );
+
     /// Gets the current slice plane
     Point4df getPlane( const ViewState & ) const;
     virtual ObjectMenu* optionMenu() const;
