@@ -54,6 +54,7 @@ namespace anatomist
   class Light;
   class GLWidgetManager;
   class OrientationAnnotation;
+  class IShaderModule;
 
   namespace internal
   {
@@ -303,7 +304,7 @@ public:
   void removeSelectionHighlight(TmpCol *tmpCol);
   void setupOpenGLState();
   void setupClippingPlanes(GLuint localGLL);
-  void setupTransparentObjects(GLuint localGLL);
+  void setupTransparentObjects();
   void postTransparentRenderingSetup();
   void finalizeRendering();
   anatomist::Primitive* setupHiddenWireframeMode();
@@ -312,9 +313,11 @@ public:
   void finalizeRenderingSettings();
   void retrieveShaders();
   void shaderBuilding();
+  std::vector<std::shared_ptr<anatomist::IShaderModule>> getEffectiveShaderModules(const std::string& shaderID);
   void initBlendingShader();
-  void initTextures();      
-  void initFBOs();
+  void renderOpaqueObjects();
+  void renderTransparentObjects();
+  short nbLayers;
 
 
 signals:

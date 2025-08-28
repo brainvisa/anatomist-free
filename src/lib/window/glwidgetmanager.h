@@ -45,6 +45,7 @@
 #include <QtOpenGL/QGLWidget>
 #endif
 class QGestureEvent;
+class QOpenGLTexture;
 
 
 namespace aims
@@ -233,6 +234,24 @@ namespace anatomist
     void bindOtherFramebuffer( DrawMode m );
     void restoreFramebuffer();
     void resizeOtherFramebuffers( int w, int h );
+
+    //Jordan
+    void initTextures();
+    void initFBOs();
+    void createFullScreenQuad();
+    void drawFullScreenQuad();
+    void blendPass();
+    void depthPeeling();
+    bool useDepthPeeling() const;
+    void setUseDepthPeeling( bool use );
+    int nbLayers() const;
+    void setNbLayers( int n );
+    int currentLayer() const;
+    void setCurrentLayer( int n );
+    int depthPeelingUnitTexture() const;
+    void setDepthPeelingUnitTexture( int unit );
+    void texToPng();
+    void clearTexturesAndFBOs();
 
     /// QGraphicsView needs to call event methods
     friend class anatomist::internal::AGraphicsView;

@@ -37,7 +37,7 @@
 #include <iostream>
 #include <string>
 #include <QOpenGLShaderProgram>
-#include <anatomist/window3D/window3D.h>
+#include <anatomist/window/glwidgetmanager.h>
 
 
 
@@ -64,7 +64,7 @@ namespace anatomist
 
       /// Sets up the uniforms for the shader module
       virtual void setupObjectUniforms(QOpenGLShaderProgram& program, GLComponent& obj) const = 0;
-      virtual void setupSceneUniforms(QOpenGLShaderProgram& program, AWindow3D& scene) const  = 0;
+      virtual void setupSceneUniforms(QOpenGLShaderProgram& program, GLWidgetManager& scene) const  = 0;
 
       /// return the list of shader's id
       virtual std::string getID() const {return _id;}

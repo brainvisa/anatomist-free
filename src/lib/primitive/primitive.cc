@@ -103,7 +103,6 @@ void GLItem::setGhost( bool x )
   _ghost = x;
 }
 
-
 Primitive::Primitive() : GLItem()
 {
 #ifdef ANA_DEBUG_GLLISTS
@@ -424,6 +423,21 @@ void GLObjectUniforms::callList() const
 {
   if(_shader && _glObj)
   {
+    int hasTextureLocation = _shader->uniformLocation("u_hasTexture");
+    _shader->setUniformValue(hasTextureLocation, 0); // Jordan: TODO: set has texture
+
+    int textureTypeLocation = _shader->uniformLocation("u_textureType");
+    _shader->setUniformValue(textureTypeLocation, 0); // Jordan: TODO: set texture type
+
+    // glActiveTexture(GL_TEXTURE0);
+    // int texture1DLocation = _shader->uniformLocation("u_texture1D");
+    // _shader->setUniformValue(texture1DLocation, 0); // Jordan: TODO: set texture 1D
+
+    // glActiveTexture(GL_TEXTURE1);
+    // int texture2DLocation = _shader->uniformLocation("u_texture2D");
+    // _shader->setUniformValue(texture2DLocation, 1); // Jordan: TODO: set texture 2D
+
+
     _module->setupObjectUniforms(*_shader, *_glObj);
   }
 }

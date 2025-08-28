@@ -144,7 +144,6 @@ std::shared_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initShader(const std
   if (shaderModules.empty()) {
     std::cerr << "Error : no module found for ID " << shaderIDs << std::endl;
     return nullptr;
-  
   }
   std::list<std::string> path =  carto::Paths::findResourceFiles("shaders/templates", "anatomist");
   if (path.empty()) {
@@ -163,8 +162,6 @@ std::shared_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initShader(const std
   {
     std::cout << "Vertex shader error : " << program->log().toStdString() << std::endl;
   }
-
-
   // fragment shader
   baseTemplate = readShaderFile(path.front()+"/"+fsTemplate);
   this->setBaseTemplate(baseTemplate);

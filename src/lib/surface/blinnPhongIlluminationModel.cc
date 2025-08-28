@@ -15,11 +15,11 @@ BlinnPhongIlluminationModel::BlinnPhongIlluminationModel()
 std::string BlinnPhongIlluminationModel::getUniformDeclarations() const 
 {
   return R"(
-uniform vec3 u_lightDirection;
-uniform vec3 u_lightAmbient;
-uniform vec3 u_lightDiffuse;
-uniform vec3 u_lightSpecular;
-uniform float u_lightIntensity;
+// uniform vec3 u_lightDirection;
+// uniform vec3 u_lightAmbient;
+// uniform vec3 u_lightDiffuse;
+// uniform vec3 u_lightSpecular;
+// uniform float u_lightIntensity;
 uniform vec3 u_viewPosition; 
 uniform vec4 u_materialAmbient;
 uniform vec4 u_materialDiffuse;
@@ -31,27 +31,28 @@ uniform float u_materialShininess;
 std::string BlinnPhongIlluminationModel::getFunctionImplementation() const
 {
   return R"(
-vec4 BlinnPhong(vec4 ambient, vec3 fragPos, vec3 normal) {
-  vec3 N = normalize(normal);
-  vec3 L = normalize(-v_directionLight);
-  vec3 V = normalize(v_eyeVertexPosition.xyz - fragPos);
-  vec3 H = normalize(L + V);
+vec4 BlinnPhong(vec4 ambient, vec3 fragPos, vec3 normal)
+{
+  vec3 b_normal = normalize(normal);
+  vec3 lightDirection = normalize(-v_directionLight);
+  vec3 viewVector = normalize(v_eyeVertexPosition.xyz - fragPos);
+  vec3 halfVector = normalize(lightDirection + viewVector);
 
   // ambient
-  vec4 b_ambient = (gl_LightSource[0].ambient + gl_LightModel.ambient) * ambient;
+  vec4 b_ambient = (gl_LightSource[0].ambient + gl_LightModel.ambient) * u_materialAmbient;
 
   // diffuse
-  float cos_theta = max(dot(N, L), 0.0);
+  float cos_theta = max(dot(b_normal, lightDirection), 0.0);
   vec4 diffuse = u_materialDiffuse * gl_LightSource[0].diffuse * cos_theta;
 
   // specular
-  float cos_alpha = pow(max(dot(N, H), 0.0), u_materialShininess);
+  float cos_alpha = pow(max(dot(b_normal, halfVector), 0.0), u_materialShininess);
   vec4 specular = gl_LightSource[0].specular * cos_alpha * u_materialSpecular;
 
   // final color
   vec4 finalColor = (b_ambient + diffuse + specular);
 
-  return vec4(finalColor.rgb, b_ambient.a);
+  return vec4(finalColor.rgb, u_materialDiffuse.a);
 
 }
 )";
@@ -81,24 +82,21 @@ void BlinnPhongIlluminationModel::setupObjectUniforms(QOpenGLShaderProgram& prog
 }
 
 
-void BlinnPhongIlluminationModel::setupSceneUniforms(QOpenGLShaderProgram& program, AWindow3D& scene) const
+void BlinnPhongIlluminationModel::setupSceneUniforms(QOpenGLShaderProgram& program, GLWidgetManager& scene) const
 {
-    int lightDirectionLocation = program.uniformLocation("u_lightDirection");
-    program.setUniformValue(lightDirectionLocation, 0 /* value*/);
+    // int lightDirectionLocation = program.uniformLocation("u_lightDirection");
+    // program.setUniformValue(lightDirectionLocation, 0 /* value*/);
 
-    int lightAmbientLocation = program.uniformLocation("u_lightAmbient");
-    program.setUniformValue(lightAmbientLocation, 0 /* value*/);
+    // int lightAmbientLocation = program.uniformLocation("u_lightAmbient");
+    // program.setUniformValue(lightAmbientLocation, 0 /* value*/);
 
-    int lightDiffuseLocation = program.uniformLocation("u_lightDiffuse");
-    program.setUniformValue(lightDiffuseLocation, 0 /* value*/);
+    // int lightDiffuseLocation = program.uniformLocation("u_lightDiffuse");
+    // program.setUniformValue(lightDiffuseLocation, 0 /* value*/);
 
-    int lightSpecularLocation = program.uniformLocation("u_lightSpecular");
-    program.setUniformValue(lightSpecularLocation, 0 /* value*/);
+    // int lightSpecularLocation = program.uniformLocation("u_lightSpecular");
+    // program.setUniformValue(lightSpecularLocation, 0 /* value*/);
 
-    int lightIntensityLocation = program.uniformLocation("u_lightIntensity");
-    program.setUniformValue(lightIntensityLocation, 0 /* value*/);
-
-    int viewPositionLocation = program.uniformLocation("u_viewPosition");
-    program.setUniformValue(viewPositionLocation, 0 /* value*/);
+    // int viewPositionLocation = program.uniformLocation("u_viewPosition");
+    // program.setUniformValue(viewPositionLocation, 0 /* value*/);
 }
 

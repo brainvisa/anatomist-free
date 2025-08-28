@@ -49,7 +49,7 @@ namespace anatomist
       std::string getFunctionImplementation() const override;
       std::string getFunctionCall() const override;
       void setupObjectUniforms(QOpenGLShaderProgram& program, GLComponent& obj) const override;
-      void setupSceneUniforms(QOpenGLShaderProgram& program, AWindow3D& scene) const  override;
+      void setupSceneUniforms(QOpenGLShaderProgram& program, GLWidgetManager& scene) const  override;
   };
 }
 

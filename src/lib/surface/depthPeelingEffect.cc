@@ -23,19 +23,15 @@ uniform int u_layer;
 std::string DepthPeelingEffect::getFunctionImplementation() const
 {
   return R"(
-vec2 getTexCoord()
-{
-    return gl_FragCoord.xy / textureSize(u_previousDepthTexture, 0);
-}
-
 void peeling(vec4 color)
 {
-  if(u_layer != 0)// perform the peeling
+  if(color.a > 0.99) return; // if the color is opaque, no need to peel
+  if(u_layer > 0)// perform the peeling
   {
-    vec2 texCoord = getTexCoord();
-    vec4 previousDepth = texture(u_previousDepthTexture, texCoord);
-    float epsilon = 0.0000001;
-    if(gl_FragCoord.z <= previousDepth.r + epsilon)
+    vec2 texCoord = gl_FragCoord.xy  / vec2(textureSize(u_previousDepthTexture, 0));
+    float previousDepth = texture(u_previousDepthTexture, texCoord).r;
+    float epsilon = 1e-3;
+    if(gl_FragCoord.z <= (previousDepth + epsilon))
     {
       discard;
     }
@@ -54,13 +50,12 @@ void DepthPeelingEffect::setupObjectUniforms(QOpenGLShaderProgram& program, GLCo
 {
 }
 
-void DepthPeelingEffect::setupSceneUniforms(QOpenGLShaderProgram& program, AWindow3D& scene) const
+void DepthPeelingEffect::setupSceneUniforms(QOpenGLShaderProgram& program, GLWidgetManager& scene) const
 {
-  int previousDepthTextureLocation = program.uniformLocation("u_previousDepthTexture");
-  program.setUniformValue(previousDepthTextureLocation, 0 /*nbUnitTexture*/);
-
   int nbLayerLocation = program.uniformLocation("u_layer");
-  program.setUniformValue(nbLayerLocation, 8/* scene.nbLayer*/);
+  program.setUniformValue(nbLayerLocation, scene.currentLayer());
 
+  int previousDepthTextureLocation = program.uniformLocation("u_previousDepthTexture");
+  program.setUniformValue(previousDepthTextureLocation, scene.depthPeelingUnitTexture());
 }
 

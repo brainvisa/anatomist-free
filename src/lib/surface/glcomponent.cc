@@ -308,7 +308,6 @@ GLComponent::GLComponent() : d( new GLComponent::Private )
     _shader = 0;
 
   _shaderModuleIDs= "0";
-  _useDepthPeeling = false;
 }
 
 

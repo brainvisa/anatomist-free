@@ -60,6 +60,13 @@
 #include <QIntValidator>
 #include <QWindow>
 
+//jordan  
+#include <cartobase/config/paths.h>
+#include <anatomist/surface/dynamicShaderBuilder.h>
+#include <QOpenGLTexture>
+#include <QOpenGLFramebufferObject>
+#include <QOpenGLFramebufferObjectFormat>
+
 #ifdef ANA_USE_QOPENGLWIDGET
 #include <QOpenGLWidget>
 #include <QOpenGLContext>
@@ -229,6 +236,17 @@ struct GLWidgetManager::Private
   int recordWidth;
   int recordHeight;
 
+  //jordan
+  dynamicShaderBuilder shaderBuilder;
+  bool useDepthPeeling;
+  std::vector<QOpenGLFramebufferObject*> fbos;
+  std::vector<QOpenGLTexture*> depthTextures;
+  std::vector<QOpenGLTexture*> colorTextures;
+  int nbLayers;
+  int currentLayer;
+  GLuint fullScreenQuadList;
+  int depthPeelingUnitTexture;
+
 #ifdef ANA_USE_QOPENGLWIDGET
   GLuint    z_framebuffer;
   GLuint    z_renderbuffer;
@@ -256,7 +274,7 @@ GLWidgetManager::Private::Private()
     qobject( 0 ),
     transparentBackground( true ), backgroundAlpha( 128 ),
     mouseX( 0 ), mouseY( 0 ), resized(false), saveInProgress( false ),
-    cameraChanged( true ), recordWidth( 0 ), recordHeight( 0 )
+    cameraChanged( true ), recordWidth( 0 ), recordHeight( 0 ), useDepthPeeling(true), nbLayers(4), currentLayer(0), fullScreenQuadList(0), depthPeelingUnitTexture(7)
 #ifdef ANA_USE_QOPENGLWIDGET
     ,
     z_framebuffer( 0 ), z_renderbuffer( 0 ),
@@ -312,6 +330,7 @@ GLWidgetManager::GLWidgetManager( anatomist::AWindow* win, QGLWidget * glw )
 GLWidgetManager::~GLWidgetManager()
 {
   clearLists();
+  clearTexturesAndFBOs();
 
 #ifdef ANA_USE_QOPENGLWIDGET
   if( _pd->z_renderbuffer )
@@ -786,6 +805,12 @@ void GLWidgetManager::paintGL( DrawMode m, int virtualWidth,
 
 void GLWidgetManager::drawObjects( DrawMode m )
 {
+  GLenum err;
+  while(glGetError() != GL_NO_ERROR)
+  {
+    // Clear previous errors
+  }
+
   // Draw objects
   // cout << "GLWidgetManager::drawObjects " << m << endl;
   GLPrimitives::const_iterator	il = _primitives.begin(),
@@ -797,25 +822,273 @@ void GLWidgetManager::drawObjects( DrawMode m )
   }
 
   //cout << "paintGL, prim : " << _primitives.size() << endl;
-  for( ; il!=el; ++il )
+
+  if(_pd->useDepthPeeling)
   {
-    if( (*il)->ghost() )
-      switch( m )
+    qglWidget()->makeCurrent();
+    GLenum err;
+
+    while( glGetError() != GL_NO_ERROR ){}
+
+    initTextures();
+    err = glGetError();
+    if( err != GL_NO_ERROR )
+      cerr << "GLWidgetManager::drawObjects: OpenGL error after initTextures: "
+          << gluErrorString( err ) << endl;
+    
+    initFBOs();
+    err = glGetError();
+    if( err != GL_NO_ERROR )
+      cerr << "GLWidgetManager::drawObjects: OpenGL error after initFBOs: "
+          << gluErrorString( err ) << endl;
+
+    depthPeeling();
+    err = glGetError();
+    if( err != GL_NO_ERROR )
+      cerr << "GLWidgetManager::drawObjects: OpenGL error after depthPeeling: "
+          << gluErrorString( err ) << endl;
+
+    //texToPng();
+
+    glDisable(GL_DEPTH_TEST);
+
+    createFullScreenQuad();
+    err = glGetError();
+    if( err != GL_NO_ERROR )
+      cerr << "GLWidgetManager::drawObjects: OpenGL error after createFullScreenQuad: "
+            << gluErrorString( err ) << endl;
+
+    
+
+    blendPass();
+    err = glGetError();
+    if( err != GL_NO_ERROR )
+      cerr << "GLWidgetManager::drawObjects: OpenGL error after blendPass: "
+            << gluErrorString( err ) << endl;
+  }
+  else
+  {
+
+    for( ; il!=el; ++il )
+    {
+      if( (*il)->ghost() )
+        switch( m )
+        {
+        case Normal:
+          _pd->zbufready = false;
+          (*il)->callList();
+          break;
+        case ZSelect:
+          break;
+        default:
+          break;
+        }
+      else
       {
-      case Normal:
-        _pd->zbufready = false;
+        GLenum err;
+        while( glGetError() != GL_NO_ERROR )
+        {
+          // Clear previous errors
+        }
+        err = glGetError();
+        if( err != GL_NO_ERROR )
+        {
+          cerr << "GLWidgetManager::drawObjects: OpenGL error before callList: "
+                << gluErrorString( err ) << endl;
+        }
         (*il)->callList();
-        break;
-      case ZSelect:
-        break;
-      default:
-        break;
+        err = glGetError();
       }
-    else
-      (*il)->callList();
+        
+    }
+  }
+}
+
+void GLWidgetManager::initTextures()
+{
+  _pd->colorTextures.clear();
+  _pd->depthTextures.clear();
+  _pd->colorTextures.reserve(_pd->nbLayers);
+  _pd->depthTextures.reserve(_pd->nbLayers);
+
+  for(int i = 0; i<_pd->nbLayers+1; ++i)
+  {
+    //Depth texture
+    QOpenGLTexture* depthTexture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+    depthTexture->create();
+    depthTexture->setSize(this->width(), this->height());
+    depthTexture->setFormat(QOpenGLTexture::D32F);
+    depthTexture->allocateStorage();
+    depthTexture->setMinMagFilters(QOpenGLTexture::Nearest, QOpenGLTexture::Nearest);
+    depthTexture->setWrapMode(QOpenGLTexture::ClampToEdge);
+    _pd->depthTextures.push_back(depthTexture);
+
+    //Color texture
+    QOpenGLTexture* colorTexture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+    colorTexture->create();
+    colorTexture->setSize(this->width(), this->height());
+    colorTexture->setFormat(QOpenGLTexture::RGBA32F);
+    colorTexture->allocateStorage();
+    colorTexture->setMinMagFilters(QOpenGLTexture::Nearest, QOpenGLTexture::Nearest);
+    colorTexture->setWrapMode(QOpenGLTexture::ClampToEdge);
+    _pd->colorTextures.push_back(colorTexture);
+  }
+}
+
+void GLWidgetManager::initFBOs()
+{
+  _pd->fbos.clear();
+  _pd->fbos.reserve(_pd->nbLayers);
+  QOpenGLFramebufferObjectFormat format;
+  format.setAttachment(QOpenGLFramebufferObject::NoAttachment);
+  for(int i = 0; i<_pd->nbLayers+1; ++i)
+  {
+    QOpenGLFramebufferObject* fbo = new QOpenGLFramebufferObject(this->width(), this->height(), format);
+    if(!fbo->isValid())
+    {
+      std::cerr << "Failed to create framebuffer object" << std::endl;
+      delete fbo;
+      return;
+    }
+    fbo->bind();
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _pd->colorTextures[i]->textureId(), 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _pd->depthTextures[i]->textureId(), 0);
+
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+      std::cerr << "Framebuffer is not complete" << std::endl;
+      fbo->release();
+      delete fbo;
+      return;
+    }
+    fbo->release();
+    _pd->fbos.push_back(fbo);
+  }
+}
+
+void GLWidgetManager::clearTexturesAndFBOs()
+{
+  qDeleteAll(_pd->colorTextures);
+  _pd->colorTextures.clear();
+  qDeleteAll(_pd->depthTextures);
+  _pd->depthTextures.clear();
+  qDeleteAll(_pd->fbos);
+  _pd->fbos.clear();
+}
+
+void GLWidgetManager::createFullScreenQuad()
+{
+  if( _pd->fullScreenQuadList == 0 )
+  {
+    _pd->fullScreenQuadList = glGenLists( 1 );
+    glNewList( _pd->fullScreenQuadList, GL_COMPILE );
+
+    glBegin( GL_TRIANGLES );
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex2f(-1.0f, -1.0f);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex2f(1.0f, -1.0f);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex2f(1.0f, 1.0f);
+
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex2f(-1.0f, -1.0f);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex2f(1.0f, 1.0f);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex2f(-1.0f, 1.0f);
+
+    glEnd();
+    glEndList();
+  }
+}
+
+void GLWidgetManager::drawFullScreenQuad()
+{
+  if( _pd->fullScreenQuadList != 0 )
+  {
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+
+    glCallList(_pd->fullScreenQuadList);
+
+    glPopMatrix();         
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+  }
+}
+
+void GLWidgetManager::blendPass()
+{
+
+  std::shared_ptr<QOpenGLShaderProgram> prog = _pd->shaderBuilder.initBlendingShader();
+  if(!prog)
+  {
+    std::cerr << "Failed to initialize blending shader." << std::endl;
+    return;
   }
 
+  GLenum err;
+  while(glGetError() != GL_NO_ERROR){}
+
+  glBindFramebuffer(GL_FRAMEBUFFER, qglWidget()->defaultFramebufferObject());
+  glViewport(0, 0, _pd->glwidget->width(), _pd->glwidget->height());
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  prog->bind();
+
+  GLint maxTextureUnits=0;
+  glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &maxTextureUnits); // fixed pipeline, otherwise use GL_MAX_TEXTURE_IMAGE_UNITS
+
+  for(int i=0; i<_pd->nbLayers && i< maxTextureUnits ; ++i)
+  {
+    glActiveTexture(GL_TEXTURE0+i);
+    _pd->colorTextures[i]->bind();
+    std::string uniformName = "u_layerTexture[" + std::to_string(i) + "]";
+    prog->setUniformValue(uniformName.c_str(), i);
+  }
+
+  prog->setUniformValue("u_numLayers", _pd->nbLayers);
+  drawFullScreenQuad();
+  prog->release();
+  glDisable(GL_BLEND);
 }
+
+void GLWidgetManager::depthPeeling()
+{ 
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LESS);
+  glDepthMask(GL_TRUE);
+
+  for (int i = 0; i < _pd->nbLayers; ++i) 
+  { 
+    _pd->fbos[i]->bind();
+    glClearDepth(1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+
+    if(i>0)
+      _pd->depthTextures[i-1]->bind(_pd->depthPeelingUnitTexture);
+
+    _pd->currentLayer = i;
+    std::shared_ptr<QOpenGLShaderProgram> currentShader;
+    for (auto& primitive : _primitives)
+    {
+      primitive->callList();
+    }
+    glFlush();
+    _pd->fbos[i]->release();
+  }
+  _pd->currentLayer = 0;
+}
+
 
 
 void GLWidgetManager::depthPeelingRender( DrawMode m )
@@ -2533,4 +2806,110 @@ bool GLWidgetManager::recording() const
 bool GLWidgetManager::hasCameraChanged() const
 {
   return _pd->cameraChanged;
+}
+
+bool GLWidgetManager::useDepthPeeling() const
+{
+  return _pd->useDepthPeeling;
+}
+
+void GLWidgetManager::setUseDepthPeeling( bool use )
+{
+  _pd->useDepthPeeling = use;
+}
+
+int GLWidgetManager::nbLayers() const
+{
+  return _pd->nbLayers;
+}
+
+void GLWidgetManager::setNbLayers( int n )
+{
+  if( n < 1 )
+    n = 1;
+  _pd->nbLayers = n;
+}
+
+int GLWidgetManager::currentLayer() const
+{
+  return _pd->currentLayer;
+}
+
+void GLWidgetManager::setCurrentLayer( int n )
+{
+  if( n < 0 || n >= _pd->nbLayers )
+    n = 0;
+  _pd->currentLayer = n;
+}
+
+int GLWidgetManager::depthPeelingUnitTexture() const
+{
+  return _pd->depthPeelingUnitTexture;
+}
+
+void GLWidgetManager::setDepthPeelingUnitTexture( int unit )
+{
+  if( unit < 0 )
+    unit = 0;
+  if( unit > 7 )
+    unit = 7;
+  _pd->depthPeelingUnitTexture = unit;
+}
+
+void GLWidgetManager::texToPng()
+{
+  int width = this->width();
+  int height = this->height();
+  for( int i = 0; i < _pd->nbLayers; ++i )
+  {
+    {
+    //color texture
+    std::vector<unsigned char> colorPixels(width * height * 4); // RGBA8
+
+    _pd->colorTextures[i]->bind();
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, colorPixels.data());
+    _pd->colorTextures[i]->release();
+
+    QImage image(colorPixels.data(), width, height, QImage::Format_RGBA8888);
+    image = image.mirrored();
+
+    std::list<std::string> path =  carto::Paths::findResourceFiles("shaders/templates", "anatomist");
+    if( path.empty() )
+    {
+      cerr << "Error: cannot find the templates directory for saving textures.\n";
+      return;
+    }
+    QString filename = QString::fromStdString(path.front()+ "/colorTexture_" + std::to_string(i) + ".png") ;
+    image.save(filename);
+    }
+
+    {
+    //depth texture
+    std::vector<float> depthPixels(width * height);
+
+        _pd->depthTextures[i]->bind();
+        glGetTexImage(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, GL_FLOAT, depthPixels.data());
+        _pd->depthTextures[i]->release();
+
+        float minD = 1.0f, maxD = 0.0f;
+        for (float d : depthPixels) {
+            if (d < minD) minD = d;
+            if (d > maxD) maxD = d;
+        }
+        //std::cout << "Layer " << i << " depth range: " << minD << " - " << maxD << std::endl;
+
+        QImage image(width, height, QImage::Format_Grayscale8);
+
+        image = image.mirrored();
+
+        std::list<std::string> path = carto::Paths::findResourceFiles("shaders/templates", "anatomist");
+        if (path.empty()) {
+            std::cerr << "Error: cannot find the templates directory for saving textures.\n";
+            return;
+        }
+
+        QString filename = QString::fromStdString(path.front() + "/depthTex_" + std::to_string(i) + ".png");
+        image.save(filename);
+      }
+  }
 }

@@ -41,10 +41,10 @@
 #include <anatomist/primitive/primitiveTypes.h>
 #include <anatomist/surface/glcomponent.h>
 
-class AWindow3D;
+
 namespace anatomist
 {
-  
+  class GLWidgetManager;
   class IShaderModule;
 
   /** OpenGL item (display list, texture, ...) with reference counter and 
@@ -54,6 +54,7 @@ namespace anatomist
   public:
     inline GLItem() : carto::RCObject(), _ghost( false ) {}
     virtual ~GLItem();
+    virtual std::shared_ptr<QOpenGLShaderProgram> shader() const { return nullptr;}
 
     /// renders the display list
     virtual void callList() const = 0;
@@ -136,7 +137,7 @@ namespace anatomist
   public:
     GLBindShader(std::shared_ptr<QOpenGLShaderProgram> glShader) : GLItem(), _shaderProgram(glShader) {}
     virtual ~GLBindShader();
-    std::shared_ptr<QOpenGLShaderProgram> item() const { return _shaderProgram; }
+    std::shared_ptr<QOpenGLShaderProgram> shader() const override { return _shaderProgram; }
     virtual void callList() const;
     private:
       std::shared_ptr<QOpenGLShaderProgram> _shaderProgram;
@@ -148,15 +149,10 @@ namespace anatomist
   public:
     GLReleaseShader(std::shared_ptr<QOpenGLShaderProgram> glShader) : GLItem(), _shaderProgram(glShader) {}
     virtual ~GLReleaseShader();
-    std::shared_ptr<QOpenGLShaderProgram> item() const { return _shaderProgram; }
     virtual void callList() const;
     private:
       std::shared_ptr<QOpenGLShaderProgram> _shaderProgram;
   };
-
-
-
-
 
   class GLItemList : public GLItem
   {
@@ -183,14 +179,13 @@ namespace anatomist
   class GLSceneUniforms : public GLItem
   {
   public:
-    GLSceneUniforms(std::shared_ptr<IShaderModule> shaderModule ,std::shared_ptr<QOpenGLShaderProgram> glShader, AWindow3D* scene) : GLItem(), _module(shaderModule), _shader(glShader), _scene(scene) {}
+    GLSceneUniforms(std::shared_ptr<IShaderModule> shaderModule ,std::shared_ptr<QOpenGLShaderProgram> glShader, GLWidgetManager* scene) : GLItem(), _module(shaderModule), _shader(glShader), _scene(scene) {}
     virtual ~GLSceneUniforms();
-    std::shared_ptr<QOpenGLShaderProgram> shader() const { return _shader; }
     virtual void callList() const;
   private:
     std::shared_ptr<IShaderModule> _module;
     std::shared_ptr<QOpenGLShaderProgram> _shader;
-    AWindow3D* _scene;
+    GLWidgetManager* _scene;
 
   };
 
@@ -200,7 +195,6 @@ namespace anatomist
   public:
     GLObjectUniforms(std::shared_ptr<IShaderModule> shaderModule, std::shared_ptr<QOpenGLShaderProgram> glShader, GLComponent* glObj) : GLItem(),_module(shaderModule), _shader(glShader), _glObj(glObj) {}
     virtual ~GLObjectUniforms();
-    std::shared_ptr<QOpenGLShaderProgram> shader() const { return _shader; }
     virtual void callList() const;
   private:
     std::shared_ptr<IShaderModule> _module;
