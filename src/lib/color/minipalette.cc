@@ -1084,8 +1084,11 @@ void MiniPaletteWidgetEdit::setPalette( const std::string & palname )
     if( palname != "" && palname != "<None>" )
       apal = theAnatomist->palettes().find( palname );
     pal->setRefPalette( dim, apal );
+    obj->setPalette( *pal );
     if( obj->glAPI() )
+    {
       obj->glAPI()->glSetTexImageChanged();
+    }
     obj->notifyObservers();
   }
 }
