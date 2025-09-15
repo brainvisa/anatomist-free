@@ -52,6 +52,7 @@ init_matplotlib_backend()
 
 from soma.qt_gui.qt_backend import QtCore
 from soma.qt_gui.qt_backend import QtGui as qt
+from soma.qt_gui.qt_backend import QtWidgets
 # copy needed classes to fake qt (yes, it's a horrible hack)
 qt.QPoint = QtCore.QPoint
 qt.QSize = QtCore.QSize
@@ -175,6 +176,8 @@ class PaletteWidget(MplCanvas):
 
     def _init_bgcolor(self, widget):
         import numpy
+        if widget is None:
+            widget = self
         qtbg = widget.palette().color(qt.QPalette.Active, qt.QPalette.Window)
         return (numpy.array(qtbg.getRgb(), dtype='f') / 255.).tolist()
 
@@ -217,7 +220,8 @@ class PaletteWidget(MplCanvas):
     def _display(self, palette):
         import pylab
         import numpy
-        figure = pylab.figure(self.number)
+        figsize = [self.width() / 100., self.height() / 100.]
+        figure = pylab.figure(self.number, figsize=figsize)
         range = numpy.linspace(0, 1, self._size)[:, numpy.newaxis]
         te = self._obj.glAPI().glTexExtrema(0)
         mi = te.minquant[0]
@@ -557,20 +561,36 @@ def toggleShowPaletteForObject(aobject):
     ShowHidePaletteCallback().doit(ana.cpp.set_AObjectPtr([aobject]))
 
 
-def savePaletteImage(aobject, filename):
+def savePaletteImage(aobject, filename, size=None):
     # save palette figure
-    if hasattr(aobject, 'getInternalRep'):
-        aobject = aobject.getInternalRep()
-    a = ana.Anatomist()
-    wins = a.getWindows()
-    for w in wins:
-        gw = w.parent().findChild(GroupPaletteWidget)
-        if gw:
-            break
-    else:
-        return
-    fig = gw.get(getObjectId(aobject)).findChild(PaletteWidget).figure
-    fig.savefig(filename)
+    #if hasattr(aobject, 'getInternalRep'):
+        #aobject = aobject.getInternalRep()
+    #a = ana.Anatomist()
+    #wins = a.getWindows()
+    #print('windows:', wins)
+    #for w in wins:
+        #if w.parent() is not None:
+            #gw = w.parent().findChild(GroupPaletteWidget)
+            #if gw:
+                #break
+    #else:
+        #return
+    #fig = gw.get(getObjectId(aobject)).findChild(PaletteWidget).figure
+
+    palwid = PaletteWidget(aobject, None)
+    kwargs = {}
+    if size is not None:
+        # resizing does not work. Don't know why.
+        # print('resize palette:', size)
+        palwid.resize(size[0], size[1])
+        QtWidgets.QApplication.instance().processEvents()
+        FigureCanvas.updateGeometry(palwid)
+        palwid.update_palette()
+        QtWidgets.QApplication.instance().processEvents()
+    # print('canvas size:', palwid.size())
+    fig = palwid._figure
+
+    fig.savefig(filename, transparent=True)
 
 
 pm = PaletteViewerModule()
