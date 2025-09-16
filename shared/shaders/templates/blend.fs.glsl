@@ -16,7 +16,7 @@ vec4 blendOver(vec4 front, vec4 back) {
         return back;
     }
     
-    result.rgb = front.rgb * front.a + back.rgb * back.a * (1.0 - front.a); 
+    result.rgb = front.rgb * front.a + back.rgb * (1.0 - front.a); 
     result.a = front.a + back.a * (1.0 - front.a);
     return result;
 }
@@ -51,10 +51,9 @@ void main()
 
     finalColor = blendOver(finalColor, layerColor);
 
-    //if(finalColor.a >= 0.99) break;
+    if(finalColor.a >= 0.99) break;
 
   }
 
-  finalColor = vec4(1.0,0.0,0.0,1.0);
   fragColor = finalColor;
 }

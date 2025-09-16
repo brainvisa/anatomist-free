@@ -252,6 +252,7 @@ namespace anatomist
     void setDepthPeelingUnitTexture( int unit );
     void texToPng();
     void clearTexturesAndFBOs();
+    void resizeTexturesAndFBOs( int w, int h );
 
     /// QGraphicsView needs to call event methods
     friend class anatomist::internal::AGraphicsView;

@@ -274,7 +274,7 @@ GLWidgetManager::Private::Private()
     qobject( 0 ),
     transparentBackground( true ), backgroundAlpha( 128 ),
     mouseX( 0 ), mouseY( 0 ), resized(false), saveInProgress( false ),
-    cameraChanged( true ), recordWidth( 0 ), recordHeight( 0 ), useDepthPeeling(true), nbLayers(4), currentLayer(0), fullScreenQuadList(0), depthPeelingUnitTexture(7)
+    cameraChanged( true ), recordWidth( 0 ), recordHeight( 0 ), useDepthPeeling(true), nbLayers(8), currentLayer(0), fullScreenQuadList(0), depthPeelingUnitTexture(7)
 #ifdef ANA_USE_QOPENGLWIDGET
     ,
     z_framebuffer( 0 ), z_renderbuffer( 0 ),
@@ -403,6 +403,9 @@ void GLWidgetManager::initializeGL()
 {
   // depth peeling checks and initialization
   checkDepthPeeling( _pd );
+  initTextures();
+  initFBOs();
+  createFullScreenQuad();
 
   // "regular" stuff
   glEnable(GL_LIGHTING);
@@ -435,6 +438,7 @@ void GLWidgetManager::resizeGL( int w, int h )
   }
   glViewport( 0, 0, (GLint)w, (GLint)h );
   resizeOtherFramebuffers( w, h );
+  resizeTexturesAndFBOs( w, h );
   _pd->resized = true;
 }
 
@@ -830,41 +834,24 @@ void GLWidgetManager::drawObjects( DrawMode m )
 
     while( glGetError() != GL_NO_ERROR ){}
 
-    initTextures();
-    err = glGetError();
-    if( err != GL_NO_ERROR )
-      cerr << "GLWidgetManager::drawObjects: OpenGL error after initTextures: "
-          << gluErrorString( err ) << endl;
-    
-    initFBOs();
-    err = glGetError();
-    if( err != GL_NO_ERROR )
-      cerr << "GLWidgetManager::drawObjects: OpenGL error after initFBOs: "
-          << gluErrorString( err ) << endl;
-
     depthPeeling();
     err = glGetError();
     if( err != GL_NO_ERROR )
       cerr << "GLWidgetManager::drawObjects: OpenGL error after depthPeeling: "
           << gluErrorString( err ) << endl;
 
-    //texToPng();
 
     glDisable(GL_DEPTH_TEST);
-
-    createFullScreenQuad();
-    err = glGetError();
-    if( err != GL_NO_ERROR )
-      cerr << "GLWidgetManager::drawObjects: OpenGL error after createFullScreenQuad: "
-            << gluErrorString( err ) << endl;
-
-    
-
+    glDisable(GL_CULL_FACE);
+   
     blendPass();
     err = glGetError();
     if( err != GL_NO_ERROR )
       cerr << "GLWidgetManager::drawObjects: OpenGL error after blendPass: "
             << gluErrorString( err ) << endl;
+    
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
   }
   else
   {
@@ -911,16 +898,16 @@ void GLWidgetManager::initTextures()
   _pd->colorTextures.reserve(_pd->nbLayers);
   _pd->depthTextures.reserve(_pd->nbLayers);
 
-  for(int i = 0; i<_pd->nbLayers+1; ++i)
+  for(int i = 0; i<_pd->nbLayers; ++i)
   {
     //Depth texture
     QOpenGLTexture* depthTexture = new QOpenGLTexture(QOpenGLTexture::Target2D);
     depthTexture->create();
     depthTexture->setSize(this->width(), this->height());
     depthTexture->setFormat(QOpenGLTexture::D32F);
-    depthTexture->allocateStorage();
     depthTexture->setMinMagFilters(QOpenGLTexture::Nearest, QOpenGLTexture::Nearest);
     depthTexture->setWrapMode(QOpenGLTexture::ClampToEdge);
+    depthTexture->allocateStorage();
     _pd->depthTextures.push_back(depthTexture);
 
     //Color texture
@@ -928,11 +915,44 @@ void GLWidgetManager::initTextures()
     colorTexture->create();
     colorTexture->setSize(this->width(), this->height());
     colorTexture->setFormat(QOpenGLTexture::RGBA32F);
-    colorTexture->allocateStorage();
     colorTexture->setMinMagFilters(QOpenGLTexture::Nearest, QOpenGLTexture::Nearest);
     colorTexture->setWrapMode(QOpenGLTexture::ClampToEdge);
+    colorTexture->allocateStorage();
     _pd->colorTextures.push_back(colorTexture);
   }
+}
+
+void GLWidgetManager::resizeTexturesAndFBOs(int w, int h)
+{
+  if(_pd->colorTextures.size() != 0 && _pd->depthTextures.size() != 0)
+  {
+    for(size_t i=0; i< _pd->nbLayers; ++i)
+    {
+      _pd->colorTextures[i]->destroy(); // jordan : redundant with initTextures, should I create a methode for this
+      _pd->colorTextures[i]->create();
+      _pd->colorTextures[i]->setSize(w,h);
+      _pd->colorTextures[i]->setFormat(QOpenGLTexture::RGBA32F);
+      _pd->colorTextures[i]->setMinMagFilters(QOpenGLTexture::Nearest, QOpenGLTexture::Nearest);
+      _pd->colorTextures[i]->setWrapMode(QOpenGLTexture::ClampToEdge);
+      _pd->colorTextures[i]->allocateStorage();
+
+      _pd->depthTextures[i]->destroy();
+      _pd->depthTextures[i]->create();
+      _pd->depthTextures[i]->setSize(w,h);
+      _pd->depthTextures[i]->setFormat(QOpenGLTexture::D32F);
+      _pd->depthTextures[i]->setMinMagFilters(QOpenGLTexture::Nearest, QOpenGLTexture::Nearest);
+      _pd->depthTextures[i]->setWrapMode(QOpenGLTexture::ClampToEdge);
+      _pd->depthTextures[i]->allocateStorage();
+
+      _pd->fbos[i]->bind();
+      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _pd->colorTextures[i]->textureId(), 0);
+      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _pd->depthTextures[i]->textureId(), 0);
+      _pd->fbos[i]->release();  
+    }
+  }
+
+  //initTextures(); // jordan : resize textures and fbos only would be better but it's segfaulting
+
 }
 
 void GLWidgetManager::initFBOs()
@@ -941,7 +961,7 @@ void GLWidgetManager::initFBOs()
   _pd->fbos.reserve(_pd->nbLayers);
   QOpenGLFramebufferObjectFormat format;
   format.setAttachment(QOpenGLFramebufferObject::NoAttachment);
-  for(int i = 0; i<_pd->nbLayers+1; ++i)
+  for(int i = 0; i<_pd->nbLayers; ++i)
   {
     QOpenGLFramebufferObject* fbo = new QOpenGLFramebufferObject(this->width(), this->height(), format);
     if(!fbo->isValid())
@@ -1008,20 +1028,7 @@ void GLWidgetManager::drawFullScreenQuad()
 {
   if( _pd->fullScreenQuadList != 0 )
   {
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadIdentity();
-
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
-
     glCallList(_pd->fullScreenQuadList);
-
-    glPopMatrix();         
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
   }
 }
 
@@ -1040,6 +1047,10 @@ void GLWidgetManager::blendPass()
 
   glBindFramebuffer(GL_FRAMEBUFFER, qglWidget()->defaultFramebufferObject());
   glViewport(0, 0, _pd->glwidget->width(), _pd->glwidget->height());
+  // glClearColor(0,0,0,1);
+  // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
