@@ -47,6 +47,7 @@
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/control/qObjTree.h>
 #include <anatomist/object/actions.h>
+#include <anatomist/primitive/primitive.h>
 #include <anatomist/application/settings.h>
 #include <anatomist/color/paletteList.h>
 #include <aims/resampling/motion.h>

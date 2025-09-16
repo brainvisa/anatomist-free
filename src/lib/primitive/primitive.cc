@@ -36,7 +36,6 @@
 #include <anatomist/primitive/primitiveTypes.h>
 #include <anatomist/window3D/window3D.h>
 #include <anatomist/window/glcaps.h>
-//#include <anatomist/window/glwidget.h>
 #include <anatomist/window/glwidgetmanager.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/object/Object.h>
@@ -378,7 +377,7 @@ void GLTexture::callList() const
 
 GLBindShader::~GLBindShader()
 {
-
+  // do nothing
 }
 
 void GLBindShader::callList() const
@@ -386,23 +385,43 @@ void GLBindShader::callList() const
 
   GLint currentProgram = 0;
   glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgram);
-
+  if(currentProgram == (GLint)_shaderProgram->programId())
+    return;
+  if(!_shaderProgram->isLinked())
+  {
+    if(!_shaderProgram->link())
+    {
+      std::cerr << "Error linking shader program: " << _shaderProgram->log().toStdString() << std::endl;
+      return;
+    }
+  }
   _shaderProgram->bind();
+  GLenum status = glGetError();
+  if( status != GL_NO_ERROR )
+    cerr << "GLBindShader::callList() Could not bind shader program ! - "
+         << gluErrorString(status) << endl;
 }
 
 GLReleaseShader::~GLReleaseShader()
 {
-
+ // do nothing
 }
 
 void GLReleaseShader::callList() const
 {
+  if(!_shaderProgram)
+    return;
+
   _shaderProgram->release();
+  GLenum status = glGetError();
+  if( status != GL_NO_ERROR )
+    cerr << "GLReleaseShader::callList() Could not release shader program ! - "
+         << gluErrorString(status) << endl;
 }
 
 GLSceneUniforms::~GLSceneUniforms()
 {
-
+  // do nothing
 }
 
 void GLSceneUniforms::callList() const
@@ -410,13 +429,17 @@ void GLSceneUniforms::callList() const
   if(_shader && _scene)
   {
     _module->setupSceneUniforms(*_shader, *_scene);
+    GLenum status = glGetError();
+    if( status != GL_NO_ERROR )
+      cerr << "GLSceneUniforms::callList() Could not set scene uniforms ! - "
+           << gluErrorString(status) << endl;
   }
     
 }
 
 GLObjectUniforms::~GLObjectUniforms()
 {
-
+  // do nothing
 }
 
 void GLObjectUniforms::callList() const

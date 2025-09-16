@@ -42,6 +42,7 @@
 #include <anatomist/window3D/control3D.h>
 #include <anatomist/window3D/trackball.h>
 #include <anatomist/window3D/window3D.h>
+#include <anatomist/primitive/primitive.h>
 #include <anatomist/misc/error.h>
 #include <qlabel.h>
 #include <qobject.h>
