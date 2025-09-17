@@ -31,10 +31,10 @@ uniform float u_materialShininess;
 std::string BlinnPhongIlluminationModel::getFunctionImplementation() const
 {
   return R"(
-vec4 BlinnPhong(vec4 ambient, vec3 fragPos, vec3 normal)
+vec4 BlinnPhong(vec3 fragPos, vec3 normal)
 {
   vec3 b_normal = normalize(normal);
-  vec3 lightDirection = normalize(-v_directionLight);
+  vec3 lightDirection = -normalize(gl_LightSource[0].position.xyz); //normalize(-v_directionLight);
   vec3 viewVector = normalize(v_eyeVertexPosition.xyz - fragPos);
   vec3 halfVector = normalize(lightDirection + viewVector);
 
@@ -61,7 +61,7 @@ vec4 BlinnPhong(vec4 ambient, vec3 fragPos, vec3 normal)
 
 std::string BlinnPhongIlluminationModel::getFunctionCall() const
 {
-  return "BlinnPhong(color, gl_FragCoord.xyz, v_normal);";
+  return "BlinnPhong(gl_FragCoord.xyz, v_normal);";
 }
 
 void BlinnPhongIlluminationModel::setupObjectUniforms(QOpenGLShaderProgram& program, GLComponent& obj) const
