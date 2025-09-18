@@ -34,7 +34,7 @@ std::string BlinnPhongIlluminationModel::getFunctionImplementation() const
 vec4 BlinnPhong(vec3 fragPos, vec3 normal)
 {
   vec3 b_normal = normalize(normal);
-  vec3 lightDirection = -normalize(gl_LightSource[0].position.xyz); //normalize(-v_directionLight);
+  vec3 lightDirection = normalize(gl_LightSource[0].position.xyz); //normalize(-v_directionLight);
   vec3 viewVector = normalize(v_eyeVertexPosition.xyz - fragPos);
   vec3 halfVector = normalize(lightDirection + viewVector);
 
