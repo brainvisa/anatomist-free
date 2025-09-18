@@ -44,6 +44,8 @@
 #include <iostream>
 #include <algorithm>
 #include <anatomist/surface/IShaderModule.h>
+#include <QOpenGLContext>
+#include <QSurfaceFormat>
 
 // uncomment this to allow lots of output messages about GL lists
 //#define ANA_DEBUG_GLLISTS
@@ -409,6 +411,17 @@ GLReleaseShader::~GLReleaseShader()
 
 void GLReleaseShader::callList() const
 {
+  QOpenGLContext *ctx = QOpenGLContext::currentContext();
+  if(!ctx)
+      return;
+  
+  QSurfaceFormat fmt = ctx->format();
+  if(fmt.profile() != QSurfaceFormat::CompatibilityProfile)
+  {
+      // In core profile, glUseProgram(0) is invalid
+      return;
+  }
+
   if(!_shaderProgram)
     return;
 
@@ -447,19 +460,52 @@ void GLObjectUniforms::callList() const
   if(_shader && _glObj)
   {
     int hasTextureLocation = _shader->uniformLocation("u_hasTexture");
-    _shader->setUniformValue(hasTextureLocation, 0); // Jordan: TODO: set has texture
+    _shader->setUniformValue(hasTextureLocation, _glObj->glNumTextures()==0 ? false : true);
+
+    int dimTexture = _glObj->glDimTex(ViewState()); // jordan - how to pass viewstate?
 
     int textureTypeLocation = _shader->uniformLocation("u_textureType");
-    _shader->setUniformValue(textureTypeLocation, 0); // Jordan: TODO: set texture type
+    _shader->setUniformValue(textureTypeLocation, dimTexture);
 
-    // glActiveTexture(GL_TEXTURE0);
-    // int texture1DLocation = _shader->uniformLocation("u_texture1D");
-    // _shader->setUniformValue(texture1DLocation, 0); // Jordan: TODO: set texture 1D
 
-    // glActiveTexture(GL_TEXTURE1);
-    // int texture2DLocation = _shader->uniformLocation("u_texture2D");
-    // _shader->setUniformValue(texture2DLocation, 1); // Jordan: TODO: set texture 2D
+    // We use texture unit 0 to render the object texture.
+    // other texture uniforms must be set on other units to avoid issues on some graphic cards
+    // but these textures are not used.
+    if(dimTexture <= 1)
+    {
+      int texture1DLocation = _shader->uniformLocation("u_texture1D");
+      _shader->setUniformValue(texture1DLocation, 0);
 
+      int texture2DLocation = _shader->uniformLocation("u_texture2D");
+      _shader->setUniformValue(texture2DLocation, 1);
+
+      int texture3DLocation = _shader->uniformLocation("u_texture3D");
+      _shader->setUniformValue(texture3DLocation, 2);
+    }
+    else if (dimTexture == 2)
+    {
+      int texture1DLocation = _shader->uniformLocation("u_texture1D");
+      _shader->setUniformValue(texture1DLocation, 1);
+
+      int texture2DLocation = _shader->uniformLocation("u_texture2D");
+      _shader->setUniformValue(texture2DLocation, 0);
+
+      int texture3DLocation = _shader->uniformLocation("u_texture3D");
+      _shader->setUniformValue(texture3DLocation, 2);
+    }
+    else if (dimTexture == 3)
+    {
+      int texture1DLocation = _shader->uniformLocation("u_texture1D");
+      _shader->setUniformValue(texture1DLocation, 2);
+
+      int texture2DLocation = _shader->uniformLocation("u_texture2D");
+      _shader->setUniformValue(texture2DLocation, 1);
+
+      int texture3DLocation = _shader->uniformLocation("u_texture3D");
+      _shader->setUniformValue(texture3DLocation, 0);
+    }
+
+   // std::cout << dimTexture << std::endl; //Jordan
 
     _module->setupObjectUniforms(*_shader, *_glObj);
   }
