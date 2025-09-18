@@ -166,17 +166,17 @@ std::shared_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initShader(const std
   baseTemplate = readShaderFile(path.front()+"/"+fsTemplate);
   this->setBaseTemplate(baseTemplate);
   this->setIlluminationModel(shaderModules[0]);
-  bool hasIlluminationMoel = false;
+  bool hasIlluminationModel = false;
   for(size_t i=0; i<shaderModules.size(); ++i)
   {
     if(shaderModules[i]->isIlluminationModel())
     {
-      if(hasIlluminationMoel)
+      if(hasIlluminationModel)
       {
         std::cerr << "Error : Multiple illumination models found in shader modules." << std::endl;
         return nullptr;
       }
-      hasIlluminationMoel = true;
+      hasIlluminationModel = true;
       this->setIlluminationModel(shaderModules[i]);
     }
     else

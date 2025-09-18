@@ -698,7 +698,7 @@ void GLWidgetManager::restoreFramebuffer()
 void GLWidgetManager::paintGL( DrawMode m, int virtualWidth,
                                int virtualHeight )
 {
-  // cout << "paintGL mode " << m << ", " << virtualWidth << ", " << virtualHeight << endl;
+  // cout << "paintGL mode " << m << ", " << virtualWidth << ", " << virtualHeight << ", useDepthPeeling: " << _pd->useDepthPeeling << endl;
   int width = _pd->glwidget->width(), height = _pd->glwidget->height();
   if( virtualWidth != 0 )
     width = virtualWidth;
