@@ -33,7 +33,6 @@ std::string BlinnPhongIlluminationModel::getFunctionImplementation() const
   return R"(
 vec4 BlinnPhong(vec3 fragPos, vec3 normal)
 {
-  vec3 b_normal = normalize(normal);
   vec3 lightDirection = normalize(gl_LightSource[0].position.xyz); //normalize(-v_directionLight);
   vec3 viewVector = normalize(v_eyeVertexPosition.xyz - fragPos);
   vec3 halfVector = normalize(lightDirection + viewVector);
@@ -42,11 +41,11 @@ vec4 BlinnPhong(vec3 fragPos, vec3 normal)
   vec4 b_ambient = (gl_LightSource[0].ambient + gl_LightModel.ambient) * u_materialAmbient;
 
   // diffuse
-  float cos_theta = max(dot(b_normal, lightDirection), 0.0);
+  float cos_theta = max(dot(normal, lightDirection), 0.0);
   vec4 diffuse = u_materialDiffuse * gl_LightSource[0].diffuse * cos_theta;
 
   // specular
-  float cos_alpha = pow(max(dot(b_normal, halfVector), 0.0), u_materialShininess);
+  float cos_alpha = pow(max(dot(normal, halfVector), 0.0), u_materialShininess);
   vec4 specular = gl_LightSource[0].specular * cos_alpha * u_materialSpecular;
 
   // final color
