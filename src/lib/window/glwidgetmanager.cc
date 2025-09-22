@@ -269,7 +269,7 @@ GLWidgetManager::Private::Private()
     qobject( 0 ),
     transparentBackground( true ), backgroundAlpha( 128 ),
     mouseX( 0 ), mouseY( 0 ), resized(false), saveInProgress( false ),
-    cameraChanged( true ), recordWidth( 0 ), recordHeight( 0 ), useDepthPeeling(true), nbLayers(8), currentLayer(0), fullScreenQuadList(0), depthPeelingUnitTexture(7)
+    cameraChanged( true ), recordWidth( 0 ), recordHeight( 0 ), useDepthPeeling(false), nbLayers(8), currentLayer(0), fullScreenQuadList(0), depthPeelingUnitTexture(7)
 #ifdef ANA_USE_QOPENGLWIDGET
     ,
     z_framebuffer( 0 ), z_renderbuffer( 0 ),
@@ -1052,6 +1052,8 @@ void GLWidgetManager::depthPeeling()
     }
     glFlush();
     _pd->fbos[i]->release();
+    if(i>0)
+      _pd->depthTextures[i-1]->release();
   }
   _pd->currentLayer = 0;
 }

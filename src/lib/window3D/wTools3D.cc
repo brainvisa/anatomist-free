@@ -521,6 +521,7 @@ void Tools3DWindow::enableDepthPeeling( bool x )
 {
   GLWidgetManager *da = static_cast<GLWidgetManager *>( _window->view() );
   da->setUseDepthPeeling( x );
+  _window->Refresh();
 }
 
 
@@ -528,6 +529,7 @@ void Tools3DWindow::setDepthPeelingPasses( int n )
 {
   GLWidgetManager *da = static_cast<GLWidgetManager *>( _window->view() );
   da->setNbLayers( (unsigned) n );
+  _window->Refresh();
 }
 
 
