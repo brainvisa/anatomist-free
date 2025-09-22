@@ -297,8 +297,8 @@ Tools3DWindow::Tools3DWindow( AWindow3D *win )
   GLWidgetManager	*da = static_cast<GLWidgetManager *>( win->view() );
   if( !da->depthPeelingAllowed() )
     dpg->setEnabled( false );
-  dpeel->setChecked( da->depthPeelingEnabled() );
-  dppass->setValue( (int) da->depthPeelingPasses() );
+  dpeel->setChecked( da->useDepthPeeling() );
+  dppass->setValue( (int) da->nbLayers() );
   vlay->addStretch( 1 );
 
   // window saving modes
@@ -520,14 +520,14 @@ void Tools3DWindow::setPolygonsSorting( bool x )
 void Tools3DWindow::enableDepthPeeling( bool x )
 {
   GLWidgetManager *da = static_cast<GLWidgetManager *>( _window->view() );
-  da->enableDepthPeeling( x );
+  da->setUseDepthPeeling( x );
 }
 
 
 void Tools3DWindow::setDepthPeelingPasses( int n )
 {
   GLWidgetManager *da = static_cast<GLWidgetManager *>( _window->view() );
-  da->setDepthPeelingPasses( (unsigned) n );
+  da->setNbLayers( (unsigned) n );
 }
 
 

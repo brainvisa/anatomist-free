@@ -198,10 +198,6 @@ namespace anatomist
     bool hasTransparentObjects() const;
     void setTransparentObjects( bool );
     bool depthPeelingAllowed() const;
-    bool depthPeelingEnabled() const;
-    void enableDepthPeeling( bool );
-    unsigned depthPeelingPasses() const;
-    void setDepthPeelingPasses( unsigned n );
     unsigned numTextureUnits() const;
     bool recording() const;
 

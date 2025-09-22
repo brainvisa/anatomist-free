@@ -209,9 +209,7 @@ struct GLWidgetManager::Private
   int			otherbuffers;
   // depth peeling stuff
   bool			hastransparent;
-  bool			depthpeeling;
   bool			depthpeelallowed;
-  unsigned		depthpasses;
   //
   bool			texunits;
   bool			zbufready;
@@ -264,8 +262,8 @@ GLWidgetManager::Private::Private()
     perspectiveFarPlane( 200.f ), perspectiveMaxPlaneRatio( 0.01f ),
     perspectiveNearPlaneRatio( 0.01f ),
     autocenter( true ), otherbuffers( 1 ), 
-    hastransparent( false ), depthpeeling( false ), depthpeelallowed( true ),
-    depthpasses( 2 ), texunits( 1 ), zbufready( false ), zbuftimer( 0 ), 
+    hastransparent( false ), depthpeelallowed( true ),
+    texunits( 1 ), zbufready( false ), zbuftimer( 0 ),
     rgbbufready( false ), 
     lastkeypress_for_qt_bug( 0 ), righteye( 0 ), lefteye( 0 ),
     qobject( 0 ),
@@ -431,33 +429,6 @@ void GLWidgetManager::resizeGL( int w, int h )
 bool GLWidgetManager::depthPeelingAllowed() const
 {
   return _pd->depthpeelallowed;
-}
-
-
-bool GLWidgetManager::depthPeelingEnabled() const
-{
-  return _pd->useDepthPeeling;
-}
-
-
-void GLWidgetManager::enableDepthPeeling( bool x )
-{
-  if( _pd->depthpeelallowed )
-    _pd->useDepthPeeling = x;
-  else
-    _pd->useDepthPeeling = false;
-}
-
-
-unsigned GLWidgetManager::depthPeelingPasses() const
-{
-  return _pd->depthpasses;
-}
-
-
-void GLWidgetManager::setDepthPeelingPasses( unsigned n )
-{
-  _pd->depthpasses = n;
 }
 
 
@@ -2744,7 +2715,10 @@ bool GLWidgetManager::useDepthPeeling() const
 
 void GLWidgetManager::setUseDepthPeeling( bool use )
 {
-  _pd->useDepthPeeling = use;
+  if( _pd->depthpeelallowed )
+    _pd->useDepthPeeling = use;
+  else
+    _pd->useDepthPeeling = false;
 }
 
 int GLWidgetManager::nbLayers() const
