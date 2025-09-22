@@ -946,6 +946,11 @@ void GLWidgetManager::clearTexturesAndFBOs()
   _pd->depthTextures.clear();
   qDeleteAll(_pd->fbos);
   _pd->fbos.clear();
+  if( _pd->fullScreenQuadList != 0 )
+  {
+    glDeleteLists( _pd->fullScreenQuadList, 1 );
+    _pd->fullScreenQuadList = 0;
+  }
 }
 
 void GLWidgetManager::createFullScreenQuad()
@@ -2715,10 +2720,18 @@ bool GLWidgetManager::useDepthPeeling() const
 
 void GLWidgetManager::setUseDepthPeeling( bool use )
 {
+  bool old = _pd->useDepthPeeling;
   if( _pd->depthpeelallowed )
     _pd->useDepthPeeling = use;
   else
     _pd->useDepthPeeling = false;
+  if( _pd->useDepthPeeling != old )
+  {
+    clearTexturesAndFBOs();
+    initTextures();
+    initFBOs();
+    createFullScreenQuad();
+  }
 }
 
 int GLWidgetManager::nbLayers() const
@@ -2731,6 +2744,10 @@ void GLWidgetManager::setNbLayers( int n )
   if( n < 1 )
     n = 1;
   _pd->nbLayers = n;
+  clearTexturesAndFBOs();
+  initTextures();
+  initFBOs();
+  createFullScreenQuad();
 }
 
 int GLWidgetManager::currentLayer() const
