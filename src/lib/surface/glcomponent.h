@@ -388,6 +388,9 @@ namespace anatomist
                                              const Referential* myref );
     int glObjectID() const;
     virtual TexInfo & glTexInfo( unsigned tex = 0 ) const;
+    /// used texture units, and for each, dimension of associated texture
+    virtual std::map<unsigned, unsigned> glUsedTexUnits(
+      const ViewState & vs ) const;
 
   protected:
     void glAddTextures( unsigned ntex = 1 );

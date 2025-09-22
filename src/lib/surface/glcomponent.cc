@@ -1326,6 +1326,30 @@ bool GLComponent::glMakeTexImage( const ViewState & state,
 }
 
 
+map<unsigned, unsigned> GLComponent::glUsedTexUnits(
+  const ViewState & state ) const
+{
+  unsigned ntex = glNumTextures( state );
+  unsigned		dimtex, texid = 0, tex;
+  map<unsigned, unsigned> usedtex;
+
+  for( tex=0; tex<ntex; ++tex, ++texid )
+  {
+    dimtex = glDimTex( state, tex );
+    if( glTexRGBInterpolation( tex ) )
+    {
+      usedtex[texid] = 2;
+      ++texid;
+      usedtex[texid] = 2;
+    }
+    else
+      usedtex[texid] = dimtex;
+  }
+
+  return usedtex;
+}
+
+
 bool GLComponent::glMakeTexEnvGLL( const ViewState & state, 
                                    const GLList & gllist, unsigned tex ) const
 {
