@@ -86,9 +86,6 @@ using namespace aims;
 using namespace carto;
 using namespace std;
 
-// this macro is #undef'ed if GL extensions are not compiled
-#define COMPILE_DEPTH_PEELING
-
 
 #ifdef ANA_USE_QOPENGLWIDGET
 QOpenGLWidget* GLWidgetManager::sharedWidget()
@@ -267,7 +264,7 @@ GLWidgetManager::Private::Private()
     perspectiveFarPlane( 200.f ), perspectiveMaxPlaneRatio( 0.01f ),
     perspectiveNearPlaneRatio( 0.01f ),
     autocenter( true ), otherbuffers( 1 ), 
-    hastransparent( false ), depthpeeling( false ), depthpeelallowed( false ), 
+    hastransparent( false ), depthpeeling( false ), depthpeelallowed( true ),
     depthpasses( 2 ), texunits( 1 ), zbufready( false ), zbuftimer( 0 ), 
     rgbbufready( false ), 
     lastkeypress_for_qt_bug( 0 ), righteye( 0 ), lefteye( 0 ),
@@ -376,25 +373,13 @@ namespace
 
   void checkDepthPeeling( GLWidgetManager::Private* _pd )
   {
-    _pd->depthpeelallowed = false;
-    _pd->depthpeeling = false;
+    _pd->depthpeelallowed = true;
 
-#if !defined( GL_SGIX_shadow ) || \
-( !defined( GL_ARB_shadow ) && !defined( GL_SGIX_shadow ) ) || \
-( !defined( GL_SGIX_depth_texture ) && !defined( GL_ARB_depth_texture ) )
-#ifdef COMPILE_DEPTH_PEELING
-#undef COMPILE_DEPTH_PEELING
-#endif
-
-#else
-
-    if( GLCaps::numTextureUnits() == 1 
+    if( GLCaps::numTextureUnits() == 1
         || ( !GLCaps::ext_ARB_shadow() && !GLCaps::ext_SGIX_shadow() ) 
         || ( !GLCaps::ext_SGIX_depth_texture() 
              && !GLCaps::ext_ARB_depth_texture() ) )
       _pd->depthpeelallowed = false;
-
-#endif // depth peeling extensions
   }
 
 }
@@ -451,16 +436,16 @@ bool GLWidgetManager::depthPeelingAllowed() const
 
 bool GLWidgetManager::depthPeelingEnabled() const
 {
-  return _pd->depthpeelallowed && _pd->depthpeeling;
+  return _pd->useDepthPeeling;
 }
 
 
 void GLWidgetManager::enableDepthPeeling( bool x )
 {
   if( _pd->depthpeelallowed )
-    _pd->depthpeeling = x;
+    _pd->useDepthPeeling = x;
   else
-    _pd->depthpeeling = false;
+    _pd->useDepthPeeling = false;
 }
 
 
@@ -792,12 +777,7 @@ void GLWidgetManager::paintGL( DrawMode m, int virtualWidth,
   /*if (_frameOn)
     glCallList(_3DGuide->GetFrameGLList());*/
 
-  if( _pd->hastransparent && _pd->depthpeelallowed && _pd->depthpeeling )
-    depthPeelingRender( m );
-  else
-  {
-    drawObjects( m );
-  }
+  drawObjects( m );
 
   glPopAttrib();
   glMatrixMode( GL_PROJECTION );
@@ -1100,68 +1080,6 @@ void GLWidgetManager::depthPeeling()
   _pd->currentLayer = 0;
 }
 
-
-
-void GLWidgetManager::depthPeelingRender( DrawMode m )
-{
-  /* #ifndef COMPILE_DEPTH_PEELING
-  drawObjects();
-  #else */
-
-  /* Algorithm from "Interactive order-independent transparency", 
-     Cass Everitt, NVIDIA OpenGL applications engineering */
-  // cout << "depthPeelingRender: not working yet\n";
-
-  glDisable( GL_BLEND );
-  glClearDepth( 0 );
-  glClear( GL_DEPTH_BUFFER_BIT );
-  glDepthFunc( GL_GREATER );
-
-  drawObjects( m );
-
-  GLint width = _pd->glwidget->width();
-  GLint height = _pd->glwidget->height();
-#if QT_VERSION >= 0x050000
-  QWindow *win = qglWidget()->window()->windowHandle();
-  if( win )
-  {
-    width *= win->devicePixelRatio();
-    height *= win->devicePixelRatio();
-  }
-#endif
-  unsigned		n = width * height;
-  vector<GLfloat>	buffer( n );
-  GLfloat		*b = &buffer[0], *be = b + n;
-
-  // make depth texture
-  // could be optimized by SGIX_depth_texture extension
-  glReadPixels( 0, 0, width, height, GL_DEPTH_COMPONENT, GL_FLOAT, b );
-
-  cout << "corner: " << buffer[0] << endl;
-  cout << "center: " << buffer[ width*height/2 + width/2 ] << endl;
-
-  // generate binary alpha texture from buffer
-
-  for( b=&buffer[0]; b<be; ++b )
-    if( *b == 1 )
-      *b = 1;
-    else
-      *b = 0;
-
-  // map texture onto polygons
-
-  // glTexGen( EYE_LINEAR ) : projective texture mapping & multitexture
-  // 3D coords in eye coords, (s,t)=2 Dcoords, r=depth
-
-  // test: lookup(s,t): depth of nearest surface, r=depth of fragment
-  // must compare r to lookup(s,t) : SGIX_shadow extension...
-
-  glClearDepth( 1 );
-  glDepthFunc( GL_LESS );
-  glEnable( GL_BLEND );
-
-  //#endif
-}
 
 
 void GLWidgetManager::clearLists()

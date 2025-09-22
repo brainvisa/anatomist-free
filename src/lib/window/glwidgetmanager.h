@@ -261,7 +261,6 @@ namespace anatomist
     virtual void project( int virtualWidth=0, int virtualHeight=0 );
     virtual void setupView( int virtualWidth=0, int virtualHeight=0 );
     void drawObjects( DrawMode m = Normal );
-    void depthPeelingRender( DrawMode m = Normal );
     /** Virtual width and height are used to perform off-screen rendering.
         They are used only in the context of a framebuffer.
     */
