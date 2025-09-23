@@ -31,11 +31,23 @@ uniform float u_materialShininess;
 std::string BlinnPhongIlluminationModel::getFunctionImplementation() const
 {
   return R"(
-vec4 BlinnPhong(vec3 fragPos, vec3 normal)
+  struct BlinnPhongMaterial {
+    vec4 ambient;
+    vec4 diffuse;
+    vec4 specular;
+  };
+
+BlinnPhongMaterial BlinnPhong(vec3 normal)
 {
-  vec3 lightDirection = normalize(gl_LightSource[0].position.xyz); //normalize(-v_directionLight);
-  vec3 viewVector = normalize(v_eyeVertexPosition.xyz - fragPos);
-  vec3 halfVector = normalize(lightDirection + viewVector);
+  vec3 lightDirection = normalize(v_directionLight);
+
+  //Local viewer
+  //vec3 viewVector = normalize(-v_eyeVertexPosition.xyz);
+  //vec3 halfVector = normalize(lightDirection + viewVector);
+
+  // Non local Viewer
+  vec3 eyeDirection = vec3(0,0,1);
+  vec3 halfVector = normalize(lightDirection + eyeDirection);
 
   // ambient
   vec4 b_ambient = (gl_LightSource[0].ambient + gl_LightModel.ambient) * u_materialAmbient;
@@ -48,11 +60,12 @@ vec4 BlinnPhong(vec3 fragPos, vec3 normal)
   float cos_alpha = pow(max(dot(normal, halfVector), 0.0), u_materialShininess);
   vec4 specular = gl_LightSource[0].specular * cos_alpha * u_materialSpecular;
 
-  // final color
-  vec4 finalColor = (b_ambient + diffuse + specular);
+  BlinnPhongMaterial material;
+  material.ambient = b_ambient;
+  material.diffuse = diffuse;
+  material.specular = specular;
 
-  return vec4(finalColor.rgb, u_materialDiffuse.a);
-
+  return material; 
 }
 )";
 
@@ -60,7 +73,9 @@ vec4 BlinnPhong(vec3 fragPos, vec3 normal)
 
 std::string BlinnPhongIlluminationModel::getFunctionCall() const
 {
-  return "BlinnPhong(gl_FragCoord.xyz, v_normal);";
+  return R"(BlinnPhongMaterial blinnPhong = BlinnPhong(v_normal);
+  vec3 diffuseAmbient = color.rgb * (blinnPhong.ambient.rgb + blinnPhong.diffuse.rgb);
+  color.rgb = diffuseAmbient + blinnPhong.specular.rgb;)";
 }
 
 void BlinnPhongIlluminationModel::setupObjectUniforms(QOpenGLShaderProgram& program, GLComponent& obj) const

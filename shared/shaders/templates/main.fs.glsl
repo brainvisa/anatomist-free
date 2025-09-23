@@ -21,10 +21,10 @@ out vec4 fragColor;
 
 vec4 basicColor()
 {
-  vec4 color = vec4(1.0, 1.0, 1.0, 1.0);
+  vec4 color = vec4(1.0);
   if(u_hasTexture == false)
   {
-    if(v_color != vec4(0.0, 0.0, 0.0, 0.0))
+    if(v_color != vec4(0.0))
     {
       color = v_color;
     }
@@ -52,7 +52,7 @@ vec4 basicColor()
 void main()
 {
  vec4 color = basicColor();
- color *= {Illumination Model Call}
+ {Illumination Model Call}
  {Effect Call}
  fragColor = color;
 }
