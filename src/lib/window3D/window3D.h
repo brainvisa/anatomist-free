@@ -40,8 +40,6 @@
 #include <anatomist/observer/Observable.h>
 #include <anatomist/object/Object.h>
 #include <anatomist/window/viewstate.h>
-#include <QOpenGLShaderProgram> //jordan
-
 
 
 namespace aims
@@ -62,7 +60,8 @@ namespace anatomist
   }
 
 }
-struct TmpCol; //jordan
+
+struct TmpCol;
 
 
 #ifdef ANA_USE_QOPENGLWIDGET

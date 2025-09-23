@@ -141,10 +141,6 @@ std::shared_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initShader(const std
   auto program= std::make_shared<QOpenGLShaderProgram>();
   std::string baseTemplate, vertexSource, fragmentSource;
   std::vector<std::shared_ptr<IShaderModule>> shaderModules = shaderMapping::getModules(shaderIDs);
-  if (shaderModules.empty()) {
-    std::cerr << "Error : no module found for ID " << shaderIDs << std::endl;
-    return nullptr;
-  }
   std::list<std::string> path =  carto::Paths::findResourceFiles("shaders/templates", "anatomist");
   if (path.empty()) {
     std::cerr << "Error : No template shader found in shaders/templates." << std::endl;
@@ -165,7 +161,6 @@ std::shared_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initShader(const std
   // fragment shader
   baseTemplate = readShaderFile(path.front()+"/"+fsTemplate);
   this->setBaseTemplate(baseTemplate);
-  this->setIlluminationModel(shaderModules[0]);
   bool hasIlluminationModel = false;
   for(size_t i=0; i<shaderModules.size(); ++i)
   {
@@ -181,7 +176,7 @@ std::shared_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initShader(const std
     }
     else
     {
-          this->addEffect(shaderModules[i]);
+      this->addEffect(shaderModules[i]);
     }
 
   } 

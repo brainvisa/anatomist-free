@@ -84,6 +84,12 @@
 #include <anatomist/fusion/defFusionMethods.h>
 #include <aims/mesh/surfaceOperation.h>
 #include <anatomist/object/objectparamselect.h>
+#include <anatomist/surface/dynamicShaderBuilder.h>
+#include <anatomist/surface/shaderMapping.h>
+#include <anatomist/primitive/primitive.h>
+#include <anatomist/surface/dynamicShaderBuilder.h>
+#include <anatomist/surface/shaderMapping.h>
+#include <anatomist/primitive/primitive.h>
 #include <aims/resampling/quaternion.h>
 #include <qslider.h>
 #include <qglobal.h>
@@ -107,11 +113,14 @@
 #include <QScreen>
 #include <qstatusbar.h>
 #include <qpainter.h>
+#include <QOpenGLShaderProgram>
+#include <QOpenGLShaderProgram>
 #include <iostream>
 #include <float.h>
-#include <unordered_set> //jordan
-#include <unordered_map> //jordan
-#include <QOpenGLTexture> //jordan
+#include <unordered_map>
+#include <memory>
+#include <unordered_map>
+#include <memory>
 #include <cartobase/config/paths.h>
 #ifdef _WIN32
 #define rint(x) floor(x+0.5)
@@ -125,12 +134,12 @@
 #include <AvailabilityMacros.h>
 #endif
 
-// FIX JORDAN
-#include <anatomist/surface/dynamicShaderBuilder.h>
-#include <anatomist/surface/shaderMapping.h>
-#include <QOpenGLShaderProgram>
-#include <memory>
-#include <anatomist/primitive/primitive.h>
+
+
+
+
+
+
 
 
 /* whith ANA_USE_QGRAPHICSVIEW defined, 3D windows will contain a 
@@ -238,7 +247,7 @@ struct AWindow3D::Private
     // auto-fusion volumes or Sliceable objects
     rc_ptr<AObject> autoFusion;
 
-    //jordan
+    // Shader management
     dynamicShaderBuilder shaderBuilder; 
     std::unordered_map<std::string, std::shared_ptr<QOpenGLShaderProgram>> programs;
     std::unordered_map<std::string, std::vector<AObject*>> opaqueDrawable;
@@ -1250,6 +1259,7 @@ void AWindow3D::applySelectionHighlight(TmpCol* tmpcol)
 void AWindow3D::removeSelectionHighlight(TmpCol* tmpcol)
 {
   unsigned u = 0;
+  if(!tmpcol || _objects.empty()) return;
   for (auto i = _objects.begin(); i != _objects.end(); ++i)
   {
     if (SelectFactory::factory()->isSelected(Group(), i->get()))
@@ -1582,15 +1592,12 @@ std::vector<std::shared_ptr<IShaderModule>> AWindow3D::getEffectiveShaderModules
 
 void AWindow3D::renderOpaqueObjects()
 {
-
-  // Update uniforms and draw opaque objects
   for(const auto& [shader, objects] : d->opaqueDrawable)
   { 
     d->primitives.push_back(carto::rc_ptr<GLItem>(new GLBindShader(d->programs[shader])));
     
     auto shaderModules = getEffectiveShaderModules(objects[0]->glAPI()->getShaderModuleIDs());
 
-    // Setting uniforms & drawing
     for(size_t i=0; i<objects.size(); ++i)
     {
       auto glObj = objects[i]->glAPI();
@@ -1618,18 +1625,6 @@ void AWindow3D::renderTransparentObjects()
 
     auto shaderModules = getEffectiveShaderModules(objects[0]->glAPI()->getShaderModuleIDs());
 
-    GLList *renderpr = new GLList;
-    renderpr->generate();
-    GLuint renderGLL = renderpr->item();
-    if (!renderGLL)
-    {
-      AWarning("AWindow3D::Refresh: OpenGL error.");
-      delete renderpr;
-      return;
-    }
-    glNewList(renderGLL, GL_COMPILE);
-
-    // Setting uniforms & drawin
     for(size_t j=0; j<objects.size(); ++j)
     {
       auto glObj = objects[j]->glAPI();
@@ -1640,12 +1635,10 @@ void AWindow3D::renderTransparentObjects()
           d->primitives.push_back(carto::rc_ptr<GLItem>(new GLSceneUniforms(shaderModules[k], d->programs[shader], d->draw)));
         }
         d->primitives.push_back(carto::rc_ptr<GLItem>(new GLObjectUniforms(shaderModules[k], d->programs[shader], glObj)));
-        glEndList();
       }
 
       updateObject(objects[j]);
     }
-    d->primitives.push_back(RefGLItem(renderpr));
     d->primitives.push_back(carto::rc_ptr<GLItem>(new GLReleaseShader(d->programs[shader])));
   }
 }
@@ -1656,6 +1649,8 @@ void AWindow3D::refreshNow()
   //shaderMapping::printModules();
 
   using carto::shared_ptr;
+
+  cursorGLL();
 
   //bounding box
   std::vector<float> bbmin, bbmax;
@@ -2782,6 +2777,11 @@ GLPrimitives AWindow3D::cursorGLL() const
       GLComponent *gc = curs->glAPI();
       if (gc)
       {
+        //jordan shader
+        std::shared_ptr<QOpenGLShaderProgram> program = d->shaderBuilder.initShader("", "main.vs.glsl", "noLightModel.fs.glsl");
+        d->primitives.push_back(carto::rc_ptr<GLItem>(new GLBindShader(program)));
+        d->primitives.push_back(carto::rc_ptr<GLItem>(new GLObjectUniforms(nullptr, program, gc)));
+
         ViewState vs(0);
         // cursor color
         Material mat = curs->GetMaterial();
@@ -2852,6 +2852,7 @@ GLPrimitives AWindow3D::cursorGLL() const
           d->primitives.insert(d->primitives.end(), curspl.begin(),
               curspl.end());
         }
+        d->primitives.push_back(carto::rc_ptr<GLItem>(new GLReleaseShader(program)));
       }
     }
   }
