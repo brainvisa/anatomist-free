@@ -645,8 +645,15 @@ void GLWidgetManager::resizeOtherFramebuffers( int w, int h )
 void GLWidgetManager::restoreFramebuffer()
 {
 #ifdef ANA_USE_QOPENGLWIDGET
-  GLCaps::glBindFramebuffer( GL_FRAMEBUFFER,
+  if( _pd->useDepthPeeling )
+  {
+    _pd->fbos[0]->release();
+  }
+  else
+  {
+    GLCaps::glBindFramebuffer( GL_FRAMEBUFFER,
                              _pd->glwidget->defaultFramebufferObject() );
+  }
 #endif
 }
 
@@ -2064,6 +2071,10 @@ bool GLWidgetManager::positionFromCursor( int x, int y, Point3df & position )
 
   updateZBuffer();
   bindOtherFramebuffer( ZSelect );
+  if(_pd->useDepthPeeling) //Jordan should be done in bindOtherFramebuffer but has weird effects 
+  {
+    _pd->fbos[0]->bind();
+  }
 
   setupView();
   y = _pd->glwidget->height() - 1 - y;
