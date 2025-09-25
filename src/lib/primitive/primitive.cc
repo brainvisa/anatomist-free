@@ -462,52 +462,58 @@ void GLObjectUniforms::callList() const
     int hasTextureLocation = _shader->uniformLocation("u_hasTexture");
     _shader->setUniformValue(hasTextureLocation, _glObj->glNumTextures()==0 ? false : true);
 
-    int dimTexture = _glObj->glDimTex(ViewState()); // jordan - how to pass viewstate?
+    int numTexture = _glObj->glNumTextures(ViewState()); // jordan - how to pass viewstate?
 
-    int textureTypeLocation = _shader->uniformLocation("u_textureType");
-    _shader->setUniformValue(textureTypeLocation, dimTexture);
-
-
-    // We use texture unit 0 to render the object texture.
-    // other texture uniforms must be set on other units to avoid issues on some graphic cards
-    // but these textures are not used.
-    if(dimTexture <= 1)
+    if( numTexture != 0 )
     {
-      int texture1DLocation = _shader->uniformLocation("u_texture1D");
-      _shader->setUniformValue(texture1DLocation, 0);
+      int dimTexture = _glObj->glDimTex(ViewState()); // jordan - how to pass viewstate?
 
-      int texture2DLocation = _shader->uniformLocation("u_texture2D");
-      _shader->setUniformValue(texture2DLocation, 1);
+      int textureTypeLocation = _shader->uniformLocation("u_textureType");
+      _shader->setUniformValue(textureTypeLocation, dimTexture);
 
-      int texture3DLocation = _shader->uniformLocation("u_texture3D");
-      _shader->setUniformValue(texture3DLocation, 2);
+
+      // We use texture unit 0 to render the object texture.
+      // other texture uniforms must be set on other units to avoid issues on some graphic cards
+      // but these textures are not used.
+      if(dimTexture <= 1)
+      {
+        int texture1DLocation = _shader->uniformLocation("u_texture1D");
+        _shader->setUniformValue(texture1DLocation, 0);
+
+        int texture2DLocation = _shader->uniformLocation("u_texture2D");
+        _shader->setUniformValue(texture2DLocation, 1);
+
+        int texture3DLocation = _shader->uniformLocation("u_texture3D");
+        _shader->setUniformValue(texture3DLocation, 2);
+      }
+      else if (dimTexture == 2)
+      {
+        int texture1DLocation = _shader->uniformLocation("u_texture1D");
+        _shader->setUniformValue(texture1DLocation, 1);
+
+        int texture2DLocation = _shader->uniformLocation("u_texture2D");
+        _shader->setUniformValue(texture2DLocation, 0);
+
+        int texture3DLocation = _shader->uniformLocation("u_texture3D");
+        _shader->setUniformValue(texture3DLocation, 2);
+      }
+      else if (dimTexture == 3)
+      {
+        int texture1DLocation = _shader->uniformLocation("u_texture1D");
+        _shader->setUniformValue(texture1DLocation, 2);
+
+        int texture2DLocation = _shader->uniformLocation("u_texture2D");
+        _shader->setUniformValue(texture2DLocation, 1);
+
+        int texture3DLocation = _shader->uniformLocation("u_texture3D");
+        _shader->setUniformValue(texture3DLocation, 0);
+      }
+      // std::cout << dimTexture << std::endl; //Jordan
+
     }
-    else if (dimTexture == 2)
-    {
-      int texture1DLocation = _shader->uniformLocation("u_texture1D");
-      _shader->setUniformValue(texture1DLocation, 1);
 
-      int texture2DLocation = _shader->uniformLocation("u_texture2D");
-      _shader->setUniformValue(texture2DLocation, 0);
-
-      int texture3DLocation = _shader->uniformLocation("u_texture3D");
-      _shader->setUniformValue(texture3DLocation, 2);
-    }
-    else if (dimTexture == 3)
-    {
-      int texture1DLocation = _shader->uniformLocation("u_texture1D");
-      _shader->setUniformValue(texture1DLocation, 2);
-
-      int texture2DLocation = _shader->uniformLocation("u_texture2D");
-      _shader->setUniformValue(texture2DLocation, 1);
-
-      int texture3DLocation = _shader->uniformLocation("u_texture3D");
-      _shader->setUniformValue(texture3DLocation, 0);
-    }
-
-   // std::cout << dimTexture << std::endl; //Jordan
-
-    _module->setupObjectUniforms(*_shader, *_glObj);
+    if( _module )
+      _module->setupObjectUniforms(*_shader, *_glObj);
   }
 }
 
