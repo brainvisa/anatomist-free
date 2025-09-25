@@ -82,17 +82,34 @@ void BlinnPhongIlluminationModel::setupObjectUniforms(QOpenGLShaderProgram& prog
 {
   auto material = obj.glMaterial();
 
-  int materialAmbientLocation = program.uniformLocation("u_materialAmbient");
-  program.setUniformValue(materialAmbientLocation, material->Ambient(0), material->Ambient(1), material->Ambient(2), material->Ambient(3));
+  if( !material )
+  {
+    int materialAmbientLocation = program.uniformLocation("u_materialAmbient");
+    program.setUniformValue(materialAmbientLocation, 1., 1., 1., 1.);
 
-  int materialDiffuseLocation = program.uniformLocation("u_materialDiffuse");
-  program.setUniformValue(materialDiffuseLocation, material->Diffuse(0), material->Diffuse(1), material->Diffuse(2), material->Diffuse(3));
+    int materialDiffuseLocation = program.uniformLocation("u_materialDiffuse");
+    program.setUniformValue(materialDiffuseLocation, 1.,1., 1., 1.);
 
-  int materialSpecularLocation = program.uniformLocation("u_materialSpecular");
-  program.setUniformValue(materialSpecularLocation, material->Specular(0), material->Specular(1), material->Specular(2), material->Specular(3)); 
+    int materialSpecularLocation = program.uniformLocation("u_materialSpecular");
+    program.setUniformValue(materialSpecularLocation, 0., 0., 0., 1.);
 
-  int materialShininessLocation = program.uniformLocation("u_materialShininess");
-  program.setUniformValue(materialShininessLocation, material->Shininess());
+    int materialShininessLocation = program.uniformLocation("u_materialShininess");
+    program.setUniformValue(materialShininessLocation, 20.f);
+  }
+  else
+  {
+    int materialAmbientLocation = program.uniformLocation("u_materialAmbient");
+    program.setUniformValue(materialAmbientLocation, material->Ambient(0), material->Ambient(1), material->Ambient(2), material->Ambient(3));
+
+    int materialDiffuseLocation = program.uniformLocation("u_materialDiffuse");
+    program.setUniformValue(materialDiffuseLocation, material->Diffuse(0), material->Diffuse(1), material->Diffuse(2), material->Diffuse(3));
+
+    int materialSpecularLocation = program.uniformLocation("u_materialSpecular");
+    program.setUniformValue(materialSpecularLocation, material->Specular(0), material->Specular(1), material->Specular(2), material->Specular(3));
+
+    int materialShininessLocation = program.uniformLocation("u_materialShininess");
+    program.setUniformValue(materialShininessLocation, material->Shininess());
+  }
 }
 
 
