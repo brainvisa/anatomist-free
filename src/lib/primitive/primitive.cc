@@ -459,58 +459,49 @@ void GLObjectUniforms::callList() const
 {
   if(_shader && _glObj)
   {
-    int numTexture = _glObj->glNumTextures(ViewState()); // jordan - how to pass viewstate?
+    ViewState vs; // jordan - how to pass viewstate?
+
+    int numTexture = _glObj->glNumTextures( vs );
     int hasTextureLocation = _shader->uniformLocation("u_hasTexture");
     _shader->setUniformValue(hasTextureLocation, numTexture==0 ? false : true);
 
+    vector<int> tex_locations( 3 );
+    tex_locations[0] = _shader->uniformLocation("u_texture1D");
+    tex_locations[1] = _shader->uniformLocation("u_texture2D");
+    tex_locations[2] = _shader->uniformLocation("u_texture3D");
+
+    map<unsigned, unsigned> used_tex_units = _glObj->glUsedTexUnits( vs );
+    map<unsigned, unsigned>::iterator it, et = used_tex_units.end();
+    set<unsigned> used_dims;
+    set<unsigned> used_units;
+
+    for( it=used_tex_units.begin(); it!=et; ++it )
+    {
+      if( used_dims.find( it->second - 1 ) == used_dims.end() )
+      {
+        // cout << "set tex " << it->second << "D to unit " << it->first << endl;
+        used_dims.insert( it->second - 1 );
+        used_units.insert( it->first );
+        _shader->setUniformValue( tex_locations[it->second - 1],
+                                  int( it->first ) );
+      }
+    }
+    unsigned free_unit = 0;
+    for( unsigned i=0; i<3; ++i )
+      if( used_dims.find( i ) == used_dims.end() )
+      {
+        for( ; used_units.find( free_unit ) != used_units.end(); ++free_unit );
+        // cout << "set unused tex " << i + 1 << "D to unit " << free_unit << endl;
+        used_units.insert( free_unit );
+        _shader->setUniformValue( tex_locations[i], free_unit );
+      }
 
     int dimTexture = 0;
     if( numTexture != 0 )
-    {
-      dimTexture = _glObj->glDimTex(ViewState()); // jordan - how to pass viewstate?
-    }
+      dimTexture = _glObj->glDimTex( vs );
 
     int textureTypeLocation = _shader->uniformLocation("u_textureType");
     _shader->setUniformValue(textureTypeLocation, dimTexture);
-
-
-    // We use texture unit 0 to render the object texture.
-    // other texture uniforms must be set on other units to avoid issues on some graphic cards
-    // but these textures are not used.
-    if(dimTexture <= 1)
-    {
-      int texture1DLocation = _shader->uniformLocation("u_texture1D");
-      _shader->setUniformValue(texture1DLocation, 0);
-
-      int texture2DLocation = _shader->uniformLocation("u_texture2D");
-      _shader->setUniformValue(texture2DLocation, 1);
-
-      int texture3DLocation = _shader->uniformLocation("u_texture3D");
-      _shader->setUniformValue(texture3DLocation, 2);
-    }
-    else if (dimTexture == 2)
-    {
-      int texture1DLocation = _shader->uniformLocation("u_texture1D");
-      _shader->setUniformValue(texture1DLocation, 1);
-
-      int texture2DLocation = _shader->uniformLocation("u_texture2D");
-      _shader->setUniformValue(texture2DLocation, 0);
-
-      int texture3DLocation = _shader->uniformLocation("u_texture3D");
-      _shader->setUniformValue(texture3DLocation, 2);
-    }
-    else if (dimTexture == 3)
-    {
-      int texture1DLocation = _shader->uniformLocation("u_texture1D");
-      _shader->setUniformValue(texture1DLocation, 2);
-
-      int texture2DLocation = _shader->uniformLocation("u_texture2D");
-      _shader->setUniformValue(texture2DLocation, 1);
-
-      int texture3DLocation = _shader->uniformLocation("u_texture3D");
-      _shader->setUniformValue(texture3DLocation, 0);
-    }
-    // std::cout << dimTexture << std::endl; //Jordan
 
     if( _module )
       _module->setupObjectUniforms(*_shader, *_glObj);
