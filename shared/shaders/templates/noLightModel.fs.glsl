@@ -6,9 +6,16 @@ varying vec3 v_directionLight;
 
 
 uniform bool u_hasTexture;
-uniform sampler1D u_texture1D;
-uniform sampler2D u_texture2D;
-uniform sampler3D u_texture3D;
+
+uniform sampler1D u_texture1D[8];
+uniform int u_nbTexture1D;
+
+uniform sampler2D u_texture2D[8];
+uniform int u_nbTexture2D;
+
+uniform sampler3D u_texture3D[8];
+uniform int u_nbTexture3D;
+
 uniform int u_textureType;
 
 out vec4 fragColor;
@@ -29,15 +36,15 @@ vec4 basicColor()
   }
   else if(u_textureType == 1)
   {
-    color = texture(u_texture1D, v_texcoord.x);
+    color = texture(u_texture1D[0], v_texcoord.x);
   }
   else if(u_textureType == 2)
   {
-    color = texture(u_texture2D, v_texcoord.xy);
+    color = texture(u_texture2D[0], v_texcoord.xy);
   }
   else if(u_textureType == 3)
   {
-    color = texture(u_texture3D, v_texcoord.xyz);
+    color = texture(u_texture3D[0], v_texcoord.xyz);
   }
 
   return color;

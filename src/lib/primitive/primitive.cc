@@ -460,48 +460,147 @@ void GLObjectUniforms::callList() const
   if(_shader && _glObj)
   {
     ViewState vs; // jordan - how to pass viewstate?
+    int dimTexture = 0;
 
     int numTexture = _glObj->glNumTextures( vs );
     int hasTextureLocation = _shader->uniformLocation("u_hasTexture");
     _shader->setUniformValue(hasTextureLocation, numTexture==0 ? false : true);
 
     vector<int> tex_locations( 3 );
-    tex_locations[0] = _shader->uniformLocation("u_texture1D");
-    tex_locations[1] = _shader->uniformLocation("u_texture2D");
-    tex_locations[2] = _shader->uniformLocation("u_texture3D");
+    tex_locations[0] = _shader->uniformLocation("u_texture1D[0]");
+    tex_locations[1] = _shader->uniformLocation("u_texture2D[0]");
+    tex_locations[2] = _shader->uniformLocation("u_texture3D[0]");
+    int textureTypeLocation = _shader->uniformLocation("u_textureType");
+    vector<int> nbTex_locations( 3 );
+    nbTex_locations[0] = _shader->uniformLocation("u_nbTexture1D");
+    nbTex_locations[1] = _shader->uniformLocation("u_nbTexture2D");
+    nbTex_locations[2] = _shader->uniformLocation("u_nbTexture3D");
+    for(int i=0; i<3; ++i)
 
-    map<unsigned, unsigned> used_tex_units = _glObj->glUsedTexUnits( vs );
-    map<unsigned, unsigned>::iterator it, et = used_tex_units.end();
-    set<unsigned> used_dims;
-    set<unsigned> used_units;
 
-    for( it=used_tex_units.begin(); it!=et; ++it )
+    if (numTexture == 0) // no texture, nothing to do
     {
-      if( used_dims.find( it->second - 1 ) == used_dims.end() )
+      if(textureTypeLocation >=0)
+        _shader->setUniformValue(textureTypeLocation, 0);
+      for(int i=0; i<3; ++i)
       {
-        // cout << "set tex " << it->second << "D to unit " << it->first << endl;
-        used_dims.insert( it->second - 1 );
-        used_units.insert( it->first );
-        _shader->setUniformValue( tex_locations[it->second - 1],
-                                  int( it->first ) );
+        if(tex_locations[i] >=0)
+          _shader->setUniformValue(tex_locations[i], i);
       }
     }
-    unsigned free_unit = 0;
-    for( unsigned i=0; i<3; ++i )
-      if( used_dims.find( i ) == used_dims.end() )
+    else
+    {
+      if( numTexture != 0 )
+        dimTexture = _glObj->glDimTex( vs );
+
+      _shader->setUniformValue(textureTypeLocation, dimTexture);
+
+      map<unsigned, unsigned> used_tex_units = _glObj->glUsedTexUnits( vs );
+      map<unsigned, unsigned>::iterator it, et = used_tex_units.end();
+      set<unsigned> used_units;
+      vector<GLint> texUnits1D, texUnits2D, texUnits3D;
+
+      for( it=used_tex_units.begin(); it!=et; ++it )
       {
-        for( ; used_units.find( free_unit ) != used_units.end(); ++free_unit );
-        // cout << "set unused tex " << i + 1 << "D to unit " << free_unit << endl;
-        used_units.insert( free_unit );
-        _shader->setUniformValue( tex_locations[i], free_unit );
+        unsigned texUnit = it->first;
+        unsigned dim = it->second;
+        switch( dim)
+        {
+          case 1:
+            if(tex_locations[0] >=0)
+            {
+              texUnits1D.push_back(texUnit);
+              used_units.insert( texUnit );
+            }
+            break;
+          case 2:
+            if(tex_locations[1] >=0)
+            {
+              texUnits2D.push_back(texUnit);
+              used_units.insert( texUnit );
+            }
+            break;
+          case 3:
+            if(tex_locations[2] >=0)
+            {
+              texUnits3D.push_back(texUnit);
+              used_units.insert( texUnit );
+            }
+            break;
+          default:
+            cerr << "GLObjectUniforms::callList() Unsupported texture dimension "<< dim << endl;
+            break;
+        }
       }
 
-    int dimTexture = 0;
-    if( numTexture != 0 )
-      dimTexture = _glObj->glDimTex( vs );
+      const unsigned maxSamplers = 8; //Jordan - should be queried from GL
 
-    int textureTypeLocation = _shader->uniformLocation("u_textureType");
-    _shader->setUniformValue(textureTypeLocation, dimTexture);
+      if ( texUnits1D.size() > maxSamplers )
+      {
+        cerr << "GLObjectUniforms::callList() Too many 1D textures (" << texUnits1D.size() << "), max is " << maxSamplers << endl;
+        texUnits1D.resize(maxSamplers);
+      }
+      if ( texUnits2D.size() > maxSamplers )
+      {
+        cerr << "GLObjectUniforms::callList() Too many 2D textures (" << texUnits2D.size() << "), max is " << maxSamplers << endl;
+        texUnits2D.resize(maxSamplers);
+      }
+      if ( texUnits3D.size() > maxSamplers )
+      {
+        cerr << "GLObjectUniforms::callList() Too many 3D textures (" << texUnits3D.size() << "), max is " << maxSamplers << endl;
+        texUnits3D.resize(maxSamplers);
+      }
+
+
+      unsigned free_unit = 0;
+      if(tex_locations[0] >=0)
+      {
+        if(!texUnits1D.empty() )
+        {
+            _shader->setUniformValue(nbTex_locations[0], static_cast<int>(texUnits1D.size()));
+            _shader->setUniformValueArray( tex_locations[0], &texUnits1D[0], static_cast<int>(texUnits1D.size()));
+        }
+        else
+        {
+          for( ; used_units.find( free_unit ) != used_units.end(); ++free_unit );
+          used_units.insert( free_unit );
+          _shader->setUniformValue( tex_locations[0], free_unit );
+          _shader->setUniformValue(nbTex_locations[0], 0);
+        }
+      }
+
+      if(tex_locations[1] >=0)
+      {
+        if(!texUnits2D.empty() )
+        {
+            _shader->setUniformValue(nbTex_locations[1], static_cast<int>(texUnits2D.size()));
+            _shader->setUniformValueArray( tex_locations[1], &texUnits2D[0], static_cast<int>(texUnits2D.size()));
+        }
+        else
+        {
+          for( ; used_units.find( free_unit ) != used_units.end(); ++free_unit );
+          used_units.insert( free_unit );
+          _shader->setUniformValue( tex_locations[1], free_unit );
+          _shader->setUniformValue(nbTex_locations[1], 0);
+        }
+      }
+
+      if(tex_locations[2] >=0)
+      {
+        if(!texUnits3D.empty() )
+        {
+            _shader->setUniformValue(nbTex_locations[2], static_cast<int>(texUnits3D.size()));
+            _shader->setUniformValueArray( tex_locations[2], &texUnits3D[0], static_cast<int>(texUnits3D.size()));
+        }
+        else
+        {
+          for( ; used_units.find( free_unit ) != used_units.end(); ++free_unit );
+          used_units.insert( free_unit );
+          _shader->setUniformValue( tex_locations[2], free_unit );
+          _shader->setUniformValue(nbTex_locations[2], 0);
+        }
+      }
+    }
 
     if( _module )
       _module->setupObjectUniforms(*_shader, *_glObj);
