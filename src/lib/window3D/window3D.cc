@@ -1410,7 +1410,7 @@ void AWindow3D::removeSelectionHighlight(TmpCol* tmpcol)
     glNewList(renderGLL, GL_COMPILE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glDepthMask(GL_FALSE);
+    glDepthMask(GL_TRUE);
     glEndList();
     d->primitives.push_back(RefGLItem(renderpr));
 
