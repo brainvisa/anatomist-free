@@ -74,8 +74,10 @@ BlinnPhongMaterial BlinnPhong(vec3 normal)
 std::string BlinnPhongIlluminationModel::getFunctionCall() const
 {
   return R"(BlinnPhongMaterial blinnPhong = BlinnPhong(v_normal);
-  vec3 diffuseAmbient = color.rgb * (blinnPhong.ambient.rgb + blinnPhong.diffuse.rgb);
-  color.rgb = diffuseAmbient + blinnPhong.specular.rgb;)";
+  vec3 ambientTerm = blinnPhong.ambient.rgb;
+  vec3 diffuseTerm = color.rgb * blinnPhong.diffuse.rgb;
+  vec3 specularTerm = blinnPhong.specular.rgb;
+  color.rgb = ambientTerm + diffuseTerm + specularTerm;)";
 }
 
 void BlinnPhongIlluminationModel::setupObjectUniforms(QOpenGLShaderProgram& program, GLComponent& obj) const
