@@ -4,16 +4,18 @@ varying vec3 v_texcoord;
 varying vec4 v_eyeVertexPosition;
 varying vec3 v_directionLight;
 
+#define MAX_TEXTURE_UNITS 8
+
 
 uniform bool u_hasTexture;
 
-uniform sampler1D u_texture1D[8];
+uniform sampler1D u_texture1D[MAX_TEXTURE_UNITS];
 uniform int u_nbTexture1D;
 
-uniform sampler2D u_texture2D[8];
+uniform sampler2D u_texture2D[MAX_TEXTURE_UNITS];
 uniform int u_nbTexture2D;
 
-uniform sampler3D u_texture3D[8];
+uniform sampler3D u_texture3D[MAX_TEXTURE_UNITS];
 uniform int u_nbTexture3D;
 
 uniform int u_textureType;
@@ -28,31 +30,24 @@ out vec4 fragColor;
 
 vec4 basicColor()
 {
-  vec4 color = vec4(1.0);
-  if(u_hasTexture == false)
+  vec4 color = v_color;
+  if(u_hasTexture)
   {
-    if(v_color != vec4(0.0))
+    switch(u_textureType)
     {
-      color = v_color;
+      case 1:
+        color.rgb = texture(u_texture1D[0], v_texcoord.x).rgb;
+        break;
+      case 2:
+        color.rgb = texture(u_texture2D[0], v_texcoord.xy).rgb;
+        break;
+      case 3:
+        color.rgb = texture(u_texture3D[0], v_texcoord.xyz).rgb;
+        break;
+      default:
+        break;
     }
-    else
-    {
-      color = vec4(0.0, 1.0, 0.0, 1.0);
-    }
   }
-  else if(u_textureType == 1)
-  {
-    color = texture(u_texture1D[0], v_texcoord.x);
-  }
-  else if(u_textureType == 2)
-  {
-    color = texture(u_texture2D[0], v_texcoord.xy);
-  }
-  else if(u_textureType == 3)
-  {
-    color = texture(u_texture3D[0], v_texcoord.xyz);
-  }
-
   return color;
 }
 
