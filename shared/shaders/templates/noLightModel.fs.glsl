@@ -30,13 +30,13 @@ vec4 basicColor()
     switch(u_textureType)
     {
       case 1:
-        color.rgb = texture(u_texture1D[0], v_texcoord.x).rgb;
+        color *= texture(u_texture1D[0], v_texcoord.x);
         break;
       case 2:
-        color.rgb = texture(u_texture2D[0], v_texcoord.xy).rgb;
+        color *= texture(u_texture2D[0], v_texcoord.xy);
         break;
       case 3:
-        color.rgb = texture(u_texture3D[0], v_texcoord.xyz).rgb;
+        color *= texture(u_texture3D[0], v_texcoord.xyz);
         break;
       default:
         break;

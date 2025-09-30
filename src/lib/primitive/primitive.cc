@@ -470,35 +470,37 @@ void GLObjectUniforms::callList() const
     tex_locations[0] = _shader->uniformLocation("u_texture1D[0]");
     tex_locations[1] = _shader->uniformLocation("u_texture2D[0]");
     tex_locations[2] = _shader->uniformLocation("u_texture3D[0]");
-    int textureTypeLocation = _shader->uniformLocation("u_textureType");
+    int textureDimLocation = _shader->uniformLocation("u_textureDim");
     vector<int> nbTex_locations( 3 );
     nbTex_locations[0] = _shader->uniformLocation("u_nbTexture1D");
     nbTex_locations[1] = _shader->uniformLocation("u_nbTexture2D");
     nbTex_locations[2] = _shader->uniformLocation("u_nbTexture3D");
-    for(int i=0; i<3; ++i)
+
+    set<unsigned> used_units;
+    vector<GLint> texUnits1D, texUnits2D, texUnits3D;
+    const unsigned maxSamplers = 8; //Jordan - should be queried from GL
 
 
     if (numTexture == 0) // no texture, nothing to do
     {
-      if(textureTypeLocation >=0)
-        _shader->setUniformValue(textureTypeLocation, 0);
+      if(textureDimLocation >=0)
+        _shader->setUniformValue(textureDimLocation, 0);
       for(int i=0; i<3; ++i)
       {
         if(tex_locations[i] >=0)
-          _shader->setUniformValue(tex_locations[i], i);
+          _shader->setUniformValue(tex_locations[i], 0);
+
+        if(nbTex_locations[i] >=0)
+          _shader->setUniformValue(nbTex_locations[i], 0);
       }
     }
     else
     {
-      if( numTexture != 0 )
-        dimTexture = _glObj->glDimTex( vs );
-
-      _shader->setUniformValue(textureTypeLocation, dimTexture);
+      dimTexture = _glObj->glDimTex( vs );
+      _shader->setUniformValue(textureDimLocation, dimTexture);
 
       map<unsigned, unsigned> used_tex_units = _glObj->glUsedTexUnits( vs );
       map<unsigned, unsigned>::iterator it, et = used_tex_units.end();
-      set<unsigned> used_units;
-      vector<GLint> texUnits1D, texUnits2D, texUnits3D;
 
       for( it=used_tex_units.begin(); it!=et; ++it )
       {
@@ -533,7 +535,8 @@ void GLObjectUniforms::callList() const
         }
       }
 
-      const unsigned maxSamplers = 8; //Jordan - should be queried from GL
+      for(size_t i=0; i<texUnits1D.size(); ++i)
+          std::cout << "Mapping mode : " << _glObj->glGLTexMode(texUnits1D[i]) << " GL_MODULATE : " <<GL_MODULATE << std::endl;
 
       if ( texUnits1D.size() > maxSamplers )
       {
@@ -550,57 +553,66 @@ void GLObjectUniforms::callList() const
         cerr << "GLObjectUniforms::callList() Too many 3D textures (" << texUnits3D.size() << "), max is " << maxSamplers << endl;
         texUnits3D.resize(maxSamplers);
       }
+    }
 
-
-      unsigned free_unit = 0;
+     unsigned free_unit = 0;
       if(tex_locations[0] >=0)
       {
-        if(!texUnits1D.empty() )
+        _shader->setUniformValue(nbTex_locations[0], static_cast<int>(texUnits1D.size()));
+        for(;used_units.find( free_unit ) != used_units.end(); ++free_unit );
+        used_units.insert( free_unit );
+
+        while(texUnits1D.size() < maxSamplers)
         {
-            _shader->setUniformValue(nbTex_locations[0], static_cast<int>(texUnits1D.size()));
-            _shader->setUniformValueArray( tex_locations[0], &texUnits1D[0], static_cast<int>(texUnits1D.size()));
+            texUnits1D.push_back(free_unit);
         }
-        else
-        {
-          for( ; used_units.find( free_unit ) != used_units.end(); ++free_unit );
-          used_units.insert( free_unit );
-          _shader->setUniformValue( tex_locations[0], free_unit );
-          _shader->setUniformValue(nbTex_locations[0], 0);
-        }
+        std::cout << "1D tex units : "  << texUnits1D.size() << " : ";
+        for(size_t i=0; i<texUnits1D.size(); ++i)
+            std::cout << texUnits1D[i] << " ";
+        std::cout << std::endl;
+
+        _shader->setUniformValueArray( tex_locations[0], &texUnits1D[0], static_cast<int>(texUnits1D.size()));
       }
 
       if(tex_locations[1] >=0)
       {
-        if(!texUnits2D.empty() )
+        _shader->setUniformValue(nbTex_locations[1], static_cast<int>(texUnits2D.size()));
+        for(;used_units.find( free_unit ) != used_units.end(); ++free_unit );
+        used_units.insert( free_unit );
+
+        while(texUnits2D.size() < maxSamplers)
         {
-            _shader->setUniformValue(nbTex_locations[1], static_cast<int>(texUnits2D.size()));
-            _shader->setUniformValueArray( tex_locations[1], &texUnits2D[0], static_cast<int>(texUnits2D.size()));
+            texUnits2D.push_back(free_unit);
         }
-        else
-        {
-          for( ; used_units.find( free_unit ) != used_units.end(); ++free_unit );
-          used_units.insert( free_unit );
-          _shader->setUniformValue( tex_locations[1], free_unit );
-          _shader->setUniformValue(nbTex_locations[1], 0);
-        }
+        std::cout << "2D tex units : "  << texUnits2D.size() << " : ";
+        for(size_t i=0; i<texUnits2D.size(); ++i)
+            std::cout << texUnits2D[i] << " ";
+        std::cout << std::endl;
+        _shader->setUniformValueArray( tex_locations[1], &texUnits2D[0], static_cast<int>(texUnits2D.size()));
       }
 
       if(tex_locations[2] >=0)
       {
-        if(!texUnits3D.empty() )
+        _shader->setUniformValue(nbTex_locations[2], static_cast<int>(texUnits3D.size()));
+        for(;used_units.find( free_unit ) != used_units.end(); ++free_unit );
+        used_units.insert( free_unit );
+
+        while(texUnits3D.size() < maxSamplers)
         {
-            _shader->setUniformValue(nbTex_locations[2], static_cast<int>(texUnits3D.size()));
-            _shader->setUniformValueArray( tex_locations[2], &texUnits3D[0], static_cast<int>(texUnits3D.size()));
+            texUnits3D.push_back(free_unit);
         }
-        else
-        {
-          for( ; used_units.find( free_unit ) != used_units.end(); ++free_unit );
-          used_units.insert( free_unit );
-          _shader->setUniformValue( tex_locations[2], free_unit );
-          _shader->setUniformValue(nbTex_locations[2], 0);
-        }
+
+        std::cout << "3D tex units : "  << texUnits3D.size() << " : ";
+        for(size_t i=0; i<texUnits3D.size(); ++i)
+            std::cout << texUnits3D[i] << " ";
+        std::cout << std::endl;
+
+        _shader->setUniformValueArray( tex_locations[2], &texUnits3D[0], static_cast<int>(texUnits3D.size()));
       }
-    }
+      
+      std::cout << std::endl << std::endl;
+
+
 
     if( _module )
       _module->setupObjectUniforms(*_shader, *_glObj);
