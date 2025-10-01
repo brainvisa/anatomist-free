@@ -1,10 +1,10 @@
+#define MAX_TEXTURE_UNITS 8
+
 varying vec4 v_color;
 varying vec3 v_normal;
-varying vec3 v_texcoord;
+varying vec3 v_texcoord[MAX_TEXTURE_UNITS];
 varying vec4 v_eyeVertexPosition;
 varying vec3 v_directionLight;
-
-#define MAX_TEXTURE_UNITS 8
 
 
 uniform bool u_hasTexture;
@@ -78,35 +78,35 @@ vec4 basicColor()
           switch(i)
           {
             case 0:
-              texColor= texture(u_texture1D[0], v_texcoord.x);
+              texColor= texture(u_texture1D[0], v_texcoord[0].x);
               color = texEnv(texColor, color, 0); 
               break;
             case 1:
-              texColor= texture(u_texture1D[1], v_texcoord.x);
+              texColor= texture(u_texture1D[1], v_texcoord[1].x);
               color = texEnv(texColor, color, 0); 
               break;
             case 2:
-              texColor= texture(u_texture1D[2], v_texcoord.x);
+              texColor= texture(u_texture1D[2], v_texcoord[2].x);
               color = texEnv(texColor, color, 0); 
               break;
             case 3:
-              texColor= texture(u_texture1D[3], v_texcoord.x);
+              texColor= texture(u_texture1D[3], v_texcoord[3].x);
               color = texEnv(texColor, color, 0); 
               break;
             case 4:
-              texColor= texture(u_texture1D[4], v_texcoord.x);
+              texColor= texture(u_texture1D[4], v_texcoord[4].x);
               color = texEnv(texColor, color, 0); 
               break;
             case 5:
-              texColor= texture(u_texture1D[5], v_texcoord.x);
+              texColor= texture(u_texture1D[5], v_texcoord[5].x);
               color = texEnv(texColor, color, 0); 
               break;
             case 6:
-              texColor= texture(u_texture1D[6], v_texcoord.x);
+              texColor= texture(u_texture1D[6], v_texcoord[6].x);
               color = texEnv(texColor, color, 0); 
               break;
             case 7:
-              texColor= texture(u_texture1D[7], v_texcoord.x);
+              texColor= texture(u_texture1D[7], v_texcoord[7].x);
               color = texEnv(texColor, color, 0); 
               break;
             default:
@@ -120,35 +120,35 @@ vec4 basicColor()
           switch(i)
           {
             case 0:
-              texColor = texture(u_texture2D[0], v_texcoord.xy);
+              texColor = texture(u_texture2D[0], v_texcoord[0].xy);
               color = texEnv(texColor, color, 0); 
               break;
             case 1:
-              texColor = texture(u_texture2D[1], v_texcoord.xy);
+              texColor = texture(u_texture2D[1], v_texcoord[1].xy);
               color = texEnv(texColor, color, 0); 
               break;
             case 2:
-              texColor = texture(u_texture2D[2], v_texcoord.xy);
+              texColor = texture(u_texture2D[2], v_texcoord[2].xy);
               color = texEnv(texColor, color, 0); 
               break;
             case 3:
-              texColor = texture(u_texture2D[3], v_texcoord.xy);
+              texColor = texture(u_texture2D[3], v_texcoord[3].xy);
               color = texEnv(texColor, color, 0); 
               break;
             case 4:
-              texColor = texture(u_texture2D[4], v_texcoord.xy);
+              texColor = texture(u_texture2D[4], v_texcoord[4].xy);
               color = texEnv(texColor, color, 0); 
               break;
             case 5:
-              texColor = texture(u_texture2D[5], v_texcoord.xy);
+              texColor = texture(u_texture2D[5], v_texcoord[5].xy);
               color = texEnv(texColor, color, 0); 
               break;
             case 6:
-              texColor = texture(u_texture2D[6], v_texcoord.xy);
+              texColor = texture(u_texture2D[6], v_texcoord[6].xy);
               color = texEnv(texColor, color, 0); 
               break;
             case 7:
-              texColor = texture(u_texture2D[7], v_texcoord.xy);
+              texColor = texture(u_texture2D[7], v_texcoord[7].xy);
               color = texEnv(texColor, color, 0); 
               break;
             default:
@@ -162,35 +162,35 @@ vec4 basicColor()
           switch(i)
           {
             case 0:
-              texColor = texture(u_texture3D[0], v_texcoord.xyz);
+              texColor = texture(u_texture3D[0], v_texcoord[0].xyz);
               color = texEnv(texColor, color, 0);
               break;
             case 1:
-              texColor = texture(u_texture3D[1], v_texcoord.xyz);
+              texColor = texture(u_texture3D[1], v_texcoord[1].xyz);
               color = texEnv(texColor, color, 0);
               break;
             case 2:
-              texColor = texture(u_texture3D[2], v_texcoord.xyz);
+              texColor = texture(u_texture3D[2], v_texcoord[2].xyz);
               color = texEnv(texColor, color, 0);
               break;
             case 3:
-              texColor = texture(u_texture3D[3], v_texcoord.xyz);
+              texColor = texture(u_texture3D[3], v_texcoord[3].xyz);
               color = texEnv(texColor, color, 0);
               break;
             case 4:
-              texColor = texture(u_texture3D[4], v_texcoord.xyz);
+              texColor = texture(u_texture3D[4], v_texcoord[4].xyz);
               color = texEnv(texColor, color, 0);
               break;
             case 5:
-              texColor = texture(u_texture3D[5], v_texcoord.xyz);
+              texColor = texture(u_texture3D[5], v_texcoord[5].xyz);
               color = texEnv(texColor, color, 0);
               break;
             case 6:
-              texColor = texture(u_texture3D[6], v_texcoord.xyz);
+              texColor = texture(u_texture3D[6], v_texcoord[6].xyz);
               color = texEnv(texColor, color, 0);
               break;
             case 7:
-              texColor = texture(u_texture3D[7], v_texcoord.xyz);
+              texColor = texture(u_texture3D[7], v_texcoord[7].xyz);
               color = texEnv(texColor, color, 0);
               break;
             default:
