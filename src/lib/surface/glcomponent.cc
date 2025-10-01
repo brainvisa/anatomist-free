@@ -1446,7 +1446,7 @@ bool GLComponent::glMakeTexEnvGLL( const ViewState & state,
           glDisable( GL_TEXTURE_2D );
           glDisable( GL_TEXTURE_3D );
         }
-      if( glTexRGBInterpolation( tex ) )
+      if( rgb )
         glTexEnvi( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
       else
         glTexEnvi( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, glGLTexMode( tex ) );
@@ -1467,11 +1467,6 @@ bool GLComponent::glMakeTexEnvGLL( const ViewState & state,
                    && ( tm == glTEX_REFLECTION_MAP 
                         || tm == glTEX_NORMAL_MAP ) ) )
         tm = glTEX_MANUAL;
-
-      if( rgb )
-        glTexEnvi( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
-      else
-        glTexEnvi( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, glGLTexMode( tex ) );
 
       switch( tm )
         {
