@@ -476,8 +476,10 @@ void GLObjectUniforms::callList() const
     nbTex_locations[1] = _shader->uniformLocation("u_nbTexture2D");
     nbTex_locations[2] = _shader->uniformLocation("u_nbTexture3D");
 
+    int texMode_locations =  _shader->uniformLocation("u_texEnvMode[0]");
+
     set<unsigned> used_units;
-    vector<GLint> texUnits1D, texUnits2D, texUnits3D;
+    vector<GLint> texUnits1D, texUnits2D, texUnits3D, texModes;
     const unsigned maxSamplers = 8; //Jordan - should be queried from GL
 
 
@@ -513,6 +515,7 @@ void GLObjectUniforms::callList() const
             {
               texUnits1D.push_back(texUnit);
               used_units.insert( texUnit );
+              texModes.push_back( _glObj->glTexMode(texUnit) );
             }
             break;
           case 2:
@@ -520,6 +523,7 @@ void GLObjectUniforms::callList() const
             {
               texUnits2D.push_back(texUnit);
               used_units.insert( texUnit );
+              texModes.push_back( _glObj->glTexMode(texUnit) );
             }
             break;
           case 3:
@@ -527,6 +531,7 @@ void GLObjectUniforms::callList() const
             {
               texUnits3D.push_back(texUnit);
               used_units.insert( texUnit );
+              texModes.push_back( _glObj->glTexMode(texUnit) );
             }
             break;
           default:
@@ -534,9 +539,6 @@ void GLObjectUniforms::callList() const
             break;
         }
       }
-
-      for(size_t i=0; i<texUnits1D.size(); ++i)
-          std::cout << "Mapping mode : " << _glObj->glGLTexMode(texUnits1D[i]) << " GL_MODULATE : " <<GL_MODULATE << std::endl;
 
       if ( texUnits1D.size() > maxSamplers )
       {
@@ -566,11 +568,6 @@ void GLObjectUniforms::callList() const
         {
             texUnits1D.push_back(free_unit);
         }
-        std::cout << "1D tex units : "  << texUnits1D.size() << " : ";
-        for(size_t i=0; i<texUnits1D.size(); ++i)
-            std::cout << texUnits1D[i] << " ";
-        std::cout << std::endl;
-
         _shader->setUniformValueArray( tex_locations[0], &texUnits1D[0], static_cast<int>(texUnits1D.size()));
       }
 
@@ -584,10 +581,6 @@ void GLObjectUniforms::callList() const
         {
             texUnits2D.push_back(free_unit);
         }
-        std::cout << "2D tex units : "  << texUnits2D.size() << " : ";
-        for(size_t i=0; i<texUnits2D.size(); ++i)
-            std::cout << texUnits2D[i] << " ";
-        std::cout << std::endl;
         _shader->setUniformValueArray( tex_locations[1], &texUnits2D[0], static_cast<int>(texUnits2D.size()));
       }
 
@@ -601,18 +594,15 @@ void GLObjectUniforms::callList() const
         {
             texUnits3D.push_back(free_unit);
         }
-
-        std::cout << "3D tex units : "  << texUnits3D.size() << " : ";
-        for(size_t i=0; i<texUnits3D.size(); ++i)
-            std::cout << texUnits3D[i] << " ";
-        std::cout << std::endl;
-
         _shader->setUniformValueArray( tex_locations[2], &texUnits3D[0], static_cast<int>(texUnits3D.size()));
       }
-      
-      std::cout << std::endl << std::endl;
 
-
+    if(texMode_locations >=0)
+    {
+      for(unsigned i=texModes.size(); i<maxSamplers; ++i)
+        texModes.push_back(-1);
+      _shader->setUniformValueArray( texMode_locations, &texModes[0], static_cast<int>(texModes.size()));
+    }
 
     if( _module )
       _module->setupObjectUniforms(*_shader, *_glObj);
