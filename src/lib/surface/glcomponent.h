@@ -388,8 +388,16 @@ namespace anatomist
                                              const Referential* myref );
     int glObjectID() const;
     virtual TexInfo & glTexInfo( unsigned tex = 0 ) const;
-    /// used texture units, and for each, dimension of associated texture
+    /** used texture units, and for each, effective dimension of associated
+        texture. RGBA interpolation is taken into account here, thus is using
+        2 2D textures where glNumTextures() is 1 and  glDimTex() is 1
+    */
     virtual std::map<unsigned, unsigned> glUsedTexUnits(
+      const ViewState & vs ) const;
+    /** used texture units, and for each, effective texture info.
+        Like glUsedTexUnits(), RGBA interpolation is taken into account here.
+    */
+    virtual std::map<unsigned, TexInfo> glEffectiveTexInfo(
       const ViewState & vs ) const;
 
   protected:
