@@ -22,8 +22,6 @@ requirements:
     - ipywidgets
     - ipyevents
     - notebook
-    - pygltflib
-    - nodejs
     - libglu
     - xvfb
     - mesalib_software
