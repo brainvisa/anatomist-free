@@ -115,11 +115,11 @@ vec4 texEnv(vec4 texColor, vec4 color, int mode)
     case TEXENV_DECAL:
       return texColor * color.a + color * (1.0 - texColor.a);
     case TEXENV_BLEND:
-      return mix(color, texColor, 0.5); // may the blend factor be a uniform ?
+      return texColor * (1 - color); //return color * (1.0 - texColor) + u_texEnvColor * texColor; BUT WE NEED u_texEnvColor
     case TEXENV_ADD:
       return texColor + color;
-    case TEXENV_COMBINED: // depends on the values of GL_COMBINE_RGB and GL_COMBINE_ALPHA
-      return color;
+    case TEXENV_COMBINED: // depends on the values of GL_COMBINE_RGB and GL_COMBINE_ALPHA. default is same as MODULATE
+      return texColor * color;
     default:
       return color;
   }
