@@ -61,6 +61,8 @@ namespace anatomist
     virtual const AObjectPalette* glPalette( unsigned tex = 0 ) const;
     virtual void update( const Observable*, void* );
     virtual bool render( PrimList &, const ViewState & vs );
+    virtual std::list<AObject *> renderedSubObjects( const ViewState & ) const
+    { return std::list<AObject *>(); }
 
     virtual void glSetChanged( glPart, bool x = true ) const;
     virtual void glClearHasChangedFlags() const;
