@@ -477,7 +477,15 @@ void MiniPaletteWidget::setRange( float min, float max )
   if( d->minipg->min( observedDimension() ) != min
       || d->minipg->max( observedDimension() ) != max )
   {
+    AObject *obj = getObject();
+    if( obj )
+    {
+      AObjectPalette *pal = obj->palette();
+      if( pal && pal->zeroCenteredAxis( observedDimension() ) )
+        min = -max;
+    }
     d->minipg->setRange( min, max, observedDimension() );
+    d->minipg->updateDisplay();
     emit rangeChanged( min, max );
   }
 }
@@ -932,12 +940,21 @@ void MiniPaletteWidgetEdit::updateDisplay()
     float absmax = pal->absMax( dim, obj );
     if( absmin == absmax )
       absmax = absmin + 1.;
-    d->minslider->setDefault( d->defmin );
+    if( pal->zeroCenteredAxis( dim ) )
+    {
+      d->minslider->setDefault( 0. );
+      d->maxslider->setDefault( std::max( std::abs( te.minquant[dim] ),
+                                          std::abs( maxq ) ) );
+    }
+    else
+    {
+      d->minslider->setDefault( d->defmin );
+      d->maxslider->setDefault( d->defmax );
+    }
     d->minslider->setAbsValue( absmin );
-    d->maxslider->setMagnets( mag );
-    d->maxslider->setDefault( d->defmax );
     d->maxslider->setAbsValue( absmax );
     d->minslider->setMagnets( mag );
+    d->maxslider->setMagnets( mag );
   }
 }
 
