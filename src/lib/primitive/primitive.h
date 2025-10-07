@@ -193,9 +193,32 @@ namespace anatomist
   class GLObjectUniforms : public GLItem
   {
   public:
+    struct UniformsLocations
+    {
+      std::array<GLint, 3> texture = {-1, -1, -1};
+      std::array<GLint, 3> nbTexture = {-1, -1, -1};
+      GLint hasTexture = -1;
+      GLint textureDim = -1;
+      GLint texModes = -1;
+    };
+
+    struct TexturesData
+    {
+      std::vector<GLint> texUnits1D;
+      std::vector<GLint> texUnits2D;
+      std::vector<GLint> texUnits3D;
+      std::vector<GLint> texModes;
+      std::set<unsigned> usedUnits;
+      int nbTexture = 0;
+      int textureDim = 0;
+    };
+
     GLObjectUniforms(std::shared_ptr<IShaderModule> shaderModule, std::shared_ptr<QOpenGLShaderProgram> glShader, GLComponent* glObj) : GLItem(),_module(shaderModule), _shader(glShader), _glObj(glObj) {}
     virtual ~GLObjectUniforms();
     virtual void callList() const;
+    virtual void getUniformsLocations(UniformsLocations & locations) const;
+    virtual void getTexturesData(const ViewState& vs, const unsigned maxSampler, TexturesData& data) const;
+    virtual void updateTextureUniforms(const UniformsLocations& locations,TexturesData& data, const unsigned maxSampler) const;
   private:
     std::shared_ptr<IShaderModule> _module;
     std::shared_ptr<QOpenGLShaderProgram> _shader;

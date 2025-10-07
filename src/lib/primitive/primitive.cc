@@ -40,6 +40,7 @@
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/object/Object.h>
 #include <anatomist/surface/glcomponent.h>
+#include <anatomist/surface/glcomponent_internals.h>
 #include <qapplication.h>
 #include <iostream>
 #include <algorithm>
@@ -457,158 +458,146 @@ GLObjectUniforms::~GLObjectUniforms()
 
 void GLObjectUniforms::callList() const
 {
-  if(_shader && _glObj)
-  {
-    ViewState vs; // jordan - how to pass viewstate?
-    int dimTexture = 0;
+  if(!_shader || !_glObj)
+    return;
 
-    int numTexture = _glObj->glNumTextures( vs );
-    int hasTextureLocation = _shader->uniformLocation("u_hasTexture");
-    _shader->setUniformValue(hasTextureLocation, numTexture==0 ? false : true);
+  ViewState vs; // jordan - how to pass viewstate?
+  const unsigned maxSamplers = 8;
 
-    vector<int> tex_locations( 3 );
-    tex_locations[0] = _shader->uniformLocation("u_texture1D[0]");
-    tex_locations[1] = _shader->uniformLocation("u_texture2D[0]");
-    tex_locations[2] = _shader->uniformLocation("u_texture3D[0]");
-    int textureDimLocation = _shader->uniformLocation("u_textureDim");
-    vector<int> nbTex_locations( 3 );
-    nbTex_locations[0] = _shader->uniformLocation("u_nbTexture1D");
-    nbTex_locations[1] = _shader->uniformLocation("u_nbTexture2D");
-    nbTex_locations[2] = _shader->uniformLocation("u_nbTexture3D");
+  UniformsLocations locations;
+  TexturesData texturesData;
 
-    int texMode_locations =  _shader->uniformLocation("u_texEnvMode[0]");
+  getUniformsLocations(locations);
+  getTexturesData(vs, maxSamplers, texturesData);
 
-    set<unsigned> used_units;
-    vector<GLint> texUnits1D, texUnits2D, texUnits3D, texModes;
-    const unsigned maxSamplers = 8; //Jordan - should be queried from GL
+  updateTextureUniforms(locations, texturesData, maxSamplers);
 
-
-    if (numTexture == 0) // no texture, nothing to do
-    {
-      if(textureDimLocation >=0)
-        _shader->setUniformValue(textureDimLocation, 0);
-      for(int i=0; i<3; ++i)
-      {
-        if(tex_locations[i] >=0)
-          _shader->setUniformValue(tex_locations[i], 0);
-
-        if(nbTex_locations[i] >=0)
-          _shader->setUniformValue(nbTex_locations[i], 0);
-      }
-    }
-    else
-    {
-      dimTexture = _glObj->glDimTex( vs );
-      _shader->setUniformValue(textureDimLocation, dimTexture);
-
-      map<unsigned, unsigned> used_tex_units = _glObj->glUsedTexUnits( vs );
-      map<unsigned, unsigned>::iterator it, et = used_tex_units.end();
-
-      for( it=used_tex_units.begin(); it!=et; ++it )
-      {
-        unsigned texUnit = it->first;
-        unsigned dim = it->second;
-        switch( dim)
-        {
-          case 1:
-            if(tex_locations[0] >=0)
-            {
-              texUnits1D.push_back(texUnit);
-              used_units.insert( texUnit );
-              texModes.push_back( _glObj->glTexMode(texUnit) );
-            }
-            break;
-          case 2:
-            if(tex_locations[1] >=0)
-            {
-              texUnits2D.push_back(texUnit);
-              used_units.insert( texUnit );
-              texModes.push_back( _glObj->glTexMode(texUnit) );
-            }
-            break;
-          case 3:
-            if(tex_locations[2] >=0)
-            {
-              texUnits3D.push_back(texUnit);
-              used_units.insert( texUnit );
-              texModes.push_back( _glObj->glTexMode(texUnit) );
-            }
-            break;
-          default:
-            cerr << "GLObjectUniforms::callList() Unsupported texture dimension "<< dim << endl;
-            break;
-        }
-      }
-
-      if ( texUnits1D.size() > maxSamplers )
-      {
-        cerr << "GLObjectUniforms::callList() Too many 1D textures (" << texUnits1D.size() << "), max is " << maxSamplers << endl;
-        texUnits1D.resize(maxSamplers);
-      }
-      if ( texUnits2D.size() > maxSamplers )
-      {
-        cerr << "GLObjectUniforms::callList() Too many 2D textures (" << texUnits2D.size() << "), max is " << maxSamplers << endl;
-        texUnits2D.resize(maxSamplers);
-      }
-      if ( texUnits3D.size() > maxSamplers )
-      {
-        cerr << "GLObjectUniforms::callList() Too many 3D textures (" << texUnits3D.size() << "), max is " << maxSamplers << endl;
-        texUnits3D.resize(maxSamplers);
-      }
-    }
-
-     unsigned free_unit = 0;
-      if(tex_locations[0] >=0)
-      {
-        _shader->setUniformValue(nbTex_locations[0], static_cast<int>(texUnits1D.size()));
-        for(;used_units.find( free_unit ) != used_units.end(); ++free_unit );
-        used_units.insert( free_unit );
-
-        while(texUnits1D.size() < maxSamplers)
-        {
-            texUnits1D.push_back(free_unit);
-        }
-        _shader->setUniformValueArray( tex_locations[0], &texUnits1D[0], static_cast<int>(texUnits1D.size()));
-      }
-
-      if(tex_locations[1] >=0)
-      {
-        _shader->setUniformValue(nbTex_locations[1], static_cast<int>(texUnits2D.size()));
-        for(;used_units.find( free_unit ) != used_units.end(); ++free_unit );
-        used_units.insert( free_unit );
-
-        while(texUnits2D.size() < maxSamplers)
-        {
-            texUnits2D.push_back(free_unit);
-        }
-        _shader->setUniformValueArray( tex_locations[1], &texUnits2D[0], static_cast<int>(texUnits2D.size()));
-      }
-
-      if(tex_locations[2] >=0)
-      {
-        _shader->setUniformValue(nbTex_locations[2], static_cast<int>(texUnits3D.size()));
-        for(;used_units.find( free_unit ) != used_units.end(); ++free_unit );
-        used_units.insert( free_unit );
-
-        while(texUnits3D.size() < maxSamplers)
-        {
-            texUnits3D.push_back(free_unit);
-        }
-        _shader->setUniformValueArray( tex_locations[2], &texUnits3D[0], static_cast<int>(texUnits3D.size()));
-      }
-
-    if(texMode_locations >=0)
-    {
-      for(unsigned i=texModes.size(); i<maxSamplers; ++i)
-        texModes.push_back(-1);
-      _shader->setUniformValueArray( texMode_locations, &texModes[0], static_cast<int>(texModes.size()));
-    }
-
-    if( _module )
-      _module->setupObjectUniforms(*_shader, *_glObj);
-  }
+  if(_module)
+    _module->setupObjectUniforms(*_shader, *_glObj);
 }
 
+void GLObjectUniforms::getUniformsLocations(UniformsLocations & locations) const
+{
+  if(!_shader)
+    return;
+
+  locations.hasTexture = _shader->uniformLocation("u_hasTexture");
+  locations.textureDim = _shader->uniformLocation("u_textureDim");
+  locations.texModes =  _shader->uniformLocation("u_texEnvMode[0]");
+
+  locations.texture[0] = _shader->uniformLocation("u_texture1D[0]");
+  locations.texture[1] = _shader->uniformLocation("u_texture2D[0]");
+  locations.texture[2] = _shader->uniformLocation("u_texture3D[0]");
+
+  locations.nbTexture[0] = _shader->uniformLocation("u_nbTexture1D");
+  locations.nbTexture[1] = _shader->uniformLocation("u_nbTexture2D");
+  locations.nbTexture[2] = _shader->uniformLocation("u_nbTexture3D");
+}
+
+void GLObjectUniforms::getTexturesData(const ViewState& vs, const unsigned maxSampler, TexturesData & data) const
+{
+  data.nbTexture = _glObj->glNumTextures( vs );
+  if (data.nbTexture == 0)
+    return;
+
+  auto texEnvInfo = _glObj->glEffectiveTexInfo( vs );
+  data.textureDim = texEnvInfo.size();
+
+  auto used_tex_units = _glObj->glUsedTexUnits( vs );
+
+  for(auto& [texUnit,dim] : used_tex_units)
+  {    
+    switch( dim)
+    {
+      case 1: 
+        data.texUnits1D.push_back(texUnit);
+        data.usedUnits.insert( texUnit );
+        data.texModes.push_back( texEnvInfo[texUnit].mode );
+        break;
+      case 2:
+        data.texUnits2D.push_back(texUnit);
+        data.usedUnits.insert( texUnit );
+        data.texModes.push_back( texEnvInfo[texUnit].mode );
+        break;
+      case 3:
+        data.texUnits3D.push_back(texUnit);
+        data.usedUnits.insert( texUnit );
+        data.texModes.push_back( texEnvInfo[texUnit].mode );
+        break;
+      default:
+        cerr << "GLObjectUniforms::getTexturesData() Unsupported texture dimension "<< dim << endl;
+        break;
+    }
+  }
+
+  if(data.texUnits1D.size() > maxSampler)
+  {
+    cerr << "GLObjectUniforms::getTexturesData() Too many 1D textures (" << data.texUnits1D.size() << "), max is " << maxSampler << endl;
+    data.texUnits1D.resize(maxSampler);
+  }
+
+  if(data.texUnits2D.size() > maxSampler)
+  {
+    cerr << "GLObjectUniforms::getTexturesData() Too many 2D textures (" << data.texUnits2D.size() << "), max is " << maxSampler << endl;
+    data.texUnits2D.resize(maxSampler);
+  }
+
+  if(data.texUnits3D.size() > maxSampler)
+  {
+    cerr << "GLObjectUniforms::getTexturesData() Too many 3D textures (" << data.texUnits3D.size() << "), max is " << maxSampler << endl;
+    data.texUnits3D.resize(maxSampler);
+  }
+
+}
+
+void GLObjectUniforms::updateTextureUniforms(const UniformsLocations& locations,TexturesData& data, const unsigned maxSamplers) const
+{
+  if(locations.hasTexture >= 0)
+    _shader->setUniformValue(locations.hasTexture, data.nbTexture>0);
+
+  if(locations.textureDim >= 0)
+  _shader->setUniformValue(locations.textureDim, data.textureDim);
+
+  if(data.nbTexture == 0)
+  {
+    for(unsigned i=0; i< 3; ++i)
+    {
+      if(locations.texture[i] >= 0) _shader->setUniformValue(locations.texture[i], 0);
+      if(locations.nbTexture[i] >=0) _shader->setUniformValue(locations.nbTexture[i], 0);
+    }
+    return;
+  }
+
+  auto fillWithFreeUnit = [&](std::vector<GLint>& v)
+  {
+    unsigned freeUnit = *data.usedUnits.rbegin() + 1;
+    while(v.size() < maxSamplers) v.push_back(freeUnit);
+    data.usedUnits.insert(freeUnit);
+  };
+
+  fillWithFreeUnit(data.texUnits1D);
+  fillWithFreeUnit(data.texUnits2D);
+  fillWithFreeUnit(data.texUnits3D);
+
+  if(locations.texture[0] >= 0)
+    _shader->setUniformValueArray(locations.texture[0], &data.texUnits1D[0], (int) data.texUnits1D.size());
+  if(locations.texture[1] >= 0)
+  _shader->setUniformValueArray(locations.texture[1], &data.texUnits2D[0], (int) data.texUnits2D.size());
+  if(locations.texture[2] >= 0)
+  _shader->setUniformValueArray(locations.texture[2], &data.texUnits3D[0], (int) data.texUnits3D.size());
+
+  if(locations.nbTexture[0] >=0)
+    _shader->setUniformValue(locations.nbTexture[0], (int) data.texUnits1D.size());
+  if(locations.nbTexture[1] >=0)
+    _shader->setUniformValue(locations.nbTexture[1], (int) data.texUnits2D.size());
+  if(locations.nbTexture[2] >=0)
+    _shader->setUniformValue(locations.nbTexture[2], (int) data.texUnits2D.size());
+
+  while(data.texModes.size() < maxSamplers)
+    data.texModes.push_back(-1);
+  if(locations.texModes >=0)
+    _shader->setUniformValueArray(locations.texModes, &data.texModes[0], (int) data.texModes.size());
+}
 
 GLItemList::~GLItemList()
 {
