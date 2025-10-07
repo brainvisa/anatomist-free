@@ -48,13 +48,14 @@ namespace anatomist
   public:
     ColorScalarPaletteTraits( const AObjectPalette* pal, const T & mini,
                               const T & maxi, const T & mini2,
-                              const T & maxi2 );
+                              const T & maxi2, bool insideBounds = false );
     ColorScalarPaletteTraits( const AObjectPalette* pal, const T & mini,
-                              const T & maxi );
+                              const T & maxi, bool insideBounds = false );
     AimsRGBA color( const T & ) const;
     void setup( const T & mini, const T & maxi,
-                const T & mini2, const T & maxi2 );
-    void setup1D( int dim, const T & mini, const T & maxi );
+                const T & mini2, const T & maxi2, bool insideBounds = false );
+    void setup1D( int dim, const T & mini, const T & maxi,
+                  bool insideBounds = false );
     T neutralColor() const;
     void paletteCoords( double val0, double val1, int & px, int & py ) const;
     void paletteCoord( int dim, double val0, int & px ) const;
@@ -93,7 +94,7 @@ namespace anatomist
   {
   public:
     ColorNoPaletteTraits( const AObjectPalette*, const T & mini,
-                          const T & maxi );
+                          const T & maxi, bool insideBounds = false );
     AimsRGBA color( const T & ) const;
     T neutralColor() const;
   };
@@ -113,9 +114,13 @@ namespace anatomist
   template<typename T> class ColorTraits
   {
   public:
+    /** mini / maxi are min and max indexes used to address the colormap
+    */
     ColorTraits( const AObjectPalette*, const T & mini, const T & maxi,
-                 const T & mini2, const T & maxi2 );
-    ColorTraits( const AObjectPalette*, const T & mini, const T & maxi );
+                 const T & mini2, const T & maxi2,
+                 bool insideBounds = false );
+    ColorTraits( const AObjectPalette*, const T & mini, const T & maxi,
+                 bool insideBounds = false );
     AimsRGBA color( const T & ) const;
     /// returns a black / transparent / zero color
     T neutralColor() const;
@@ -152,16 +157,16 @@ namespace anatomist
   template<typename T> inline
   ColorTraits<T>::ColorTraits( const AObjectPalette* pal, const T & mini,
                                const T & maxi, const T & mini2,
-                               const T & maxi2 )
-    : _traitstype( pal, mini, maxi, mini2, maxi2 )
+                               const T & maxi2, bool insideBounds )
+    : _traitstype( pal, mini, maxi, mini2, maxi2, insideBounds )
   {
   }
 
 
   template<typename T> inline
   ColorTraits<T>::ColorTraits( const AObjectPalette* pal, const T & mini,
-                               const T & maxi )
-    : _traitstype( pal, mini, maxi )
+                               const T & maxi, bool insideBounds )
+    : _traitstype( pal, mini, maxi, insideBounds )
   {
   }
 
@@ -209,7 +214,7 @@ namespace anatomist
 
   template<typename T> inline
   ColorNoPaletteTraits<T>::ColorNoPaletteTraits( const AObjectPalette*,
-                                                 const T &, const T & )
+                                                 const T &, const T &, bool )
   {
   }
 
@@ -241,10 +246,11 @@ namespace anatomist
                                                          const T & mini,
                                                          const T & maxi,
                                                          const T & mini2,
-                                                         const T & maxi2 )
+                                                         const T & maxi2,
+                                                         bool insideBounds )
     : palette( pal )
   {
-    setup( mini, maxi, mini2, maxi2 );
+    setup( mini, maxi, mini2, maxi2, insideBounds );
   }
 
 
@@ -252,10 +258,11 @@ namespace anatomist
   ColorScalarPaletteTraits<T>::ColorScalarPaletteTraits( const AObjectPalette
                                                          * pal,
                                                          const T & mini,
-                                                         const T & maxi )
+                                                         const T & maxi,
+                                                         bool insideBounds )
     : palette( pal )
   {
-    setup( mini, maxi, mini, maxi );
+    setup( mini, maxi, mini, maxi, insideBounds );
   }
 
 

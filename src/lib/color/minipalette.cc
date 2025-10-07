@@ -474,8 +474,20 @@ void MiniPaletteWidget::allowEdit( bool allow, bool self_parent,
 
 void MiniPaletteWidget::setRange( float min, float max )
 {
-  d->minipg->setRange( min, max, observedDimension() );
-  emit rangeChanged( min, max );
+  if( d->minipg->min( observedDimension() ) != min
+      || d->minipg->max( observedDimension() ) != max )
+  {
+    AObject *obj = getObject();
+    if( obj )
+    {
+      AObjectPalette *pal = obj->palette();
+      if( pal && pal->zeroCenteredAxis( observedDimension() ) )
+        min = -max;
+    }
+    d->minipg->setRange( min, max, observedDimension() );
+    d->minipg->updateDisplay();
+    emit rangeChanged( min, max );
+  }
 }
 
 
@@ -805,7 +817,7 @@ void MiniPaletteWidgetEdit::setAutoRange( bool auto_range )
 void MiniPaletteWidgetEdit::adjustRange()
 {
   AObject *obj = d->minipw->getObject();
-  if( obj && obj->glAPI() )
+  if( obj && obj->glAPI() && obj->glAPI()->glNumTextures() != 0 )
   {
     AObjectPalette *pal = obj->palette();
     int dim = d->minipw->observedDimension();
@@ -928,12 +940,21 @@ void MiniPaletteWidgetEdit::updateDisplay()
     float absmax = pal->absMax( dim, obj );
     if( absmin == absmax )
       absmax = absmin + 1.;
-    d->minslider->setDefault( d->defmin );
+    if( pal->zeroCenteredAxis( dim ) )
+    {
+      d->minslider->setDefault( 0. );
+      d->maxslider->setDefault( std::max( std::abs( te.minquant[dim] ),
+                                          std::abs( maxq ) ) );
+    }
+    else
+    {
+      d->minslider->setDefault( d->defmin );
+      d->maxslider->setDefault( d->defmax );
+    }
     d->minslider->setAbsValue( absmin );
-    d->maxslider->setMagnets( mag );
-    d->maxslider->setDefault( d->defmax );
     d->maxslider->setAbsValue( absmax );
     d->minslider->setMagnets( mag );
+    d->maxslider->setMagnets( mag );
   }
 }
 
@@ -985,12 +1006,37 @@ void MiniPaletteWidgetEdit::maxChanged( float value )
 }
 
 
+namespace
+{
+  bool sameRange( const pair<float, float> & r1,
+                  const pair<float, float> & r2 )
+  {
+    bool s1 = ( r1.first == r2.first ), s2 = ( r1.second == r2.second );
+    if( s1 && s2 )
+      return true;
+
+    if( std::isnan( r1.first ) && std::isnan( r2.first ) )
+      s1 = true;
+    else
+      return false;
+    if( std::isnan( r1.second ) && std::isnan( r2.second ) )
+      s2 = true;
+
+    return s1 && s2;
+  }
+}
+
+
 void MiniPaletteWidgetEdit::setRange( float rmin, float rmax )
 {
   d->minslider->setAbsRange( rmin, rmax );
   d->maxslider->setAbsRange( rmin, rmax );
-  if( d->minipw->range() != make_pair( rmin, rmax ) )
+  if( !sameRange( d->minipw->range(), make_pair( rmin, rmax ) ) )
+  {
+    d->minipw->blockSignals( true );
     d->minipw->setRange( rmin, rmax );
+    d->minipw->blockSignals( false );
+  }
   AObject *obj = d->minipw->getObject();
   int dim = d->minipw->observedDimension();
   if( obj )
@@ -1055,8 +1101,11 @@ void MiniPaletteWidgetEdit::setPalette( const std::string & palname )
     if( palname != "" && palname != "<None>" )
       apal = theAnatomist->palettes().find( palname );
     pal->setRefPalette( dim, apal );
+    obj->setPalette( *pal );
     if( obj->glAPI() )
+    {
       obj->glAPI()->glSetTexImageChanged();
+    }
     obj->notifyObservers();
   }
 }

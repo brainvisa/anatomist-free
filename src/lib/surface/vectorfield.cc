@@ -906,3 +906,45 @@ vector<int> VectorField::volumeSize( int channel ) const
 }
 
 
+unsigned VectorField::glNumTextures() const
+{
+  return 1U;
+}
+
+
+unsigned VectorField::glNumTextures( const ViewState & ) const
+{
+  return 1U;
+}
+
+
+unsigned VectorField::glDimTex( const ViewState &, unsigned ) const
+{
+  return 1U;
+}
+
+
+unsigned VectorField::glTexCoordSize( const ViewState & vs, unsigned ) const
+{
+  return d->vecTexture->glTexCoordSize( vs, 0 );
+}
+
+
+const GLfloat* VectorField::glTexCoordArray( const ViewState & vs,
+                                             unsigned ) const
+{
+  return d->vecTexture->glTexCoordArray( vs, 0 );
+}
+
+
+const GLComponent::TexExtrema & VectorField::glTexExtrema( unsigned ) const
+{
+  return d->vecTexture->glTexExtrema( 0 );
+}
+
+
+GLComponent::TexExtrema & VectorField::glTexExtrema( unsigned )
+{
+  return d->vecTexture->glTexExtrema( 0 );
+}
+

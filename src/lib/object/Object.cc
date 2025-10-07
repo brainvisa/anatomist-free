@@ -37,7 +37,6 @@
 #include <anatomist/control/wControl.h>
 #include <anatomist/object/Object.h>
 #include <anatomist/application/Anatomist.h>
-#include <anatomist/window/Window.h>
 #include <anatomist/mobject/MObject.h>
 #include <anatomist/mobject/Fusion2D.h>
 #include <anatomist/mobject/Fusion3D.h>
@@ -1210,8 +1209,8 @@ void AObject::setHeaderOptions()
 
 void AObject::setProperties( Object /*options*/ )
 {
-//    cout << "setHeaderOptions on " << objectTypeName( type() ) << ": "
-//      << "name: " << name() << ", filename: " << fileName() << endl;
+   /* cout << "setHeaderOptions on " << objectTypeName( type() ) << ": "
+     << "name: " << name() << ", filename: " << fileName() << endl; */
   PythonAObject	*pao = dynamic_cast<PythonAObject *>( this );
   if( pao )
     {
@@ -1271,46 +1270,48 @@ void AObject::setProperties( Object /*options*/ )
 
             getOrCreatePalette();
             AObjectPalette  *opal = palette();
-            opal->setRefPalette( pal );
-            GLComponent *glc = glAPI();
-            if( glc )
+            if( opal )
             {
-              const GLComponent::TexExtrema & te = glc->glTexExtrema( 0 );
-              float vmin = te.minquant[0], vmax = te.maxquant[0];
-              // ue max dynamics from volume and cmap
-              map<int, Object> labels;
-              cmap->header().getProperty( "labels", labels );
-              if( !labels.empty() )
+              opal->setRefPalette( pal );
+              GLComponent *glc = glAPI();
+              if( glc && glc->glNumTextures() != 0 )
               {
-                vmin = labels.begin()->first;
-                vmax = labels.rbegin()->first;
+                const GLComponent::TexExtrema & te = glc->glTexExtrema( 0 );
+                float vmin = te.minquant[0], vmax = te.maxquant[0];
+                // ue max dynamics from volume and cmap
+                map<int, Object> labels;
+                cmap->header().getProperty( "labels", labels );
+                if( !labels.empty() )
+                {
+                  vmin = labels.begin()->first;
+                  vmax = labels.rbegin()->first;
+                }
+                else if( cmap->getSizeX() > vmax - vmin + 1 )
+                  vmax = cmap->getSizeX() + vmin - 1;
+                float den = te.maxquant[0] - te.minquant[0];
+                if( den == 0. )
+                  den = 1.;
+                opal->setMin1( ( vmin - te.minquant[0] ) / den );
+                opal->setMax1( ( vmax - te.minquant[0] + 0.99 ) / den );
               }
-              else if( cmap->getSizeX() > vmax - vmin + 1 )
-                vmax = cmap->getSizeX() + vmin - 1;
-              float den = te.maxquant[0] - te.minquant[0];
-              if( den == 0. )
-                den = 1.;
-              opal->setMin1( ( vmin - te.minquant[0] ) / den );
-              cout << "gifti cmap min: " << vmin << ", max: " << vmax << endl;
-              opal->setMax1( ( vmax - te.minquant[0] + 0.99 ) / den );
-            }
-            else
-            {
-              opal->setMin1( 0. );
-              opal->setMax1( pal->getSizeX() + 0.99 / pal->getSizeX() );
-            }
-            opal->setMin2( 0. );
-            opal->setMax2( 1. );
-            setPalette( *opal );
+              else
+              {
+                opal->setMin1( 0. );
+                opal->setMax1( pal->getSizeX() + 0.99 / pal->getSizeX() );
+              }
+              opal->setMin2( 0. );
+              opal->setMax2( 1. );
+              setPalette( *opal );
 
-            // copy labels table, if any
-            try
-            {
-              Object labels = cmap->header().getProperty( "labels" );
-              pao->attributed()->setProperty( "labels", labels );
-            }
-            catch( ... )
-            {
+              // copy labels table, if any
+              try
+              {
+                Object labels = cmap->header().getProperty( "labels" );
+                pao->attributed()->setProperty( "labels", labels );
+              }
+              catch( ... )
+              {
+              }
             }
           }
 

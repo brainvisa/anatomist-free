@@ -42,16 +42,18 @@ namespace anatomist
 
 template <typename T>
 void ColorScalarPaletteTraits<T>::setup( const T & minit, const T & maxit,
-                                         const T & minit1, const T & maxit1 )
+                                         const T & minit1, const T & maxit1,
+                                         bool insideBounds )
 {
-  setup1D( 0, minit, maxit );
-  setup1D( 1, minit1, maxit1 );
+  setup1D( 0, minit, maxit, insideBounds );
+  setup1D( 1, minit1, maxit1, insideBounds );
 }
 
 
 template <typename T>
 void ColorScalarPaletteTraits<T>::setup1D( int dim,
-                                           const T & minit, const T & maxit )
+                                           const T & minit, const T & maxit,
+                                           bool insideBounds )
 {
   colors = palette->colors();
 
@@ -67,22 +69,27 @@ void ColorScalarPaletteTraits<T>::setup1D( int dim,
   int    cmaxn;
 
   unsigned	ncol0;
-  float		minc0, maxc0;
+  float		minc0 = 0.f, maxc0 = 1.f;
   float		mini = static_cast<float>( minit ),
     maxi = static_cast<float>( maxit );
 
   ncol0 = colors->getSize()[dim];
 
-  if( dim == 1 )
+  if( !insideBounds )
   {
-    minc0 = palette->min2();
-    maxc0 = palette->max2(); // colormap min & max
+    if( dim == 1 )
+    {
+      minc0 = palette->min2();
+      maxc0 = palette->max2(); // colormap min & max
+    }
+    else
+    {
+      minc0 = palette->min1();
+      maxc0 = palette->max1(); // colormap min & max
+    }
   }
-  else
-  {
-    minc0 = palette->min1();
-    maxc0 = palette->max1(); // colormap min & max
-  }
+  else if( palette->zeroCenteredAxis( dim ) )
+    minc0 = palette->min( dim );
 
   if( minc0 == maxc0 )
   {
@@ -191,34 +198,38 @@ template <>
 void ColorScalarPaletteTraits<AimsRGB>::setup( const AimsRGB &,
                                                const AimsRGB &,
                                                const AimsRGB &,
-                                               const AimsRGB & )
+                                               const AimsRGB &,
+                                               bool insideBounds )
 {
   colors = palette->colors();
 
   unsigned	ncol0, ncol1;
-  float		minc0, minc1, maxc0, maxc1;
-  float		mini = 0.F, maxi = 255.F;
+  float		minc0 = 0.f, minc1 = 0.f, maxc0 = 1.f, maxc1 = 1.f;
+  float		mini = 0.f, maxi = 255.f;
 
   ncol0 = colors->getSizeX();
   ncol1 = colors->getSizeY();
 
-  minc0 = palette->min1();
-  maxc0 = palette->max1(); // colormap min & max
-  if( minc0 == maxc0 )
+  if( !insideBounds )
   {
-    if( minc0 == 1. )
-      minc0 = 0.;
-    else
-      maxc0 = 1.;
-  }
-  minc1 = palette->min2();
-  maxc1 = palette->max2(); // colormap min & max
-  if( minc1 == maxc1 )
-  {
-    if( minc1 == 1. )
-      minc1 = 0.;
-    else
-      maxc1 = 1.;
+    minc0 = palette->min1();
+    maxc0 = palette->max1(); // colormap min & max
+    if( minc0 == maxc0 )
+    {
+      if( minc0 == 1. )
+        minc0 = 0.;
+      else
+        maxc0 = 1.;
+    }
+    minc1 = palette->min2();
+    maxc1 = palette->max2(); // colormap min & max
+    if( minc1 == maxc1 )
+    {
+      if( minc1 == 1. )
+        minc1 = 0.;
+      else
+        maxc1 = 1.;
+    }
   }
 
   minv0 = mini + minc0 * (maxi - mini); // thresholds in image values
@@ -243,34 +254,37 @@ void ColorScalarPaletteTraits<AimsRGB>::setup( const AimsRGB &,
 
 template <>
 void ColorScalarPaletteTraits<AimsRGBA>::setup( const AimsRGBA &,
-    const AimsRGBA &, const AimsRGBA &, const AimsRGBA & )
+    const AimsRGBA &, const AimsRGBA &, const AimsRGBA &, bool insideBounds )
 {
   colors = palette->colors();
 
   unsigned	ncol0, ncol1;
-  float		minc0, minc1, maxc0, maxc1;
-  float		mini = 0.F, maxi = 255.F;
+  float		minc0 = 0.f, minc1 = 0.f, maxc0 = 1.f, maxc1 = 1.f;
+  float		mini = 0.f, maxi = 255.f;
 
   ncol0 = colors->getSizeX();
   ncol1 = colors->getSizeY();
 
-  minc0 = palette->min1();
-  maxc0 = palette->max1(); // colormap min & max
-  if( minc0 == maxc0 )
+  if( !insideBounds )
   {
-    if( minc0 == 1. )
-      minc0 = 0.;
-    else
-      maxc0 = 1.;
-  }
-  minc1 = palette->min2();
-  maxc1 = palette->max2(); // colormap min & max
-  if( minc1 == maxc1 )
-  {
-    if( minc1 == 1. )
-      minc1 = 0.;
-    else
-      maxc1 = 1.;
+    minc0 = palette->min1();
+    maxc0 = palette->max1(); // colormap min & max
+    if( minc0 == maxc0 )
+    {
+      if( minc0 == 1. )
+        minc0 = 0.;
+      else
+        maxc0 = 1.;
+    }
+    minc1 = palette->min2();
+    maxc1 = palette->max2(); // colormap min & max
+    if( minc1 == maxc1 )
+    {
+      if( minc1 == 1. )
+        minc1 = 0.;
+      else
+        maxc1 = 1.;
+    }
   }
 
   minv0 = mini + minc0 * (maxi - mini); // thresholds in image values
