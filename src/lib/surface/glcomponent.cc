@@ -1102,32 +1102,52 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
       float scl = 1. / ( te.max[0] - te.min[0] );
       if( balance_zero )
       {
-        /* cout << "setting 0 at center in tex scaling\n";
+        cout << "setting 0 at center in tex scaling\n";
         cout << "quant: " << te.minquant[0] << ", " << te.maxquant[0] << endl;
-        cout << "minmax: " << te.min[0] << ", " << te.max[0] << endl; */
+        cout << "minmax: " << te.min[0] << ", " << te.max[0] << endl;
         float tm = std::max( std::abs( te.maxquant[0] ),
                              std::abs( te.minquant[0] ) );
         float tma2 = te.max[0];
         if( tm == te.maxquant[0] )
         {
-          float tmiq = ( -tm - te.minquant[0] )
-            / ( te.maxquant[0] - te.minquant[0] );
-          tmi2 = tmiq * scl + te.min[0];
-          // cout << "tmiq: " << tmiq << ", tmi2: " << tmi2 << endl;
+//           float tmiq = ( -tm - te.minquant[0] )
+//             / ( te.maxquant[0] - te.minquant[0] );
+//           tmi2 = tmiq * scl + te.min[0];
+//           cout << "tmiq: " << tmiq << ", tmi2: " << tmi2 << endl;
+          // there are 3 scalings:
+          // te.minq/te.maxq -> te.min/te.max (generally 0-1)
+          // 1/pal.max (min is within the palette image)
+          // mapped to [0-1] centered on 0.5
+          float minqr = te.minquant[0] / ( te.maxquant[0] - te.minquant[0] );
+          tmi2 = ( 0.5 + minqr ) / ( 1. + minqr );
+          scl = 0.5 / ( te.max[0] + minqr * ( te.max[0] - te.min[0] ) );
+          // cout << "scl: " << scl << ", tmi2: " << tmi2 << endl;
+          // cout << "bounds: " << te.min[0] * scl + tmi2 << " -> " << te.max[0] * scl + tmi2 << endl;
+          if( max == 0.f )
+            max = 1.f;
+          ti.texscale[0] = scl / max;
+          float tmid = ( 0.5 - tmi2 ) / max;
+          ti.texoffset[0] = 0.5 - tmid; // tmi2 * scl / max;
         }
         else
         {
           float tmaq = ( tm - te.maxquant[0] )
             / ( te.maxquant[0] - te.minquant[0] );
           tma2 = tmaq * scl + te.max[0];
-          // cout << "tmaq: " << tmaq << ", tma2: " << tma2 << endl;
+          cout << "tmaq: " << tmaq << ", tma2: " << tma2 << endl;
+          scl = 1. / ( tma2 - tmi2 );
+          tmi2 * scl;
+          ti.texscale[0] *= scl;
+          ti.texoffset[0] -= tmi2 * scl;
         }
-        scl = 1. / ( tma2 - tmi2 );
       }
-      ti.texscale[0] *= scl;
-      ti.texoffset[0] -= tmi2 * scl;
+      else
+      {
+        ti.texscale[0] *= scl;
+        ti.texoffset[0] -= tmi2 * scl;
+      }
       useTexScale = true;
-      // cout << "scaling texture: " << scl << ", " << ti.texscale[0] << ", " << ti.texoffset[0] << endl;
+      cout << "scaling texture: " << scl << ", " << ti.texscale[0] << ", " << ti.texoffset[0] << endl;
     }
   }
   // cout << "useTexScale: " << useTexScale << ": " << ti.texscale[0] << ", " << ti.texscale[1] << ", " << ti.texoffset[0] << ", " << ti.texoffset[1] << endl;
