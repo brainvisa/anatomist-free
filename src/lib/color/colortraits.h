@@ -48,14 +48,17 @@ namespace anatomist
   public:
     ColorScalarPaletteTraits( const AObjectPalette* pal, const T & mini,
                               const T & maxi, const T & mini2,
-                              const T & maxi2, bool insideBounds = false );
+                              const T & maxi2,
+                              float min1, float max1, float min2, float max2 );
     ColorScalarPaletteTraits( const AObjectPalette* pal, const T & mini,
-                              const T & maxi, bool insideBounds = false );
+                              const T & maxi,
+                              float min1, float max1 );
     AimsRGBA color( const T & ) const;
     void setup( const T & mini, const T & maxi,
-                const T & mini2, const T & maxi2, bool insideBounds = false );
+                const T & mini2, const T & maxi2,
+                float min1, float max1, float min2, float max2 );
     void setup1D( int dim, const T & mini, const T & maxi,
-                  bool insideBounds = false );
+                  float min1, float max1 );
     T neutralColor() const;
     void paletteCoords( double val0, double val1, int & px, int & py ) const;
     void paletteCoord( int dim, double val0, int & px ) const;
@@ -73,11 +76,7 @@ namespace anatomist
     int				cmin1;
     int				cmax0;
     int				cmax1;
-    float			minv0;
-    float			maxv0;
-    float			minv1;
-    float			maxv1;
-
+    // for negative 0-centered values
     float			scalen0;
     float			scalen1;
     float			decaln0;
@@ -94,7 +93,7 @@ namespace anatomist
   {
   public:
     ColorNoPaletteTraits( const AObjectPalette*, const T & mini,
-                          const T & maxi, bool insideBounds = false );
+                          const T & maxi, float min, float max );
     AimsRGBA color( const T & ) const;
     T neutralColor() const;
   };
@@ -115,15 +114,20 @@ namespace anatomist
   {
   public:
     /** mini / maxi are min and max indexes used to address the colormap
+            (let's call it "output colormap").
+
+        min1 / max1 are the range (as in AObjectPalette::min1()/max1() actually
+            mapped to the colormap. Generally we use palette.min1()/max1()
     */
     ColorTraits( const AObjectPalette*, const T & mini, const T & maxi,
                  const T & mini2, const T & maxi2,
-                 bool insideBounds = false );
+                 float min1, float max1, float min2, float max2 );
     ColorTraits( const AObjectPalette*, const T & mini, const T & maxi,
-                 bool insideBounds = false );
+                 float min1, float max1 );
     AimsRGBA color( const T & ) const;
     /// returns a black / transparent / zero color
     T neutralColor() const;
+    // val0 is the pixel index in the output cmap, px in the input palette
     void paletteCoords( double val0, double val1, int & px, int & py ) const;
     void paletteCoord( int dim, double val0, int & px ) const;
     void paletteCoord0( double val0, int & px ) const;
@@ -157,16 +161,18 @@ namespace anatomist
   template<typename T> inline
   ColorTraits<T>::ColorTraits( const AObjectPalette* pal, const T & mini,
                                const T & maxi, const T & mini2,
-                               const T & maxi2, bool insideBounds )
-    : _traitstype( pal, mini, maxi, mini2, maxi2, insideBounds )
+                               const T & maxi2,
+                               float min1, float max1, float min2, float max2 )
+    : _traitstype( pal, mini, maxi, mini2, maxi2, min1, max1,
+                   min2, max2 )
   {
   }
 
 
   template<typename T> inline
   ColorTraits<T>::ColorTraits( const AObjectPalette* pal, const T & mini,
-                               const T & maxi, bool insideBounds )
-    : _traitstype( pal, mini, maxi, insideBounds )
+                               const T & maxi, float min1, float max1 )
+    : _traitstype( pal, mini, maxi, min1, max1 )
   {
   }
 
@@ -214,7 +220,8 @@ namespace anatomist
 
   template<typename T> inline
   ColorNoPaletteTraits<T>::ColorNoPaletteTraits( const AObjectPalette*,
-                                                 const T &, const T &, bool )
+                                                 const T &, const T &,
+                                                 float, float )
   {
   }
 
@@ -247,10 +254,13 @@ namespace anatomist
                                                          const T & maxi,
                                                          const T & mini2,
                                                          const T & maxi2,
-                                                         bool insideBounds )
+                                                         float min1,
+                                                         float max1,
+                                                         float min2,
+                                                         float max2 )
     : palette( pal )
   {
-    setup( mini, maxi, mini2, maxi2, insideBounds );
+    setup( mini, maxi, mini2, maxi2, min1, max1, min2, max2 );
   }
 
 
@@ -259,10 +269,11 @@ namespace anatomist
                                                          * pal,
                                                          const T & mini,
                                                          const T & maxi,
-                                                         bool insideBounds )
+                                                         float min1,
+                                                         float max1 )
     : palette( pal )
   {
-    setup( mini, maxi, mini, maxi, insideBounds );
+    setup( mini, maxi, mini, maxi, min1, max1, 0., 1. );
   }
 
 

@@ -1075,3 +1075,15 @@ float AObjectPalette::absValue2( const AObject * obj, float relval ) const
   return relval;
 }
 
+
+pair<float, float> AObjectPalette::relBounds( int dim ) const
+{
+  float rmin = min( dim ), rmax = max( dim );
+  if( zeroCenteredAxis( dim ) )
+  {
+    rmax = std::max( std::abs( rmin ), std::abs( rmax ) );
+    return make_pair( -rmax, rmax );
+  }
+  return make_pair( std::min( rmin, rmax ), std::max( rmin, rmax ) );
+}
+

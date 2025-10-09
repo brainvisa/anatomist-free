@@ -1052,7 +1052,7 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
     min2 = 0;
     max2 = 1;
   }
-  // cout << "dimx: " << dimx << ", dimpx: " << dimpx << endl;
+  cout << "dimx: " << dimx << ", dimpx: " << dimpx << endl;
   /* if the texture image can contain the whole colormap, then use it unscaled,
      and use the OpenGL texture matrix to zoom into it.
      TODO: in that case we could avoid re-making the teximage if it's already
@@ -1060,7 +1060,86 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
   */
   bool balance_zero = false;
   const TexExtrema & te = glTexExtrema( tex );
+  vector<float> prmin( glDimTex( tex ), 0. );
+  vector<float> prmax( glDimTex( tex ), 1. );
 
+  /* Several levels of rescaling
+     - absolute texture: te.minquant/maxquant, actual bounds of data values
+       (we call them minq/maxq here)
+     - relative texture: te.min/max, texcoord stored generally normalized,
+       anyway withinin [0, 1] range
+     - palette relative scale: depends on zeroCenteredAxis
+     - texture palette: portion of palette acually used.
+
+     Normal case:
+     - palette rel scale in [0, 1]
+       min/max are relative posision of te.min/max in this scale.
+     - trmin/trmax: pos of min/max in the tex rel coords
+       trmax = te.min + max * (te.max - te.min)
+       trmin = te.min + min * (te.max - te.min)
+     - min/max actually used in pal rel scale:
+       prmin, prmax = [std::max(0, std::min(min, max)),
+                       std::min(1, std::max(max, min))]
+
+    Zero-centered case:
+     - palette rel scale in [-1, -1] mapped to [-maxr, maxr]
+       where maxr = max(abs(te.min)/abs(te.max))
+       min/max are relative positions of te.min/max in this scale
+       prmax = max(abs(min).
+       0 maps to tex abs 0.
+     - zr/trmin/trmax: pos of 0/min/max in the tex rel coords
+       zr: pos of 0 (tex abs) in tex rel:
+       zr = te.min - minq * (te.max - te.min) / (maxq - minq)
+         trmax = zr + max * (te.max - te.min)
+         trmin = zr + min * (te.max - te.min)
+     - tex palette: [0, 1] maps to pal rel
+       prmin, prmax = [max(-1, -maxr), min(1, maxrt)]
+
+     texscale applies between pal rel space and tex palette space
+  */
+
+  for( int tdim=0; tdim<glDimTex( tex ); ++tdim )
+  {
+    float tmin = te.min[tdim];
+    float tmax = te.max[tdim];
+    if( !objpal->zeroCenteredAxis( tdim ) )
+    {
+      // normal case
+      float trmin = tmin + min * ( tmax - tmin );
+      float trmax = tmin + max * ( tmax - tmin );
+      float minr = std::min(min, max);
+      float maxr = std::max(min, max);
+      prmin[tdim] = std::max( 0.f, minr );
+      prmax[tdim] = std::min( 1.f, maxr );
+      // xtr: in tex rel space, xti: in tex pal rel space
+      // xp: in pal rel space
+      // tescale: xtr -> xti
+      // xp = a * xtr + b
+      // xti = texscale * xtr + texoffset
+      float a = ( max - min ) / ( trmax - trmin );
+      float b = min - trmin * a;
+      float e = 1. / ( prmax[tdim] - prmin[tdim] );
+      ti.texscale[tdim] = e * a;
+      ti.texoffset[tdim] = e * ( b - prmin[tdim] );
+      // ti.texscale[tdim] = ( prmax[tdim] - prmin[tdim] ) / ( trmax - trmin );
+      // ti.texoffset[tdim] = - ( tmin + prmin[tdim] * ( tmax - tmin ) );
+      cout << "te.min/max: " << te.min[tdim] << ", " << te.max[tdim] << endl;
+      cout << "minq/maxq: " << te.minquant[tdim] << ", " << te.maxquant[tdim] << endl;
+      cout << "scale: " << ti.texscale[tdim] << ", offset: " << ti.texoffset[tdim] << endl;
+      cout << "trmin/max: " << trmin << ", " << trmax << endl;
+      cout << "minr/maxr: " << minr << ", " << maxr << endl;
+      cout << "prmin/max: " << prmin[tdim] << ", " << prmax[tdim] << endl;
+    }
+    else
+    {
+      // 0-centered case
+    }
+
+  }
+
+  /// ####### old impl
+
+#if 0
   if( objpal->zeroCenteredAxis1() && te.maxquant[0] != -te.minquant[0] )
   {
     useTexScale = true;
@@ -1069,7 +1148,6 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
 
   if( useTexScale )
   {
-    float dx =
     ti.texscale[0] = 1. / ( max - min );
     ti.texscale[1] = 1. / ( max2 - min2 );
     ti.texscale[2] = 1.;
@@ -1151,6 +1229,7 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
     }
   }
   // cout << "useTexScale: " << useTexScale << ": " << ti.texscale[0] << ", " << ti.texscale[1] << ", " << ti.texoffset[0] << ", " << ti.texoffset[1] << endl;
+#endif
 
   // allocate colormap
   VolumeRef<AimsRGBA> volTexImage( dimx, dimy );
@@ -1164,20 +1243,16 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
     r = 1.;
   GLubyte         ir = 255 - (GLubyte) ( r * 255.9 );
 
-  int shx = -int(dimx) / 2, shy = -int(dimy) / 2;
-
-  ColorTraits<int>	coltraits( objpal, shx,
-                                   (dimx - 1 + shx),
-                                   shy,
-                                   (dimy + shy - 1), useTexScale );
+  ColorTraits<int>	coltraits( objpal, 0, dimx, 0, dimy,
+                                   prmin[0], prmax[0], prmin[1], prmax[1] );
 
   for( y=0; y<static_cast<unsigned>(dimy); ++y )
   {
-    coltraits.paletteCoord1( y + shy, ys );
+    coltraits.paletteCoord1( y, ys );
 
     for( x=0; x<static_cast<unsigned>(dimx); ++x )
     {
-      coltraits.paletteCoord0( x + shx, xs );
+      coltraits.paletteCoord0( x, xs );
 
       rgb = (*cols)( xs, ys );
       if( t.mode == glLINEAR )

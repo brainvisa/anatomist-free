@@ -215,6 +215,11 @@ namespace anatomist
                       float min2 = 0., float max2 = 1. ) const;
     carto::rc_ptr<carto::Volume<AimsRGBA> >
       toVolume( int w = 0, int h = 0, bool scaled = true ) const;
+    /** relative bounds of the min/max values.
+        It corresponds to reordered min, max, taking into account the
+        zeroCenteredAxis() option, where bounds are symmetric.
+    */
+    std::pair<float, float> relBounds( int dim = 0 ) const;
 
   protected:
     static std::map<std::string, MixMethod> defaultMixMethods();
