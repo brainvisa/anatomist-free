@@ -49,16 +49,18 @@ namespace anatomist
     ColorScalarPaletteTraits( const AObjectPalette* pal, const T & mini,
                               const T & maxi, const T & mini2,
                               const T & maxi2,
-                              float min1, float max1, float min2, float max2 );
+                              float min1, float max1, float zero1,
+                              float min2, float max2, float zero2 );
     ColorScalarPaletteTraits( const AObjectPalette* pal, const T & mini,
                               const T & maxi,
-                              float min1, float max1 );
+                              float min1, float max1, float zero1 );
     AimsRGBA color( const T & ) const;
     void setup( const T & mini, const T & maxi,
                 const T & mini2, const T & maxi2,
-                float min1, float max1, float min2, float max2 );
+                float min1, float max1, float zero1,
+                float min2, float max2, float zero2 );
     void setup1D( int dim, const T & mini, const T & maxi,
-                  float min1, float max1 );
+                  float min1, float max1, float zero );
     T neutralColor() const;
     void paletteCoords( double val0, double val1, int & px, int & py ) const;
     void paletteCoord( int dim, double val0, int & px ) const;
@@ -77,6 +79,8 @@ namespace anatomist
     int				cmax0;
     int				cmax1;
     // for negative 0-centered values
+    int                         czero0;
+    int                         czero1;
     float			scalen0;
     float			scalen1;
     float			decaln0;
@@ -110,20 +114,60 @@ namespace anatomist
   }
 
   /// Converter value -> RGBA (high-level)
+  /** Colormap helper.
+
+      Allows to get rescalings to colormap space. Basically the color() method associates a RGBA color to a scalar value. To do so, values rescalings apply, and lookup in a colormap (AObjectPalette) returns the actual color.
+
+      Implementations for RGB/RGBA transforms also exist.
+
+      mini / maxi are min and max indexes used to address the colormap
+          (let's call it "output colormap").
+
+      min1 / max1 are the range (as in AObjectPalette::min1()/max1() actually
+          mapped to the colormap. Generally we use palette.min1()/max1()
+  */
   template<typename T> class ColorTraits
   {
   public:
-    /** mini / maxi are min and max indexes used to address the colormap
-            (let's call it "output colormap").
-
-        min1 / max1 are the range (as in AObjectPalette::min1()/max1() actually
-            mapped to the colormap. Generally we use palette.min1()/max1()
+    /** Constructor for 2D palettes.
     */
-    ColorTraits( const AObjectPalette*, const T & mini, const T & maxi,
+    ColorTraits( const AObjectPalette *palette, const T & mini, const T & maxi,
                  const T & mini2, const T & maxi2,
-                 float min1, float max1, float min2, float max2 );
-    ColorTraits( const AObjectPalette*, const T & mini, const T & maxi,
-                 float min1, float max1 );
+                 float min1, float max1, float zero1, float min2, float max2,
+                 float zero2 );
+    /** Constructor for 1D palettes.
+
+        Scaling parameters are processed, and should be passed carefully:
+
+        - palette is the object palette.
+        - mini / maxi are min and max values used to address the colormap from
+          a source space. They can be either float texture values, or indices
+          used to build in a colormap or texture image. The methods color() and
+          paletteCoords() get their parameters in this space.
+
+        - min1 / max1 are the range to be mapped within the [mini, maxi] input
+          space. They are coordinates in relative palette space (as in
+          AObjectPalette::min1()/max1(). Depending on the values used here,
+          different mappings may be obtained.
+          - a Volume will use the volume min/max values, transformed in
+            relative palette space (palette->relValue(object, absvolmin),
+            palette->relValue(object, absvolmax)) to transform direct scalar
+            volume values to RGB through the palette scale.
+          - a texture will build a texture image (thus, a custom palette)
+            covering just the zoomed palette region, using texture coord
+            scaling and clamping for values outside these bounds, thus will map
+            (palette->min(), palette->max()) or more precisely these bounds
+            clamped within the range [0, 1] for "normal" palettes.
+            Zero-centered palettes will use values matching the symmetric
+            palette.
+          - a colormap view will display the resampled palette beween given
+            bounds (typically bound to the min/max texture values).
+        - zero is the value in the palette relative space (same as min, max)
+          corresponding to the absolute 0 of the texture. This is used only in
+          zero-centered palette mode in order to have the center.
+    */
+    ColorTraits( const AObjectPalette *palette, const T & mini, const T & maxi,
+                 float min1, float max1, float zero1 );
     AimsRGBA color( const T & ) const;
     /// returns a black / transparent / zero color
     T neutralColor() const;
@@ -162,17 +206,19 @@ namespace anatomist
   ColorTraits<T>::ColorTraits( const AObjectPalette* pal, const T & mini,
                                const T & maxi, const T & mini2,
                                const T & maxi2,
-                               float min1, float max1, float min2, float max2 )
-    : _traitstype( pal, mini, maxi, mini2, maxi2, min1, max1,
-                   min2, max2 )
+                               float min1, float max1, float zero1,
+                               float min2, float max2, float zero2 )
+    : _traitstype( pal, mini, maxi, mini2, maxi2, min1, max1, zero1,
+                   min2, max2, zero2 )
   {
   }
 
 
   template<typename T> inline
   ColorTraits<T>::ColorTraits( const AObjectPalette* pal, const T & mini,
-                               const T & maxi, float min1, float max1 )
-    : _traitstype( pal, mini, maxi, min1, max1 )
+                               const T & maxi, float min1, float max1,
+                               float zero1 )
+    : _traitstype( pal, mini, maxi, min1, max1, zero1 )
   {
   }
 
@@ -256,11 +302,13 @@ namespace anatomist
                                                          const T & maxi2,
                                                          float min1,
                                                          float max1,
+                                                         float zero1,
                                                          float min2,
-                                                         float max2 )
+                                                         float max2,
+                                                         float zero2 )
     : palette( pal )
   {
-    setup( mini, maxi, mini2, maxi2, min1, max1, min2, max2 );
+    setup( mini, maxi, mini2, maxi2, min1, max1, zero1, min2, max2, zero2 );
   }
 
 
@@ -270,10 +318,11 @@ namespace anatomist
                                                          const T & mini,
                                                          const T & maxi,
                                                          float min1,
-                                                         float max1 )
+                                                         float max1,
+                                                         float zero1 )
     : palette( pal )
   {
-    setup( mini, maxi, mini, maxi, min1, max1, 0., 1. );
+    setup( mini, maxi, mini, maxi, min1, max1, zero1, 0., 1., 0. );
   }
 
 
@@ -321,7 +370,7 @@ namespace anatomist
     }
     else
     {
-      if( val0 >= 0 )
+      if( val0 >= czero0 )
       {
         fval0 = scale0 * val0 + decal0;
         if( fval0 > cmin0 && fval0 < cmax0 )
@@ -379,7 +428,7 @@ namespace anatomist
       }
       else
       {
-        if( val0 >= 0 )
+        if( val0 >= czero1 )
         {
           fval0 = scale1 * val0 + decal1;
           if( fval0 > cmin1 && fval0 < cmax1 )

@@ -1062,6 +1062,7 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
   const TexExtrema & te = glTexExtrema( tex );
   vector<float> prmin( glDimTex( tex ), 0. );
   vector<float> prmax( glDimTex( tex ), 1. );
+  vector<float> zero( glDimTex( tex ), 0. );
 
   /* Several levels of rescaling
      - absolute texture: te.minquant/maxquant, actual bounds of data values
@@ -1137,100 +1138,6 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
 
   }
 
-  /// ####### old impl
-
-#if 0
-  if( objpal->zeroCenteredAxis1() && te.maxquant[0] != -te.minquant[0] )
-  {
-    useTexScale = true;
-    balance_zero = true;
-  }
-
-  if( useTexScale )
-  {
-    ti.texscale[0] = 1. / ( max - min );
-    ti.texscale[1] = 1. / ( max2 - min2 );
-    ti.texscale[2] = 1.;
-    ti.texoffset[0] = - min * ti.texscale[0];
-    ti.texoffset[1] = - min2 * ti.texscale[1];
-    ti.texoffset[2] = 0.;
-  }
-  else
-  {
-    ti.texscale[0] = 1.;
-    ti.texscale[1] = 1.;
-    ti.texscale[2] = 1.;
-    ti.texoffset[0] = 0.;
-    ti.texoffset[1] = 0.;
-    ti.texoffset[2] = 0.;
-  }
-
-  if( balance_zero
-      || ( ( te.min[0] != 0. || te.max[0] != 1. ) && te.min[0] != te.max[0] ) )
-  {
-    // if actual bounds are not [0,1], a texture rescaling must be
-    // performed in addition.
-    // FIXME TODO this does not apply in all cases: when the texture is a 1D
-    // quantity it should probably. When we are using 2D textures, it should
-    // not. Right now I cannot figure out a good criterion to determine whether
-    // whe should scale or not. In the meantime, we just check if it is 2D.
-    if( dimy == 1 )
-    {
-      float tmi2 = te.min[0];
-      float scl = 1. / ( te.max[0] - te.min[0] );
-      if( balance_zero )
-      {
-        cout << "setting 0 at center in tex scaling\n";
-        cout << "quant: " << te.minquant[0] << ", " << te.maxquant[0] << endl;
-        cout << "minmax: " << te.min[0] << ", " << te.max[0] << endl;
-        float tm = std::max( std::abs( te.maxquant[0] ),
-                             std::abs( te.minquant[0] ) );
-        float tma2 = te.max[0];
-        if( tm == te.maxquant[0] )
-        {
-//           float tmiq = ( -tm - te.minquant[0] )
-//             / ( te.maxquant[0] - te.minquant[0] );
-//           tmi2 = tmiq * scl + te.min[0];
-//           cout << "tmiq: " << tmiq << ", tmi2: " << tmi2 << endl;
-          // there are 3 scalings:
-          // te.minq/te.maxq -> te.min/te.max (generally 0-1)
-          // 1/pal.max (min is within the palette image)
-          // mapped to [0-1] centered on 0.5
-          float minqr = te.minquant[0] / ( te.maxquant[0] - te.minquant[0] );
-          tmi2 = ( 0.5 + minqr ) / ( 1. + minqr );
-          scl = 0.5 / ( te.max[0] + minqr * ( te.max[0] - te.min[0] ) );
-          // cout << "scl: " << scl << ", tmi2: " << tmi2 << endl;
-          // cout << "bounds: " << te.min[0] * scl + tmi2 << " -> " << te.max[0] * scl + tmi2 << endl;
-          if( max == 0.f )
-            max = 1.f;
-          ti.texscale[0] = scl / max;
-          float tmid = ( 0.5 - tmi2 ) / max;
-          ti.texoffset[0] = 0.5 - tmid; // tmi2 * scl / max;
-        }
-        else
-        {
-          float tmaq = ( tm - te.maxquant[0] )
-            / ( te.maxquant[0] - te.minquant[0] );
-          tma2 = tmaq * scl + te.max[0];
-          cout << "tmaq: " << tmaq << ", tma2: " << tma2 << endl;
-          scl = 1. / ( tma2 - tmi2 );
-          tmi2 * scl;
-          ti.texscale[0] *= scl;
-          ti.texoffset[0] -= tmi2 * scl;
-        }
-      }
-      else
-      {
-        ti.texscale[0] *= scl;
-        ti.texoffset[0] -= tmi2 * scl;
-      }
-      useTexScale = true;
-      cout << "scaling texture: " << scl << ", " << ti.texscale[0] << ", " << ti.texoffset[0] << endl;
-    }
-  }
-  // cout << "useTexScale: " << useTexScale << ": " << ti.texscale[0] << ", " << ti.texscale[1] << ", " << ti.texoffset[0] << ", " << ti.texoffset[1] << endl;
-#endif
-
   // allocate colormap
   VolumeRef<AimsRGBA> volTexImage( dimx, dimy );
   GLubyte       *texImage = reinterpret_cast<GLubyte *>(
@@ -1244,7 +1151,8 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
   GLubyte         ir = 255 - (GLubyte) ( r * 255.9 );
 
   ColorTraits<int>	coltraits( objpal, 0, dimx, 0, dimy,
-                                   prmin[0], prmax[0], prmin[1], prmax[1] );
+                                   prmin[0], prmax[0], zero[0],
+                                   prmin[1], prmax[1], zero[1] );
 
   for( y=0; y<static_cast<unsigned>(dimy); ++y )
   {
