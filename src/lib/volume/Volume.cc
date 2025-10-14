@@ -665,8 +665,10 @@ void AVolume<T>::updateAxial( AImage *ximage, const Point3df & pf0,
   // cout << "p0: " << p0 << endl;
 
   const AObjectPalette *pal = getOrCreatePalette();
+  /*
   cout << "minTypedTexValue,max: " << d->traits.minTypedTexValue() << ", " << d->traits.maxTypedTexValue() << endl;
   cout << "rel bounds: " << pal->relValue1(this, d->traits.minTypedTexValue()) << ", " << pal->relValue1(this, d->traits.maxTypedTexValue()) << endl;
+  */
   ColorTraits<T>	coltraits(
     pal, d->traits.minTypedTexValue(), d->traits.maxTypedTexValue(),
     pal->relValue1( this, d->traits.minTypedTexValue() ),

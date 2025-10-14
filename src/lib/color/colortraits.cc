@@ -92,8 +92,10 @@ void ColorScalarPaletteTraits<T>::setup1D( int dim,
   // in tex rel space, y = ax + b with:
   float a = ( max - min ) / ( maxi - mini );
   float b = min - a * mini;
+  /*
   std::cout << "rmin/max: " << rmin << ", " << rmax << ", mini/maxi: " << mini << ", " << maxi << ", min/max: " << min << ", " << max << ", ncol: " << ncol0 << ", dim: " << dim << std::endl;
   std::cout << "a: " << a << ", b: " << b << std::endl;
+  */
 
   if( !palette->zeroCenteredAxis( dim ) )
   {
@@ -103,7 +105,7 @@ void ColorScalarPaletteTraits<T>::setup1D( int dim,
     decal = e * ( b - rmin );
     cmin = 0;
     cmax = ncol0 - 1;
-    std::cout << "e: " << e << ", c: " << scale << ", d: " << decal << std::endl;
+    // std::cout << "e: " << e << ", c: " << scale << ", d: " << decal << std::endl;
     scalen = 1.;
     decaln = 0.;
     cminn = 0;
@@ -134,7 +136,7 @@ void ColorScalarPaletteTraits<T>::setup1D( int dim,
       cminn = ncol0 / 2;
       cmaxn = ncol0 - 1;
     }
-    std::cout << "Z e: " << e << ", c: " << scale << ", d: " << decal << ", dn: " << decaln << std::endl;
+    // std::cout << "Z e: " << e << ", c: " << scale << ", d: " << decal << ", dn: " << decaln << std::endl;
     czero = int( ( zero - b ) / a );
   }
 
@@ -153,7 +155,7 @@ void ColorScalarPaletteTraits<T>::setup1D( int dim,
     paletteCoord0(mini, valmi);
     paletteCoord0(maxi, valma);
     paletteCoord0(0, valz);
-    std::cout << "colortaits " << mini << ": " << valmi << ", " << maxi << ": " << valma << ", zero: " << valz << std::endl;
+    // std::cout << "colortaits " << mini << ": " << valmi << ", " << maxi << ": " << valma << ", zero: " << valz << std::endl;
   }
   else
   {

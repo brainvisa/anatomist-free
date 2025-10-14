@@ -1052,7 +1052,7 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
     min2 = 0;
     max2 = 1;
   }
-  cout << "dimx: " << dimx << ", dimpx: " << dimpx << endl;
+  // cout << "dimx: " << dimx << ", dimpx: " << dimpx << endl;
   /* if the texture image can contain the whole colormap, then use it unscaled,
      and use the OpenGL texture matrix to zoom into it.
      TODO: in that case we could avoid re-making the teximage if it's already
@@ -1122,12 +1122,14 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
       float e = 1. / ( prmax[tdim] - prmin[tdim] );
       ti.texscale[tdim] = e * a;
       ti.texoffset[tdim] = e * ( b - prmin[tdim] );
+      /*
       cout << "te.min/max: " << te.min[tdim] << ", " << te.max[tdim] << endl;
       cout << "minq/maxq: " << te.minquant[tdim] << ", " << te.maxquant[tdim] << endl;
       cout << "scale: " << ti.texscale[tdim] << ", offset: " << ti.texoffset[tdim] << endl;
       cout << "trmin/max: " << trmin << ", " << trmax << endl;
       cout << "minr/maxr: " << minr << ", " << maxr << endl;
       cout << "prmin/max: " << prmin[tdim] << ", " << prmax[tdim] << endl;
+      */
     }
     else
     {

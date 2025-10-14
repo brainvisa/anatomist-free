@@ -253,7 +253,7 @@ void MiniPaletteGraphics::_drawPaletteInGraphicsView()
   QPixmap pix;
   if( d->with_view )
   {
-    cout << "draw pal abs.min/max: " << d->min[0] << ", " << d->max[0] << ", rel: " << m1 << ", " << M1 << ", zero: " << z1 << endl;
+    // cout << "draw pal abs.min/max: " << d->min[0] << ", " << d->max[0] << ", rel: " << m1 << ", " << M1 << ", zero: " << z1 << endl;
     QImage *img( pal->toQImage( w, baseh2 - baseh - 1, m1, M1, z1,
                                 m2, M2, z2 ) );
     pix = QPixmap::fromImage( *img );
