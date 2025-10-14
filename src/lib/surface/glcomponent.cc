@@ -1122,8 +1122,6 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
       float e = 1. / ( prmax[tdim] - prmin[tdim] );
       ti.texscale[tdim] = e * a;
       ti.texoffset[tdim] = e * ( b - prmin[tdim] );
-      // ti.texscale[tdim] = ( prmax[tdim] - prmin[tdim] ) / ( trmax - trmin );
-      // ti.texoffset[tdim] = - ( tmin + prmin[tdim] * ( tmax - tmin ) );
       cout << "te.min/max: " << te.min[tdim] << ", " << te.max[tdim] << endl;
       cout << "minq/maxq: " << te.minquant[tdim] << ", " << te.maxquant[tdim] << endl;
       cout << "scale: " << ti.texscale[tdim] << ", offset: " << ti.texoffset[tdim] << endl;
@@ -1134,6 +1132,17 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
     else
     {
       // 0-centered case
+      float rmax = std::max( std::abs( max ), std::abs( min ) );
+      float ztr = te.min[tdim]
+        - ( te.minquant[tdim] * ( te.max[tdim] - te.min[tdim] ) )
+        / ( te.maxquant[tdim] - te.minquant[tdim] );
+      float a = 1. / ( te.max[tdim] - ztr );
+      float b = - ztr * a;
+      prmin[tdim] = std::max( -rmax, -1.f );
+      prmax[tdim] = std::min( rmax, 1.f );
+      float e = 1. / ( prmax[tdim] - prmin[tdim] );
+      ti.texscale[tdim] = a * e;
+      ti.texoffset[tdim] = e * ( b - prmin[tdim] );
     }
 
   }
