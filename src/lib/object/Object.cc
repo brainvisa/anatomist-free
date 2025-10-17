@@ -37,7 +37,6 @@
 #include <anatomist/control/wControl.h>
 #include <anatomist/object/Object.h>
 #include <anatomist/application/Anatomist.h>
-#include <anatomist/window/Window.h>
 #include <anatomist/mobject/MObject.h>
 #include <anatomist/mobject/Fusion2D.h>
 #include <anatomist/mobject/Fusion3D.h>
