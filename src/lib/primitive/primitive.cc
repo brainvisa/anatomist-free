@@ -459,8 +459,16 @@ GLObjectUniforms::~GLObjectUniforms()
 void GLObjectUniforms::callList() const
 {
   if(!_shader || !_glObj)
+  {
+    std::cerr << "GLObjectUniforms::callList() No shader or GL object !" << std::endl;
     return;
-
+  }
+  QOpenGLContext *ctx = QOpenGLContext::currentContext();
+  if(!ctx)
+  {
+      std::cerr << "GLObjectUniforms::callList() No current GL context !" << std::endl;
+      return;
+  }
   ViewState vs; // jordan - how to pass viewstate?
   const unsigned maxSamplers = 8;
 
@@ -497,16 +505,14 @@ void GLObjectUniforms::getUniformsLocations(UniformsLocations & locations) const
 void GLObjectUniforms::getTexturesData(const ViewState& vs, const unsigned maxSampler, TexturesData & data) const
 {
   data.nbTexture = _glObj->glNumTextures( vs );
-  if (data.nbTexture == 0)
-    return;
 
   auto texEnvInfo = _glObj->glEffectiveTexInfo( vs );
-  data.textureDim = texEnvInfo.size();
 
   auto used_tex_units = _glObj->glUsedTexUnits( vs );
 
   for(auto& [texUnit,dim] : used_tex_units)
   {    
+    data.textureDim = dim;
     switch( dim)
     {
       case 1: 
@@ -547,7 +553,6 @@ void GLObjectUniforms::getTexturesData(const ViewState& vs, const unsigned maxSa
     cerr << "GLObjectUniforms::getTexturesData() Too many 3D textures (" << data.texUnits3D.size() << "), max is " << maxSampler << endl;
     data.texUnits3D.resize(maxSampler);
   }
-
 }
 
 void GLObjectUniforms::updateTextureUniforms(const UniformsLocations& locations,TexturesData& data, const unsigned maxSamplers) const
@@ -558,20 +563,15 @@ void GLObjectUniforms::updateTextureUniforms(const UniformsLocations& locations,
   if(locations.textureDim >= 0)
   _shader->setUniformValue(locations.textureDim, data.textureDim);
 
-  if(data.nbTexture == 0)
-  {
-    for(unsigned i=0; i< 3; ++i)
-    {
-      if(locations.texture[i] >= 0) _shader->setUniformValue(locations.texture[i], 0);
-      if(locations.nbTexture[i] >=0) _shader->setUniformValue(locations.nbTexture[i], 0);
-    }
-    return;
-  }
-
   auto fillWithFreeUnit = [&](std::vector<GLint>& v)
   {
-    unsigned freeUnit = *data.usedUnits.rbegin() + 1;
-    while(v.size() < maxSamplers) v.push_back(freeUnit);
+    unsigned freeUnit = 0;
+    if(!data.usedUnits.empty())
+      freeUnit = *data.usedUnits.rbegin() + 1;
+    while(v.size() < maxSamplers)
+    {
+      v.push_back(freeUnit);
+    }
     data.usedUnits.insert(freeUnit);
   };
 
