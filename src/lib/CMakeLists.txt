@@ -231,6 +231,7 @@ set( _headers
     window3D/glwidget3D.h
     window3D/control3D.h
     window3D/labeleditaction.h
+    window3D/renderContext.h
     window3D/trackball.h
     window3D/trackcut.h
     window3D/trackOblique.h
@@ -487,6 +488,7 @@ set( _sources
     window3D/glwidget3D.cc
     window3D/control3D.cc
     window3D/labeleditaction.cc
+    window3D/renderContext.cc
     window3D/trackball.cc
     window3D/trackcut.cc
     window3D/trackOblique.cc

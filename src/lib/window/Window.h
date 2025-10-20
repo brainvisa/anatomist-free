@@ -136,9 +136,13 @@ namespace anatomist
     std::set<AObject*> Objects() const;
     bool hasObject( AObject * obj ) const;
     /// Get position of cursor
-    virtual Point3df getPosition() const;
+    virtual const Point3df& getPosition() const;
+    // Get const position of cursor
+    // virtual const Point3df& getPosition() const;
     /// Get time position of cursor
     float getTime() const;
+    /// Get all time positions of cursor 
+    const std::vector<float>& getTimes() const;
     virtual std::vector<float> getFullPosition() const;
     /// Set position of cursor
     virtual void setPosition( const Point3df& position ,
@@ -354,6 +358,12 @@ namespace anatomist
   float AWindow::getTime() const
   {
     return _timepos[0];
+  }
+
+  inline
+  const std::vector<float>& AWindow::getTimes() const
+  {
+    return _timepos;
   }
 
   inline

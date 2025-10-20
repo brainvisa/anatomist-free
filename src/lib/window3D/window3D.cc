@@ -79,6 +79,7 @@
 #include <anatomist/application/settings.h>
 #include <anatomist/window3D/orientationAnnotation.h>
 #include <anatomist/window3D/agraphicsview_p.h>
+#include <anatomist/window3D/renderContext.h>
 #include <anatomist/object/objectConverter.h>
 #include <anatomist/mobject/Fusion2D.h>
 #include <anatomist/fusion/defFusionMethods.h>
@@ -249,9 +250,6 @@ struct AWindow3D::Private
 
     // Shader management
     dynamicShaderBuilder shaderBuilder; 
-    std::unordered_map<std::string, std::shared_ptr<QOpenGLShaderProgram>> programs;
-    std::unordered_map<std::string, std::vector<AObject*>> opaqueDrawable;
-    std::unordered_map<std::string, std::vector<AObject*>> transparentDrawable;
 };
 
 struct TmpCol
@@ -1122,7 +1120,7 @@ void AWindow3D::updateObject2D(AObject* obj, PrimList* pl,
 void AWindow3D::updateObject3D(AObject* obj, PrimList* pl,
     ViewState::glSelectRenderMode selectmode)
 {
-  if (!pl) pl = &d->primitives;
+  if (!pl) pl = &d->primitives; 
   obj->render(*pl, ViewState(_timepos, this, selectmode));
 }
 
@@ -1533,120 +1531,13 @@ void AWindow3D::removeSelectionHighlight(TmpCol* tmpcol)
     ResetRefreshFlag();
   }
 
-  void AWindow3D::retrieveShaders()
-  {
-    for(const auto& obj : _objects)
-    {
-      auto glObj = (obj)->glAPI();
-      if(glObj)
-      {
-        std::string shaderID = glObj->getShaderModuleIDs();
-        if(d->draw->useDepthPeeling())
-        {
-          shaderID += "1"; // id for depth peeling
-        }
-        if(obj->isTransparent())
-        {
-          d->transparentDrawable[shaderID].push_back(obj.get());
-        }
-        else
-        {
-          d->opaqueDrawable[shaderID].push_back(obj.get());
-        }
-        
-      }
-    }
-  }
-
-  void AWindow3D::shaderBuilding()
-  {
-    for(const auto& [shader,_] : d->opaqueDrawable)
-    {
-      if(d->programs[shader] == nullptr)
-      {
-        d->programs[shader] = d->shaderBuilder.initShader(shader);
-      }
-    }
-
-    for(const auto& [shader,_] : d->transparentDrawable)
-    {
-      if(d->programs[shader] == nullptr)
-      {
-        d->programs[shader] = d->shaderBuilder.initShader(shader);
-      }
-    }
-  }
-
-std::vector<std::shared_ptr<IShaderModule>> AWindow3D::getEffectiveShaderModules(const std::string& shaderID)
-{
-  auto shaderModules = shaderMapping::getModules(shaderID);
-  if (d->draw->useDepthPeeling())
-  {
-    auto peelingModule = shaderMapping::getModules("1");
-    shaderModules.insert(shaderModules.end(), peelingModule.begin(), peelingModule.end());
-  }
-  return shaderModules;
-}
-  
-
-
-void AWindow3D::renderOpaqueObjects()
-{
-  for(const auto& [shader, objects] : d->opaqueDrawable)
-  { 
-    d->primitives.push_back(carto::rc_ptr<GLItem>(new GLBindShader(d->programs[shader])));
-    
-    auto shaderModules = getEffectiveShaderModules(objects[0]->glAPI()->getShaderModuleIDs());
-
-    for(size_t i=0; i<objects.size(); ++i)
-    {
-      auto glObj = objects[i]->glAPI();
-      for(int j=0; j<shaderModules.size(); ++j)
-      {
-        if(i==0)
-        {
-          d->primitives.push_back(carto::rc_ptr<GLItem>(new GLSceneUniforms(shaderModules[j], d->programs[shader], d->draw)));
-        }
-        d->primitives.push_back(carto::rc_ptr<GLItem>(new GLObjectUniforms(shaderModules[j], d->programs[shader], glObj)));
-      }
-
-      updateObject(objects[i]);
-    }
-
-    d->primitives.push_back(carto::rc_ptr<GLItem>(new GLReleaseShader(d->programs[shader]))); 
-  }
-}
-
-void AWindow3D::renderTransparentObjects()
-{
-  for(const auto& [shader, objects] : d->transparentDrawable)
-  {
-    d->primitives.push_back(carto::rc_ptr<GLItem>(new GLBindShader(d->programs[shader])));
-
-    auto shaderModules = getEffectiveShaderModules(objects[0]->glAPI()->getShaderModuleIDs());
-
-    for(size_t j=0; j<objects.size(); ++j)
-    {
-      auto glObj = objects[j]->glAPI();
-      for(int k=0; k<shaderModules.size(); ++k)
-      {
-        if(j==0)
-        {
-          d->primitives.push_back(carto::rc_ptr<GLItem>(new GLSceneUniforms(shaderModules[k], d->programs[shader], d->draw)));
-        }
-        d->primitives.push_back(carto::rc_ptr<GLItem>(new GLObjectUniforms(shaderModules[k], d->programs[shader], glObj)));
-      }
-
-      updateObject(objects[j]);
-    }
-    d->primitives.push_back(carto::rc_ptr<GLItem>(new GLReleaseShader(d->programs[shader])));
-  }
-}
-
 void AWindow3D::refreshNow()
 {
   shaderMapping::initShaderMapping();
   //shaderMapping::printModules();
+
+  RenderContext rc(this, d->draw);
+
 
   using carto::shared_ptr;
 
@@ -1684,30 +1575,8 @@ void AWindow3D::refreshNow()
   applySelectionHighlight(tmpcol);
   setupOpenGLState(); //	Rendering mode primitive (must be first)
 
-  d->opaqueDrawable.clear(); //re create all objects
-  d->transparentDrawable.clear();
-
-  retrieveShaders();
-  shaderBuilding();
-
-  if(!d->opaqueDrawable.empty())
-  {
-    renderOpaqueObjects();
-  }
-
-  if(!d->transparentDrawable.empty())
-  {
-    if(d->draw->useDepthPeeling())
-    {
-      renderTransparentObjects();
-    }
-    else
-    {
-      setupTransparentObjects();
-      renderTransparentObjects();
-      postTransparentRenderingSetup();
-    }
-  }
+  std::shared_ptr<PrimList> pr = rc.renderObjects(_objects);
+  d->primitives.insert(d->primitives.end(), pr->begin(), pr->end());
 
   /*	Finish rendering mode operations: restore initial modes
    and eventually performs a second rendering of all objects */
@@ -5128,5 +4997,10 @@ void AWindow3D::saveObject()
 
   for( io1=tosave.begin(); io1!=eo1; ++io1 )
     (*io1)->save( (*io1)->fileName(), true );
+}
+
+list<AWindow3D::ObjectModifier*>& AWindow3D::getModifiers()
+{
+  return d->objmodifiers;
 }
 

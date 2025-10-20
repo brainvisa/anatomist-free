@@ -310,13 +310,9 @@ public:
   anatomist::Primitive* setupOutlinedMode();
   void duplicateRenderPrimitives();
   void finalizeRenderingSettings();
-  void retrieveShaders();
-  void shaderBuilding();
-  std::vector<std::shared_ptr<anatomist::IShaderModule>> getEffectiveShaderModules(const std::string& shaderID);
-  void initBlendingShader();
-  void renderOpaqueObjects();
-  void renderTransparentObjects();
-  short nbLayers;
+
+  // gets the list of object modifiers
+  std::list<ObjectModifier *>& getModifiers();
 
 
 signals:

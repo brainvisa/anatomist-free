@@ -441,10 +441,15 @@ void AWindow::startRecord()
 }
 
 
-Point3df AWindow::getPosition() const
+const Point3df& AWindow::getPosition() const
 {
   return( _position );
 }
+
+// const Point3df& AWindow::getPosition() const
+// {
+//   return( _position );
+// }
 
 
 vector<float> AWindow::getFullPosition() const
