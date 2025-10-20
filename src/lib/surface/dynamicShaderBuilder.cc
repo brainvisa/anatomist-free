@@ -64,31 +64,45 @@ std::string dynamicShaderBuilder::readShaderFile(const std::string &filePath)
 std::string dynamicShaderBuilder::generateShaderSource() const
 {
   std::string shaderSource = m_baseShaderTemplate;
-
+  
   // Replace the illumination model
-  if(m_illuminationModel)
+  std::string illuminationModelUniforms;
+  std::string illuminationModelFunctions;
+  std::string illuminationModelCall;
+
+  if(!m_illuminationModel)
+  {
+    illuminationModelUniforms = "\n";
+    illuminationModelFunctions = "\n";
+    illuminationModelCall = "\n";
+  }
+  else
   {
     // Uniforms
-    shaderSource = std::regex_replace(
-      shaderSource,
-      std::regex("\\{Illumination Model Uniforms\\}"),
-      m_illuminationModel->getUniformDeclarations()
-    );
-
+    illuminationModelUniforms = m_illuminationModel->getUniformDeclarations() + "\n";
     // Functions
-    shaderSource = std::regex_replace(
-      shaderSource,
-      std::regex("\\{Illumination Model Functions\\}"),
-      m_illuminationModel->getFunctionImplementation()
-    );
-
+    illuminationModelFunctions = m_illuminationModel->getFunctionImplementation() + "\n";
     // Calling function
-    shaderSource = std::regex_replace(
-      shaderSource,
-      std::regex("\\{Illumination Model Call\\}"),
-      m_illuminationModel->getFunctionCall()
-    );
+    illuminationModelCall = m_illuminationModel->getFunctionCall() + "\n";
   }
+
+  shaderSource = std::regex_replace(
+    shaderSource,
+    std::regex("\\{Illumination Model Uniforms\\}"),
+    illuminationModelUniforms
+  );
+
+  shaderSource = std::regex_replace(
+    shaderSource,
+    std::regex("\\{Illumination Model Functions\\}"),
+    illuminationModelFunctions
+  );
+
+  shaderSource = std::regex_replace(
+    shaderSource,
+    std::regex("\\{Illumination Model Call\\}"),
+    illuminationModelCall
+  );
 
   // Replace the effects
   std::string effectUniforms;
