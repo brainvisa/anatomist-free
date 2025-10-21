@@ -210,7 +210,7 @@ namespace anatomist
       std::vector<GLint> texModes;
       std::set<unsigned> usedUnits;
       int nbTexture = 0;
-      int textureDim = 0;
+      std::vector<int> textureDim;
     };
 
     GLObjectUniforms(std::shared_ptr<IShaderModule> shaderModule, std::shared_ptr<QOpenGLShaderProgram> glShader, GLComponent* glObj) : GLItem(),_module(shaderModule), _shader(glShader), _glObj(glObj) {}

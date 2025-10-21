@@ -490,7 +490,7 @@ void GLObjectUniforms::getUniformsLocations(UniformsLocations & locations) const
     return;
 
   locations.hasTexture = _shader->uniformLocation("u_hasTexture");
-  locations.textureDim = _shader->uniformLocation("u_textureDim");
+  locations.textureDim = _shader->uniformLocation("u_textureDim[0]");
   locations.texModes =  _shader->uniformLocation("u_texEnvMode[0]");
 
   locations.texture[0] = _shader->uniformLocation("u_texture1D[0]");
@@ -512,23 +512,25 @@ void GLObjectUniforms::getTexturesData(const ViewState& vs, const unsigned maxSa
 
   for(auto& [texUnit,dim] : used_tex_units)
   {    
-    data.textureDim = dim;
     switch( dim)
     {
       case 1: 
         data.texUnits1D.push_back(texUnit);
         data.usedUnits.insert( texUnit );
         data.texModes.push_back( texEnvInfo[texUnit].mode );
+        data.textureDim.push_back(dim);
         break;
       case 2:
         data.texUnits2D.push_back(texUnit);
         data.usedUnits.insert( texUnit );
         data.texModes.push_back( texEnvInfo[texUnit].mode );
+        data.textureDim.push_back(dim);
         break;
       case 3:
         data.texUnits3D.push_back(texUnit);
         data.usedUnits.insert( texUnit );
         data.texModes.push_back( texEnvInfo[texUnit].mode );
+        data.textureDim.push_back(dim);
         break;
       default:
         cerr << "GLObjectUniforms::getTexturesData() Unsupported texture dimension "<< dim << endl;
@@ -561,7 +563,14 @@ void GLObjectUniforms::updateTextureUniforms(const UniformsLocations& locations,
     _shader->setUniformValue(locations.hasTexture, data.nbTexture>0);
 
   if(locations.textureDim >= 0)
-  _shader->setUniformValue(locations.textureDim, data.textureDim);
+  _shader->setUniformValueArray(locations.textureDim, &data.textureDim[0], (int) data.textureDim.size());
+
+  if(locations.nbTexture[0] >=0)
+    _shader->setUniformValue(locations.nbTexture[0], (int) data.texUnits1D.size());
+  if(locations.nbTexture[1] >=0)
+    _shader->setUniformValue(locations.nbTexture[1], (int) data.texUnits2D.size());
+  if(locations.nbTexture[2] >=0)
+    _shader->setUniformValue(locations.nbTexture[2], (int) data.texUnits2D.size());
 
   auto fillWithFreeUnit = [&](std::vector<GLint>& v)
   {
@@ -582,16 +591,12 @@ void GLObjectUniforms::updateTextureUniforms(const UniformsLocations& locations,
   if(locations.texture[0] >= 0)
     _shader->setUniformValueArray(locations.texture[0], &data.texUnits1D[0], (int) data.texUnits1D.size());
   if(locations.texture[1] >= 0)
-  _shader->setUniformValueArray(locations.texture[1], &data.texUnits2D[0], (int) data.texUnits2D.size());
+    _shader->setUniformValueArray(locations.texture[1], &data.texUnits2D[0], (int) data.texUnits2D.size());
   if(locations.texture[2] >= 0)
-  _shader->setUniformValueArray(locations.texture[2], &data.texUnits3D[0], (int) data.texUnits3D.size());
+    _shader->setUniformValueArray(locations.texture[2], &data.texUnits3D[0], (int) data.texUnits3D.size());
 
-  if(locations.nbTexture[0] >=0)
-    _shader->setUniformValue(locations.nbTexture[0], (int) data.texUnits1D.size());
-  if(locations.nbTexture[1] >=0)
-    _shader->setUniformValue(locations.nbTexture[1], (int) data.texUnits2D.size());
-  if(locations.nbTexture[2] >=0)
-    _shader->setUniformValue(locations.nbTexture[2], (int) data.texUnits2D.size());
+
+
 
   while(data.texModes.size() < maxSamplers)
     data.texModes.push_back(-1);
