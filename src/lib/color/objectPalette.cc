@@ -663,11 +663,10 @@ void AObjectPalette::copyOrFillColors( const AObjectPalette & pal )
 
 
 QImage* AObjectPalette::toQImage( int w, int h, float mi1, float ma1,
-                                  float mi2, float ma2 ) const
+                                  float zero1,
+                                  float mi2, float ma2, float zero2 ) const
 {
-  AObjectPalette *pal = new AObjectPalette( *this );
-
-  const Volume<AimsRGBA>    *col = pal->colors();
+  const Volume<AimsRGBA>    *col = colors();
 
   if( !col || col->getSizeX() == 0 || col->getSizeY() == 0 )
     return 0;
@@ -692,21 +691,10 @@ QImage* AObjectPalette::toQImage( int w, int h, float mi1, float ma1,
   shx = -int(dimx) / 2;
   shy = -int(dimy) / 2;
 
-  if( zeroCenteredAxis1() )
-  {
-    pal->setMax1( max1() / ma1 );
-    pal->setMin1( min1() / ma1 );
-  }
-  else
-  {
-    pal->setMax1( ( max1() - mi1 ) / ( ma1 - mi1 ) );
-    pal->setMin1( ( min1() - mi1 ) / ( ma1 - mi1 ) );
-  }
-  pal->setMax2( ( max2() - mi2 ) / ( ma2 - mi2 ) );
-  pal->setMin2( ( min2() - mi2 ) / ( ma2 - mi2 ) );
-
-  ColorTraits<int>	coltraits( pal, shx, dimx + shx - 1,
-                                   shy, dimy + shy - 1 );
+  ColorTraits<int>	coltraits( this, shx, dimx + shx - 1,
+                                   shy, dimy + shy - 1,
+                                   mi1, ma1, zero1,
+                                   mi2, ma2, zero2 );
 
   AimsRGBA      rgb;
 
@@ -723,8 +711,6 @@ QImage* AObjectPalette::toQImage( int w, int h, float mi1, float ma1,
       im.setPixel( x, y, qRgb( rgb.red(), rgb.green(), rgb.blue() ) );
     }
   }
-
-  delete pal;
 
   return img;
 }
@@ -783,8 +769,16 @@ rc_ptr<Volume<AimsRGBA> > AObjectPalette::toVolume( int w, int h,
     pal = unscaled_pal;
   }
 
+  float tminx = 0.f;
+  if( pal->zeroCenteredAxis1() )
+    tminx = -1.f;
+  float tminy = 0.f;
+  if( pal->zeroCenteredAxis2() )
+    tminy = -1.f;
   ColorTraits<int>	coltraits( pal, shx, dimx + shx - 1,
-                                   shy, dimy + shy - 1 );
+                                   tminx, 1., ( 1. - tminx ) * 0.5,
+                                   shy, dimy + shy - 1,
+                                   tminy, 1., ( 1. - tminy ) * 0.5 );
 
   AimsRGBA      rgb;
 
@@ -1074,4 +1068,5 @@ float AObjectPalette::absValue2( const AObject * obj, float relval ) const
   }
   return relval;
 }
+
 
