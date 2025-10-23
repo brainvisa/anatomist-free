@@ -15,12 +15,12 @@ void main()
     normal.xyz = gl_Normal;
     v_normal = normalize((gl_ModelViewMatrix * normal).xyz);
     v_color = gl_Color;
-    v_texcoord[0] = gl_MultiTexCoord0.xyz;
-    v_texcoord[1] = gl_MultiTexCoord1.xyz;
-    v_texcoord[2] = gl_MultiTexCoord2.xyz;
-    v_texcoord[3] = gl_MultiTexCoord3.xyz;
-    v_texcoord[4] = gl_MultiTexCoord4.xyz;
-    v_texcoord[5] = gl_MultiTexCoord5.xyz;
-    v_texcoord[6] = gl_MultiTexCoord6.xyz;
-    v_texcoord[7] = gl_MultiTexCoord7.xyz;
+    v_texcoord[0] = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xyz;
+    v_texcoord[1] = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xyz;
+    v_texcoord[2] = (gl_TextureMatrix[2] * gl_MultiTexCoord2).xyz;
+    v_texcoord[3] = (gl_TextureMatrix[3] * gl_MultiTexCoord3).xyz;
+    v_texcoord[4] = (gl_TextureMatrix[4] * gl_MultiTexCoord4).xyz;
+    v_texcoord[5] = (gl_TextureMatrix[5] * gl_MultiTexCoord5).xyz;
+    v_texcoord[6] = (gl_TextureMatrix[6] * gl_MultiTexCoord6).xyz;
+    v_texcoord[7] = (gl_TextureMatrix[7] * gl_MultiTexCoord7).xyz;
 }
