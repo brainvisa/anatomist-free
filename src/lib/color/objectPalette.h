@@ -88,57 +88,57 @@ namespace anatomist
     void create( unsigned dimx, unsigned dimy = 1, unsigned dimz = 1, 
                  unsigned dimt = 1 );
     virtual void fill();
-    float min1() const { return( _min ); }
-    float max1() const { return( _max ); }
-    float min2() const { return( _min2 ); }
-    float max2() const { return( _max2 ); }
-    float min( int dim = 0 ) const { return dim == 1 ? min2() : min1(); }
-    float max( int dim = 0 ) const { return dim == 1 ? max2() : max1(); }
+    double min1() const { return( _min ); }
+    double max1() const { return( _max ); }
+    double min2() const { return( _min2 ); }
+    double max2() const { return( _max2 ); }
+    double min( int dim = 0 ) const { return dim == 1 ? min2() : min1(); }
+    double max( int dim = 0 ) const { return dim == 1 ? max2() : max1(); }
     int palette1DMapping() const { return (_palette1DMapping) ; }
     std::string palette1DMappingName() const 
     { return (_palette1DMapping == 1 ? "Diagonal" : "FirstLine" ) ; }
-    void setMin1( float x )
+    void setMin1( double x )
     { _min = x; if( isnan( x ) || isinf( x ) ) _min = 0; }
-    void setMax1( float x )
+    void setMax1( double x )
     { _max = x; if( isnan( x ) || isinf( x ) ) _max = 0; }
-    void setMin2( float x ) { _min2 = x; }
-    void setMax2( float x ) { _max2 = x; }
-    void setMin( int dim, float x )
+    void setMin2( double x ) { _min2 = x; }
+    void setMax2( double x ) { _max2 = x; }
+    void setMin( int dim, double x )
     { if( dim == 1 ) setMin2( x ); else setMin1( x ); }
-    void setMax( int dim, float x )
+    void setMax( int dim, double x )
     { if( dim == 1 ) setMax2( x ); else setMax1( x ); }
 
     /// get the absolute min for a given object
-    float absMin1( const AObject * obj ) const;
+    double absMin1( const AObject * obj ) const;
     /// get the absolute max for a given object
-    float absMax1( const AObject * obj ) const;
+    double absMax1( const AObject * obj ) const;
     /// get the absolute min for a given object
-    float absMin2( const AObject * obj ) const;
+    double absMin2( const AObject * obj ) const;
     /// get the absolute max for a given object
-    float absMax2( const AObject * obj ) const;
-    float absMin( int dim, const AObject* obj ) const
+    double absMax2( const AObject * obj ) const;
+    double absMin( int dim, const AObject* obj ) const
     { return dim == 1 ? absMin2( obj ) : absMin1( obj ); }
-    float absMax( int dim, const AObject* obj ) const
+    double absMax( int dim, const AObject* obj ) const
     { return dim == 1 ? absMax2( obj ) : absMax1( obj ); }
     /// set the min from an absolute value for a given object
-    void setAbsMin1( const AObject * obj, float x );
+    void setAbsMin1( const AObject * obj, double x );
     /// set the max from an absolute value for a given object
-    void setAbsMax1( const AObject * obj, float x );
+    void setAbsMax1( const AObject * obj, double x );
     /// set the min from an absolute value for a given object
-    void setAbsMin2( const AObject * obj, float x );
+    void setAbsMin2( const AObject * obj, double x );
     /// set the max from an absolute value for a given object
-    void setAbsMax2( const AObject * obj, float x );
-    void setAbsMin( int dim, const AObject *obj, float x )
+    void setAbsMax2( const AObject * obj, double x );
+    void setAbsMin( int dim, const AObject *obj, double x )
     { if( dim == 1 ) setAbsMin2( obj, x ); else setAbsMin1( obj, x ); }
-    void setAbsMax( int dim, const AObject *obj, float x )
+    void setAbsMax( int dim, const AObject *obj, double x )
     { if( dim == 1 ) setAbsMax2( obj, x ); else setAbsMax1( obj, x ); }
-    float relValue1( const AObject * obj, float absval ) const;
-    float relValue2( const AObject * obj, float absval ) const;
-    float relValue( int dim, const AObject* obj, float absval ) const
+    double relValue1( const AObject * obj, double absval ) const;
+    double relValue2( const AObject * obj, double absval ) const;
+    double relValue( int dim, const AObject* obj, double absval ) const
     { return dim == 1 ? relValue2( obj, absval ) : relValue1( obj, absval ); }
-    float absValue1( const AObject * obj, float relval ) const;
-    float absValue2( const AObject * obj, float relval ) const;
-    float absValue( int dim, const AObject* obj, float relval ) const
+    double absValue1( const AObject * obj, double relval ) const;
+    double absValue2( const AObject * obj, double relval ) const;
+    double absValue( int dim, const AObject* obj, double relval ) const
     { return dim == 1 ? absValue2( obj, relval ) : absValue1( obj, relval ); }
 
     void setPalette1DMapping( Palette1DMapping palette1DMapping )
@@ -148,12 +148,12 @@ namespace anatomist
                             FIRSTLINE : DIAGONAL ) ; }
     std::string mixMethodName() const { return( _mixMethodName ); }
     void setMixMethod( const std::string & name );
-    float linearMixFactor() const { return( _linMixFactor ); }
-    void setLinearMixFactor( float x ) { _linMixFactor = x; }
+    double linearMixFactor() const { return( _linMixFactor ); }
+    void setLinearMixFactor( double x ) { _linMixFactor = x; }
     bool is2dMode() const { return _mode2d; }
     void set2dMode( bool x ) { _mode2d = x; }
     bool isTransparent() const { return _transp; }
-    AimsRGBA normColor( float x, float y = 0 ) const;
+    AimsRGBA normColor( double x, double y = 0 ) const;
     AimsRGBA normColor( const Point2df & pos ) const;
     bool zeroCenteredAxis1() const { return _zeroCentered1; }
     bool zeroCenteredAxis2() const { return _zeroCentered2; }
@@ -211,9 +211,9 @@ namespace anatomist
         the palette image the object extrema are mapped), but at the contrary,
         allow to zoom the palette view on specific object values bounds.
     */
-    QImage* toQImage( int w = 0, int h = 0, float min1 = 0., float max1 = 1.,
-                      float zero1 = 0.5, float min2 = 0., float max2 = 1.,
-                      float zero2 = 0.5 ) const;
+    QImage* toQImage( int w = 0, int h = 0, double min1 = 0., double max1 = 1.,
+                      double zero1 = 0.5, double min2 = 0., double max2 = 1.,
+                      double zero2 = 0.5 ) const;
     carto::rc_ptr<carto::Volume<AimsRGBA> >
       toVolume( int w = 0, int h = 0, bool scaled = true ) const;
 
@@ -222,14 +222,14 @@ namespace anatomist
 
     carto::rc_ptr<APalette> _refPal;
     carto::VolumeRef<AimsRGBA>	_colors;
-    float		_min;
-    float		_max;
+    double		_min;
+    double		_max;
     carto::rc_ptr<APalette> _refPal2;
-    float		_min2;
-    float		_max2;
+    double		_min2;
+    double		_max2;
     MixMethod		_mixMethod;
     std::string		_mixMethodName;
-    float		_linMixFactor;
+    double		_linMixFactor;
     Palette1DMapping	_palette1DMapping;
     bool		_mode2d;
     bool		_transp;

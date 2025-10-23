@@ -214,8 +214,8 @@ void AObjectPalette::fill()
 
   unsigned	dimx = _colors->getSizeX(), dimy = _colors->getSizeY(), x, y;
 
-  float		facx = ((float) dimpx) / dimx;
-  float		facy = ((float) dimpy) / dimy;
+  double		facx = ((double) dimpx) / dimx;
+  double		facy = ((double) dimpy) / dimy;
 
   _transp = false;
   for( x=0; x<dimx; ++x )
@@ -247,8 +247,8 @@ AimsRGBA AObjectPalette::linearMixMethod( const Volume<AimsRGBA> & map1,
                                           const AObjectPalette & pal )
 {
   AimsRGBA	rgb = map1.at( x ), rgb2 = map2->at( y );
-  float		fac1 = 1. - pal.linearMixFactor();
-  float		fac2 = pal.linearMixFactor();
+  double		fac1 = 1. - pal.linearMixFactor();
+  double		fac2 = pal.linearMixFactor();
 
   rgb.red() = (unsigned char ) ( fac1 * rgb.red() + fac2 * rgb2.red() );
   rgb.green() = (unsigned char ) ( fac1 * rgb.green() + fac2 * rgb2.green() );
@@ -291,12 +291,12 @@ AimsRGBA AObjectPalette::normColor( const Point2df & pos ) const
 }
 
 
-AimsRGBA AObjectPalette::normColor( float x, float y ) const
+AimsRGBA AObjectPalette::normColor( double x, double y ) const
 {
   if( _colors->getSizeX() == 0 || _colors->getSizeY() == 0 )
     return AimsRGBA( 0, 0, 0, 1 );
 
-  float	xs;
+  double	xs;
   if( isnan( x ) || isinf( x ) )
     xs = 0;
   else if( _min == _max )
@@ -308,7 +308,7 @@ AimsRGBA AObjectPalette::normColor( float x, float y ) const
   else if( xs >= 0.9999 )
     xs = 0.9999;
 
-  float	ys;
+  double	ys;
   if( _min2 == _max2 )
     ys = y - _min2;
   else
@@ -662,9 +662,9 @@ void AObjectPalette::copyOrFillColors( const AObjectPalette & pal )
 }
 
 
-QImage* AObjectPalette::toQImage( int w, int h, float mi1, float ma1,
-                                  float zero1,
-                                  float mi2, float ma2, float zero2 ) const
+QImage* AObjectPalette::toQImage( int w, int h, double mi1, double ma1,
+                                  double zero1,
+                                  double mi2, double ma2, double zero2 ) const
 {
   const Volume<AimsRGBA>    *col = colors();
 
@@ -769,10 +769,10 @@ rc_ptr<Volume<AimsRGBA> > AObjectPalette::toVolume( int w, int h,
     pal = unscaled_pal;
   }
 
-  float tminx = 0.f;
+  double tminx = 0.f;
   if( pal->zeroCenteredAxis1() )
     tminx = -1.f;
-  float tminy = 0.f;
+  double tminy = 0.f;
   if( pal->zeroCenteredAxis2() )
     tminy = -1.f;
   ColorTraits<int>	coltraits( pal, shx, dimx + shx - 1,
@@ -801,38 +801,38 @@ rc_ptr<Volume<AimsRGBA> > AObjectPalette::toVolume( int w, int h,
 }
 
 
-float AObjectPalette::absMin1( const AObject * obj ) const
+double AObjectPalette::absMin1( const AObject * obj ) const
 {
   return absValue1( obj, min1() );
 }
 
 
-float AObjectPalette::absMax1( const AObject * obj ) const
+double AObjectPalette::absMax1( const AObject * obj ) const
 {
   return absValue1( obj, max1() );
 }
 
 
-float AObjectPalette::absMin2( const AObject * obj ) const
+double AObjectPalette::absMin2( const AObject * obj ) const
 {
   return absValue2( obj, min2() );
 }
 
 
-float AObjectPalette::absMax2( const AObject * obj ) const
+double AObjectPalette::absMax2( const AObject * obj ) const
 {
   return absValue2( obj, max2() );
 }
 
 
-void AObjectPalette::setAbsMin1( const AObject * obj, float x )
+void AObjectPalette::setAbsMin1( const AObject * obj, double x )
 {
   const GLComponent *glc = obj->glAPI();
   if( glc )
   {
     const GLComponent::TexExtrema	& te = glc->glTexExtrema();
-    float m0 = te.minquant[0];
-    float scl0;
+    double m0 = te.minquant[0];
+    double scl0;
     if( zeroCenteredAxis1() )
     {
       double omax = std::max( std::abs( te.maxquant[0] ),
@@ -855,14 +855,14 @@ void AObjectPalette::setAbsMin1( const AObject * obj, float x )
 }
 
 
-void AObjectPalette::setAbsMax1( const AObject * obj, float x )
+void AObjectPalette::setAbsMax1( const AObject * obj, double x )
 {
   const GLComponent *glc = obj->glAPI();
   if( glc )
   {
     const GLComponent::TexExtrema	& te = glc->glTexExtrema();
-    float m0 = te.minquant[0];
-    float scl0;
+    double m0 = te.minquant[0];
+    double scl0;
     if( zeroCenteredAxis1() )
     {
       double omax = std::max( std::abs( te.maxquant[0] ),
@@ -885,7 +885,7 @@ void AObjectPalette::setAbsMax1( const AObject * obj, float x )
 }
 
 
-void AObjectPalette::setAbsMin2( const AObject * obj, float x )
+void AObjectPalette::setAbsMin2( const AObject * obj, double x )
 {
   const GLComponent *glc = obj->glAPI();
   if( glc )
@@ -893,8 +893,8 @@ void AObjectPalette::setAbsMin2( const AObject * obj, float x )
     const GLComponent::TexExtrema	& te = glc->glTexExtrema();
     if( te.minquant.size() >= 2 )
     {
-      float m0 = te.minquant[1];
-      float scl0;
+      double m0 = te.minquant[1];
+      double scl0;
       if( zeroCenteredAxis2() )
       {
         double omax = std::max( std::abs( te.maxquant[1] ),
@@ -918,7 +918,7 @@ void AObjectPalette::setAbsMin2( const AObject * obj, float x )
 }
 
 
-void AObjectPalette::setAbsMax2( const AObject * obj, float x )
+void AObjectPalette::setAbsMax2( const AObject * obj, double x )
 {
   const GLComponent *glc = obj->glAPI();
   if( glc )
@@ -926,8 +926,8 @@ void AObjectPalette::setAbsMax2( const AObject * obj, float x )
     const GLComponent::TexExtrema	& te = glc->glTexExtrema();
     if( te.minquant.size() >= 2 )
     {
-      float m0 = te.minquant[1];
-      float scl0;
+      double m0 = te.minquant[1];
+      double scl0;
       if( zeroCenteredAxis2() )
       {
         double omax = std::max( std::abs( te.maxquant[1] ),
@@ -951,7 +951,7 @@ void AObjectPalette::setAbsMax2( const AObject * obj, float x )
 }
 
 
-float AObjectPalette::relValue1( const AObject * obj, float absval ) const
+double AObjectPalette::relValue1( const AObject * obj, double absval ) const
 {
   const GLComponent *glc = obj->glAPI();
   if( glc )
@@ -959,8 +959,8 @@ float AObjectPalette::relValue1( const AObject * obj, float absval ) const
     const GLComponent::TexExtrema	& te = glc->glTexExtrema();
     if( te.minquant.size() >= 1 )
     {
-      float m0 = te.minquant[0];
-      float scl0;
+      double m0 = te.minquant[0];
+      double scl0;
       if( zeroCenteredAxis1() )
       {
         double omax = std::max( std::abs( te.maxquant[0] ),
@@ -986,7 +986,7 @@ float AObjectPalette::relValue1( const AObject * obj, float absval ) const
 }
 
 
-float AObjectPalette::relValue2( const AObject * obj, float absval ) const
+double AObjectPalette::relValue2( const AObject * obj, double absval ) const
 {
   const GLComponent *glc = obj->glAPI();
   if( glc )
@@ -994,8 +994,8 @@ float AObjectPalette::relValue2( const AObject * obj, float absval ) const
     const GLComponent::TexExtrema	& te = glc->glTexExtrema();
     if( te.minquant.size() >= 2 )
     {
-      float m0 = te.minquant[1];
-      float scl0;
+      double m0 = te.minquant[1];
+      double scl0;
       if( zeroCenteredAxis2() )
       {
         double omax = std::max( std::abs( te.maxquant[1] ),
@@ -1021,14 +1021,14 @@ float AObjectPalette::relValue2( const AObject * obj, float absval ) const
 }
 
 
-float AObjectPalette::absValue1( const AObject * obj, float relval ) const
+double AObjectPalette::absValue1( const AObject * obj, double relval ) const
 {
   const GLComponent *glc = obj->glAPI();
   if( glc )
   {
     const GLComponent::TexExtrema	& te = glc->glTexExtrema();
-    float minq = te.minquant[0];
-    float maxq = te.maxquant[0];
+    double minq = te.minquant[0];
+    double maxq = te.maxquant[0];
     if( minq == maxq )
       maxq = minq + 1.;
     if( zeroCenteredAxis1() )
@@ -1045,7 +1045,7 @@ float AObjectPalette::absValue1( const AObject * obj, float relval ) const
 }
 
 
-float AObjectPalette::absValue2( const AObject * obj, float relval ) const
+double AObjectPalette::absValue2( const AObject * obj, double relval ) const
 {
   const GLComponent *glc = obj->glAPI();
   if( glc )
@@ -1053,8 +1053,8 @@ float AObjectPalette::absValue2( const AObject * obj, float relval ) const
     const GLComponent::TexExtrema	& te = glc->glTexExtrema();
     if( te.maxquant.size() >= 2 )
     {
-      float minq = te.minquant[1];
-      float maxq = te.maxquant[1];
+      double minq = te.minquant[1];
+      double maxq = te.maxquant[1];
       if( zeroCenteredAxis2() )
       {
         double omax = std::max( std::abs( maxq ), std::abs( minq ) );

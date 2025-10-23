@@ -37,8 +37,8 @@ struct MiniPaletteGraphics::Private
   float height;
   float left;
   float top;
-  vector<float> min;
-  vector<float> max;
+  vector<double> min;
+  vector<double> max;
   list<QGraphicsItem *> tmpitems;
   QGraphicsView *graphicsview;
   int dims;
@@ -92,7 +92,7 @@ void MiniPaletteGraphics::setObject( AObject *obj, int dims )
     {
       const GLComponent::TexExtrema & extr = glc->glTexExtrema( 0 );
       AObjectPalette *pal = obj->palette();
-      float valmin, valmax;
+      double valmin, valmax;
       for( int dim=0; dim<2; ++dim )
       {
         if( dim >= extr.maxquant.size() )
@@ -123,7 +123,7 @@ void MiniPaletteGraphics::setObject( AObject *obj, int dims )
 }
 
 
-void MiniPaletteGraphics::setRange( float min, float max, int dim )
+void MiniPaletteGraphics::setRange( double min, double max, int dim )
 {
   d->min[dim] = min;
   d->max[dim] = max;
@@ -187,13 +187,13 @@ float MiniPaletteGraphics::left() const
 }
 
 
-float MiniPaletteGraphics::min( int dim ) const
+double MiniPaletteGraphics::min( int dim ) const
 {
   return d->min[dim];
 }
 
 
-float MiniPaletteGraphics::max( int dim ) const
+double MiniPaletteGraphics::max( int dim ) const
 {
   return d->max[dim];
 }
@@ -233,7 +233,7 @@ void MiniPaletteGraphics::_drawPaletteInGraphicsView()
   if( baseh > 30 )
     baseh = 30;
   int baseh2 = gheight - baseh + 3;
-  float m1, M1, m2, M2, z1, z2;
+  double m1, M1, m2, M2, z1, z2;
 
   // FIXME
   int dims = observedDimensions();
@@ -285,12 +285,12 @@ void MiniPaletteGraphics::_drawPaletteInGraphicsView()
   QTransform tr = pixitem->transform();
   tr.translate( 6, baseh + 1 );
   pixitem->setTransform( tr );
-  float palmin = pal->absMin( dim, obj );
-  float palmax = pal->absMax( dim, obj );
+  double palmin = pal->absMin( dim, obj );
+  double palmax = pal->absMax( dim, obj );
   if( palmax == palmin )
     palmax = palmin + 1.;
-  float valmin = d->min[dim];
-  float valmax = d->max[dim];
+  double valmin = d->min[dim];
+  double valmax = d->max[dim];
 
   float xmin = 6 + w * ( palmin - valmin ) / ( valmax - valmin );
   float xmax = 6 + w * ( palmax - valmin ) / ( valmax - valmin );
@@ -328,9 +328,9 @@ void MiniPaletteGraphics::_drawPaletteInGraphicsView()
 }
 
 
-std::string MiniPaletteGraphics::_format( float num ) const
+std::string MiniPaletteGraphics::_format( double num ) const
 {
-  float x = std::abs( num );
+  double x = std::abs( num );
   if( x == 0. )
     return "0";
   stringstream s;
@@ -379,7 +379,7 @@ int MiniPaletteGraphics::observedDimensions() const
 }
 
 
-pair<float, float> MiniPaletteGraphics::range( int dim ) const
+pair<double, double> MiniPaletteGraphics::range( int dim ) const
 {
   return make_pair( d->min[dim], d->max[dim] );
 }
@@ -476,7 +476,7 @@ void MiniPaletteWidget::allowEdit( bool allow, bool self_parent,
 }
 
 
-void MiniPaletteWidget::setRange( float min, float max )
+void MiniPaletteWidget::setRange( double min, double max )
 {
   if( d->minipg->min( observedDimension() ) != min
       || d->minipg->max( observedDimension() ) != max )
@@ -596,7 +596,7 @@ void MiniPaletteWidget::mouseReleaseEvent( QMouseEvent *event )
 void MiniPaletteWidget::wheelEvent( QWheelEvent *event )
 {
   event->accept();
-  float scale = 2.;
+  double scale = 2.;
   if( event->angleDelta().y() > 0 )
     scale = 0.5;
   const AObject *obj = getObject();
@@ -604,9 +604,9 @@ void MiniPaletteWidget::wheelEvent( QWheelEvent *event )
     return;
   const AObjectPalette *pal = obj->palette();
   int dim = observedDimension();
-  float c = 1.;
-  float absmin1 = pal->absMin( dim, obj );
-  float absmax1 = pal->absMax( dim, obj );
+  double c = 1.;
+  double absmin1 = pal->absMin( dim, obj );
+  double absmax1 = pal->absMax( dim, obj );
   if( absmax1 == absmin1 )
     absmax1 = absmin1 + 1.;
 
@@ -614,14 +614,14 @@ void MiniPaletteWidget::wheelEvent( QWheelEvent *event )
     c = ( d->minipg->max( dim ) + d->minipg->min( dim ) ) / 2.;
   else
     c = ( absmax1 + absmin1 ) / 2;
-  float nmin = c
+  double nmin = c
     - ( d->minipg->max( dim ) - d->minipg->min( dim ) ) / 2 * scale;
-  float nmax = c
+  double nmax = c
     + ( d->minipg->max( dim ) - d->minipg->min( dim ) ) / 2 * scale;
 
   const GLComponent::TexExtrema & te = obj->glAPI()->glTexExtrema();
-  float tmin;
-  float tmax;
+  double tmin;
+  double tmax;
   if( dim >= te.minquant.size() )
   {
     tmin = 0.;
@@ -637,10 +637,10 @@ void MiniPaletteWidget::wheelEvent( QWheelEvent *event )
       tmax = 1.;
     }
   }
-  float rmax = std::max( std::abs( tmax ), std::abs( tmin ) );
+  double rmax = std::max( std::abs( tmax ), std::abs( tmin ) );
   rmax = std::max( rmax, absmax1 );
   rmax = std::max( rmax, absmin1 );
-  float rmin = 0.;
+  double rmin = 0.;
   if( pal->zeroCenteredAxis( dim ) )
   {
     if( nmax < rmax )
@@ -705,7 +705,7 @@ int MiniPaletteWidget::observedDimension() const
 }
 
 
-pair<float, float> MiniPaletteWidget::range() const
+pair<double, double> MiniPaletteWidget::range() const
 {
   return d->minipg->range( d->dim );
 }
@@ -732,8 +732,8 @@ struct MiniPaletteWidgetEdit::Private
   bool auto_range;
   QToolButton *auto_btn;
   QTimer *auto_btn_timer;
-  float defmin;
-  float defmax;
+  double defmin;
+  double defmax;
   bool allow_no_palette;
 };
 
@@ -762,13 +762,13 @@ MiniPaletteWidgetEdit::MiniPaletteWidgetEdit( AObject *object,
   d->minipw->graphicsView()->setMouseTracking( true );
   connect( d->minipw->graphicsView(), SIGNAL( mouseMoved( QMouseEvent * ) ),
            this, SLOT( gvMoved( QMouseEvent * ) ) );
-  connect( d->minslider, SIGNAL( absValueChanged( float ) ),
-           this, SLOT( minChanged( float ) ) );
-  connect( d->maxslider, SIGNAL( absValueChanged( float ) ),
-           this, SLOT( maxChanged( float ) ) );
+  connect( d->minslider, SIGNAL( absValueChanged( double ) ),
+           this, SLOT( minChanged( double ) ) );
+  connect( d->maxslider, SIGNAL( absValueChanged( double ) ),
+           this, SLOT( maxChanged( double ) ) );
   setAutoRange( auto_range );
-  connect( d->minipw, SIGNAL( rangeChanged( float, float ) ),
-           this, SLOT( setRange( float, float ) ) );
+  connect( d->minipw, SIGNAL( rangeChanged( double, double ) ),
+           this, SLOT( setRange( double, double ) ) );
   connect( d->minipw, SIGNAL( paletteClicked() ),
            this, SLOT( selectPalette() ) );
 }
@@ -826,8 +826,8 @@ void MiniPaletteWidgetEdit::adjustRange()
     AObjectPalette *pal = obj->palette();
     int dim = d->minipw->observedDimension();
     GLComponent::TexExtrema & te = obj->glAPI()->glTexExtrema();
-    float tmin;
-    float tmax;
+    double tmin;
+    double tmax;
     if( dim >= te.minquant.size() )
     {
       tmin = 0.;
@@ -844,14 +844,14 @@ void MiniPaletteWidgetEdit::adjustRange()
         tmax = 1.;
       }
     }
-    float min1 = pal->min( dim );
-    float max1 = pal->max( dim );
-    float mino1 = pal->min1();
-    float maxo1 = pal->max1();
-    float mino2 = pal->min2();
-    float maxo2 = pal->max2();
-    float absmin1 = pal->absMin( dim, obj );
-    float absmax1 = pal->absMax( dim, obj );
+    double min1 = pal->min( dim );
+    double max1 = pal->max( dim );
+    double mino1 = pal->min1();
+    double maxo1 = pal->max1();
+    double mino2 = pal->min2();
+    double maxo2 = pal->max2();
+    double absmin1 = pal->absMin( dim, obj );
+    double absmax1 = pal->absMax( dim, obj );
     if( absmax1 == absmin1 )
     {
       absmax1 = absmin1 + 1.;
@@ -866,10 +866,10 @@ void MiniPaletteWidgetEdit::adjustRange()
     pal->setMax1( maxo1 );
     pal->setMin2( mino2 );
     pal->setMax2( maxo2 );
-    float rmax = std::max( std::abs( tmax ), std::abs( tmin ) );
+    double rmax = std::max( std::abs( tmax ), std::abs( tmin ) );
     rmax = std::max( rmax, absmax1 );
     rmax = std::max( rmax, absmin1 );
-    float rmin;
+    double rmin;
     if( pal->zeroCenteredAxis( dim ) )
     {
       if( rmax > std::max( std::abs( absmin1 ), std::abs( absmax1 ) ) * 2 )
@@ -883,10 +883,10 @@ void MiniPaletteWidgetEdit::adjustRange()
       rmin = std::min( rmin, tmax );
       if( std::abs( absmax1 - absmin1 ) < std::abs( rmax - rmin ) / 2 )
       {
-        float s = std::abs( absmax1 - absmin1 );
-        float c = ( absmin1 + absmax1 ) / 2;
-        float rmin2 = c - s;
-        float rmax2 = c + s;
+        double s = std::abs( absmax1 - absmin1 );
+        double c = ( absmin1 + absmax1 ) / 2;
+        double rmin2 = c - s;
+        double rmax2 = c + s;
         if( rmin < rmin2 )
           rmin = rmin2;
         else
@@ -918,8 +918,8 @@ void MiniPaletteWidgetEdit::updateDisplay()
     int dim = d->minipw->observedDimension();
     GLComponent::TexExtrema & te = obj->glAPI()->glTexExtrema();
     AObjectPalette *pal = obj->palette();
-    std::set<float> mag;
-    float maxq = te.maxquant[dim];
+    std::set<double> mag;
+    double maxq = te.maxquant[dim];
     if( maxq == te.minquant[dim] )
       maxq = te.minquant[dim] + 1.;
     if( dim < te.minquant.size() )
@@ -937,18 +937,18 @@ void MiniPaletteWidgetEdit::updateDisplay()
     if( pal->zeroCenteredAxis( dim ) )
     {
       mag.insert( 0 );
-      mag.insert( std::max( std::abs( te.minquant[dim] ),
+      mag.insert( std::max( std::abs( double( te.minquant[dim] ) ),
                             std::abs( maxq ) ) );
     }
-    float absmin = pal->absMin( dim, obj );
-    float absmax = pal->absMax( dim, obj );
+    double absmin = pal->absMin( dim, obj );
+    double absmax = pal->absMax( dim, obj );
     if( absmin == absmax )
       absmax = absmin + 1.;
     if( pal->zeroCenteredAxis( dim ) )
     {
       d->minslider->setDefault( 0. );
-      d->maxslider->setDefault( std::max( std::abs( te.minquant[dim] ),
-                                          std::abs( maxq ) ) );
+      d->maxslider->setDefault( std::max(
+        std::abs( double( te.minquant[dim] ) ), std::abs( maxq ) ) );
     }
     else
     {
@@ -970,7 +970,7 @@ void MiniPaletteWidgetEdit::update( const Observable *observable, void *arg )
 
 
 
-void MiniPaletteWidgetEdit::minChanged( float value )
+void MiniPaletteWidgetEdit::minChanged( double value )
 {
   AObject *obj = d->minipw->getObject();
   if( obj )
@@ -988,14 +988,14 @@ void MiniPaletteWidgetEdit::minChanged( float value )
 }
 
 
-void MiniPaletteWidgetEdit::maxChanged( float value )
+void MiniPaletteWidgetEdit::maxChanged( double value )
 {
   AObject *obj = d->minipw->getObject();
   if( obj )
   {
     int dim = d->minipw->observedDimension();
     AObjectPalette *pal = obj->palette();
-    float absmax = pal->absMax( dim, obj );
+    double absmax = pal->absMax( dim, obj );
     if( pal->absMin( dim, obj ) == absmax )
       absmax = pal->absMin( dim, obj ) + 1.;
 
@@ -1012,8 +1012,8 @@ void MiniPaletteWidgetEdit::maxChanged( float value )
 
 namespace
 {
-  bool sameRange( const pair<float, float> & r1,
-                  const pair<float, float> & r2 )
+  bool sameRange( const pair<double, double> & r1,
+                  const pair<double, double> & r2 )
   {
     bool s1 = ( r1.first == r2.first ), s2 = ( r1.second == r2.second );
     if( s1 && s2 )
@@ -1031,7 +1031,7 @@ namespace
 }
 
 
-void MiniPaletteWidgetEdit::setRange( float rmin, float rmax )
+void MiniPaletteWidgetEdit::setRange( double rmin, double rmax )
 {
   d->minslider->setAbsRange( rmin, rmax );
   d->maxslider->setAbsRange( rmin, rmax );
@@ -1047,8 +1047,8 @@ void MiniPaletteWidgetEdit::setRange( float rmin, float rmax )
   {
     AObjectPalette *pal = obj->palette();
     d->minslider->setAbsValue( pal->absMin( dim, obj ) );
-    float absmin = pal->absMin( dim, obj );
-    float absmax = pal->absMax( dim, obj );
+    double absmin = pal->absMin( dim, obj );
+    double absmax = pal->absMax( dim, obj );
     if( absmin == absmax )
       absmax = absmin + 1.;
     d->maxslider->setAbsValue( absmax );
@@ -1184,7 +1184,7 @@ int MiniPaletteWidgetEdit::observedDimension() const
 }
 
 
-pair<float, float> MiniPaletteWidgetEdit::range() const
+pair<double, double> MiniPaletteWidgetEdit::range() const
 {
   return d->minipw->range();
 }

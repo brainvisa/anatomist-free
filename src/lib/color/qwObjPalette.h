@@ -95,16 +95,16 @@ protected slots:
   void extensionActionTriggered( QAction* action );
   void zeroCentered1Changed( int state );
   void zeroCentered2Changed( int state );
-  void palette1RangeChanged( float, float );
-  void palette2RangeChanged( float, float );
+  void palette1RangeChanged( double, double );
+  void palette2RangeChanged( double, double );
   void cleatMin1();
   void cleatMax1();
   void cleatMin2();
   void cleatMax2();
-  void min1Changed( float );
-  void max1Changed( float );
-  void min2Changed( float );
-  void max2Changed( float );
+  void min1Changed( double );
+  void max1Changed( double );
+  void min2Changed( double );
+  void max2Changed( double );
 
 protected:
   struct DimBox;
@@ -119,8 +119,8 @@ protected:
   anatomist::AObjectPalette* objPalette();
   virtual QWidget* makeDimBox( const QString & title, QWidget* parent, 
                                DimBox* dbox, bool secondary );
-  virtual void setValues( DimBox* dimBox, float min, float max, 
-                          float objMin, float objMax, bool zeroCentered,
+  virtual void setValues( DimBox* dimBox, double min, double max,
+                          double objMin, double objMax, bool zeroCentered,
                           bool setBounds = false );
   virtual void setValues1( bool setBounds = false );
   virtual void setValues2( bool setBounds = false );
