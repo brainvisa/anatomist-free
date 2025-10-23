@@ -447,9 +447,12 @@ void AVolume<T>::updateSlice( AImage & image, const Point3df & p0,
   // interpolation flag: "Plus Proche Voisin" (nearest neighbour)
   bool	ppv = !_hasInterpolation( this );
 
-  ColorTraits<T>	coltraits( getOrCreatePalette(), 
-				   d->traits.minTypedTexValue(), 
-				   d->traits.maxTypedTexValue() );
+  const AObjectPalette *pal = getOrCreatePalette();
+  ColorTraits<T>	coltraits(
+    pal, d->traits.minTypedTexValue(), d->traits.maxTypedTexValue(),
+    pal->relValue1( this, d->traits.minTypedTexValue() ),
+    pal->relValue1( this, d->traits.maxTypedTexValue() ),
+    pal->relValue1( this, 0. ) );
   T iempty = coltraits.neutralColor();
   AimsRGBA empty = coltraits.color( iempty );
 
@@ -661,9 +664,16 @@ void AVolume<T>::updateAxial( AImage *ximage, const Point3df & pf0,
                                rint( pf0[2] / vs[2] ) );
   // cout << "p0: " << p0 << endl;
 
-  ColorTraits<T>	coltraits( getOrCreatePalette(),
-                                   d->traits.minTypedTexValue(), 
-                                   d->traits.maxTypedTexValue() );
+  const AObjectPalette *pal = getOrCreatePalette();
+  /*
+  cout << "minTypedTexValue,max: " << d->traits.minTypedTexValue() << ", " << d->traits.maxTypedTexValue() << endl;
+  cout << "rel bounds: " << pal->relValue1(this, d->traits.minTypedTexValue()) << ", " << pal->relValue1(this, d->traits.maxTypedTexValue()) << endl;
+  */
+  ColorTraits<T>	coltraits(
+    pal, d->traits.minTypedTexValue(), d->traits.maxTypedTexValue(),
+    pal->relValue1( this, d->traits.minTypedTexValue() ),
+    pal->relValue1( this, d->traits.maxTypedTexValue() ),
+    pal->relValue1( this, 0. ) );
   AimsRGBA empty = coltraits.color( coltraits.neutralColor() );
 
   if( vs[2] == 0 )
@@ -762,9 +772,12 @@ void AVolume<T>::updateCoronal( AImage *ximage, const Point3df &pf0,
                                rint( pf0[2] / vs[2] ) );
   int	yy = (int) p0[1];
 
-  ColorTraits<T>	coltraits( getOrCreatePalette(), 
-				   d->traits.minTypedTexValue(), 
-				   d->traits.maxTypedTexValue() );
+  const AObjectPalette *pal = getOrCreatePalette();
+  ColorTraits<T>	coltraits(
+    pal, d->traits.minTypedTexValue(), d->traits.maxTypedTexValue(),
+    pal->relValue1( this, d->traits.minTypedTexValue() ),
+    pal->relValue1( this, d->traits.maxTypedTexValue() ),
+    pal->relValue1( this, 0. ) );
   AimsRGBA empty = coltraits.color( coltraits.neutralColor() );
 
   vector<int> dims = _volume->getSize();
@@ -864,9 +877,12 @@ void AVolume<T>::updateSagittal( AImage *ximage, const Point3df & pf0,
 
   int	xx = (int) p0[0];
 
-  ColorTraits<T>	coltraits( getOrCreatePalette(),
-                                   d->traits.minTypedTexValue(),
-                                   d->traits.maxTypedTexValue() );
+  const AObjectPalette *pal = getOrCreatePalette();
+  ColorTraits<T>	coltraits(
+    pal, d->traits.minTypedTexValue(), d->traits.maxTypedTexValue(),
+    pal->relValue1( this, d->traits.minTypedTexValue() ),
+    pal->relValue1( this, d->traits.maxTypedTexValue() ),
+    pal->relValue1( this, 0. ) );
   AimsRGBA empty = coltraits.color( coltraits.neutralColor() );
 
   if( xx >= _volume->getSizeX() || xx < 0 )

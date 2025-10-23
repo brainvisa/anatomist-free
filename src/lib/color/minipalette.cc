@@ -233,7 +233,7 @@ void MiniPaletteGraphics::_drawPaletteInGraphicsView()
   if( baseh > 30 )
     baseh = 30;
   int baseh2 = gheight - baseh + 3;
-  float m1, M1, m2, M2;
+  float m1, M1, m2, M2, z1, z2;
 
   // FIXME
   int dims = observedDimensions();
@@ -245,13 +245,17 @@ void MiniPaletteGraphics::_drawPaletteInGraphicsView()
 
   m1 = pal->relValue1( obj, d->min[0] );
   M1 = pal->relValue1( obj, d->max[0] );
+  z1 = pal->relValue1( obj, 0. );
   m2 = pal->relValue2( obj, d->min[1] );
   M2 = pal->relValue2( obj, d->max[1] );
+  z2 = pal->relValue2( obj, 0. );
 
   QPixmap pix;
   if( d->with_view )
   {
-    QImage *img( pal->toQImage( w, baseh2 - baseh - 1, m1, M1, m2, M2 ) );
+    // cout << "draw pal abs.min/max: " << d->min[0] << ", " << d->max[0] << ", rel: " << m1 << ", " << M1 << ", zero: " << z1 << endl;
+    QImage *img( pal->toQImage( w, baseh2 - baseh - 1, m1, M1, z1,
+                                m2, M2, z2 ) );
     pix = QPixmap::fromImage( *img );
     delete img;
   }

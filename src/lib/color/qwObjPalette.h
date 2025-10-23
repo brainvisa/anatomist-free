@@ -120,9 +120,10 @@ protected:
   virtual QWidget* makeDimBox( const QString & title, QWidget* parent, 
                                DimBox* dbox, bool secondary );
   virtual void setValues( DimBox* dimBox, float min, float max, 
-                          float objMin, float objMax, bool zeroCentered );
-  virtual void setValues1();
-  virtual void setValues2();
+                          float objMin, float objMax, bool zeroCentered,
+                          bool setBounds = false );
+  virtual void setValues1( bool setBounds = false );
+  virtual void setValues2( bool setBounds = false );
   virtual void updateObjects();
   virtual void updateObjPal();
   void fillMixMethods();

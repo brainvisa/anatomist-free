@@ -426,6 +426,8 @@ QAPaletteWin::QAPaletteWin( const set<AObject *> & obj )
 
   d->dimBox1->paledit->adjustRange();
   d->dimBox2->paledit->adjustRange();
+  setValues1( true );
+  setValues2( true );
 }
 
 
@@ -816,7 +818,8 @@ void QAPaletteWin::palette2Changed( const string & )
 
 
 void QAPaletteWin::setValues( DimBox* dimBox, float m, float M,
-                              float objMin, float objMax, bool zeroCentered )
+                              float objMin, float objMax, bool zeroCentered,
+                              bool setBounds )
 {
   bool rec = d->recursive;
   d->recursive = true;
@@ -838,16 +841,19 @@ void QAPaletteWin::setValues( DimBox* dimBox, float m, float M,
     min = double(objMin) + ( double(objMax) - objMin ) * dimBox->slrelmin;
     max = double(objMin) + ( double(objMax) - objMin ) * dimBox->slrelmax;
   }
-  dimBox->minEd->setText( QString::number( min ) );
-  dimBox->maxEd->setText( QString::number( max ) );
-  dimBox->paledit->setRange( min, max );
+  if( setBounds )
+  {
+    dimBox->minEd->setText( QString::number( min ) );
+    dimBox->maxEd->setText( QString::number( max ) );
+    dimBox->paledit->setRange( min, max );
+  }
   dimBox->paledit->updateDisplay();
 
   d->recursive = rec;
 }
 
 
-void QAPaletteWin::setValues1()
+void QAPaletteWin::setValues1( bool setBounds )
 {
   AObjectPalette	*objpal = objPalette();
   if( !objpal )
@@ -856,11 +862,11 @@ void QAPaletteWin::setValues1()
   float	m = objpal->min1(), M = objpal->max1();
 
   setValues( d->dimBox1, m, M, d->objMin, d->objMax,
-             objpal->zeroCenteredAxis1() );
+             objpal->zeroCenteredAxis1(), setBounds );
 }
 
 
-void QAPaletteWin::setValues2()
+void QAPaletteWin::setValues2( bool setBounds )
 {
   AObjectPalette	*objpal = objPalette();
   if( !objpal )
@@ -869,7 +875,7 @@ void QAPaletteWin::setValues2()
   float	m = objpal->min2(), M = objpal->max2();
 
   setValues( d->dimBox2, m, M, d->objMin2, d->objMax2,
-             objpal->zeroCenteredAxis2() );
+             objpal->zeroCenteredAxis2(), setBounds );
 }
 
 
@@ -1254,7 +1260,7 @@ void QAPaletteWin::resetBounds1()
 {
   d->dimBox1->slrelmin = 0;
   d->dimBox1->slrelmax = 1;
-  setValues1();
+  setValues1( true );
 }
 
 
@@ -1274,7 +1280,7 @@ void QAPaletteWin::resetBounds2()
 {
   d->dimBox2->slrelmin = 0;
   d->dimBox2->slrelmax = 1;
-  setValues2();
+  setValues2( true );
 }
 
 
@@ -1312,6 +1318,8 @@ void QAPaletteWin::objectsChosen( const set<AObject *> & o )
     (*i)->addObserver( this );
 
   updateInterface();
+  setValues1( true );
+  setValues2( true );
 }
 
 
