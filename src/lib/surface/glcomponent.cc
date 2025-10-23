@@ -1014,8 +1014,8 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
   const Volume<AimsRGBA>      *cols = objpal->colors();
   if( !cols )
     return VolumeRef<AimsRGBA>();
-  float         min = objpal->min1(), max = objpal->max1();
-  float         min2 = objpal->min2(), max2 = objpal->max2();
+  double         min = objpal->min1(), max = objpal->max1();
+  double         min2 = objpal->min2(), max2 = objpal->max2();
   int           x, y;
   // dimpx: size of the reference colormap
   // dimx: size of the cmap we are building
@@ -1063,9 +1063,9 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
   */
   bool balance_zero = false;
   const TexExtrema & te = glTexExtrema( tex );
-  vector<float> prmin( glDimTex( tex ), 0. );
-  vector<float> prmax( glDimTex( tex ), 1. );
-  vector<float> zero( glDimTex( tex ), 0. );
+  vector<double> prmin( glDimTex( tex ), 0. );
+  vector<double> prmax( glDimTex( tex ), 1. );
+  vector<double> zero( glDimTex( tex ), 0. );
 
   /* Several levels of rescaling
      - absolute texture: te.minquant/maxquant, actual bounds of data values
@@ -1104,25 +1104,25 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
 
   for( int tdim=0; tdim<glDimTex( tex ); ++tdim )
   {
-    float tmin = te.min[tdim];
-    float tmax = te.max[tdim];
+    double tmin = te.min[tdim];
+    double tmax = te.max[tdim];
     if( !objpal->zeroCenteredAxis( tdim ) )
     {
       // normal case
-      float trmin = tmin + min * ( tmax - tmin );
-      float trmax = tmin + max * ( tmax - tmin );
-      float minr = std::min(min, max);
-      float maxr = std::max(min, max);
-      prmin[tdim] = std::max( 0.f, minr );
-      prmax[tdim] = std::min( 1.f, maxr );
+      double trmin = tmin + min * ( tmax - tmin );
+      double trmax = tmin + max * ( tmax - tmin );
+      double minr = std::min(min, max);
+      double maxr = std::max(min, max);
+      prmin[tdim] = std::max( 0., minr );
+      prmax[tdim] = std::min( 1., maxr );
       // xtr: in tex rel space, xti: in tex pal rel space
       // xp: in pal rel space
       // tescale: xtr -> xti
       // xp = a * xtr + b
       // xti = texscale * xtr + texoffset
-      float a = ( max - min ) / ( trmax - trmin );
-      float b = min - trmin * a;
-      float e = 1. / ( prmax[tdim] - prmin[tdim] );
+      double a = ( max - min ) / ( trmax - trmin );
+      double b = min - trmin * a;
+      double e = 1. / ( prmax[tdim] - prmin[tdim] );
       ti.texscale[tdim] = e * a;
       ti.texoffset[tdim] = e * ( b - prmin[tdim] );
       /*
@@ -1137,15 +1137,15 @@ VolumeRef<AimsRGBA> GLComponent::glBuildTexImage(
     else
     {
       // 0-centered case
-      float rmax = std::max( std::abs( max ), std::abs( min ) );
-      float ztr = te.min[tdim]
+      double rmax = std::max( std::abs( max ), std::abs( min ) );
+      double ztr = te.min[tdim]
         - ( te.minquant[tdim] * ( te.max[tdim] - te.min[tdim] ) )
         / ( te.maxquant[tdim] - te.minquant[tdim] );
-      float a = 1. / ( te.max[tdim] - ztr );
-      float b = - ztr * a;
-      prmin[tdim] = std::max( -rmax, -1.f );
-      prmax[tdim] = std::min( rmax, 1.f );
-      float e = 1. / ( prmax[tdim] - prmin[tdim] );
+      double a = 1. / ( te.max[tdim] - ztr );
+      double b = - ztr * a;
+      prmin[tdim] = std::max( -rmax, -1. );
+      prmax[tdim] = std::min( rmax, 1. );
+      double e = 1. / ( prmax[tdim] - prmin[tdim] );
       ti.texscale[tdim] = a * e;
       ti.texoffset[tdim] = e * ( b - prmin[tdim] );
     }

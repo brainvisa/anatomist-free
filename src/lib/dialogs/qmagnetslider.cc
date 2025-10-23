@@ -27,13 +27,13 @@ struct QMagnetSlider::Private
   float double_click_time;
   QPointF presspos;
   double last_press_time;
-  set<float> magnets;
-  float default_value;
-  float pressval;
-  float mag_size;
-  float min1;
-  float max1;
-  float current_val;
+  set<double> magnets;
+  double default_value;
+  double pressval;
+  double mag_size;
+  double min1;
+  double max1;
+  double current_val;
   bool released;
   bool moved;
 };
@@ -60,25 +60,25 @@ QMagnetSlider::~QMagnetSlider()
 }
 
 
-void QMagnetSlider::setMagnets( const std::set<float> & magnets )
+void QMagnetSlider::setMagnets( const std::set<double> & magnets )
 {
   d->magnets = magnets;
 }
 
 
-void QMagnetSlider::setDefault( float value )
+void QMagnetSlider::setDefault( double value )
 {
   d->default_value = value;
 }
 
 
-void QMagnetSlider::setAbsRange( float min1, float max1 )
+void QMagnetSlider::setAbsRange( double min1, double max1 )
 {
   if( d->min1 != min1 || d->max1 != max1 )
   {
     d->min1 = min1;
     d->max1 = max1;
-    float value = absValue();
+    double value = absValue();
     d->current_val += 1.;  // to force change current
     blockSignals( true );
     setAbsValue( value );
@@ -87,13 +87,13 @@ void QMagnetSlider::setAbsRange( float min1, float max1 )
 }
 
 
-void QMagnetSlider::setAbsValue( float value )
+void QMagnetSlider::setAbsValue( double value )
 {
   if( d->current_val == value )
     return;
 
   d->current_val = value;
-  float r = d->max1 - d->min1;
+  double r = d->max1 - d->min1;
   if( r == 0.f )
     r = 1.f;
   QSlider::setValue( int( std::round( ( value - d->min1 ) * 1000 / r ) ) );
@@ -101,7 +101,7 @@ void QMagnetSlider::setAbsValue( float value )
 }
 
 
-float QMagnetSlider::absValue() const
+double QMagnetSlider::absValue() const
 {
   return d->current_val;
 }
@@ -150,14 +150,14 @@ void QMagnetSlider::mouseMoveEvent( QMouseEvent *event )
 #endif
 
   d->moved = true;
-  float xdiff = pos.x() - d->presspos.x();
-  float nval_i = xdiff / width();
-  float nval = d->pressval + nval_i * ( d->max1 - d->min1 );
-  float vrangem = std::min( d->pressval, nval );
-  float vrangeM = std::max( d->pressval, nval );
+  double xdiff = pos.x() - d->presspos.x();
+  double nval_i = xdiff / width();
+  double nval = d->pressval + nval_i * ( d->max1 - d->min1 );
+  double vrangem = std::min( d->pressval, nval );
+  double vrangeM = std::max( d->pressval, nval );
   bool nval_set = false;
-  list<float>::iterator m, e;
-  list<float> rmag;
+  list<double>::iterator m, e;
+  list<double> rmag;
   if( xdiff < 0 )
   {
     // could not avoid copy because reverse_iterator is not an iterator
@@ -174,7 +174,7 @@ void QMagnetSlider::mouseMoveEvent( QMouseEvent *event )
       {
         xdiff -= d->mag_size;
         nval_i = xdiff / width();
-        float old_nval = nval;
+        double old_nval = nval;
         nval = d->pressval + nval_i * ( d->max1 - d->min1 );
         if( old_nval >= *m && nval <= *m )
         {
@@ -187,7 +187,7 @@ void QMagnetSlider::mouseMoveEvent( QMouseEvent *event )
       {
         xdiff += d->mag_size;
         nval_i = xdiff / width();
-        float old_nval = nval;
+        double old_nval = nval;
         nval = d->pressval + nval_i * ( d->max1 - d->min1 );
         if( old_nval <= *m && nval >= *m )
         {
@@ -215,9 +215,9 @@ void QMagnetSlider::valueChangedSlot( int value )
   if( d->moved && !d->released )
     return;
 
-  float relval = float( value - QSlider::minimum() )
+  double relval = double( value - QSlider::minimum() )
     / ( QSlider::maximum() - QSlider::minimum() );
-  float absval = relval * ( d->max1 - d->min1 ) + d->min1;
+  double absval = relval * ( d->max1 - d->min1 ) + d->min1;
   setAbsValue( absval );
 }
 
@@ -225,7 +225,7 @@ void QMagnetSlider::valueChangedSlot( int value )
 void QMagnetSlider::mouseReleaseEvent( QMouseEvent *event )
 {
   QSlider::mouseReleaseEvent( event );
-  float absval = absValue();
+  double absval = absValue();
   emit sliderReleased( objectName().toStdString() );
 
   if( d->moved )
