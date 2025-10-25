@@ -36,16 +36,18 @@
 #define ANATOMIST_PRIMITIVE_PRIMITIVE_H
 
 #include <cartobase/smart/rcobject.h>
-#include <list>
 #include <QOpenGLShaderProgram>
-#include <anatomist/primitive/primitiveTypes.h>
-#include <anatomist/surface/glcomponent.h>
+#include <list>
+#include <set>
 
 
 namespace anatomist
 {
   class GLWidgetManager;
   class IShaderModule;
+  class GLComponent;
+  class ViewState;
+
 
   /** OpenGL item (display list, texture, ...) with reference counter and 
       cleanup upon destruction */
@@ -154,6 +156,14 @@ namespace anatomist
       std::shared_ptr<QOpenGLShaderProgram> _shaderProgram;
   };
 
+
+  typedef carto::rc_ptr<GLItem>		RefGLItem;
+  typedef carto::rc_ptr<Primitive>	RefPrimitive;
+  typedef carto::rc_ptr<GLList>		RefGLList;
+  typedef carto::rc_ptr<GLTexture>	RefGLTexture;
+  typedef std::list<RefGLItem>		GLPrimitives;
+
+
   class GLItemList : public GLItem
   {
   public:
@@ -163,6 +173,9 @@ namespace anatomist
 
     std::list<RefGLItem>	items;
   };
+
+
+  typedef carto::rc_ptr<GLItemList>	RefGLItemList;
 
 
   class GLNoExecItemList : public GLItemList

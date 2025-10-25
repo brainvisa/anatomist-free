@@ -4,7 +4,7 @@
 #include <anatomist/surface/shaderMapping.h>
 #include <anatomist/surface/IShaderModule.h>
 #include <anatomist/surface/dynamicShaderBuilder.h>
-#include <anatomist/primitive/primitiveTypes.h>
+#include <anatomist/surface/glcomponent.h>
 #include <anatomist/primitive/primitive.h>
 #include <anatomist/misc/error.h>
 #include <cartobase/smart/rcptr.h>
