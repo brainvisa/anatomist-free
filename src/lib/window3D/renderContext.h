@@ -14,12 +14,13 @@ namespace anatomist
   class IShaderModule;
 
 
+
   class RenderContext
   {
     public:
       RenderContext(AWindow3D* win, anatomist::GLWidgetManager* widgetManager);
       ~RenderContext();
-      std::shared_ptr<anatomist::PrimList> renderObjects( const std::list<carto::shared_ptr<anatomist::AObject>> & objs);
+      carto::rc_ptr<anatomist::PrimList> renderObjects( const std::list<carto::shared_ptr<anatomist::AObject>> & objs);
 
     private:
       void updateObject(carto::shared_ptr<anatomist::AObject> obj, anatomist::PrimList* pl=0, anatomist::ViewState::glSelectRenderMode selectmode
@@ -27,10 +28,10 @@ namespace anatomist
       void renderObject(bool isTransparent);
       void retrieveShaders(const std::list<carto::shared_ptr<anatomist::AObject>> & objs);
       void shaderBuilding();
-      void switchShaderProgram( std::shared_ptr<QOpenGLShaderProgram> program );
+      void switchShaderProgram( carto::rc_ptr<QOpenGLShaderProgram> program );
       void setupTransparentObjects();
       void postTransparentRenderingSetup();
-      std::vector<std::shared_ptr<anatomist::IShaderModule>> getEffectiveShaderModules(const std::string& shaderID);
+      std::vector<carto::rc_ptr<anatomist::IShaderModule>> getEffectiveShaderModules(const std::string& shaderID);
 
       struct Private;
       Private * d;

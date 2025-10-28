@@ -7,17 +7,17 @@
 namespace anatomist
 {
     // Initialize the shader module registry
-  std::unordered_map<std::string, std::vector<std::shared_ptr<IShaderModule>>> shaderMapping::moduleRegistry;
+  std::unordered_map<std::string, std::vector<carto::rc_ptr<IShaderModule>>> shaderMapping::moduleRegistry;
 
-  void shaderMapping::registerModule(const std::string& id, const std::vector<std::shared_ptr<IShaderModule>>& module)
+  void shaderMapping::registerModule(const std::string& id, const std::vector<carto::rc_ptr<IShaderModule>>& module)
   {
     moduleRegistry[id] = module;
   }
 
-  std::vector<std::shared_ptr<IShaderModule>> shaderMapping::getModules(const std::string& id)
+  std::vector<carto::rc_ptr<IShaderModule>> shaderMapping::getModules(const std::string& id)
   {
     auto it = moduleRegistry.find(id);
-    return (it != moduleRegistry.end()) ? it->second : std::vector<std::shared_ptr<IShaderModule>>{};
+    return (it != moduleRegistry.end()) ? it->second : std::vector<carto::rc_ptr<IShaderModule>>{};
   }
 
   void shaderMapping::printModules()
@@ -35,15 +35,23 @@ namespace anatomist
 
 
 
-  void shaderMapping::initShaderMapping()
-  {
-    auto blinnPhong = std::make_shared<BlinnPhongIlluminationModel>();
-    auto depthPeeling = std::make_shared<DepthPeelingEffect>();
+void shaderMapping::initShaderMapping()
+{
+  auto blinnPhong   = carto::rc_ptr<anatomist::IShaderModule>(
+  new BlinnPhongIlluminationModel );
+auto depthPeeling = carto::rc_ptr<anatomist::IShaderModule>(
+  new DepthPeelingEffect );
 
-    shaderMapping::registerModule(blinnPhong->getID(), {blinnPhong});
-    shaderMapping::registerModule(depthPeeling->getID(), {depthPeeling});
-    std::string blinnPhongAndDepthPeeling = blinnPhong->getID() + depthPeeling->getID();
-    shaderMapping::registerModule(blinnPhongAndDepthPeeling, {blinnPhong, depthPeeling});
-  }
+  shaderMapping::registerModule(blinnPhong->getID(),
+    std::vector<carto::rc_ptr<anatomist::IShaderModule>>{ blinnPhong });
+
+  shaderMapping::registerModule(depthPeeling->getID(),
+    std::vector<carto::rc_ptr<anatomist::IShaderModule>>{ depthPeeling });
+
+  std::string blinnPhongAndDepthPeeling = blinnPhong->getID() + depthPeeling->getID();
+
+  shaderMapping::registerModule(blinnPhongAndDepthPeeling,
+    std::vector<carto::rc_ptr<anatomist::IShaderModule>>{ blinnPhong, depthPeeling });
+}
 }
 

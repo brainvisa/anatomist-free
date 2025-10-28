@@ -31,12 +31,12 @@ void dynamicShaderBuilder::setBaseTemplate(const std::string &templateSource)
 }
 
 
-void dynamicShaderBuilder::setIlluminationModel(std::shared_ptr<IShaderModule>  model)
+void dynamicShaderBuilder::setIlluminationModel(carto::rc_ptr<IShaderModule>  model)
 {
   m_illuminationModel = model;
 }
 
-void dynamicShaderBuilder::addEffect(std::shared_ptr<IShaderModule> effect)
+void dynamicShaderBuilder::addEffect(carto::rc_ptr<IShaderModule> effect)
 {
   m_effects.push_back(effect);
 }
@@ -150,15 +150,15 @@ std::string dynamicShaderBuilder::generateShaderSource() const
   return shaderSource;
 }
 
-std::shared_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initShader(const std::string shaderIDs, std::string vsTemplate, std::string fsTemplate)
+carto::rc_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initShader(const std::string shaderIDs, std::string vsTemplate, std::string fsTemplate)
 {
-  auto program= std::make_shared<QOpenGLShaderProgram>();
+  carto::rc_ptr<QOpenGLShaderProgram> program(new QOpenGLShaderProgram());
   std::string baseTemplate, vertexSource, fragmentSource;
-  std::vector<std::shared_ptr<IShaderModule>> shaderModules = shaderMapping::getModules(shaderIDs);
+  std::vector<carto::rc_ptr<IShaderModule>> shaderModules = shaderMapping::getModules(shaderIDs);
   std::list<std::string> path =  carto::Paths::findResourceFiles("shaders/templates", "anatomist");
   if (path.empty()) {
     std::cerr << "Error : No template shader found in shaders/templates." << std::endl;
-    return nullptr;
+    return carto::rc_ptr<QOpenGLShaderProgram>();
   }
 
   program->create();
@@ -183,7 +183,7 @@ std::shared_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initShader(const std
       if(hasIlluminationModel)
       {
         std::cerr << "Error : Multiple illumination models found in shader modules." << std::endl;
-        return nullptr;
+        return carto::rc_ptr<QOpenGLShaderProgram>();
       }
       hasIlluminationModel = true;
       this->setIlluminationModel(shaderModules[i]);
@@ -207,15 +207,15 @@ std::shared_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initShader(const std
   return program;
 }
 
-std::shared_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initBlendingShader()
+carto::rc_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initBlendingShader()
 {
-  auto program = std::make_shared<QOpenGLShaderProgram>();
+  carto::rc_ptr<QOpenGLShaderProgram> program(new QOpenGLShaderProgram());
   std::string vertexSource, fragmentSource;
   
   std::list<std::string> path =  carto::Paths::findResourceFiles("shaders/templates", "anatomist");
   if (path.empty()) {
     std::cerr << "Error : No template shader found in shaders/templates." << std::endl;
-    return nullptr;
+    return carto::rc_ptr<QOpenGLShaderProgram>();
   }
 
   program->create();

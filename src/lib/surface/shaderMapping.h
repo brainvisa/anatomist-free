@@ -29,7 +29,7 @@ namespace anatomist
       * A hash table mapping unique string identifiers to lists of shared pointers
       * for shader modules.
       */
-      static std::unordered_map<std::string, std::vector<std::shared_ptr<IShaderModule>>> moduleRegistry;
+      static std::unordered_map<std::string, std::vector<carto::rc_ptr<IShaderModule>>> moduleRegistry;
 
 
       /**
@@ -40,7 +40,7 @@ namespace anatomist
       * @param id Unique identifier of the shader module.
       * @param module List of shared pointers to the shader modules to be registered.
       */
-      static void registerModule(const std::string& id, const std::vector<std::shared_ptr<IShaderModule>>& module);
+      static void registerModule(const std::string& id, const std::vector<carto::rc_ptr<IShaderModule>>& module);
 
 
       /**
@@ -51,7 +51,7 @@ namespace anatomist
       * @param id Identifier of the shader modules to retrieve.
       * @return A vector of shared pointers to shader modules if found, otherwise an empty vector.
       */
-      static std::vector<std::shared_ptr<IShaderModule>> getModules(const std::string& id);
+      static std::vector<carto::rc_ptr<IShaderModule>> getModules(const std::string& id);
 
       /**
       * @brief Prints all registered shader modules.

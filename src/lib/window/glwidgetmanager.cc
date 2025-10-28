@@ -998,8 +998,8 @@ void GLWidgetManager::drawFullScreenQuad()
 void GLWidgetManager::blendPass()
 {
 
-  std::shared_ptr<QOpenGLShaderProgram> prog = _pd->shaderBuilder.initBlendingShader();
-  if(!prog)
+  carto::rc_ptr<QOpenGLShaderProgram> prog = _pd->shaderBuilder.initBlendingShader();
+  if(prog.isNull())
   {
     std::cerr << "Failed to initialize blending shader." << std::endl;
     return;
@@ -1049,7 +1049,7 @@ void GLWidgetManager::depthPeeling()
       _pd->depthTextures[i-1]->bind(_pd->depthPeelingUnitTexture);
 
     _pd->currentLayer = i;
-    std::shared_ptr<QOpenGLShaderProgram> currentShader;
+    carto::rc_ptr<QOpenGLShaderProgram> currentShader;
     for (auto& primitive : _primitives)
     {
       primitive->callList();

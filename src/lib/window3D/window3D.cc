@@ -1575,7 +1575,7 @@ void AWindow3D::refreshNow()
   applySelectionHighlight(tmpcol);
   setupOpenGLState(); //	Rendering mode primitive (must be first)
 
-  std::shared_ptr<PrimList> pr = rc.renderObjects(_objects);
+  carto::rc_ptr<PrimList> pr = rc.renderObjects(_objects);
   d->primitives.insert(d->primitives.end(), pr->begin(), pr->end());
 
   /*	Finish rendering mode operations: restore initial modes
@@ -2647,9 +2647,9 @@ GLPrimitives AWindow3D::cursorGLL() const
       if (gc)
       {
         //jordan shader
-        std::shared_ptr<QOpenGLShaderProgram> program = d->shaderBuilder.initShader("", "main.vs.glsl", "noLightModel.fs.glsl");
+        carto::rc_ptr<QOpenGLShaderProgram> program = d->shaderBuilder.initShader("", "main.vs.glsl", "noLightModel.fs.glsl");
         d->primitives.push_back(carto::rc_ptr<GLItem>(new GLBindShader(program)));
-        d->primitives.push_back(carto::rc_ptr<GLItem>(new GLObjectUniforms(nullptr, program, gc)));
+        d->primitives.push_back(carto::rc_ptr<GLItem>(new GLObjectUniforms(carto::rc_ptr<IShaderModule>(), program, gc)));
 
         ViewState vs(0);
         // cursor color
