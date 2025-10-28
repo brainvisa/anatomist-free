@@ -37,10 +37,6 @@ namespace anatomist
       Private * d;
   };
 }
-      struct Private;
-      Private * d;
-  };
-}
 #endif
 
 // - une classe qui fait le lien entre la vue et les objets, je l'appelle ici RenderContext (à voir si on trouve un meilleur nom):
