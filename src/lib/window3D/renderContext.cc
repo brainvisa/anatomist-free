@@ -32,7 +32,7 @@ struct RenderContext::Private
 };
 
 RenderContext::Private::Private(AWindow3D* win, GLWidgetManager* widgetManager) : 
-window(win), glwman(widgetManager), primitives(carto::rc_ptr<PrimList>()), currentProgram(carto::rc_ptr<QOpenGLShaderProgram>())
+window(win), glwman(widgetManager), primitives(new PrimList()), currentProgram(new QOpenGLShaderProgram())
 {}
 
 RenderContext::Private::~Private()
@@ -191,7 +191,7 @@ void RenderContext::shaderBuilding()
 
 void RenderContext::switchShaderProgram( carto::rc_ptr<QOpenGLShaderProgram> program )
 {
-  if(!program)
+  if(program.isNull())
   {
     AWarning("RenderContext::switchShaderProgram: null shader program");
     return;
