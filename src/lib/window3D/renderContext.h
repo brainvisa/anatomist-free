@@ -12,29 +12,30 @@ namespace anatomist
   class GLWidgetManager;
   class GLComponent; 
   class IShaderModule;
+
+
+  class RenderContext
+  {
+    public:
+      RenderContext(AWindow3D* win, anatomist::GLWidgetManager* widgetManager);
+      ~RenderContext();
+      std::shared_ptr<anatomist::PrimList> renderObjects( const std::list<carto::shared_ptr<anatomist::AObject>> & objs);
+
+    private:
+      void updateObject(carto::shared_ptr<anatomist::AObject> obj, anatomist::PrimList* pl=0, anatomist::ViewState::glSelectRenderMode selectmode
+                          = anatomist::ViewState::glSELECTRENDER_NONE);
+      void renderObject(bool isTransparent);
+      void retrieveShaders(const std::list<carto::shared_ptr<anatomist::AObject>> & objs);
+      void shaderBuilding();
+      void switchShaderProgram( std::shared_ptr<QOpenGLShaderProgram> program );
+      void setupTransparentObjects();
+      void postTransparentRenderingSetup();
+      std::vector<std::shared_ptr<anatomist::IShaderModule>> getEffectiveShaderModules(const std::string& shaderID);
+
+      struct Private;
+      Private * d;
+  };
 }
-
-class RenderContext
-{
-  public:
-    RenderContext(AWindow3D* win, anatomist::GLWidgetManager* widgetManager);
-    ~RenderContext();
-    std::shared_ptr<anatomist::PrimList> renderObjects( const std::list<carto::shared_ptr<anatomist::AObject>> & objs);
-
-  private:
-    void updateObject(carto::shared_ptr<anatomist::AObject> obj, anatomist::PrimList* pl=0, anatomist::ViewState::glSelectRenderMode selectmode
-                         = anatomist::ViewState::glSELECTRENDER_NONE);
-    void renderObject(bool isTransparent);
-    void retrieveShaders(const std::list<carto::shared_ptr<anatomist::AObject>> & objs);
-    void shaderBuilding();
-    void switchShaderProgram( std::shared_ptr<QOpenGLShaderProgram> program );
-    void setupTransparentObjects();
-    void postTransparentRenderingSetup();
-    std::vector<std::shared_ptr<anatomist::IShaderModule>> getEffectiveShaderModules(const std::string& shaderID);
-
-    struct Private;
-    Private * d;
-};
 #endif
 
 // - une classe qui fait le lien entre la vue et les objets, je l'appelle ici RenderContext (à voir si on trouve un meilleur nom):
