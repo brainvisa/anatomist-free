@@ -14,6 +14,7 @@ namespace anatomist
   class IShaderModule;
 
 
+
   class RenderContext
   {
     public:
@@ -32,6 +33,10 @@ namespace anatomist
       void postTransparentRenderingSetup();
       std::vector<carto::rc_ptr<anatomist::IShaderModule>> getEffectiveShaderModules(const std::string& shaderID);
 
+      struct Private;
+      Private * d;
+  };
+}
       struct Private;
       Private * d;
   };
