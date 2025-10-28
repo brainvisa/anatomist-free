@@ -1,6 +1,7 @@
 #include <anatomist/surface/depthPeelingEffect.h>
 #include <anatomist/surface/glcomponent.h>
 #include <anatomist/window3D/window3D.h>
+#include <anatomist/window/glwidgetmanager.h>
 
 using namespace anatomist;
 

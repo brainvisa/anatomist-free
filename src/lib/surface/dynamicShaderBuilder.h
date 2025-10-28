@@ -58,22 +58,22 @@ namespace anatomist
       /// Sets the string template of the shader, it may contain tags ({Illumination Model Uniforms}, {Illumination Model Function}, {Illumination Model Call}, {Effect Uniforms}, {Effect Functions}, {Effect Call}) that will be replaced by the shader modules.
       void setBaseTemplate(const std::string &templateSource);
       /// Sets the illumination model used in the shader
-      void setIlluminationModel(std::shared_ptr<IShaderModule> model);
+      void setIlluminationModel(carto::rc_ptr<IShaderModule> model);
       /// Adds an effect to the list of effects that will be applied to the shader
-      void addEffect(std::shared_ptr<IShaderModule> effect);
+      void addEffect(carto::rc_ptr<IShaderModule> effect);
       /// Returns the base template of the shader with the version added at the top
       std::string readShaderFile(const std::string &filePath);
       /// Generates the shader source code by replacing the tags in the base template
       std::string generateShaderSource() const;
       /// Create the QOpenGLShaderProgram and returns it
-      std::shared_ptr<QOpenGLShaderProgram> initShader(const std::string shaderIDs, std::string vsTemplate = "main.vs.glsl", std::string fsTemplate = "main.fs.glsl");
+      carto::rc_ptr<QOpenGLShaderProgram> initShader(const std::string shaderIDs, std::string vsTemplate = "main.vs.glsl", std::string fsTemplate = "main.fs.glsl");
       /// Create and returns the QOpenGLShaderProgram linked to the depth peeling blending effect
-      std::shared_ptr<QOpenGLShaderProgram> initBlendingShader();
+      carto::rc_ptr<QOpenGLShaderProgram> initBlendingShader();
     
     private:
       std::string m_baseShaderTemplate;
-      std::shared_ptr<IShaderModule> m_illuminationModel = nullptr;
-      std::vector<std::shared_ptr<IShaderModule>> m_effects;
+      carto::rc_ptr<IShaderModule> m_illuminationModel;
+      std::vector<carto::rc_ptr<IShaderModule>> m_effects;
       int m_version;
   };
 }

@@ -37,15 +37,17 @@
 #include <iostream>
 #include <string>
 #include <QOpenGLShaderProgram>
-#include <anatomist/window/glwidgetmanager.h>
+//#include <anatomist/window/glwidgetmanager.h>
+#include <cartobase/smart/rcobject.h>
 
 
 
 namespace anatomist
 {
   class GLComponent;
+  class GLWidgetManager;
 
-  class IShaderModule
+  class IShaderModule : public carto::RCObject
   {
     /** This class is the base interface for creating a new module for the shader
     * program. The module is responsible for creating the specific uniforms declaration,

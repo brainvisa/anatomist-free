@@ -23,16 +23,16 @@ struct RenderContext::Private
 
   AWindow3D* window;
   GLWidgetManager * glwman;
-  std::shared_ptr<PrimList> primitives;
+  carto::rc_ptr<PrimList> primitives;
   dynamicShaderBuilder shaderBuilder;
-  std::map<std::string, std::shared_ptr<QOpenGLShaderProgram>> programs;
-  std::shared_ptr<QOpenGLShaderProgram> currentProgram;
+  std::map<std::string, carto::rc_ptr<QOpenGLShaderProgram>> programs;
+  carto::rc_ptr<QOpenGLShaderProgram> currentProgram;
   std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> opaqueDrawables;
   std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> transparentDrawables;
 };
 
 RenderContext::Private::Private(AWindow3D* win, GLWidgetManager* widgetManager) : 
-window(win), glwman(widgetManager), primitives(std::make_shared<PrimList>()), currentProgram(nullptr)
+window(win), glwman(widgetManager), primitives(carto::rc_ptr<PrimList>()), currentProgram(carto::rc_ptr<QOpenGLShaderProgram>())
 {}
 
 RenderContext::Private::~Private()
@@ -40,7 +40,7 @@ RenderContext::Private::~Private()
   glwman = nullptr;
   primitives.reset();
   programs.clear();
-  currentProgram = nullptr;
+  currentProgram.reset();
   opaqueDrawables.clear();
   transparentDrawables.clear();
 }
@@ -56,7 +56,7 @@ RenderContext::~RenderContext()
   delete d;
 }
 
-std::shared_ptr<PrimList> RenderContext::renderObjects( const std::list<carto::shared_ptr<AObject>> & objs)
+carto::rc_ptr<PrimList> RenderContext::renderObjects( const std::list<carto::shared_ptr<AObject>> & objs)
 {
   d->opaqueDrawables.clear();
   d->transparentDrawables.clear();
@@ -149,7 +149,7 @@ void RenderContext::renderObject(bool isTransparent)
       updateObject(objects[i]);
     }
   }
-  d->currentProgram = nullptr;
+  d->currentProgram = carto::rc_ptr<QOpenGLShaderProgram>();
 }
 
 void RenderContext::retrieveShaders(const std::list<carto::shared_ptr<AObject>> & objs)
@@ -174,7 +174,7 @@ void RenderContext::shaderBuilding()
 {
   for(const auto & [shader, _] : d->opaqueDrawables)
   {
-    if(d->programs[shader] == nullptr)
+    if(d->programs[shader].isNull())
     {
       d->programs[shader] = d->shaderBuilder.initShader(shader);
     }
@@ -182,14 +182,14 @@ void RenderContext::shaderBuilding()
 
   for(const auto & [shader, _] : d->transparentDrawables)
   {
-    if(d->programs[shader] == nullptr)
+    if(d->programs[shader].isNull())
     {
       d->programs[shader] = d->shaderBuilder.initShader(shader);
     }
   }
 }
 
-void RenderContext::switchShaderProgram( std::shared_ptr<QOpenGLShaderProgram> program )
+void RenderContext::switchShaderProgram( carto::rc_ptr<QOpenGLShaderProgram> program )
 {
   if(!program)
   {
@@ -241,7 +241,7 @@ void RenderContext::postTransparentRenderingSetup()
   d->primitives->push_back(RefGLItem(renderpr));
 }
 
-std::vector<std::shared_ptr<IShaderModule>> RenderContext::getEffectiveShaderModules(const std::string& shaderID)
+std::vector<carto::rc_ptr<IShaderModule>> RenderContext::getEffectiveShaderModules(const std::string& shaderID)
 {
   auto modules = shaderMapping::getModules(shaderID);
   if(d->glwman->useDepthPeeling())

@@ -37,6 +37,7 @@
 
 #include <cartobase/smart/rcobject.h>
 #include <QOpenGLShaderProgram>
+#include <anatomist/surface/IShaderModule.h>
 #include <list>
 #include <set>
 
@@ -44,7 +45,6 @@
 namespace anatomist
 {
   class GLWidgetManager;
-  class IShaderModule;
   class GLComponent;
   class ViewState;
 
@@ -56,7 +56,7 @@ namespace anatomist
   public:
     inline GLItem() : carto::RCObject(), _ghost( false ) {}
     virtual ~GLItem();
-    virtual std::shared_ptr<QOpenGLShaderProgram> shader() const { return nullptr;}
+    virtual carto::rc_ptr<QOpenGLShaderProgram> shader() const { return carto::rc_ptr<QOpenGLShaderProgram>();}
 
     /// renders the display list
     virtual void callList() const = 0;
@@ -137,23 +137,23 @@ namespace anatomist
   class GLBindShader : public GLItem
   {
   public:
-    GLBindShader(std::shared_ptr<QOpenGLShaderProgram> glShader) : GLItem(), _shaderProgram(glShader) {}
+    GLBindShader(carto::rc_ptr<QOpenGLShaderProgram> glShader) : GLItem(), _shaderProgram(glShader) {}
     virtual ~GLBindShader();
-    std::shared_ptr<QOpenGLShaderProgram> shader() const override { return _shaderProgram; }
+    carto::rc_ptr<QOpenGLShaderProgram> shader() const override { return _shaderProgram; }
     virtual void callList() const;
     private:
-      std::shared_ptr<QOpenGLShaderProgram> _shaderProgram;
+      carto::rc_ptr<QOpenGLShaderProgram> _shaderProgram;
   };
 
   // OpenGL Shader Release
   class GLReleaseShader : public GLItem
   {
   public:
-    GLReleaseShader(std::shared_ptr<QOpenGLShaderProgram> glShader) : GLItem(), _shaderProgram(glShader) {}
+    GLReleaseShader(carto::rc_ptr<QOpenGLShaderProgram> glShader) : GLItem(), _shaderProgram(glShader) {}
     virtual ~GLReleaseShader();
     virtual void callList() const;
     private:
-      std::shared_ptr<QOpenGLShaderProgram> _shaderProgram;
+      carto::rc_ptr<QOpenGLShaderProgram> _shaderProgram;
   };
 
 
@@ -192,12 +192,12 @@ namespace anatomist
   class GLSceneUniforms : public GLItem
   {
   public:
-    GLSceneUniforms(std::shared_ptr<IShaderModule> shaderModule ,std::shared_ptr<QOpenGLShaderProgram> glShader, GLWidgetManager* scene) : GLItem(), _module(shaderModule), _shader(glShader), _scene(scene) {}
+    GLSceneUniforms(carto::rc_ptr<IShaderModule> shaderModule ,carto::rc_ptr<QOpenGLShaderProgram> glShader, GLWidgetManager* scene) : GLItem(), _module(shaderModule), _shader(glShader), _scene(scene) {}
     virtual ~GLSceneUniforms();
     virtual void callList() const;
   private:
-    std::shared_ptr<IShaderModule> _module;
-    std::shared_ptr<QOpenGLShaderProgram> _shader;
+    carto::rc_ptr<IShaderModule> _module;
+    carto::rc_ptr<QOpenGLShaderProgram> _shader;
     GLWidgetManager* _scene;
 
   };
@@ -226,15 +226,15 @@ namespace anatomist
       std::vector<int> textureDim;
     };
 
-    GLObjectUniforms(std::shared_ptr<IShaderModule> shaderModule, std::shared_ptr<QOpenGLShaderProgram> glShader, GLComponent* glObj) : GLItem(),_module(shaderModule), _shader(glShader), _glObj(glObj) {}
+    GLObjectUniforms(carto::rc_ptr<IShaderModule> shaderModule, carto::rc_ptr<QOpenGLShaderProgram> glShader, GLComponent* glObj) : GLItem(),_module(shaderModule), _shader(glShader), _glObj(glObj) {}
     virtual ~GLObjectUniforms();
     virtual void callList() const;
     virtual void getUniformsLocations(UniformsLocations & locations) const;
     virtual void getTexturesData(const ViewState& vs, const unsigned maxSampler, TexturesData& data) const;
     virtual void updateTextureUniforms(const UniformsLocations& locations,TexturesData& data, const unsigned maxSampler) const;
   private:
-    std::shared_ptr<IShaderModule> _module;
-    std::shared_ptr<QOpenGLShaderProgram> _shader;
+    carto::rc_ptr<IShaderModule> _module;
+    carto::rc_ptr<QOpenGLShaderProgram> _shader;
     GLComponent* _glObj;
   };
 
