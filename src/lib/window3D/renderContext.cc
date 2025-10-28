@@ -104,7 +104,6 @@ void RenderContext::updateObject(carto::shared_ptr<AObject> obj, PrimList* pl,
     SliceViewState st(d->window->getTimes(), true, d->window->getPosition(), &d->window->sliceQuaternion(),
                       d->window->getReferential(), d->window->windowGeometry(), &d->glwman->quaternion(), d->window, selectmode);
     obj->render(*pl, st);
-    std::cout << "Rendering 2D Object" << std::endl;
   }
 
   auto objModifiers = d->window->getModifiers();
