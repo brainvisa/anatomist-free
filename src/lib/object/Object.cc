@@ -53,6 +53,7 @@
 #include <anatomist/surface/glcomponent_internals.h> // for TexInfo struct
 #include <anatomist/graph/pythonAObject.h>
 #include <anatomist/window/viewstate.h>
+#include <anatomist/window3D/renderContext.h>
 #include <anatomist/object/mobjectio.h>
 #include <anatomist/object/sliceable.h>
 #include <anatomist/graph/attribAObject.h>
@@ -270,22 +271,22 @@ void AObject::unregisterWindow(AWindow *window)
 }
 
 
-bool AObject::render( PrimList & prim, const ViewState & vs )
+bool AObject::render( PrimList & prim, const RenderContext & rc )
 {
   GLComponent *gl = glAPI();
   if( gl )
   {
-    GLPrimitives	pl = gl->glMainGLL( vs );
+    GLPrimitives	pl = gl->glMainGLL( rc.getViewState() );
     if( !pl.empty() )
     {
       const Referential *ref = getReferential();
-      GLPrimitives p2 = GLComponent::glHandleTransformation( vs, ref );
+      GLPrimitives p2 = GLComponent::glHandleTransformation( rc.getViewState(), ref );
       bool hastr = !p2.empty();
       prim.insert( prim.end(), p2.begin(), p2.end() );
       prim.insert( prim.end(), pl.begin(), pl.end() );
       if( hastr )
       {
-        pl = GLComponent::glPopTransformation( vs, ref );
+        pl = GLComponent::glPopTransformation( rc.getViewState(), ref );
         prim.insert( prim.end(), pl.begin(), pl.end() );
       }
       gl->glClearHasChangedFlags();

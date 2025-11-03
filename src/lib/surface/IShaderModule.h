@@ -47,39 +47,116 @@ namespace anatomist
   class GLComponent;
   class GLWidgetManager;
 
+  /**
+   * @class IShaderModule
+   * @brief Interface for modular shader components used in dynamic shader construction.
+   *
+   * The IShaderModule interface defines the contract that any shader module must implement
+   * in order to be integrated into a dynamically built shader program.
+   * 
+   * Each module provides:
+   * - GLSL uniform declarations
+   * - Function implementations
+   * - Function calls
+   *
+   * This modular design enables the combination of multiple shader features
+   * (such as illumination models or post-processing effects) into a single
+   * generated shader at runtime.
+   *
+   * Implementations of this interface can represent illumination models
+   * (e.g., Blinn–Phong, Lambertian) or visual effects (e.g., depth peeling, transparency).
+   */
   class IShaderModule : public carto::RCObject
   {
-    /** This class is the base interface for creating a new module for the shader
-    * program. The module is responsible for creating the specific uniforms declaration,
-    * the function implementation and the function call for the shader program.
-    */
-
 
     public:
-      /// Returns the uniform declarations for the shader module
-      virtual std::string getUniformDeclarations() const = 0;
-      /// Returns the function implementation for the shader module
-      virtual std::string getFunctionImplementation() const = 0;
-      /// Returns the function call module
-      virtual std::string getFunctionCall() const = 0;
       virtual ~IShaderModule() = default;
 
-      /// Sets up the uniforms for the shader module
-      virtual void setupObjectUniforms(QOpenGLShaderProgram& program, GLComponent& obj) const = 0;
-      virtual void setupSceneUniforms(QOpenGLShaderProgram& program, GLWidgetManager& scene) const  = 0;
-
-      /// return the list of shader's id
+      /// Returns the module unique string identifier.
       virtual std::string getID() const {return _id;}
 
-      virtual void printModule() const{std::cout << _name<< std::endl;};
-
+      /// Returns true if this module defines an illumination model.
       virtual bool isIlluminationModel() const {return _isIlluminationModel;}
+
+      /// return the human-readable name of the module
+      virtual void printModule() const{std::cout << _name<< std::endl;};
+      
+
+
+      /**
+      * Returns GLSL uniform declarations required by this module.
+      *
+      * The returned string is expected to be a *raw string literal* (R"(...)" syntax),
+      * so it can contain multi-line GLSL code directly.
+      * Example:
+      * \code
+      * return R"(
+      * uniform vec4 u_materialDiffuse;
+      * uniform vec4 u_materialSpecular;
+      * uniform float u_materialShininess;
+      * )";
+      * \endcode
+      *
+      * See the implementation of \c BlinnPhongIlluminationModel for reference.
+      */
+      virtual std::string getUniformDeclarations() const = 0;
+
+      /**
+      * Returns the GLSL function implementation for this module.
+      *
+      * This function defines one or several GLSL functions that perform the
+      * computation associated with the module. It should also be written as a raw
+      * string literal.
+      *
+      * See \c blinnPhongIlluminationModel.cc for a concrete implementation.
+      */
+      virtual std::string getFunctionImplementation() const = 0;
+      
+
+      /**
+      * Returns the GLSL code that applies this module effect to the current color.
+      *
+      * The returned snippet is appended inside the fragment shader \c main() 
+      * function, and is expected to *combine its result with the variable* 
+      * \c color, which carries the current fragment color. It should also be written as a raw
+      * string literal.
+      *
+      * Example:
+      * \code
+      * return R"(
+      * vec4 myModuleResult = myModuleFunction(...);
+      * color = mix(color, myModuleResult, 0.5);
+      * )";
+      * \endcode
+      */
+      virtual std::string getFunctionCall() const = 0;
+     
+
+      /**
+      * Sets per-object uniforms before drawing.
+      * This method is typically used to set uniforms such as material properties.
+      * Automatically called for each rendered object by \c GLObjectUniforms::callList().
+      */
+      virtual void setupObjectUniforms(QOpenGLShaderProgram& program, GLComponent& obj) const = 0;
+
+      /**
+      * Sets scene-level uniforms shared by all objects using the same program.
+      *
+      * This method is typically used to set lighting or camera-related parameters
+      * (for example the viewer position or light direction).
+      * Automatically called for each rendered object by \c GLSceneUniforms::callList().
+      */
+      virtual void setupSceneUniforms(QOpenGLShaderProgram& program, GLWidgetManager& scene) const  = 0;
+
+
     
     protected:
-      /// unique id associated to each shader
+      /// unique string identifier of the module
       std::string _id;
-      bool _isIlluminationModel;
+      /// human-readable name of the module
       std::string _name;
+      bool _isIlluminationModel;
+
   };
 }
 

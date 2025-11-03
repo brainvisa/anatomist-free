@@ -37,6 +37,8 @@
 #include <anatomist/control/qObjTree.h>
 #include <anatomist/application/settings.h>
 #include <anatomist/object/actions.h>
+#include <anatomist/window3D/renderContext.h>
+
 #include <algorithm>
 
 using namespace anatomist;
@@ -161,12 +163,12 @@ void ANormalsMesh::setLength( float length )
 }
 
 
-bool ANormalsMesh::render( PrimList & plist, const ViewState & vs )
+bool ANormalsMesh::render( PrimList & plist, const RenderContext & rc )
 {
   vector<ASurface<3> *>::iterator io, eo = _ameshes.end();
   for( io=_ameshes.begin(); io!=eo; ++io )
-    (*io)->render( plist, vs );
-  normalMesh()->render( plist, vs );
+    (*io)->render( plist, rc );
+  normalMesh()->render( plist, rc );
   return true;
 }
 

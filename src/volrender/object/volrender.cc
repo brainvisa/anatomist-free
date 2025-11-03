@@ -242,10 +242,10 @@ unsigned VolRender::glDimTex( const ViewState &, unsigned ) const
 }
 
 
-bool VolRender::render( PrimList & prim, const ViewState & state )
+bool VolRender::render( PrimList & prim, const RenderContext & rc )
 {
   // shortcut ObjectVector / MObject::render()
-  return AObject::render( prim, state );
+  return AObject::render( prim, rc );
 }
 
 

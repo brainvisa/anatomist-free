@@ -46,6 +46,8 @@
 #include <aims/mesh/cutmesh.h>
 #include <anatomist/control/qObjTree.h>
 #include <anatomist/application/settings.h>
+#include <anatomist/window3D/renderContext.h>
+
 #include <qpixmap.h>
 #include <qtranslator.h>
 
@@ -543,7 +545,7 @@ AObject* CutMesh::planarFusion()
 }
 
 
-bool CutMesh::render( PrimList & prim, const ViewState & state )
+bool CutMesh::render( PrimList & prim, const RenderContext & rc )
 {
 //   cout << "CutMesh::render, this: " << this << endl;
   /* ATriangulated	*cm = (ATriangulated *) cutMesh();
@@ -553,7 +555,7 @@ bool CutMesh::render( PrimList & prim, const ViewState & state )
   if( d->meshchanged )
     updateCut();
 
-  bool res = MObject::render( prim, state );
+  bool res = MObject::render( prim, rc );
 /*
   iterator  io = begin(), eo = end();
   int       i = 0;

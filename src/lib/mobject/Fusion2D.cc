@@ -36,6 +36,7 @@
 #include <anatomist/object/actions.h>
 #include <anatomist/window/Window.h>
 #include <anatomist/window/viewstate.h>
+#include <anatomist/window3D/renderContext.h>
 #include <anatomist/misc/error.h>
 #include <anatomist/reference/Transformation.h>
 #include <anatomist/reference/transformobserver.h>
@@ -627,9 +628,9 @@ namespace
 }
 
 
-bool Fusion2D::render( PrimList & prim, const ViewState & state )
+bool Fusion2D::render( PrimList & prim, const RenderContext & rc )
 {
-  return AObject::render( prim, state );
+  return AObject::render( prim, rc );
 }
 
 

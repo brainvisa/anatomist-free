@@ -1107,55 +1107,55 @@ void AWindow3D::printPositionAndValue()
                             0);
 }
 
-void AWindow3D::updateObject2D(AObject* obj, PrimList* pl,
-    ViewState::glSelectRenderMode selectmode)
-{
-  if (!pl) pl = &d->primitives;
-  SliceViewState st(_timepos, true, _position, &d->slicequat,
-                    getReferential(),
-      windowGeometry(), &d->draw->quaternion(), this, selectmode);
-  obj->render(*pl, st);
-}
+// void AWindow3D::updateObject2D(AObject* obj, PrimList* pl,
+//     ViewState::glSelectRenderMode selectmode)
+// {
+//   if (!pl) pl = &d->primitives;
+//   SliceViewState st(_timepos, true, _position, &d->slicequat,
+//                     getReferential(),
+//       windowGeometry(), &d->draw->quaternion(), this, selectmode);
+//   obj->render(*pl, st);
+// }
 
-void AWindow3D::updateObject3D(AObject* obj, PrimList* pl,
-    ViewState::glSelectRenderMode selectmode)
-{
-  if (!pl) pl = &d->primitives; 
-  obj->render(*pl, ViewState(_timepos, this, selectmode));
-}
+// void AWindow3D::updateObject3D(AObject* obj, PrimList* pl,
+//     ViewState::glSelectRenderMode selectmode)
+// {
+//   if (!pl) pl = &d->primitives; 
+//   obj->render(*pl, ViewState(_timepos, this, selectmode));
+// }
 
-void AWindow3D::updateObject(AObject* obj, PrimList* pl,
-    ViewState::glSelectRenderMode selectmode)
-{
-  unsigned l1 = 0, l2;
+// void AWindow3D::updateObject(AObject* obj, PrimList* pl,
+//     ViewState::glSelectRenderMode selectmode)
+// {
+//   unsigned l1 = 0, l2;
 
-  if (pl)
-    l1 = pl->size();
-  else
-    l1 = d->primitives.size();
+//   if (pl)
+//     l1 = pl->size();
+//   else
+//     l1 = d->primitives.size();
 
-  GLPrimitives gp;
-  if (!obj->Is2DObject() || (d->viewtype == ThreeD && obj->Is3DObject()))
-    updateObject3D(obj, &gp, selectmode);
-  else
-    updateObject2D(obj, &gp, selectmode);
+//   GLPrimitives gp;
+//   if (!obj->Is2DObject() || (d->viewtype == ThreeD && obj->Is3DObject()))
+//     updateObject3D(obj, &gp, selectmode);
+//   else
+//     updateObject2D(obj, &gp, selectmode);
 
-  // perform lists modifications
-  list<ObjectModifier *>::iterator im, em = d->objmodifiers.end();
-  for (im = d->objmodifiers.begin(); im != em; ++im)
-    (*im)->modify(obj, gp);
+//   // perform lists modifications
+//   list<ObjectModifier *>::iterator im, em = d->objmodifiers.end();
+//   for (im = d->objmodifiers.begin(); im != em; ++im)
+//     (*im)->modify(obj, gp);
 
-  if (pl)
-    pl->insert(pl->end(), gp.begin(), gp.end());
-  else
-    d->primitives.insert(d->primitives.end(), gp.begin(), gp.end());
+//   if (pl)
+//     pl->insert(pl->end(), gp.begin(), gp.end());
+//   else
+//     d->primitives.insert(d->primitives.end(), gp.begin(), gp.end());
 
-  if (pl)
-    l2 = pl->size();
-  else
-    l2 = d->primitives.size();
-  if (l2 > l1) d->tmpprims[obj] = pair<unsigned, unsigned> (l1, l2);
-}
+//   if (pl)
+//     l2 = pl->size();
+//   else
+//     l2 = d->primitives.size();
+//   if (l2 > l1) d->tmpprims[obj] = pair<unsigned, unsigned> (l1, l2);
+// }
 
 void AWindow3D::freeResize()
 {
@@ -3794,7 +3794,7 @@ void AWindow3D::refreshTempNow()
       }
       
       oldlen = plnewlen;
-      updateObject(ao, &plnew);
+      // updateObject(ao, &plnew); // jordan replace with renderContext
       plnewlen = plnew.size();
       if (plnewlen == oldlen) d->tmpprims.erase(ao);
     }
@@ -4713,9 +4713,9 @@ void AWindow3D::renderSelectionBuffer(ViewState::glSelectRenderMode mode,
   primitives.push_back(RefGLItem(renderpr));
 
   //	Draw objects
-  for( al = renderobj.begin(); al != el; ++al )
-    if( mode != ViewState::glSELECTRENDER_POLYGON || *al == selectedobject )
-      updateObject( *al, &primitives, mode );
+  // for( al = renderobj.begin(); al != el; ++al )
+  //   if( mode != ViewState::glSELECTRENDER_POLYGON || *al == selectedobject ) //jordan move this with renderContext
+  //     updateObject( *al, &primitives, mode );
 
   renderpr = new GLList;
   renderpr->generate();

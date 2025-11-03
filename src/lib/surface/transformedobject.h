@@ -65,7 +65,7 @@ namespace anatomist
     virtual ~TransformedObject();
 
     virtual bool renderingIsObserverDependent() const;
-    virtual bool render( PrimList &, const ViewState & );
+    virtual bool render( PrimList &, const RenderContext & );
     void setPosition( const Point3df & );
     /// position in model view coords
     Point3df position() const;

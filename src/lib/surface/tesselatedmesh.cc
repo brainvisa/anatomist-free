@@ -43,6 +43,7 @@
 #include <aims/mesh/surfaceOperation.h>
 #include <anatomist/control/qObjTree.h>
 #include <anatomist/application/settings.h>
+#include <anatomist/window3D/renderContext.h>
 #include <qpixmap.h>
 #include <qtranslator.h>
 
@@ -283,11 +284,11 @@ const Material & TesselatedMesh::material() const
 }
 
 
-bool TesselatedMesh::render( PrimList & prim, const ViewState & state )
+bool TesselatedMesh::render( PrimList & prim, const RenderContext & rc )
 {
-  tesselate( state );
+  tesselate( rc.getViewState() );
 
-  bool ok = tesselatedMesh()->render( prim, state );
+  bool ok = tesselatedMesh()->render( prim, rc );
   return ok;
 }
 

@@ -282,7 +282,7 @@ AObject* AGraph::clone( bool shallow )
 }
 
 
-bool AGraph::render( PrimList &, const ViewState & )
+bool AGraph::render( PrimList &, const RenderContext & )
 {
   // do _nothing_ !
   return true;

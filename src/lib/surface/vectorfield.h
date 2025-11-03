@@ -69,7 +69,7 @@ namespace anatomist
       return true;
     }
 
-    virtual bool render( PrimList &, const ViewState & );
+    virtual bool render( PrimList &, const anatomist::RenderContext & );
     virtual void update( const Observable *, void * );
 
     virtual std::vector<float> glMin2D() const;

@@ -60,7 +60,7 @@ namespace anatomist
     virtual const Material & material() const;
     virtual const AObjectPalette* glPalette( unsigned tex = 0 ) const;
     virtual void update( const Observable*, void* );
-    virtual bool render( PrimList &, const ViewState & vs );
+    virtual bool render( PrimList &, const RenderContext & vs );
     virtual std::list<AObject *> renderedSubObjects( const ViewState & ) const
     { return std::list<AObject *>(); }
 

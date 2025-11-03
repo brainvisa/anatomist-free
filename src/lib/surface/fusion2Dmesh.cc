@@ -39,6 +39,8 @@
 #include <aims/mesh/surfaceOperation.h>
 #include <aims/resampling/quaternion.h>
 #include <anatomist/primitive/primitive.h>
+#include <anatomist/window3D/renderContext.h>
+
 
 using namespace anatomist;
 using namespace std;
@@ -182,11 +184,11 @@ Material & Fusion2DMesh::GetMaterial()
 }
 
 //--------------------------------------------------------------
-bool Fusion2DMesh::render( PrimList & prim, const ViewState & state )
+bool Fusion2DMesh::render( PrimList & prim, const RenderContext & rc ) 
 {
-  updateMergedSurface( state );
+  updateMergedSurface( rc.getViewState() );
 
-  return AObject::render( prim, state );
+  return AObject::render( prim, rc );
 }
 
 //--------------------------------------------------------------

@@ -385,6 +385,11 @@ GLBindShader::~GLBindShader()
 
 void GLBindShader::callList() const
 {
+  GLenum status;
+  status = glGetError();
+  if( status != GL_NO_ERROR )
+    cerr << "GLBindShader::callList() Previous OpenGL error before binding shader ! - "
+         << gluErrorString(status) << endl; 
 
   GLint currentProgram = 0;
   glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgram);
@@ -399,7 +404,7 @@ void GLBindShader::callList() const
     }
   }
   _shaderProgram->bind();
-  GLenum status = glGetError();
+  status = glGetError();
   if( status != GL_NO_ERROR )
     cerr << "GLBindShader::callList() Could not bind shader program ! - "
          << gluErrorString(status) << endl;
@@ -415,6 +420,8 @@ void GLReleaseShader::callList() const
   QOpenGLContext *ctx = QOpenGLContext::currentContext();
   if(!ctx)
       return;
+  
+  //while(glGetError() != GL_NO_ERROR){}; //Jordan : check why there are errors here
   
   QSurfaceFormat fmt = ctx->format();
   if(fmt.profile() != QSurfaceFormat::CompatibilityProfile)
@@ -440,14 +447,18 @@ GLSceneUniforms::~GLSceneUniforms()
 
 void GLSceneUniforms::callList() const
 {
-  if(_shader && _scene)
-  {
-    _module->setupSceneUniforms(*_shader, *_scene);
-    GLenum status = glGetError();
-    if( status != GL_NO_ERROR )
-      cerr << "GLSceneUniforms::callList() Could not set scene uniforms ! - "
-           << gluErrorString(status) << endl;
-  }
+  if(!_shader || !_scene)
+    {
+      std::cout << "GLSceneUniforms::callList() No shader or scene !" << std::endl;
+      return;
+    }
+
+  _module->setupSceneUniforms(*_shader, *_scene);
+  GLenum status = glGetError();
+  if( status != GL_NO_ERROR )
+    cerr << "GLSceneUniforms::callList() Could not set scene uniforms ! - "
+          << gluErrorString(status) << endl;
+
     
 }
 

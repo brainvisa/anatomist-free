@@ -37,6 +37,8 @@
 #include <anatomist/window/controlledWindow.h>
 #include <anatomist/reference/Transformation.h>
 #include <aims/transformation/affinetransformation3d.h>
+#include <anatomist/window3D/renderContext.h>
+
 
 using namespace anatomist;
 using namespace aims;
@@ -117,16 +119,16 @@ bool TransformedObject::renderingIsObserverDependent() const
 }
 
 
-bool TransformedObject::render( PrimList & pl, const ViewState & vs )
+bool TransformedObject::render( PrimList & pl, const RenderContext & rc )
 {
   // change transformation matrices
-  setupTransforms( pl, vs );
+  setupTransforms( pl, rc.getViewState() );
 
   // render sub-objects
   bool res = false;
   iterator io, eo = end();
   for( io=begin(); io!=eo; ++io )
-    res |= (*io)->render( pl, vs );
+    res |= (*io)->render( pl, rc);
 
   // pop matrixes
   popTransformationMatrixes( pl );

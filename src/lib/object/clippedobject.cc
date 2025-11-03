@@ -36,6 +36,7 @@
 #include <anatomist/reference/Transformation.h>
 #include <anatomist/reference/Referential.h>
 #include <anatomist/window3D/window3D.h>
+#include <anatomist/window3D/renderContext.h>
 #include <anatomist/primitive/primitive.h>
 #include <anatomist/control/qObjTree.h>
 #include <anatomist/application/settings.h>
@@ -136,12 +137,12 @@ int ClippedObject::clipID() const
 }
 
 
-bool ClippedObject::render( PrimList & prim, const ViewState & state )
+bool ClippedObject::render( PrimList & prim,const RenderContext & rc )
 {
   // cout << "ClippedObject::render " << quaternion().vector() << endl;
   /* always use a SliceViewState since the underlying object may need
      orientation information (a VolRender needs view orientation) */
-  const SliceViewState *osvs = state.sliceVS();
+  const SliceViewState *osvs = rc.getViewState().sliceVS();
   SliceViewState svs;
   if( !osvs || !osvs->vieworientation )
   {
@@ -149,9 +150,9 @@ bool ClippedObject::render( PrimList & prim, const ViewState & state )
       svs = *osvs;
     else
       // copy state before completing it
-      static_cast<ViewState &>( svs ) = state;
+      static_cast<ViewState &>( svs ) = rc.getViewState();
 
-    const AWindow3D * w3 = dynamic_cast<const AWindow3D *>( state.window );
+    const AWindow3D * w3 = dynamic_cast<const AWindow3D *>( rc.getViewState().window );
     if( w3 )
     {
       svs.orientation = &w3->sliceQuaternion();
@@ -176,7 +177,7 @@ bool ClippedObject::render( PrimList & prim, const ViewState & state )
   for( i=begin(); i!=e; ++i )
   {
     AObject* obj = *i;
-    if( obj->render( prim, *osvs ) )
+    if( obj->render( prim, rc ) )
       hasrendered = true;
   }
   if( hasrendered )
@@ -193,14 +194,14 @@ bool ClippedObject::render( PrimList & prim, const ViewState & state )
     glEnable( GL_CLIP_PLANE2 + d->clipID );
     GLdouble pl[4];
 
-    const SliceViewState  *svs = state.sliceVS();
+    const SliceViewState  *svs = rc.getViewState().sliceVS();
     const Referential *wr = 0, *objref = getReferential();
     if( objref )
     {
       if( svs )
         wr = svs->winref;
-      else if( state.window )
-        wr = state.window->getReferential();
+      else if( rc.getViewState().window )
+        wr = rc.getViewState().window->getReferential();
     }
     Transformation *trans = theAnatomist->getTransformation( objref, wr );
     const Point4df & p = plane();

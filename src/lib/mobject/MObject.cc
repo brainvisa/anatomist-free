@@ -40,6 +40,7 @@
 #include <anatomist/reference/Referential.h>
 #include <anatomist/surface/glcomponent.h>
 #include <anatomist/window/viewstate.h>
+#include <anatomist/window3D/renderContext.h>
 #include <float.h>
 
 // uncomment this to enable debug output for update pattern
@@ -177,18 +178,18 @@ void MObject::clearHasChangedFlags() const
 }
 
 
-bool MObject::render( PrimList & prim, const ViewState & state )
+bool MObject::render( PrimList & prim, const RenderContext & rc )
 {
   bool retcode = false;
 
-  list<AObject *> rendered = renderedSubObjects( state );
+  list<AObject *> rendered = renderedSubObjects( rc.getViewState() );
   list<AObject *>::const_iterator i, j = rendered.end();
   for( i=rendered.begin(); i!=j; ++i )
   {
 //     if( (*i)->Is2DObject()
 //         && (*i)->render( prim, state ) )
 //     retcode = true;
-    retcode |= (*i)->render( prim, state );
+    retcode |= (*i)->render( prim, rc );
   }
 
   return retcode;

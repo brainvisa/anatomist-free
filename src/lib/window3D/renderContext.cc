@@ -7,7 +7,7 @@
 #include <anatomist/surface/glcomponent.h>
 #include <anatomist/primitive/primitive.h>
 #include <anatomist/misc/error.h>
-#include <cartobase/smart/rcptr.h>
+
 
 
 
@@ -29,11 +29,14 @@ struct RenderContext::Private
   carto::rc_ptr<QOpenGLShaderProgram> currentProgram;
   std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> opaqueDrawables;
   std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> transparentDrawables;
+  carto::rc_ptr<ViewState> vs;
 };
 
 RenderContext::Private::Private(AWindow3D* win, GLWidgetManager* widgetManager) : 
-window(win), glwman(widgetManager), primitives(new PrimList()), currentProgram(new QOpenGLShaderProgram())
-{}
+window(win), glwman(widgetManager), currentProgram(nullptr)
+{
+  primitives.reset( new PrimList );
+}
 
 RenderContext::Private::~Private()
 {
@@ -93,18 +96,18 @@ void RenderContext::updateObject(carto::shared_ptr<AObject> obj, PrimList* pl,
     l1 = d->primitives->size();
 
   GLPrimitives gp;
-  if(!obj->Is2DObject() || (d->window->viewType() == AWindow3D::ThreeD && obj->Is3DObject())) // replace 1 by viewType
+  if(!pl) pl = d->primitives.get();
+  if(!obj->Is2DObject() || (d->window->viewType() == AWindow3D::ThreeD && obj->Is3DObject()))
   {
-    if(!pl) pl = d->primitives.get();
-    obj->render(*pl, ViewState(d->window->getTimes(), d->window, selectmode));
+    d->vs.reset(new ViewState(d->window->getTimes(), d->window, selectmode));
   }
   else
   {
-    if(!pl) pl = d->primitives.get();
-    SliceViewState st(d->window->getTimes(), true, d->window->getPosition(), &d->window->sliceQuaternion(),
-                      d->window->getReferential(), d->window->windowGeometry(), &d->glwman->quaternion(), d->window, selectmode);
-    obj->render(*pl, st);
+    d->vs.reset(new SliceViewState(d->window->getTimes(), true, d->window->getPosition(), &d->window->sliceQuaternion(),
+                      d->window->getReferential(), d->window->windowGeometry(), &d->glwman->quaternion(), d->window, selectmode));
   }
+
+  obj->render(*pl, *this);
 
   auto objModifiers = d->window->getModifiers();
   std::list<AWindow3D::ObjectModifier *>::iterator im, em = objModifiers.end();
@@ -130,9 +133,15 @@ void RenderContext::updateObject(carto::shared_ptr<AObject> obj, PrimList* pl,
 void RenderContext::renderObject(bool isTransparent)
 {
   const auto & drawables = isTransparent ? d->transparentDrawables : d->opaqueDrawables;
+
   for(const auto & [shader, objects] : drawables)
   {
+    //std::cout << objects.size() << " objects to render with shader " << shader << std::endl;
+    //if(objects.empty()) {std::cout << "RenderContext::renderObject: empty object list for shader " << shader << std::endl; continue;}
+    //if(!objects.front()) {std::cout << "RenderContext::renderObject: null object in list for shader " << shader << std::endl; continue;}
+      
     switchShaderProgram(d->programs[shader]);
+
     auto shaderModules = getEffectiveShaderModules(objects.front()->glAPI()->getShaderModuleIDs());
     for(size_t i=0; i< objects.size(); ++i)
     {
@@ -249,4 +258,14 @@ std::vector<carto::rc_ptr<IShaderModule>> RenderContext::getEffectiveShaderModul
     modules.insert(modules.end(), dpmodules.begin(), dpmodules.end());
   }
   return modules;
+}
+
+const ViewState& RenderContext::getViewState() const
+{
+  return *d->vs;
+}
+
+void RenderContext::setViewState(carto::rc_ptr<ViewState> vs)
+{
+  d->vs = vs;
 }
