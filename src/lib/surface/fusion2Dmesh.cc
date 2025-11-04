@@ -184,7 +184,7 @@ Material & Fusion2DMesh::GetMaterial()
 }
 
 //--------------------------------------------------------------
-bool Fusion2DMesh::render( PrimList & prim, const RenderContext & rc ) 
+bool Fusion2DMesh::render( PrimList & prim, RenderContext & rc ) 
 {
   updateMergedSurface( rc.getViewState() );
 

@@ -69,7 +69,7 @@ namespace anatomist
     virtual int MType() const { return type(); }
     static int classType();
     virtual bool CanRemove( AObject* /*obj*/ ) { return false; }
-    virtual bool render( PrimList & prim, const anatomist::RenderContext & vs );
+    virtual bool render( PrimList & prim, anatomist::RenderContext & vs );
     virtual void setFileName( const std::string & fname );
     virtual void SetExtrema();
     virtual void adjustPalette();

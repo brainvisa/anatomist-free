@@ -465,7 +465,7 @@ AConnectivityMatrix::~AConnectivityMatrix()
 }
 
 
-bool AConnectivityMatrix::render( PrimList & plist, const RenderContext & rc )
+bool AConnectivityMatrix::render( PrimList & plist, RenderContext & rc )
 {
   if( d->marker )
     d->marker->render( plist, rc );

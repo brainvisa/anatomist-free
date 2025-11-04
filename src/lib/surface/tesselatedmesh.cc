@@ -284,7 +284,7 @@ const Material & TesselatedMesh::material() const
 }
 
 
-bool TesselatedMesh::render( PrimList & prim, const RenderContext & rc )
+bool TesselatedMesh::render( PrimList & prim, RenderContext & rc )
 {
   tesselate( rc.getViewState() );
 

@@ -103,7 +103,7 @@ namespace anatomist
 
 template<int D>
 bool ASurface<D>::render( anatomist::PrimList& primitiveList,
-                                   const anatomist::RenderContext& rc )
+                                   anatomist::RenderContext& rc )
 {
 	return anatomist::AObject::render( primitiveList, rc );
 }

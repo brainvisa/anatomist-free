@@ -119,7 +119,7 @@ bool TransformedObject::renderingIsObserverDependent() const
 }
 
 
-bool TransformedObject::render( PrimList & pl, const RenderContext & rc )
+bool TransformedObject::render( PrimList & pl, RenderContext & rc )
 {
   // change transformation matrices
   setupTransforms( pl, rc.getViewState() );

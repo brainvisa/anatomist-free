@@ -111,7 +111,7 @@ void GLMObject::glSetChanged( GLComponent::glPart part, bool x ) const
 }
 
 
-bool GLMObject::render( PrimList & prim, const RenderContext & rc )
+bool GLMObject::render( PrimList & prim, RenderContext & rc )
 {
   bool x = AObject::render( prim, rc );
   glClearHasChangedFlags();

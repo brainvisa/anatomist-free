@@ -450,7 +450,7 @@ void VectorField::glAfterBodyGLL( const ViewState &,
 
 
 //--------------------------------------------------------------
-bool VectorField::render( PrimList & prim, const RenderContext & rc )
+bool VectorField::render( PrimList & prim, RenderContext & rc )
 {
   buildMesh( rc.getViewState() );
 

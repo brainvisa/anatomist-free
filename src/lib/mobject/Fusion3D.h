@@ -85,7 +85,7 @@ namespace anatomist
 
     virtual bool CanRemove( AObject* obj );
 
-    virtual bool render( PrimList &, const RenderContext & );
+    virtual bool render( PrimList &, RenderContext & );
     virtual bool Is2DObject();
     virtual bool Is3DObject() { return true; }
 

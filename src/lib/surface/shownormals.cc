@@ -163,7 +163,7 @@ void ANormalsMesh::setLength( float length )
 }
 
 
-bool ANormalsMesh::render( PrimList & plist, const RenderContext & rc )
+bool ANormalsMesh::render( PrimList & plist, RenderContext & rc )
 {
   vector<ASurface<3> *>::iterator io, eo = _ameshes.end();
   for( io=_ameshes.begin(); io!=eo; ++io )

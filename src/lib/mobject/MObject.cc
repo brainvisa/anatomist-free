@@ -178,7 +178,7 @@ void MObject::clearHasChangedFlags() const
 }
 
 
-bool MObject::render( PrimList & prim, const RenderContext & rc )
+bool MObject::render( PrimList & prim, RenderContext & rc )
 {
   bool retcode = false;
 

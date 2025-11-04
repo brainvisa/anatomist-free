@@ -57,7 +57,7 @@ namespace anatomist
     void setLength( float length );
     float length() const { return _length; }
 
-    virtual bool render( PrimList & plist, const anatomist::RenderContext & vs );
+    virtual bool render( PrimList & plist, anatomist::RenderContext & vs );
     virtual void update( const Observable* observable, void* arg );
     virtual ObjectMenu* optionMenu() const;
     virtual Tree* optionTree() const;

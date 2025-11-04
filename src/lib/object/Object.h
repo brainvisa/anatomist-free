@@ -210,7 +210,7 @@ namespace anatomist
         Calls GLComponent API ig glAPI() is not null, otherwise nothing is
         done and this method should be overloaded.
     */
-    virtual bool render( PrimList &, const RenderContext & );
+    virtual bool render( PrimList &, RenderContext & );
     /// Returns at least 4 sizes. For 3D objects, returns (1, 1, 1, 1)
     virtual std::vector<float> voxelSize() const;
     virtual void setVoxelSize( const std::vector<float> & ) {}

@@ -69,7 +69,7 @@ namespace anatomist
     virtual void UpdateMinAndMax();
 
     virtual bool render( anatomist::PrimList& primitiveList,
-                                   const RenderContext& rc );
+                                   RenderContext& rc );
     virtual bool glMakeBodyGLL( const anatomist::ViewState& viewState,
                                      const anatomist::GLList& glList ) const;
 

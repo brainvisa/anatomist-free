@@ -628,7 +628,7 @@ namespace
 }
 
 
-bool Fusion2D::render( PrimList & prim, const RenderContext & rc )
+bool Fusion2D::render( PrimList & prim, RenderContext & rc )
 {
   return AObject::render( prim, rc );
 }

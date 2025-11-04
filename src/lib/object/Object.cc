@@ -271,7 +271,7 @@ void AObject::unregisterWindow(AWindow *window)
 }
 
 
-bool AObject::render( PrimList & prim, const RenderContext & rc )
+bool AObject::render( PrimList & prim, RenderContext & rc )
 {
   GLComponent *gl = glAPI();
   if( gl )

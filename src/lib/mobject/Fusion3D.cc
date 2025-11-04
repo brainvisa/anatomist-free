@@ -356,7 +356,7 @@ void Fusion3D::refreshVTexture( const ViewState & s ) const
 }
 
 
-bool Fusion3D::render( PrimList & prim, const RenderContext & rc )
+bool Fusion3D::render( PrimList & prim, RenderContext & rc )
 {
   theAnatomist->setCursor( Anatomist::Working );
   bool x = GLObjectVector::render( prim, rc );

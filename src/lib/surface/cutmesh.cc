@@ -545,7 +545,7 @@ AObject* CutMesh::planarFusion()
 }
 
 
-bool CutMesh::render( PrimList & prim, const RenderContext & rc )
+bool CutMesh::render( PrimList & prim, RenderContext & rc )
 {
 //   cout << "CutMesh::render, this: " << this << endl;
   /* ATriangulated	*cm = (ATriangulated *) cutMesh();

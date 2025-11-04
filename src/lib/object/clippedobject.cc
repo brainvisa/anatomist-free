@@ -137,7 +137,7 @@ int ClippedObject::clipID() const
 }
 
 
-bool ClippedObject::render( PrimList & prim,const RenderContext & rc )
+bool ClippedObject::render( PrimList & prim,RenderContext & rc )
 {
   // cout << "ClippedObject::render " << quaternion().vector() << endl;
   /* always use a SliceViewState since the underlying object may need
