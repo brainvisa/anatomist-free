@@ -7,6 +7,11 @@
 #include <anatomist/surface/glcomponent.h>
 #include <anatomist/primitive/primitive.h>
 #include <anatomist/misc/error.h>
+#include <anatomist/color/Light.h>
+#include <anatomist/window3D/cursor.h>
+#include <anatomist/reference/Referential.h>
+
+#include <aims/resampling/quaternion.h>
 
 
 
@@ -23,7 +28,7 @@ struct RenderContext::Private
 
   AWindow3D* window;
   GLWidgetManager * glwman;
-  carto::rc_ptr<PrimList> primitives;
+  PrimList primitives;
   dynamicShaderBuilder shaderBuilder;
   std::map<std::string, carto::rc_ptr<QOpenGLShaderProgram>> programs;
   carto::rc_ptr<QOpenGLShaderProgram> currentProgram;
@@ -35,13 +40,12 @@ struct RenderContext::Private
 RenderContext::Private::Private(AWindow3D* win, GLWidgetManager* widgetManager) : 
 window(win), glwman(widgetManager), currentProgram(nullptr)
 {
-  primitives.reset( new PrimList );
 }
 
 RenderContext::Private::~Private()
 {
   glwman = nullptr;
-  primitives.reset();
+  primitives.clear();
   programs.clear();
   currentProgram.reset();
   opaqueDrawables.clear();
@@ -51,6 +55,10 @@ RenderContext::Private::~Private()
 RenderContext::RenderContext(AWindow3D* window, GLWidgetManager* widgetManager)
 {
   d = new Private(window, widgetManager);
+  shaderMapping::initShaderMapping();
+  GLuint localGLL = glGenLists(2);
+  setupClippingPlanes(localGLL);
+
 }
 
 RenderContext::~RenderContext()
@@ -59,44 +67,52 @@ RenderContext::~RenderContext()
   delete d;
 }
 
-carto::rc_ptr<PrimList> RenderContext::renderObjects( const std::list<carto::shared_ptr<AObject>> & objs)
+bool RenderContext::renderObjects( const std::list<carto::shared_ptr<AObject>> & objs)
 {
+  bool success = false;
+  std::vector<float> bbmin, bbmax;
+  d->glwman->qglWidget()->makeCurrent();
+  setupOpenGLState();
   d->opaqueDrawables.clear();
   d->transparentDrawables.clear();
-
   retrieveShaders(objs);
+  cursorGLL();
   shaderBuilding();
 
   if(!d->opaqueDrawables.empty())
-    renderObject(false);
+    success |= renderObject(false);
 
   if(!d->transparentDrawables.empty())
   {
     if(!d->glwman->useDepthPeeling())
     {
       setupTransparentObjects();
-      renderObject(true);
+      success |= renderObject(true);
       postTransparentRenderingSetup();
     }
     else
     {
-      renderObject(true);
+      success |= renderObject(true);
     }
   }
-  return d->primitives;
+
+  /*	Finish rendering mode operations: restore initial modes
+   and eventually performs a second rendering of all objects */
+  finalizeRendering();
+  return success;
 }
 
-void RenderContext::updateObject(carto::shared_ptr<AObject> obj, PrimList* pl,
-                                 ViewState::glSelectRenderMode selectmode)
+bool RenderContext::updateObject(carto::shared_ptr<AObject> obj, PrimList* pl,ViewState::glSelectRenderMode selectmode)
 {
+  bool success = false;
   unsigned l1=0, l2;
   if(pl)
     l1 = pl->size();
   else
-    l1 = d->primitives->size();
+    l1 = d->primitives.size();
 
   GLPrimitives gp;
-  if(!pl) pl = d->primitives.get();
+  if(!pl) pl = &d->primitives;
   if(!obj->Is2DObject() || (d->window->viewType() == AWindow3D::ThreeD && obj->Is3DObject()))
   {
     d->vs.reset(new ViewState(d->window->getTimes(), d->window, selectmode));
@@ -107,7 +123,7 @@ void RenderContext::updateObject(carto::shared_ptr<AObject> obj, PrimList* pl,
                       d->window->getReferential(), d->window->windowGeometry(), &d->glwman->quaternion(), d->window, selectmode));
   }
 
-  obj->render(*pl, *this);
+  success |= obj->render(*pl, *this);
 
   auto objModifiers = d->window->getModifiers();
   std::list<AWindow3D::ObjectModifier *>::iterator im, em = objModifiers.end();
@@ -121,25 +137,24 @@ void RenderContext::updateObject(carto::shared_ptr<AObject> obj, PrimList* pl,
   }
   else
   {
-    d->primitives->insert(d->primitives->end(), gp.begin(), gp.end());
-    l2 = d->primitives->size();
+    d->primitives.insert(d->primitives.end(), gp.begin(), gp.end());
+    l2 = d->primitives.size();
   }
 
   //if(l2 > l1)
     //Jordan : tmpprims utile ?
+  
+  return success;
 
 }
 
-void RenderContext::renderObject(bool isTransparent)
+bool RenderContext::renderObject(bool isTransparent)
 {
+  bool success = false;
   const auto & drawables = isTransparent ? d->transparentDrawables : d->opaqueDrawables;
 
   for(const auto & [shader, objects] : drawables)
-  {
-    //std::cout << objects.size() << " objects to render with shader " << shader << std::endl;
-    //if(objects.empty()) {std::cout << "RenderContext::renderObject: empty object list for shader " << shader << std::endl; continue;}
-    //if(!objects.front()) {std::cout << "RenderContext::renderObject: null object in list for shader " << shader << std::endl; continue;}
-      
+  { 
     switchShaderProgram(d->programs[shader]);
 
     auto shaderModules = getEffectiveShaderModules(objects.front()->glAPI()->getShaderModuleIDs());
@@ -149,15 +164,16 @@ void RenderContext::renderObject(bool isTransparent)
       for(const auto & module : shaderModules)
       {
         if(i==0)
-          d->primitives->push_back(carto::rc_ptr<GLItem>(new GLSceneUniforms(module, d->currentProgram, d->glwman))); // Jordan : segfaulting why ?
-        d->primitives->push_back(carto::rc_ptr<GLItem>(new GLObjectUniforms(module, d->currentProgram, glObj)));
+          d->primitives.push_back(carto::rc_ptr<GLItem>(new GLSceneUniforms(module, d->currentProgram, d->glwman))); // Jordan : segfaulting why ?
+        d->primitives.push_back(carto::rc_ptr<GLItem>(new GLObjectUniforms(module, d->currentProgram, glObj)));
       }
 
       // update Object
-      updateObject(objects[i]);
+      success |= updateObject(objects[i]);
     }
   }
   d->currentProgram = carto::rc_ptr<QOpenGLShaderProgram>();
+  return success;
 }
 
 void RenderContext::retrieveShaders(const std::list<carto::shared_ptr<AObject>> & objs)
@@ -209,7 +225,7 @@ void RenderContext::switchShaderProgram( carto::rc_ptr<QOpenGLShaderProgram> pro
     return;
 
   d->currentProgram = program;
-  d->primitives->push_back(carto::rc_ptr<GLItem>(new GLBindShader(program)));
+  d->primitives.push_back(carto::rc_ptr<GLItem>(new GLBindShader(program)));
 }
 
 void RenderContext::setupTransparentObjects()
@@ -228,7 +244,7 @@ void RenderContext::setupTransparentObjects()
   glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
   glDepthMask(GL_TRUE);
   glEndList();
-  d->primitives->push_back(RefGLItem(renderpr));
+  d->primitives.push_back(RefGLItem(renderpr));
 }
 
 void RenderContext::postTransparentRenderingSetup()
@@ -246,7 +262,7 @@ void RenderContext::postTransparentRenderingSetup()
   glDisable( GL_BLEND );
   glDepthMask(GL_TRUE);
   glEndList();
-  d->primitives->push_back(RefGLItem(renderpr));
+  d->primitives.push_back(RefGLItem(renderpr));
 }
 
 std::vector<carto::rc_ptr<IShaderModule>> RenderContext::getEffectiveShaderModules(const std::string& shaderID)
@@ -260,6 +276,112 @@ std::vector<carto::rc_ptr<IShaderModule>> RenderContext::getEffectiveShaderModul
   return modules;
 }
 
+void RenderContext::setupClippingPlanes(GLuint localGLL)
+{
+  Primitive *pr = new Primitive;
+  if (!localGLL) AWarning("renderContext::setupClippingPlanes: OpenGL error.");
+
+  glNewList(localGLL, GL_COMPILE);
+  glDisable( GL_BLEND);
+  GLdouble plane[4];
+  Point3df dir = d->window->sliceQuaternion().transformInverse( Point3df(0, 0, -1) );
+  plane[0] = dir[0];
+  plane[1] = dir[1];
+  plane[2] = dir[2];
+  plane[3] = -dir.dot(d->window->getPosition()) + d->window->clipDistance();
+
+  switch (d->window->clipMode())
+  {
+    case AWindow3D::Single:
+      glEnable( GL_CLIP_PLANE0);
+      glDisable( GL_CLIP_PLANE1);
+      glClipPlane(GL_CLIP_PLANE0, plane);
+      break;
+    case AWindow3D::Double:
+      glEnable(GL_CLIP_PLANE0);
+      glEnable(GL_CLIP_PLANE1);
+      glClipPlane(GL_CLIP_PLANE0, plane);
+      plane[0] *= -1;
+      plane[1] *= -1;
+      plane[2] *= -1;
+      plane[3] = dir.dot(d->window->getPosition()) + d->window->clipDistance();
+      glClipPlane(GL_CLIP_PLANE1, plane);
+      break;
+    default:
+      glDisable(GL_CLIP_PLANE0);
+      glDisable(GL_CLIP_PLANE1);
+      break;
+  }
+
+  glEndList();
+
+  pr->insertList(localGLL);
+  d->primitives.push_back(RefGLItem(pr));
+}
+
+void RenderContext::setupOpenGLState()
+{
+  GLList *renderpr = new GLList;
+  renderpr->generate();
+  GLuint renderGLL = renderpr->item();
+  if (!renderGLL) AWarning("AWindow3D::Refresh: OpenGL error.");
+
+  glNewList(renderGLL, GL_COMPILE);
+  glLineWidth(1);
+  d->window->flatShading() ? glShadeModel(GL_FLAT) : glShadeModel(GL_SMOOTH); //jordan : might be deleted ?
+  d->window->cullingEnabled() ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE);
+  if(d->window->smoothing())
+  {
+    glEnable( GL_LINE_SMOOTH);
+    glEnable( GL_POLYGON_SMOOTH);
+  }
+  else
+  {
+    glDisable( GL_LINE_SMOOTH);
+    glDisable( GL_POLYGON_SMOOTH);
+  }
+
+  glEnable( GL_LIGHTING);
+  glPolygonOffset(0, 0);
+  glDisable( GL_POLYGON_OFFSET_FILL);
+  if (d->window->fog())
+  {
+    glEnable( GL_FOG);
+    glFogi(GL_FOG_MODE, GL_EXP);
+    glFogf(GL_FOG_DENSITY, 0.01);
+    glFogfv(GL_FOG_COLOR, d->window->light()->Background());
+  }
+  else
+  {
+    glDisable( GL_FOG);
+  }
+
+    switch (d->window->renderingMode())
+  {
+    case AWindow3D::Wireframe:
+      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+      glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+      break;
+    case AWindow3D::HiddenWireframe:
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+      glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+      glPolygonOffset(1.05, 1);
+      glEnable(GL_POLYGON_OFFSET_FILL);
+      break;
+    case Material::Outlined:
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+      glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+      glPolygonOffset(1.05, 1);
+      glEnable(GL_POLYGON_OFFSET_FILL);
+    default:
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+      glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  }
+
+  glEndList();
+  d->primitives.push_back(RefGLItem(renderpr));
+}
+
 const ViewState& RenderContext::getViewState() const
 {
   return *d->vs;
@@ -268,4 +390,193 @@ const ViewState& RenderContext::getViewState() const
 void RenderContext::setViewState(carto::rc_ptr<ViewState> vs)
 {
   d->vs = vs;
+}
+
+void RenderContext::finalizeRendering()
+{
+  Primitive* renderoffpr = 0;
+  bool rendertwice = false;
+
+  switch (d->window->renderingMode())
+  {
+    case AWindow3D::HiddenWireframe:
+      renderoffpr = setupHiddenWireframeMode();
+      rendertwice = true;
+      break;
+    case Material::Outlined:
+      renderoffpr = setupOutlinedMode();
+      rendertwice = true;
+      break;
+    default:
+      break;
+  }
+
+  if (renderoffpr)
+  {
+    d->primitives.push_back(RefGLItem(renderoffpr));
+  }
+
+  if (rendertwice)
+  {
+    duplicateRenderPrimitives();
+  }
+
+  finalizeRenderingSettings();
+  d->glwman->updateGL();
+}
+
+Primitive* RenderContext::setupHiddenWireframeMode()
+{
+  Primitive *pr = new Primitive;
+  GLuint hwfGLL = glGenLists(1);
+  if (!hwfGLL)
+  {
+      std::cerr << "AWindow3D: not enough OGL memory.\n";
+      delete pr;
+      return nullptr;
+  }
+
+  glNewList(hwfGLL, GL_COMPILE);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  glEndList();
+
+  pr->insertList(hwfGLL);
+  return pr;
+}
+
+Primitive* RenderContext::setupOutlinedMode()
+{
+  Primitive *pr = new Primitive;
+  GLuint hwfGLL = glGenLists(1);
+  if (!hwfGLL)
+  {
+      std::cerr << "AWindow3D: not enough OGL memory.\n";
+      delete pr;
+      return nullptr;
+  }
+
+  glNewList(hwfGLL, GL_COMPILE);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  glDisable(GL_LIGHTING);
+  glEndList();
+
+  pr->insertList(hwfGLL);
+  return pr;
+}
+
+void RenderContext::duplicateRenderPrimitives()
+{
+  unsigned i, n = d->primitives.size() - 2;
+  PrimList::iterator ip = d->primitives.begin();
+  for (++ip, i = 0; i < n; ++i, ++ip)
+      d->primitives.push_back(*ip);
+}
+
+void RenderContext::finalizeRenderingSettings()
+{
+  d->glwman->setPrimitives(d->primitives);
+  d->primitives.clear();
+  if(d->window->light())
+  {
+    d->glwman->setLightGLList(d->window->light()->getGLList());
+    d->glwman->setBackgroundAlpha(d->window->light()->Background()[3]);
+  }
+  else
+  {
+    d->glwman->setBackgroundAlpha(1.0);
+  }
+}
+
+void RenderContext::cursorGLL() const
+{
+  GLPrimitives curspl;
+  if (d->window->hasCursor())
+  {
+    AObject *curs = Cursor::currentCursor();
+    if (curs)
+    {
+      GLComponent *gc = curs->glAPI();
+      if (gc)
+      {
+        //jordan shader
+        carto::rc_ptr<QOpenGLShaderProgram> program = d->shaderBuilder.initShader("", "main.vs.glsl", "noLightModel.fs.glsl");
+        d->primitives.push_back(carto::rc_ptr<GLItem>(new GLBindShader(program)));
+        d->primitives.push_back(carto::rc_ptr<GLItem>(new GLObjectUniforms(carto::rc_ptr<IShaderModule>(), program, gc)));
+
+        ViewState vs(0);
+        // cursor color
+        Material mat = curs->GetMaterial();
+        if (!d->window->useDefaultCursorColor())
+        {
+          AimsRGB rgb = d->window->cursorColor();
+          mat.SetDiffuse(((float) rgb[0]) / 255, ((float) rgb[1]) / 255,
+              ((float) rgb[2]) / 255, mat.Diffuse(3));
+        }
+        else
+          mat.SetDiffuse(224. / 255, 0, 0, mat.Diffuse(3));
+        curs->SetMaterial(mat);
+
+        curspl = gc->glMainGLL(vs);
+        if (!curspl.empty())
+        {
+          bool dr = d->window->getReferential() && d->window->getReferential()->isDirect();
+          Point3df pos = d->window->getPosition();
+          GLList *posl = new GLList;
+          posl->generate();
+          glNewList(posl->item(), GL_COMPILE);
+          GLfloat mat[16];
+          GLfloat scl = ((GLfloat) d->window->cursorSize()) / 20;
+
+          // write 4x4 matrix in column
+          mat[0] = scl;
+          mat[1] = 0;
+          mat[2] = 0;
+          mat[3] = 0;
+          mat[4] = 0;
+          mat[5] = scl;
+          mat[6] = 0;
+          mat[7] = 0;
+          mat[8] = 0;
+          mat[9] = 0;
+          mat[10] = scl;
+          mat[11] = 0;
+          mat[12] = pos[0];
+          mat[13] = pos[1];
+          mat[14] = pos[2];
+          mat[15] = 1;
+
+          if (dr) glFrontFace( GL_CCW);
+          glMatrixMode( GL_MODELVIEW);
+          glPushMatrix();
+          glMultMatrixf(mat);
+          glPushAttrib(GL_LIGHTING_BIT | GL_LINE_BIT | GL_CURRENT_BIT
+              | GL_DEPTH_BUFFER_BIT);
+          //glDepthMask( GL_FALSE ); // don't write cursor in z-buffer
+          glEndList();
+
+          curspl.insert(curspl.begin(), RefGLItem(posl));
+
+          posl = new GLList;
+          posl->generate();
+          glNewList(posl->item(), GL_COMPILE);
+          glPopAttrib();
+          glMatrixMode(GL_MODELVIEW);
+          glPopMatrix();
+          if (dr) glFrontFace( GL_CW);
+          glEndList();
+          curspl.push_back(RefGLItem(posl));
+
+          GLPrimitives::iterator i, e = curspl.end();
+          for (i = curspl.begin(); i != e; ++i)
+            (*i)->setGhost(true);
+
+          d->primitives.insert(d->primitives.end(), curspl.begin(),
+              curspl.end());
+        }
+        d->primitives.push_back(carto::rc_ptr<GLItem>(new GLReleaseShader(program)));
+      }
+    }
+  }
 }

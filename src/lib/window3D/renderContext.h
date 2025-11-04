@@ -54,12 +54,13 @@ namespace anatomist
     *   depth peeling, depending on the OpenGL settings.
     *
     * \param objs List of objects to render.
-    * \return A shared list of primitives ready for execution.
+    * \return Boolean to know if the rendering succeed or not.
     */
-      carto::rc_ptr<anatomist::PrimList> renderObjects( const std::list<carto::shared_ptr<anatomist::AObject>> & objs);
+      bool renderObjects( const std::list<carto::shared_ptr<anatomist::AObject>> & objs);
 
       const anatomist::ViewState& getViewState() const ;
       void setViewState(carto::rc_ptr<anatomist::ViewState> vs);
+      void setupClippingPlanes(GLuint localGLL);
 
     private:
       /**
@@ -73,7 +74,7 @@ namespace anatomist
       * \param pl Optional primitive list to append to. If null, uses the internal list.
       * \param selectmode The OpenGL render mode (normal, selection, etc.).
       */
-      void updateObject(carto::shared_ptr<anatomist::AObject> obj, anatomist::PrimList* pl=0, anatomist::ViewState::glSelectRenderMode selectmode
+      bool updateObject(carto::shared_ptr<anatomist::AObject> obj, anatomist::PrimList* pl=0, anatomist::ViewState::glSelectRenderMode selectmode
                           = anatomist::ViewState::glSELECTRENDER_NONE);
       /**
       * \brief Renders all objects of a given group (opaque or transparent).
@@ -88,7 +89,7 @@ namespace anatomist
       *
       * \param isTransparent True if rendering the transparent group.
       */
-      void renderObject(bool isTransparent);
+      bool renderObject(bool isTransparent);
 
       /**
       * \brief Sorts objects by shader type and transparency.
@@ -148,6 +149,15 @@ namespace anatomist
       * \return List of GLSL modules combined for the shader.
       */
       std::vector<carto::rc_ptr<anatomist::IShaderModule>> getEffectiveShaderModules(const std::string& shaderID);
+
+      void setupOpenGLState();
+      void finalizeRendering();
+      void finalizeRenderingSettings();
+      anatomist::Primitive* setupHiddenWireframeMode();
+      anatomist::Primitive* setupOutlinedMode();
+      void duplicateRenderPrimitives();
+      void cursorGLL() const;
+      
 
       struct Private;
       Private * d;
