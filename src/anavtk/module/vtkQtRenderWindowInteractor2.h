@@ -120,13 +120,6 @@ class VTK_QT_EXPORT vtkQtRenderWindowInteractor2 : public QGLWidget, virtual pub
   virtual void focusInEvent(QFocusEvent*){};
   virtual void focusOutEvent(QFocusEvent*){};
 
-#if defined( Q_WS_X11 ) && QT_VERSION < 0x050000 // || defined( Q_OS_LINUX )
-  int GetDesiredDepth();
-  Colormap GetDesiredColormap();
-  Visual *GetDesiredVisual();
-#endif
-
-
   int    UpdateRenderWindow;
   
     
@@ -149,10 +142,6 @@ class VTK_QT_EXPORT vtkQtRenderWindowInteractor2 : public QGLWidget, virtual pub
   
   QTimer qTimer;
   long   Handle;
-
-#if defined (Q_WS_MAC) && QT_VERSION < 0x040000
-  void macFixRect(void);
-#endif
   
 };
 

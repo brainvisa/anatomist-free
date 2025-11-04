@@ -64,9 +64,7 @@
 #include <qtoolbar.h>
 #include <QDrag>
 #include <QStatusBar>
-#if QT_VERSION >= 0x040600
 #include <QPinchGesture>
-#endif
 #include <stdlib.h>
 
 #include <anatomist/window/glwidget.h>

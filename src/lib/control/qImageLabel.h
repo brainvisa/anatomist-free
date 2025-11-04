@@ -54,18 +54,12 @@ public:
   void installImage();
 
 public slots:
-  //#if QT_VERSION >= 0x040000
-  // void movieStatusChanged( QMovie::MovieState );
-  //#else
-  void movieStatusChanged( int );
-  //#endif
+  // void movieStatusChanged( int );
   void removeTip();
 
 protected:
   virtual void mousePressEvent( QMouseEvent* e );
-#if QT_VERSION >= 0x040000
   virtual bool event( QEvent* e );
-#endif
 
 private:
   QImageLabel_privateData	*_privdata;

@@ -410,7 +410,6 @@ namespace anatomist
   };
 
 
-#if QT_VERSION >= 0x040600
   class PinchZoomAction : public Action
   {
   public:
@@ -428,7 +427,6 @@ namespace anatomist
     struct Private;
     Private *d;
   };
-#endif
 
 }
 
