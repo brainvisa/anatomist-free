@@ -41,14 +41,12 @@
 #include <qtimer.h>
 #include <qlabel.h>
 #include <qlayout.h>
-#if QT_VERSION >= 0x040600
 #include <QGestureEvent>
 #include <QPinchGesture>
 #include <QPanGesture>
 #include <QTapGesture>
 #include <QTapAndHoldGesture>
 #include <math.h>
-#endif
 #include <qwidget.h>
 #include <qapplication.h>
 #include <iostream>
@@ -389,6 +387,8 @@ struct Control::Private
   // so we record it to substract to later ones
   QPoint last_pan_pos;
   QPoint last_pan_gpos;
+
+  set<string> inhibitedActions;
 };
 
 //------------------------------------------------------------
@@ -786,7 +786,6 @@ void Control::selectionChangedEvent()
 }
 
 
-#if QT_VERSION >= 0x040600
 void Control::gestureEvent( QGestureEvent * event )
 {
   // cout << "Gesture event\n";
@@ -1188,8 +1187,6 @@ bool Control::tapAndHoldGesture( QTapAndHoldGesture *gesture )
 
   return false;
 }
-
-#endif // Qt >= 4.6
 
 
 namespace
@@ -2518,6 +2515,21 @@ set<string> Control::mouseMoveActionLinkNames() const
     names.insert( in->first );
 
   return names;
+}
+
+
+const set<string> & Control::inhibitedActions() const
+{
+  return d->inhibitedActions;
+}
+
+
+void Control::inhibitAction( const string & action, bool inhibit )
+{
+  if( inhibit )
+    d->inhibitedActions.insert( action );
+  else
+    d->inhibitedActions.erase( action );
 }
 
 
