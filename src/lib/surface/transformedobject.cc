@@ -127,8 +127,10 @@ bool TransformedObject::render( PrimList & pl, RenderContext & rc )
   // render sub-objects
   bool res = false;
   iterator io, eo = end();
+  list<carto::shared_ptr<AObject>> ptr_rendered;
   for( io=begin(); io!=eo; ++io )
-    res |= (*io)->render( pl, rc);
+    ptr_rendered.push_back( carto::rc_ptr<AObject>( *io ) );
+  res = rc.renderObjects( ptr_rendered );
 
   // pop matrixes
   popTransformationMatrixes( pl );

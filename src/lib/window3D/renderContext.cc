@@ -73,8 +73,7 @@ bool RenderContext::renderObjects( const std::list<carto::shared_ptr<AObject>> &
   std::vector<float> bbmin, bbmax;
   d->glwman->qglWidget()->makeCurrent();
   setupOpenGLState();
-  d->opaqueDrawables.clear();
-  d->transparentDrawables.clear();
+
   retrieveShaders(objs);
   cursorGLL();
   shaderBuilding();
@@ -99,6 +98,8 @@ bool RenderContext::renderObjects( const std::list<carto::shared_ptr<AObject>> &
   /*	Finish rendering mode operations: restore initial modes
    and eventually performs a second rendering of all objects */
   finalizeRendering();
+  d->opaqueDrawables.clear();
+  d->transparentDrawables.clear();
   return success;
 }
 

@@ -166,8 +166,11 @@ void ANormalsMesh::setLength( float length )
 bool ANormalsMesh::render( PrimList & plist, RenderContext & rc )
 {
   vector<ASurface<3> *>::iterator io, eo = _ameshes.end();
-  for( io=_ameshes.begin(); io!=eo; ++io )
-    (*io)->render( plist, rc );
+  list<carto::shared_ptr<AObject>> ptr_rendered;
+  for(auto obj : _ameshes)
+    ptr_rendered.push_back(carto::rc_ptr<AObject>(obj));
+  rc.renderObjects( ptr_rendered );
+  
   normalMesh()->render( plist, rc );
   return true;
 }

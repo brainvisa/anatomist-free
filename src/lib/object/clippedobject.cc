@@ -173,13 +173,13 @@ bool ClippedObject::render( PrimList & prim,RenderContext & rc )
     --ip;
   bool hasrendered = false;
   iterator i, e = end();
+  std::list<carto::shared_ptr<AObject>> ptr_rendered;
 
   for( i=begin(); i!=e; ++i )
   {
-    AObject* obj = *i;
-    if( obj->render( prim, rc ) )
-      hasrendered = true;
+    ptr_rendered.push_back( carto::rc_ptr<AObject>( *i ) );
   }
+  hasrendered = rc.renderObjects( ptr_rendered );
   if( hasrendered )
   {
     // clipping

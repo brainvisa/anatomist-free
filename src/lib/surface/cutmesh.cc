@@ -551,7 +551,7 @@ bool CutMesh::render( PrimList & prim, RenderContext & rc )
   /* ATriangulated	*cm = (ATriangulated *) cutMesh();
   cout << "cutmesh: " << cm->glNumVertex( state ) << " vertices, "
     << cm->glNumPolygon( state ) << " polygons\n"; */
-
+  
   if( d->meshchanged )
     updateCut();
 
