@@ -620,14 +620,12 @@ namespace anatomist {
     virtual void hideEvent ( QHideEvent * event );
     virtual void selectionChangedEvent();
     //virtual void customEvent ( QCustomEvent * );
-#if QT_VERSION >= 0x040600
     virtual void gestureEvent( QGestureEvent * event );
     virtual bool pinchGesture( QPinchGesture * gesture );
     virtual bool panGesture( QPanGesture * gesture );
     virtual bool tapGesture( QTapGesture* gesture );
     virtual bool tapAndHoldGesture( QTapAndHoldGesture* gesture );
     virtual bool swipeGesture( QSwipeGesture* gesture );
-#endif
 
     bool keyPressEventSubscribe( int key,
                                  Qt::KeyboardModifiers buttonState,
@@ -845,6 +843,9 @@ namespace anatomist {
     std::set<std::string> mouseReleaseActionLinkNames() const;
     std::set<std::string> mouseDoubleClickActionLinkNames() const;
     std::set<std::string> mouseMoveActionLinkNames() const;
+
+    void inhibitAction( const std::string & action, bool inhibit );
+    const std::set<std::string> & inhibitedActions() const;
 
   protected :
     std::map<std::string, anatomist::ActionPtr> myActions;

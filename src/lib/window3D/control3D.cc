@@ -64,9 +64,7 @@
 #include <qtoolbar.h>
 #include <QDrag>
 #include <QStatusBar>
-#if QT_VERSION >= 0x040600
 #include <QPinchGesture>
-#endif
 #include <stdlib.h>
 
 #include <anatomist/window/glwidget.h>
@@ -266,8 +264,6 @@ void Control3D::eventAutoSubscription( ActionPool * actionPool )
       ( actionPool->action( "Translate3DAction" ),
         &Translate3DAction::endTranslate ), true );
 
-#if QT_VERSION >= 0x040600
-
   // pinch
   pinchEventSubscribe(
     PinchActionLinkOf<PinchZoomAction>( actionPool->action(
@@ -278,8 +274,6 @@ void Control3D::eventAutoSubscription( ActionPool * actionPool )
       "PinchZoomAction" ), &PinchZoomAction::pinchStop ),
     PinchActionLinkOf<PinchZoomAction>( actionPool->action(
       "PinchZoomAction" ), &PinchZoomAction::pinchStop ) );
-
-#endif
 
   // Slice action
   keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoModifier,
@@ -572,8 +566,6 @@ void Select3DControl::eventAutoSubscription( ActionPool * actionPool )
                        ( actionPool->action( "Zoom3DAction" ),
                          &Zoom3DAction::zoomWheel ) );
 
-#if QT_VERSION >= 0x040600
-
   // pinch
   pinchEventSubscribe(
     PinchActionLinkOf<PinchZoomAction>( actionPool->action(
@@ -584,8 +576,6 @@ void Select3DControl::eventAutoSubscription( ActionPool * actionPool )
       "PinchZoomAction" ), &PinchZoomAction::pinchStop ),
     PinchActionLinkOf<PinchZoomAction>( actionPool->action(
       "PinchZoomAction" ), &PinchZoomAction::pinchStop ) );
-
-#endif
 
   //  translation
 
@@ -2989,9 +2979,6 @@ void ObjectStatAction::displayStat()
 
 // ------
 
-
-#if QT_VERSION >= 0x040600
-
 struct PinchZoomAction::Private
 {
   Private() : orgzoom( 1. ), organgle( 0. ), orgscale( 1. ),
@@ -3049,17 +3036,18 @@ void PinchZoomAction::pinchStart( QPinchGesture *gesture )
   // d->current_trans = QPointF( 0., 0. );
   d->current_trans = gesture->centerPoint();
   d->count = 0;
+  w->controlSwitch()->activeControlInstance()->inhibitAction( "trackball",
+                                                              true );
 }
 
 
 void PinchZoomAction::pinchMove( QPinchGesture *gesture )
 {
-  /*
-  cout << "PinchZoomAction move\n";
+  /* cout << "PinchZoomAction move\n";
   cout << "scale: " << gesture->totalScaleFactor() << endl;
   cout << "angle: " << gesture->totalRotationAngle() << endl;
+  cout << "diff: " << ( gesture->centerPoint() - gesture->startCenterPoint() ).x() << ", " << ( gesture->centerPoint() - gesture->startCenterPoint() ).y() << endl;
   */
-//   cout << "diff: " << gesture->centerPoint() - gesture->startCenterPoint() << endl;
 
   // skip first events to wait stabilization
   // (some devices send hazardous values at the beginning)
@@ -3093,6 +3081,11 @@ void PinchZoomAction::pinchMove( QPinchGesture *gesture )
     angle = d->current_angle - d->max_angle_diff;
   d->current_angle = angle;
   angle = angle / 180. * M_PI;
+  if( angle < -M_PI )
+    angle += M_PI * 2;
+  if( angle > M_PI )
+    angle -= M_PI * 2;
+  // cout << "cur_angle: " << angle << endl;
 
   GLWidgetManager* w = dynamic_cast<GLWidgetManager *>( view() );
 
@@ -3113,7 +3106,7 @@ void PinchZoomAction::pinchMove( QPinchGesture *gesture )
     Point3df p = q.transform( Point3df( 0, 0, -zfac2 ) );
     float fac = w->invertedZ() ? -1 : 1;
     p[2] = fac * p[2];        // invert Z axis
-    //cout << "avance : " << p << endl;
+    // cout << "avance : " << p << endl;
     w->setRotationCenter( w->rotationCenter() + p );
   }
   else
@@ -3149,6 +3142,8 @@ void PinchZoomAction::pinchMove( QPinchGesture *gesture )
 void PinchZoomAction::pinchStop( QPinchGesture *gesture )
 {
   // cout << "PinchZoomAction stop\n";
+  view()->controlSwitch()->activeControlInstance()->inhibitAction(
+    "trackball", false );
 }
 
 
@@ -3157,8 +3152,6 @@ Action* PinchZoomAction::creator()
   return new PinchZoomAction;
 }
 
-
-#endif
 
 // ------
 

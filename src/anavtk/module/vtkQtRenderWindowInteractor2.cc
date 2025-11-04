@@ -96,11 +96,7 @@ void vtkQtRenderWindowInteractor2::InitRenderWindowInteractor()
   this->Handle = 0;
   this->UpdateRenderWindow = 1;
 
-#if QT_VERSION < 0x040000
-  setFocusPolicy(QWidget::WheelFocus);
-#else
   setFocusPolicy(Qt::WheelFocus);
-#endif
 
   vtkInteractorStyleSwitch* tb = vtkInteractorStyleSwitch::New();
   tb->SetCurrentStyleToTrackballCamera ();
@@ -524,18 +520,6 @@ void vtkQtRenderWindowInteractor2::wheelEvent(QWheelEvent *e)
   {
     this->InvokeEvent(vtkCommand::MouseWheelBackwardEvent, e);
   }
-}
-
-
-#if defined( Q_WS_X11 ) && QT_VERSION < 0x050000 // || defined( Q_OS_LINUX )
-
-int vtkQtRenderWindowInteractor2::GetDesiredDepth()
-{
-#if QT_VERSION >= 0x050000
-  return QApplication::primaryScreen()->depth();
-#else
-  return QX11Info::appDepth();
-#endif
 }
 
 

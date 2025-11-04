@@ -935,7 +935,6 @@ ControlSwitch::selectionChangedEvent()
 }
 
 
-#if QT_VERSION >= 0x040600
 void
 ControlSwitch::gestureEvent( QGestureEvent *event )
 {
@@ -950,7 +949,6 @@ ControlSwitch::gestureEvent( QGestureEvent *event )
     found->second->gestureEvent( event );
   }
 }
-#endif
 
 
 void 

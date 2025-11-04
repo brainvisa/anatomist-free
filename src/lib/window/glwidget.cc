@@ -60,13 +60,11 @@ QAGLWidget::QAGLWidget( anatomist::AWindow* win, QWidget* parent,
     _paintDone( false )
 #endif
 {
-#if QT_VERSION >= 0x040600
   grabGesture( Qt::PinchGesture );
   grabGesture( Qt::PanGesture );
   grabGesture( Qt::SwipeGesture );
   grabGesture( Qt::TapGesture );
   grabGesture( Qt::TapAndHoldGesture );
-#endif
   setObjectName( name );
 
 //   cout << "UpdateBehavior: " << updateBehavior() << endl;

@@ -260,9 +260,6 @@ ReferentialWindow::ReferentialWindow( QWidget* parent, const char* name,
   resize( 500, 400 );
   pdat->view2d->setPixmap( QPixmap( width(), height() ) );
   pdat->tooltip = new RefToolTip( this );
-#if QT_VERSION < 0x050000
-  setAttribute( Qt::WA_PaintOutsidePaintEvent );
-#endif
   // switch directly to the 3D view
   set3DView();
 }
