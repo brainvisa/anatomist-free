@@ -736,9 +736,6 @@ namespace anatomist {
                             const PanActionLink & moveMethod,
                             const PanActionLink & stopMethod,
                             const PanActionLink & cancelMethod );
-    bool touchEventSubscribe( const TouchActionLink & startMethod,
-                              const TouchActionLink & moveMethod,
-                              const TouchActionLink & stopMethod );
     bool swipeEventSubscribe( const SwipeActionLink & startMethod,
                               const SwipeActionLink & moveMethod,
                               const SwipeActionLink & stopMethod,
@@ -751,6 +748,10 @@ namespace anatomist {
                                    const TapAndHoldActionLink & moveMethod,
                                    const TapAndHoldActionLink & stopMethod,
                                    const TapAndHoldActionLink & cancelMethod );
+    bool touchEventSubscribe( Qt::KeyboardModifiers state,
+                              const TouchActionLink & startMethod,
+                              const TouchActionLink & moveMethod,
+                              const TouchActionLink & stopMethod );
 
     /// obsolete, use the other one
     bool keyPressEventUnsubscribe( int key,
@@ -848,7 +849,7 @@ namespace anatomist {
     bool swipeEventUnsubscribe();
     bool tapEventUnsubscribe();
     bool tapAndHoldEventUnsubscribe();
-    bool touchEventUnsubscribe();
+    bool touchEventUnsubscribe( Qt::KeyboardModifiers state );
 
     //   static bool controlFusion( const Control& control1, const Control& control2,
     //                           Control& controlsFusion );

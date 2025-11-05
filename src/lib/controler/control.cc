@@ -51,6 +51,7 @@
 #include <qapplication.h>
 #include <iostream>
 #include <typeinfo>
+#include <tuple>
 #include <time.h>
 
 using namespace anatomist;
@@ -336,8 +337,7 @@ struct Control::Private
       myTapStartAction(0), myTapMoveAction(0), myTapStopAction(0),
       myTapCancelAction(0), myTapAndHoldStartAction(0),
       myTapAndHoldMoveAction(0), myTapAndHoldStopAction(0),
-      myTapAndHoldCancelAction(0), myTouchStartAction( 0 ), myTouchMoveAction( 0 ),
-      myTouchStopAction( 0 ),
+      myTapAndHoldCancelAction(0),
       doing_pan( false ), doing_pinch( false ), pinch_scale( 1. ), clock( 0 )
   {}
   ~Private()
@@ -362,9 +362,13 @@ struct Control::Private
     delete myTapAndHoldMoveAction;
     delete myTapAndHoldStopAction;
     delete myTapAndHoldCancelAction;
-    delete myTouchStartAction;
-    delete myTouchMoveAction;
-    delete myTouchStopAction;
+
+    for( auto it : myTouchActions )
+    {
+      delete get<0>( it.second );
+      delete get<1>( it.second );
+      delete get<2>( it.second );
+    }
   }
 
   Control::PinchActionLink* myPinchStartAction;
@@ -387,10 +391,8 @@ struct Control::Private
   Control::TapAndHoldActionLink* myTapAndHoldMoveAction;
   Control::TapAndHoldActionLink* myTapAndHoldStopAction;
   Control::TapAndHoldActionLink* myTapAndHoldCancelAction;
-  Control::TouchActionLink* myTouchStartAction;
-  Control::TouchActionLink* myTouchMoveAction;
-  Control::TouchActionLink* myTouchStopAction;
-
+  map<Qt::KeyboardModifiers,
+      tuple<TouchActionLink*, TouchActionLink*, TouchActionLink*> > myTouchActions;
   bool doing_pan;
   bool doing_pinch;
   float pinch_scale;
@@ -402,6 +404,7 @@ struct Control::Private
   set<string> inhibitedActions;
 
   double clock;
+  Qt::KeyboardModifiers myCurrentTouch;
 };
 
 //------------------------------------------------------------
@@ -806,17 +809,30 @@ void Control::touchEvent( QTouchEvent * event )
   switch( event->type() )
   {
     case QEvent::TouchBegin:
-      if( d->myTouchStartAction )
-        d->myTouchStartAction->execute( event );
-      break;
-    case QEvent::TouchUpdate:
-      if( d->myTouchMoveAction )
-        d->myTouchMoveAction->execute( event );
-      break;
-    case QEvent::TouchEnd:
-      if( d->myTouchStopAction )
+    {
+      auto state = event->modifiers();
+      auto iter = d->myTouchActions.find( state );
+      if( iter != d->myTouchActions.end() )
       {
-        d->myTouchStopAction->execute( event );
+        d->myCurrentTouch = state;
+        get<0>( iter->second )->execute( event );
+      }
+      break;
+    }
+    case QEvent::TouchUpdate:
+    {
+      auto iter = d->myTouchActions.find( d->myCurrentTouch );
+      if( iter != d->myTouchActions.end() )
+        get<1>( iter->second )->execute( event );
+      break;
+    }
+    case QEvent::TouchEnd:
+    {
+      auto iter = d->myTouchActions.find( d->myCurrentTouch );
+      d->myCurrentTouch = Qt::KeyboardModifiers();
+      if( iter != d->myTouchActions.end() )
+      {
+        get<2>( iter->second )->execute( event );
         if( !event->isAccepted() && event->touchPoints().size() == 1 )
         {
           struct timespec now;
@@ -856,6 +872,7 @@ void Control::touchEvent( QTouchEvent * event )
         }
       }
       break;
+    }
   }
 }
 
@@ -1687,27 +1704,29 @@ bool Control::panEventUnsubscribe()
 
 
 bool Control::touchEventSubscribe(
+  Qt::KeyboardModifiers state,
   const TouchActionLink & startMethod,
   const TouchActionLink & moveMethod,
   const TouchActionLink & stopMethod )
 {
-  if( d->myTouchStartAction != 0 )
+  if( d->myTouchActions.find( state ) != d->myTouchActions.end() )
     return false;
-  d->myTouchStartAction  = startMethod.clone();
-  d->myTouchMoveAction   = moveMethod.clone();
-  d->myTouchStopAction   = stopMethod.clone();
+  d->myTouchActions[ state ] = make_tuple( startMethod.clone(), moveMethod.clone(),
+                                          stopMethod.clone() );
   return true;
 }
 
 
-bool Control::touchEventUnsubscribe()
+bool Control::touchEventUnsubscribe( Qt::KeyboardModifiers state )
 {
-  delete d->myTouchStartAction;
-  d->myTouchStartAction = 0;
-  delete d->myTouchMoveAction;
-  d->myTouchMoveAction = 0;
-  delete d->myTouchStopAction;
-  d->myTouchStopAction = 0;
+  auto iter = d->myTouchActions.find( state );
+  if( iter == d->myTouchActions.end() )
+    return false;
+
+  delete get<0>( iter->second );
+  delete get<1>( iter->second );
+  delete get<2>( iter->second );
+  d->myTouchActions.erase( iter );
   return true;
 }
 
@@ -1766,6 +1785,35 @@ bool Control::tapEventUnsubscribe()
   d->myTapStopAction = 0;
   delete d->myTapCancelAction;
   d->myTapCancelAction = 0;
+  return true;
+}
+
+
+bool Control::tapAndHoldEventSubscribe(
+  const TapAndHoldActionLink & startMethod,
+  const TapAndHoldActionLink & moveMethod,
+  const TapAndHoldActionLink & stopMethod,
+  const TapAndHoldActionLink & cancelMethod )
+{
+  if( d->myTapAndHoldStartAction != 0 )
+    return false;
+  d->myTapAndHoldStartAction  = startMethod.clone();
+  d->myTapAndHoldMoveAction   = moveMethod.clone();
+  d->myTapAndHoldStopAction   = stopMethod.clone();
+  d->myTapAndHoldCancelAction = cancelMethod.clone();
+  return true;
+}
+
+bool Control::tapAndHoldEventUnsubscribe()
+{
+  delete d->myTapAndHoldStartAction;
+  d->myTapAndHoldStartAction = 0;
+  delete d->myTapAndHoldMoveAction;
+  d->myTapAndHoldMoveAction = 0;
+  delete d->myTapAndHoldStopAction;
+  d->myTapAndHoldStopAction = 0;
+  delete d->myTapAndHoldCancelAction;
+  d->myTapAndHoldCancelAction = 0;
   return true;
 }
 

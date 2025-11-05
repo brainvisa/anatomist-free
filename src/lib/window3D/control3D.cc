@@ -277,6 +277,7 @@ void Control3D::eventAutoSubscription( ActionPool * actionPool )
 
   // touch rotate & click
   touchEventSubscribe(
+    Qt::NoModifier,
     TouchActionLinkOf<TouchRotateAction>( actionPool->action(
       "TouchRotateAction" ), &TouchRotateAction::touchStart ),
     TouchActionLinkOf<TouchRotateAction>( actionPool->action(
@@ -588,6 +589,7 @@ void Select3DControl::eventAutoSubscription( ActionPool * actionPool )
 
   // touch rotate & click
   touchEventSubscribe(
+    Qt::NoModifier,
     TouchActionLinkOf<TouchRotateAction>( actionPool->action(
       "TouchRotateAction" ), &TouchRotateAction::touchStart ),
     TouchActionLinkOf<TouchRotateAction>( actionPool->action(
@@ -1574,6 +1576,7 @@ void FlightControl::eventAutoSubscription( ActionPool * actionPool )
 
   // touch rotate & click
   touchEventSubscribe(
+    Qt::NoModifier,
     TouchActionLinkOf<TouchRotateAction>( actionPool->action(
       "TouchRotateAction" ), &TouchRotateAction::touchStart ),
     TouchActionLinkOf<TouchRotateAction>( actionPool->action(
@@ -1912,6 +1915,7 @@ void ObliqueControl::eventAutoSubscription( ActionPool * actionPool )
 
   // touch rotate & click
   touchEventSubscribe(
+    Qt::NoModifier,
     TouchActionLinkOf<TouchRotateAction>( actionPool->action(
       "TouchRotateAction" ), &TouchRotateAction::touchStart ),
     TouchActionLinkOf<TouchRotateAction>( actionPool->action(
@@ -2180,6 +2184,7 @@ void TransformControl::eventAutoSubscription( ActionPool * actionPool )
 
   // touch rotate & click
   touchEventSubscribe(
+    Qt::NoModifier,
     TouchActionLinkOf<TouchRotateAction>( actionPool->action(
       "TouchRotateAction" ), &TouchRotateAction::touchStart ),
     TouchActionLinkOf<TouchRotateAction>( actionPool->action(
@@ -2450,6 +2455,7 @@ void CutControl::eventAutoSubscription( ActionPool * actionPool )
 
   // touch rotate & click
   touchEventSubscribe(
+    Qt::NoModifier,
     TouchActionLinkOf<TouchRotateAction>( actionPool->action(
       "TouchRotateAction" ), &TouchRotateAction::touchStart ),
     TouchActionLinkOf<TouchRotateAction>( actionPool->action(
