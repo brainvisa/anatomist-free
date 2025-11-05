@@ -228,6 +228,9 @@ void StdModule::actionsDeclaration()
   PinchZoomAction pa;
   ActionDictionary::instance()->addAction( pa.name(),
                                            &PinchZoomAction::creator );
+  TouchRotateAction tra;
+  ActionDictionary::instance()->addAction( tra.name(),
+                                           &TouchRotateAction::creator );
 
   //        Commands
   ActivateActionCommand::initSyntax();

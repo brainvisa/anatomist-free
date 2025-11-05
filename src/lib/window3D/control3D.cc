@@ -275,6 +275,15 @@ void Control3D::eventAutoSubscription( ActionPool * actionPool )
     PinchActionLinkOf<PinchZoomAction>( actionPool->action(
       "PinchZoomAction" ), &PinchZoomAction::pinchStop ) );
 
+  // touch rotate & click
+  touchEventSubscribe(
+    TouchActionLinkOf<TouchRotateAction>( actionPool->action(
+      "TouchRotateAction" ), &TouchRotateAction::touchStart ),
+    TouchActionLinkOf<TouchRotateAction>( actionPool->action(
+      "TouchRotateAction" ), &TouchRotateAction::touchMove ),
+    TouchActionLinkOf<TouchRotateAction>( actionPool->action(
+      "TouchRotateAction" ), &TouchRotateAction::touchStop ) );
+
   // Slice action
   keyPressEventSubscribe( Qt::Key_PageUp, Qt::NoModifier,
                           KeyActionLinkOf<SliceAction>
@@ -576,6 +585,15 @@ void Select3DControl::eventAutoSubscription( ActionPool * actionPool )
       "PinchZoomAction" ), &PinchZoomAction::pinchStop ),
     PinchActionLinkOf<PinchZoomAction>( actionPool->action(
       "PinchZoomAction" ), &PinchZoomAction::pinchStop ) );
+
+  // touch rotate & click
+  touchEventSubscribe(
+    TouchActionLinkOf<TouchRotateAction>( actionPool->action(
+      "TouchRotateAction" ), &TouchRotateAction::touchStart ),
+    TouchActionLinkOf<TouchRotateAction>( actionPool->action(
+      "TouchRotateAction" ), &TouchRotateAction::touchMove ),
+    TouchActionLinkOf<TouchRotateAction>( actionPool->action(
+      "TouchRotateAction" ), &TouchRotateAction::touchStop ) );
 
   //  translation
 
@@ -1543,6 +1561,26 @@ void FlightControl::eventAutoSubscription( ActionPool * actionPool )
       ( actionPool->action( "Translate3DAction" ),
         &Translate3DAction::endTranslate ), true );
 
+  // pinch
+  pinchEventSubscribe(
+    PinchActionLinkOf<PinchZoomAction>( actionPool->action(
+      "PinchZoomAction" ), &PinchZoomAction::pinchStart ),
+    PinchActionLinkOf<PinchZoomAction>( actionPool->action(
+      "PinchZoomAction" ), &PinchZoomAction::pinchMove ),
+    PinchActionLinkOf<PinchZoomAction>( actionPool->action(
+      "PinchZoomAction" ), &PinchZoomAction::pinchStop ),
+    PinchActionLinkOf<PinchZoomAction>( actionPool->action(
+      "PinchZoomAction" ), &PinchZoomAction::pinchStop ) );
+
+  // touch rotate & click
+  touchEventSubscribe(
+    TouchActionLinkOf<TouchRotateAction>( actionPool->action(
+      "TouchRotateAction" ), &TouchRotateAction::touchStart ),
+    TouchActionLinkOf<TouchRotateAction>( actionPool->action(
+      "TouchRotateAction" ), &TouchRotateAction::touchMove ),
+    TouchActionLinkOf<TouchRotateAction>( actionPool->action(
+      "TouchRotateAction" ), &TouchRotateAction::touchStop ) );
+
   // sort triangles by depth
   keyPressEventSubscribe( Qt::Key_D, Qt::NoModifier,
                           KeyActionLinkOf<SortMeshesPolygonsAction>
@@ -1861,6 +1899,26 @@ void ObliqueControl::eventAutoSubscription( ActionPool * actionPool )
                             &SliceAction::invertSlice ),
                           "invert_slice" );
 
+  // pinch
+  pinchEventSubscribe(
+    PinchActionLinkOf<PinchZoomAction>( actionPool->action(
+      "PinchZoomAction" ), &PinchZoomAction::pinchStart ),
+    PinchActionLinkOf<PinchZoomAction>( actionPool->action(
+      "PinchZoomAction" ), &PinchZoomAction::pinchMove ),
+    PinchActionLinkOf<PinchZoomAction>( actionPool->action(
+      "PinchZoomAction" ), &PinchZoomAction::pinchStop ),
+    PinchActionLinkOf<PinchZoomAction>( actionPool->action(
+      "PinchZoomAction" ), &PinchZoomAction::pinchStop ) );
+
+  // touch rotate & click
+  touchEventSubscribe(
+    TouchActionLinkOf<TouchRotateAction>( actionPool->action(
+      "TouchRotateAction" ), &TouchRotateAction::touchStart ),
+    TouchActionLinkOf<TouchRotateAction>( actionPool->action(
+      "TouchRotateAction" ), &TouchRotateAction::touchMove ),
+    TouchActionLinkOf<TouchRotateAction>( actionPool->action(
+      "TouchRotateAction" ), &TouchRotateAction::touchStop ) );
+
   // oblique slice trackball
 
   mouseLongEventSubscribe
@@ -2108,6 +2166,26 @@ void TransformControl::eventAutoSubscription( ActionPool * actionPool )
       MouseActionLinkOf<ResizerAction>
       ( actionPool->action( "ResizerAction" ), &ResizerAction::end ),
       true );
+
+  // pinch
+  pinchEventSubscribe(
+    PinchActionLinkOf<PinchZoomAction>( actionPool->action(
+      "PinchZoomAction" ), &PinchZoomAction::pinchStart ),
+    PinchActionLinkOf<PinchZoomAction>( actionPool->action(
+      "PinchZoomAction" ), &PinchZoomAction::pinchMove ),
+    PinchActionLinkOf<PinchZoomAction>( actionPool->action(
+      "PinchZoomAction" ), &PinchZoomAction::pinchStop ),
+    PinchActionLinkOf<PinchZoomAction>( actionPool->action(
+      "PinchZoomAction" ), &PinchZoomAction::pinchStop ) );
+
+  // touch rotate & click
+  touchEventSubscribe(
+    TouchActionLinkOf<TouchRotateAction>( actionPool->action(
+      "TouchRotateAction" ), &TouchRotateAction::touchStart ),
+    TouchActionLinkOf<TouchRotateAction>( actionPool->action(
+      "TouchRotateAction" ), &TouchRotateAction::touchMove ),
+    TouchActionLinkOf<TouchRotateAction>( actionPool->action(
+      "TouchRotateAction" ), &TouchRotateAction::touchStop ) );
 }
 
 
@@ -2358,6 +2436,27 @@ void CutControl::eventAutoSubscription( ActionPool * actionPool )
       MouseActionLinkOf<CutSliceAction>
       ( actionPool->action( "CutSliceAction" ),
         &CutSliceAction::endTrack ), true );
+
+  // pinch
+  pinchEventSubscribe(
+    PinchActionLinkOf<PinchZoomAction>( actionPool->action(
+      "PinchZoomAction" ), &PinchZoomAction::pinchStart ),
+    PinchActionLinkOf<PinchZoomAction>( actionPool->action(
+      "PinchZoomAction" ), &PinchZoomAction::pinchMove ),
+    PinchActionLinkOf<PinchZoomAction>( actionPool->action(
+      "PinchZoomAction" ), &PinchZoomAction::pinchStop ),
+    PinchActionLinkOf<PinchZoomAction>( actionPool->action(
+      "PinchZoomAction" ), &PinchZoomAction::pinchStop ) );
+
+  // touch rotate & click
+  touchEventSubscribe(
+    TouchActionLinkOf<TouchRotateAction>( actionPool->action(
+      "TouchRotateAction" ), &TouchRotateAction::touchStart ),
+    TouchActionLinkOf<TouchRotateAction>( actionPool->action(
+      "TouchRotateAction" ), &TouchRotateAction::touchMove ),
+    TouchActionLinkOf<TouchRotateAction>( actionPool->action(
+      "TouchRotateAction" ), &TouchRotateAction::touchStop ) );
+
 }
 
 //------------------
@@ -2989,7 +3088,7 @@ struct PinchZoomAction::Private
 
   float      orgzoom;
   Quaternion orgquaternion;
-//   Point3df   startpos;
+  // QPointf    startpos;
   float      organgle;
   float      orgscale;
   float current_zoom;
@@ -3150,6 +3249,143 @@ void PinchZoomAction::pinchStop( QPinchGesture *gesture )
 Action* PinchZoomAction::creator()
 {
   return new PinchZoomAction;
+}
+
+
+// ------
+
+struct TouchRotateAction::Private
+{
+  Private() : moved( false )
+  {}
+
+  bool moved;
+};
+
+
+TouchRotateAction::TouchRotateAction()
+  : Action(), d( new Private )
+{
+}
+
+
+TouchRotateAction::~TouchRotateAction()
+{
+  delete d;
+}
+
+
+void TouchRotateAction::touchStart( QTouchEvent *event )
+{
+  // cout << "TouchRotateAction start\n";
+
+  GLWidgetManager* w = dynamic_cast<GLWidgetManager *>( view() );
+
+  if( event->touchPoints().size() != 1 )
+  {
+    event->ignore();
+    return;
+  }
+
+  if( !w )
+  {
+    cerr << "TouchRotateAction operating on wrong view type -- error\n";
+    return;
+  }
+
+  event->accept();
+  d->moved = false;
+
+  ContinuousTrackball *trackac = dynamic_cast<ContinuousTrackball *>(
+    view()->controlSwitch()->getAction( "ContinuousTrackball" ) );
+  if( !trackac )
+  {
+    // cout << "no trackball\n";
+    event->ignore();
+    return;
+  }
+
+  const QTouchEvent::TouchPoint & pt = event->touchPoints()[0];
+  QPointF pos = pt.pos();
+  trackac->beginTrackball( pos.x(), pos.y(), pos.x(), pos.y() );
+}
+
+
+void TouchRotateAction::touchMove( QTouchEvent *event )
+{
+  // cout << "TouchRotateAction move\n";
+
+  GLWidgetManager* w = dynamic_cast<GLWidgetManager *>( view() );
+  if( !w )
+  {
+    cerr << "TouchRotateAction operating on wrong view type -- error\n";
+    return;
+  }
+
+  if( event->touchPoints().size() != 1 )
+  {
+    event->ignore();
+    return;
+  }
+
+  const QTouchEvent::TouchPoint & pt = event->touchPoints()[0];
+  QPointF pos = pt.pos();
+  QPointF spos = pt.startPos();
+  // cout << "pos: " << pos.x() << ", " << pos.y() << endl;
+  // cout << "spos: " << spos.x() << ", " << spos.y() << endl;
+
+  QPointF dpos = pos - spos;
+  if( dpos.x() * dpos.x() + dpos.y() * dpos.y() < 10 )
+  {
+    // cout << "not moved\n";
+    event->ignore();
+    return;
+  }
+
+  event->accept();
+  d->moved = true;
+  // view()->controlSwitch()->activeControlInstance()->inhibitAction(
+  //   "trackball", true );
+
+  ContinuousTrackball *trackac = dynamic_cast<ContinuousTrackball *>(
+    view()->controlSwitch()->getAction( "ContinuousTrackball" ) );
+  if( !trackac )
+  {
+    // cout << "no trackball\n";
+    event->ignore();
+    return;
+  }
+  trackac->moveTrackball( pos.x(), pos.y(), pos.x(), pos.y() );
+
+  ((AWindow3D *) w->aWindow())->refreshLightViewNow();
+}
+
+
+void TouchRotateAction::touchStop( QTouchEvent *event )
+{
+  // cout << "TouchRotateAction stop\n";
+
+  ContinuousTrackball *trackac = dynamic_cast<ContinuousTrackball *>(
+    view()->controlSwitch()->getAction( "ContinuousTrackball" ) );
+  if( !trackac )
+  {
+    // cout << "no trackball\n";
+    event->ignore();
+    return;
+  }
+
+  const QTouchEvent::TouchPoint & pt = event->touchPoints()[0];
+  QPointF pos = pt.pos();
+  trackac->endTrackball( pos.x(), pos.y(), pos.x(), pos.y() );
+
+  event->setAccepted( d->moved );
+  d->moved = false;
+}
+
+
+Action* TouchRotateAction::creator()
+{
+  return new TouchRotateAction;
 }
 
 

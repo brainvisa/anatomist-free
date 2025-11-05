@@ -172,6 +172,7 @@ public:
   void selectionChangedEvent();
   //void customEvent ( QCustomEvent * );
   void gestureEvent( QGestureEvent * );
+  void touchEvent( QTouchEvent * );
 
   void setAvailableControls( const std::list<std::string>& objects );
   void setActivableControls( bool init = false);

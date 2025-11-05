@@ -42,6 +42,7 @@
 
 class AWindow3D;
 class PinchGesture;
+class PanGesture;
 
 namespace anatomist
 {
@@ -422,6 +423,25 @@ namespace anatomist
     void pinchStart( QPinchGesture *gesture );
     void pinchMove( QPinchGesture *gesture );
     void pinchStop( QPinchGesture *gesture );
+
+  private:
+    struct Private;
+    Private *d;
+  };
+
+
+  class TouchRotateAction : public Action
+  {
+  public:
+    TouchRotateAction();
+    virtual ~TouchRotateAction();
+
+    virtual std::string name() const { return "TouchRotateAction"; }
+    static Action* creator();
+
+    void touchStart( QTouchEvent *event );
+    void touchMove( QTouchEvent *event );
+    void touchStop( QTouchEvent *event );
 
   private:
     struct Private;

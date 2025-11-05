@@ -36,6 +36,7 @@
 #include <QGestureEvent>
 #include <QApplication>
 #include <QPaintEvent>
+#include <QTouchEvent>
 
 
 using namespace anatomist;
@@ -60,6 +61,8 @@ QAGLWidget::QAGLWidget( anatomist::AWindow* win, QWidget* parent,
     _paintDone( false )
 #endif
 {
+  setAttribute( Qt::WA_AcceptTouchEvents );
+  setAttribute( Qt::WA_TouchPadAcceptSingleTouchEvents );
   grabGesture( Qt::PinchGesture );
   grabGesture( Qt::PanGesture );
   grabGesture( Qt::SwipeGesture );
@@ -158,8 +161,18 @@ bool QAGLWidget::event( QEvent * event )
   {
     // cout << "-- gesture --\n";
     gestureEvent( static_cast<QGestureEvent*>( event ) );
-    return true;
+    if( event->isAccepted() )
+      return true;
   }
+  if( event->type() == QEvent::TouchBegin || event->type() == QEvent::TouchUpdate
+      || event->type() == QEvent::TouchEnd )
+  {
+    // cout << "GLW TOUCH\n";
+    touchEvent( static_cast<QTouchEvent*>( event ) );
+    if( event->isAccepted() )
+      return true;
+  }
+
 #ifdef ANA_USE_QOPENGLWIDGET
   return QOpenGLWidget::event(event);
 #else

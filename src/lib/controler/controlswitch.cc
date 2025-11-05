@@ -943,7 +943,7 @@ ControlSwitch::gestureEvent( QGestureEvent *event )
   {
     if( found == myControls.end() )
     {
-      cerr << "Error : showEvent : bad active control" << endl;
+      cerr << "Error : gestureEvent : bad active control" << endl;
       ASSERT(0);
     }
     found->second->gestureEvent( event );
@@ -951,7 +951,23 @@ ControlSwitch::gestureEvent( QGestureEvent *event )
 }
 
 
-void 
+void
+ControlSwitch::touchEvent( QTouchEvent *event )
+{
+  map<string, ControlPtr>::iterator found( myControls.find(myActiveControl) );
+  if ( myControlEnabled )
+  {
+    if( found == myControls.end() )
+    {
+      cerr << "Error : touchEvent : bad active control" << endl;
+      ASSERT(0);
+    }
+    found->second->touchEvent( event );
+  }
+}
+
+
+void
 ControlSwitch::getSelectedObjectNames()
 {
   mySelectedObjects.clear() ;
