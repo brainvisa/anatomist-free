@@ -1260,6 +1260,7 @@ void AWindow3D::refreshNow()
   applySelectionHighlight(tmpcol);
 
   bool isok = rc.renderObjects(_objects);
+  rc.finalizeRendering();
 
   removeSelectionHighlight(tmpcol);
   showReferential();

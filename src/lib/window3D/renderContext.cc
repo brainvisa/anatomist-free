@@ -32,8 +32,6 @@ struct RenderContext::Private
   dynamicShaderBuilder shaderBuilder;
   std::map<std::string, carto::rc_ptr<QOpenGLShaderProgram>> programs;
   carto::rc_ptr<QOpenGLShaderProgram> currentProgram;
-  std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> opaqueDrawables;
-  std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> transparentDrawables;
   carto::rc_ptr<ViewState> vs;
 };
 
@@ -48,8 +46,6 @@ RenderContext::Private::~Private()
   primitives.clear();
   programs.clear();
   currentProgram.reset();
-  opaqueDrawables.clear();
-  transparentDrawables.clear();
 }
 
 RenderContext::RenderContext(AWindow3D* window, GLWidgetManager* widgetManager)
@@ -58,7 +54,6 @@ RenderContext::RenderContext(AWindow3D* window, GLWidgetManager* widgetManager)
   shaderMapping::initShaderMapping();
   GLuint localGLL = glGenLists(2);
   setupClippingPlanes(localGLL);
-
 }
 
 RenderContext::~RenderContext()
@@ -71,35 +66,42 @@ bool RenderContext::renderObjects( const std::list<carto::shared_ptr<AObject>> &
 {
   bool success = false;
   std::vector<float> bbmin, bbmax;
+  std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> opaqueDrawables;
+  std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> transparentDrawables;
+  std::vector<carto::shared_ptr<AObject>> nonDrawables;
+
   d->glwman->qglWidget()->makeCurrent();
   setupOpenGLState();
 
-  retrieveShaders(objs);
+  retrieveShaders(objs, opaqueDrawables, transparentDrawables ,nonDrawables);
   cursorGLL();
-  shaderBuilding();
+  shaderBuilding( opaqueDrawables, transparentDrawables);
 
-  if(!d->opaqueDrawables.empty())
-    success |= renderObject(false);
+  if(!opaqueDrawables.empty())
+    success |= renderObject(opaqueDrawables);
 
-  if(!d->transparentDrawables.empty())
+  if(!transparentDrawables.empty())
   {
     if(!d->glwman->useDepthPeeling())
     {
       setupTransparentObjects();
-      success |= renderObject(true);
+      success |= renderObject(transparentDrawables);
       postTransparentRenderingSetup();
     }
     else
     {
-      success |= renderObject(true);
+      success |= renderObject(transparentDrawables);
     }
   }
 
-  /*	Finish rendering mode operations: restore initial modes
-   and eventually performs a second rendering of all objects */
-  finalizeRendering();
-  d->opaqueDrawables.clear();
-  d->transparentDrawables.clear();
+  if(!nonDrawables.empty())
+  {
+    for(const auto & obj : nonDrawables)
+    {
+      success |= updateObject(obj);
+    }
+  }
+
   return success;
 }
 
@@ -146,18 +148,15 @@ bool RenderContext::updateObject(carto::shared_ptr<AObject> obj, PrimList* pl,Vi
     //Jordan : tmpprims utile ?
   
   return success;
-
 }
 
-bool RenderContext::renderObject(bool isTransparent)
+bool RenderContext::renderObject(std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> & drawables)
 {
   bool success = false;
-  const auto & drawables = isTransparent ? d->transparentDrawables : d->opaqueDrawables;
 
   for(const auto & [shader, objects] : drawables)
   { 
     switchShaderProgram(d->programs[shader]);
-
     auto shaderModules = getEffectiveShaderModules(objects.front()->glAPI()->getShaderModuleIDs());
     for(size_t i=0; i< objects.size(); ++i)
     {
@@ -165,11 +164,10 @@ bool RenderContext::renderObject(bool isTransparent)
       for(const auto & module : shaderModules)
       {
         if(i==0)
-          d->primitives.push_back(carto::rc_ptr<GLItem>(new GLSceneUniforms(module, d->currentProgram, d->glwman))); // Jordan : segfaulting why ?
+          d->primitives.push_back(carto::rc_ptr<GLItem>(new GLSceneUniforms(module, d->currentProgram, d->glwman)));
         d->primitives.push_back(carto::rc_ptr<GLItem>(new GLObjectUniforms(module, d->currentProgram, glObj)));
       }
 
-      // update Object
       success |= updateObject(objects[i]);
     }
   }
@@ -177,7 +175,10 @@ bool RenderContext::renderObject(bool isTransparent)
   return success;
 }
 
-void RenderContext::retrieveShaders(const std::list<carto::shared_ptr<AObject>> & objs)
+void RenderContext::retrieveShaders(const std::list<carto::shared_ptr<AObject>> & objs,
+                                  std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> & opaqueDrawables,
+                                  std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> & transparentDrawables, 
+                                   std::vector<carto::shared_ptr<AObject>> & nonDrawables)
 {
   for(const auto & obj : objs)
   {
@@ -188,16 +189,21 @@ void RenderContext::retrieveShaders(const std::list<carto::shared_ptr<AObject>> 
       if(d->glwman->useDepthPeeling())
         shaderID += "1"; //id for depth peeling
       if(obj->isTransparent())
-        d->transparentDrawables[shaderID].push_back(obj);
+        transparentDrawables[shaderID].push_back(obj);
       else
-        d->opaqueDrawables[shaderID].push_back(obj);
+        opaqueDrawables[shaderID].push_back(obj);
+    }
+    else
+    {
+      nonDrawables.push_back(obj);
     }
   }
 }
 
-void RenderContext::shaderBuilding()
+void RenderContext::shaderBuilding(std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> & opaqueDrawables,
+                                  std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>>  & transparentDrawables)
 {
-  for(const auto & [shader, _] : d->opaqueDrawables)
+  for(const auto & [shader, _] : opaqueDrawables)
   {
     if(d->programs[shader].isNull())
     {
@@ -205,7 +211,7 @@ void RenderContext::shaderBuilding()
     }
   }
 
-  for(const auto & [shader, _] : d->transparentDrawables)
+  for(const auto & [shader, _] : transparentDrawables)
   {
     if(d->programs[shader].isNull())
     {
@@ -271,7 +277,7 @@ std::vector<carto::rc_ptr<IShaderModule>> RenderContext::getEffectiveShaderModul
   auto modules = shaderMapping::getModules(shaderID);
   if(d->glwman->useDepthPeeling())
   {
-    auto dpmodules = shaderMapping::getModules("1"); //id for depth peeling
+    auto dpmodules = shaderMapping::getModules("1"); //jordan : id for depth peeling, may change
     modules.insert(modules.end(), dpmodules.begin(), dpmodules.end());
   }
   return modules;
@@ -422,7 +428,18 @@ void RenderContext::finalizeRendering()
     duplicateRenderPrimitives();
   }
 
-  finalizeRenderingSettings();
+  d->glwman->setPrimitives(d->primitives);
+  d->primitives.clear();
+  if(d->window->light())
+  {
+    d->glwman->setLightGLList(d->window->light()->getGLList());
+    d->glwman->setBackgroundAlpha(d->window->light()->Background()[3]);
+  }
+  else
+  {
+    d->glwman->setBackgroundAlpha(1.0);
+  }
+
   d->glwman->updateGL();
 }
 
@@ -475,21 +492,6 @@ void RenderContext::duplicateRenderPrimitives()
       d->primitives.push_back(*ip);
 }
 
-void RenderContext::finalizeRenderingSettings()
-{
-  d->glwman->setPrimitives(d->primitives);
-  d->primitives.clear();
-  if(d->window->light())
-  {
-    d->glwman->setLightGLList(d->window->light()->getGLList());
-    d->glwman->setBackgroundAlpha(d->window->light()->Background()[3]);
-  }
-  else
-  {
-    d->glwman->setBackgroundAlpha(1.0);
-  }
-}
-
 void RenderContext::cursorGLL() const
 {
   GLPrimitives curspl;
@@ -501,7 +503,6 @@ void RenderContext::cursorGLL() const
       GLComponent *gc = curs->glAPI();
       if (gc)
       {
-        //jordan shader
         carto::rc_ptr<QOpenGLShaderProgram> program = d->shaderBuilder.initShader("", "main.vs.glsl", "noLightModel.fs.glsl");
         d->primitives.push_back(carto::rc_ptr<GLItem>(new GLBindShader(program)));
         d->primitives.push_back(carto::rc_ptr<GLItem>(new GLObjectUniforms(carto::rc_ptr<IShaderModule>(), program, gc)));

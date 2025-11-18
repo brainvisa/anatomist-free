@@ -189,15 +189,6 @@ bool MObject::render( PrimList & prim, RenderContext & rc )
 
   retcode = rc.renderObjects( ptr_rendered );
 
-//   list<AObject *>::const_iterator i, j = rendered.end();
-//   for( i=rendered.begin(); i!=j; ++i )
-//   {
-// //     if( (*i)->Is2DObject()
-// //         && (*i)->render( prim, state ) )
-// //     retcode = true;
-//     retcode |= (*i)->render( prim, rc );
-//   }
-
   return retcode;
 }
 

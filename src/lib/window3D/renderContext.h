@@ -61,6 +61,7 @@ namespace anatomist
       const anatomist::ViewState& getViewState() const ;
       void setViewState(carto::rc_ptr<anatomist::ViewState> vs);
       void setupClippingPlanes(GLuint localGLL);
+      void finalizeRendering();
 
     private:
       /**
@@ -89,7 +90,7 @@ namespace anatomist
       *
       * \param isTransparent True if rendering the transparent group.
       */
-      bool renderObject(bool isTransparent);
+      bool renderObject(std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> & drawables);
 
       /**
       * \brief Sorts objects by shader type and transparency.
@@ -102,7 +103,10 @@ namespace anatomist
       *
       * \param objs List of objects to sort.
       */
-      void retrieveShaders(const std::list<carto::shared_ptr<anatomist::AObject>> & objs);
+      void retrieveShaders(const std::list<carto::shared_ptr<anatomist::AObject>> & objs,
+                                  std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>>& opaqueDrawables,
+                                  std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> & transparentDrawables, 
+                                  std::vector<carto::shared_ptr<AObject>> & nonDrawables);
 
       /**
       * \brief Builds all required GLSL programs.
@@ -110,7 +114,8 @@ namespace anatomist
       * Initializes each program using \c dynamicShaderBuilder for every
       * unique shader ID collected during sorting.
       */
-      void shaderBuilding();
+      void shaderBuilding(std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> &opaqueDrawables,
+                          std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> & transparentDrawables);
 
       /**
       * \brief Switches to a new shader program if different from the current one.
@@ -151,8 +156,6 @@ namespace anatomist
       std::vector<carto::rc_ptr<anatomist::IShaderModule>> getEffectiveShaderModules(const std::string& shaderID);
 
       void setupOpenGLState();
-      void finalizeRendering();
-      void finalizeRenderingSettings();
       anatomist::Primitive* setupHiddenWireframeMode();
       anatomist::Primitive* setupOutlinedMode();
       void duplicateRenderPrimitives();
