@@ -162,7 +162,7 @@ carto::rc_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initShader(const std::
   }
 
   program->create();
-  this->setVersion(150);
+  this->setVersion(330);
 
   // vertex shader
   baseTemplate =  readShaderFile(path.front()+"/"+vsTemplate);
@@ -219,7 +219,7 @@ carto::rc_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initBlendingShader()
   }
 
   program->create();
-  this->setVersion(150);
+  this->setVersion(330);
   vertexSource = readShaderFile(path.front()+"/blend.vs.glsl");
 
   if(!program->addShaderFromSourceCode(QOpenGLShader::Vertex, QString::fromStdString(vertexSource)))
