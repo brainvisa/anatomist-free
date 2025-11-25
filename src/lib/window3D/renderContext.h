@@ -40,6 +40,8 @@ namespace anatomist
     */
       RenderContext(AWindow3D* win, anatomist::GLWidgetManager* widgetManager);
       ~RenderContext();
+
+      bool renderScene( const std::list<carto::shared_ptr<anatomist::AObject>> & objs);
     
     /**
     * \brief Renders a list of objects and builds the corresponding primitive list.
@@ -57,6 +59,7 @@ namespace anatomist
     * \return Boolean to know if the rendering succeed or not.
     */
       bool renderObjects( const std::list<carto::shared_ptr<anatomist::AObject>> & objs);
+
 
       const anatomist::ViewState& getViewState() const ;
       void setViewState(carto::rc_ptr<anatomist::ViewState> vs);

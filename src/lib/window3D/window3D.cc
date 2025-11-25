@@ -1259,8 +1259,7 @@ void AWindow3D::refreshNow()
   updateLeftRightAnnotations();
   applySelectionHighlight(tmpcol);
 
-  bool isok = rc.renderObjects(_objects);
-  rc.finalizeRendering();
+  bool isok = rc.renderScene(_objects);
 
   removeSelectionHighlight(tmpcol);
   showReferential();

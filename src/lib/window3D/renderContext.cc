@@ -62,6 +62,19 @@ RenderContext::~RenderContext()
   delete d;
 }
 
+bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & objs)
+{
+  bool success = false;
+  d->glwman->qglWidget()->makeCurrent();
+  setupOpenGLState();
+  cursorGLL();
+  success = renderObjects(objs);
+  finalizeRendering();
+  return success;
+
+}
+
+
 bool RenderContext::renderObjects( const std::list<carto::shared_ptr<AObject>> & objs)
 {
   bool success = false;
@@ -70,11 +83,7 @@ bool RenderContext::renderObjects( const std::list<carto::shared_ptr<AObject>> &
   std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> transparentDrawables;
   std::vector<carto::shared_ptr<AObject>> nonDrawables;
 
-  d->glwman->qglWidget()->makeCurrent();
-  setupOpenGLState();
-
   retrieveShaders(objs, opaqueDrawables, transparentDrawables ,nonDrawables);
-  cursorGLL();
   shaderBuilding( opaqueDrawables, transparentDrawables);
 
   if(!opaqueDrawables.empty())
