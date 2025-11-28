@@ -39,11 +39,9 @@
 #include <anatomist/application/settings.h>
 #include <anatomist/application/globalConfig.h>
 #include <qtooltip.h>
-#if QT_VERSION >= 0x040000
 #include <QMouseEvent>
 #include <QHelpEvent>
 #include <QTimer>
-#endif
 #include <iostream>
 
 using namespace anatomist;
@@ -101,48 +99,19 @@ void QImageLabel::installImage()
 }
 
 
-#if QT_VERSION >= 0x040000
-#warning TODO: Qt4 QImageLabel::movieStatusChanged() not compiled
-#if 1 //0 // Pb: Moc of Qt3 doesn't handle #ifdefs
-void QImageLabel::movieStatusChanged( int /* QMovie::MovieState */ s )
-{
-  switch( s )
-    {
-    case QMovie::NotRunning:
-      installImage();
-      break;
-    default:
-      break;
-    }
-}
-#endif
-
-#else
-
-void QImageLabel::movieStatusChanged( int s )
-{
-  switch( s )
-    {
-    case QMovie::SourceEmpty:
-      cerr << "QMovie::SourceEmpty\n";
-      break;
-    case QMovie::UnrecognizedFormat:
-      cerr << "QMovie::UnrecognizedFormat\n";
-      break;
-    case QMovie::Paused:
-      break;
-    case QMovie::EndOfFrame:
-      break;
-    case QMovie::EndOfLoop:
-    case QMovie::EndOfMovie:
-      installImage();
-      break;
-    default:
-      cerr << "movieStatusChanged : unknown status\n";
-      break;
-    }
-}
-#endif
+// #if 1 //0 // Pb: Moc of Qt3 doesn't handle #ifdefs
+// void QImageLabel::movieStatusChanged( int /* QMovie::MovieState */ s )
+// {
+//   switch( s )
+//     {
+//     case QMovie::NotRunning:
+//       installImage();
+//       break;
+//     default:
+//       break;
+//     }
+// }
+// #endif
 
 
 void QImageLabel::mousePressEvent( QMouseEvent* e )

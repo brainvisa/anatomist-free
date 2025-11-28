@@ -21,6 +21,7 @@ requirements:
     - ipycanvas
     - ipywidgets
     - ipyevents
+    - ipykernel <7
     - notebook
     - libglu
     - xvfb

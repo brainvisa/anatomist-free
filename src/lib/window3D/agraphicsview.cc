@@ -84,6 +84,19 @@ bool AGraphicsView::event( QEvent* ev )
         return true;
     }
   }
+  if( ev->type() == QEvent::TouchBegin || ev->type() == QEvent::TouchUpdate
+      || ev->type() == QEvent::TouchEnd )
+  {
+    // cout << "TOUCH\n";
+    GLWidgetManager *glm = dynamic_cast<GLWidgetManager *>( viewport() );
+    if( glm )
+    {
+      glm->touchEvent( static_cast<QTouchEvent*>( ev ) );
+      if( ev->isAccepted() )
+        return true;
+    }
+  }
+
   return res;
 }
 

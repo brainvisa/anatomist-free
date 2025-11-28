@@ -2195,6 +2195,13 @@ void GLWidgetManager::gestureEvent( QGestureEvent * event )
 }
 
 
+void GLWidgetManager::touchEvent( QTouchEvent * event )
+{
+  // cout << "GLWidgetManager::touchEvent\n";
+  controlSwitch()->touchEvent( event );
+}
+
+
 void GLWidgetManager::mousePressEvent( QMouseEvent* ev )
 {
   //cout << "GLWidgetManager::mousePressEvent\n";

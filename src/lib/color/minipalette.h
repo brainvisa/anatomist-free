@@ -56,7 +56,7 @@ namespace anatomist
     AObject *getObject();
     /// set or change the observed object
     void setObject( AObject *obj, int dims = 1 );
-    void setRange( float min, float max, int dim );
+    void setRange( double min, double max, int dim );
     void updateDisplay();
     void resize( float x, float y, float w, float h );
     float width() const;
@@ -65,16 +65,16 @@ namespace anatomist
     float left() const;
     void clear();
     void update( const Observable *observable, void *arg );
-    float min( int dim ) const;
-    float max( int dim ) const;
+    double min( int dim ) const;
+    double max( int dim ) const;
     int observedDimensions() const;
-    std::pair<float, float> range( int dim ) const;
+    std::pair<double, double> range( int dim ) const;
 
   private:
     struct Private;
 
     void _drawPaletteInGraphicsView();
-    std::string _format( float num ) const;
+    std::string _format( double num ) const;
     QGraphicsSimpleTextItem* _textGraphicsItem(
       const std::string & text, float xpos, float ypos, float xmax,
       float hardmax=-1, QGraphicsItem *parentitem=0 ) const;
@@ -165,7 +165,7 @@ namespace anatomist
     void allowEdit( bool allow, bool self_parent = true,
                     QWidget *edit_parent = 0 );
     /// set the view range in object values
-    void setRange( float min1, float max1 );
+    void setRange( double min1, double max1 );
     /// redraws the palette view
     void updateDisplay();
     void clear();
@@ -175,13 +175,13 @@ namespace anatomist
     MiniPaletteGraphics *miniPaletteGraphics();
     QGraphicsView *graphicsView();
     int observedDimension() const;
-    std::pair<float, float> range() const;
+    std::pair<double, double> range() const;
 
   signals:
     /** signal emitted when the zoom range has changed (after a mouse wheel
         event, typically)
     */
-    void rangeChanged( float, float );
+    void rangeChanged( double, double );
     /** signal emitted when the palete view is clicked, and ``click_to_edit``
         mode is disabled.
     */
@@ -250,7 +250,7 @@ namespace anatomist
     QSlider *minSlider();
     QSlider *maxSlider();
     int observedDimension() const;
-    std::pair<float, float> range() const;
+    std::pair<double, double> range() const;
 
   signals:
     void paletteSelected( const std::string & );
@@ -260,9 +260,9 @@ namespace anatomist
     void adjustRange();
     /// allows or disables the auto-zoom mode
     void setAutoRange( bool auto_range );
-    void minChanged( float value );
-    void maxChanged( float value );
-    void setRange( float rmin, float rmax );
+    void minChanged( double value );
+    void maxChanged( double value );
+    void setRange( double rmin, double rmax );
     void selectPalette();
     void setPalette( const std::string & palname );
     void gvMoved( QMouseEvent *event );

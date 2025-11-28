@@ -56,11 +56,7 @@ int main(int argc, char** argv)
 
   vtkQtRenderWindowInteractor2* widget = vtkQtRenderWindowInteractor2::New();
   widget->resize(256,256);
- 
-#if QT_VERSION < 0x040000
-  app.setMainWidget(widget);
-#endif
-  
+
   vtkRenderer* ren = vtkRenderer::New();
   ren->SetBackground (1.0, 1.0, 1.0);
   widget->GetRenderWindow()->AddRenderer(ren);

@@ -535,6 +535,39 @@ Control::TapAndHoldActionLinkOf<T>::clone() const
 }
 
 
+template<typename T>
+Control::TouchActionLinkOf<T>::TouchActionLinkOf()
+  : actionInstance( 0 ), actionCallback( 0 )
+{
+}
+
+
+template<typename T>
+Control::TouchActionLinkOf<T>::TouchActionLinkOf(
+  Action * action, Callback actionCb )
+  : actionCallback( actionCb )
+{
+  actionInstance = dynamic_cast<T *>( action );
+  ASSERT( actionInstance != 0 );
+}
+
+
+template<typename T>
+void
+Control::TouchActionLinkOf<T>::execute( QTouchEvent* event )
+{
+  (actionInstance->*(actionCallback))( event );
+}
+
+
+template<typename T>
+Control::TouchActionLink*
+Control::TouchActionLinkOf<T>::clone() const
+{
+  return new TouchActionLinkOf<T>( actionInstance, actionCallback );
+}
+
+
 }
 
 

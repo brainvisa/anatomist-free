@@ -498,6 +498,18 @@ class SplitFoldControl(anatomist.Control):
                                      pool.action(
                                          "Translate3DAction").moveTranslate,
                                      pool.action("Translate3DAction").endTranslate, True)
+        # pinch
+        self.pinchEventSubscribe(
+            pool.action("PinchZoomAction").pinchStart,
+            pool.action("PinchZoomAction").pinchMove,
+            pool.action("PinchZoomAction").pinchStop,
+            pool.action("PinchZoomAction").pinchStop)
+        # touch rotate & click
+        self.touchEventSubscribe(
+            qt.Qt.NoModifier,
+            pool.action("TouchRotateAction").touchStart,
+            pool.action("TouchRotateAction").touchMove,
+            pool.action("TouchRotateAction").touchStop)
 
     def doAlsoOnSelect(self, actionpool):
         anatomist.Control.doAlsoOnSelect(self, actionpool)

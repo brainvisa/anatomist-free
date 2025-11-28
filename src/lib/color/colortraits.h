@@ -49,18 +49,18 @@ namespace anatomist
     ColorScalarPaletteTraits( const AObjectPalette* pal, const T & mini,
                               const T & maxi, const T & mini2,
                               const T & maxi2,
-                              float min1, float max1, float zero1,
-                              float min2, float max2, float zero2 );
+                              double min1, double max1, double zero1,
+                              double min2, double max2, double zero2 );
     ColorScalarPaletteTraits( const AObjectPalette* pal, const T & mini,
                               const T & maxi,
-                              float min1, float max1, float zero1 );
+                              double min1, double max1, double zero1 );
     AimsRGBA color( const T & ) const;
     void setup( const T & mini, const T & maxi,
                 const T & mini2, const T & maxi2,
-                float min1, float max1, float zero1,
-                float min2, float max2, float zero2 );
+                double min1, double max1, double zero1,
+                double min2, double max2, double zero2 );
     void setup1D( int dim, const T & mini, const T & maxi,
-                  float min1, float max1, float zero );
+                  double min1, double max1, double zero );
     T neutralColor() const;
     void paletteCoords( double val0, double val1, int & px, int & py ) const;
     void paletteCoord( int dim, double val0, int & px ) const;
@@ -70,10 +70,10 @@ namespace anatomist
   private:
     const AObjectPalette	*palette;
     const carto::Volume<AimsRGBA>	*colors;
-    float			scale0;
-    float			scale1;
-    float			decal0;
-    float			decal1;
+    double			scale0;
+    double			scale1;
+    double			decal0;
+    double			decal1;
     int				cmin0;
     int				cmin1;
     int				cmax0;
@@ -81,10 +81,10 @@ namespace anatomist
     // for negative 0-centered values
     int                         czero0;
     int                         czero1;
-    float			scalen0;
-    float			scalen1;
-    float			decaln0;
-    float			decaln1;
+    double			scalen0;
+    double			scalen1;
+    double			decaln0;
+    double			decaln1;
     int				cminn0;
     int				cminn1;
     int				cmaxn0;
@@ -97,7 +97,7 @@ namespace anatomist
   {
   public:
     ColorNoPaletteTraits( const AObjectPalette*, const T & mini,
-                          const T & maxi, float min, float max );
+                          const T & maxi, double min, double max );
     AimsRGBA color( const T & ) const;
     T neutralColor() const;
   };
@@ -133,15 +133,15 @@ namespace anatomist
     */
     ColorTraits( const AObjectPalette *palette, const T & mini, const T & maxi,
                  const T & mini2, const T & maxi2,
-                 float min1, float max1, float zero1, float min2, float max2,
-                 float zero2 );
+                 double min1, double max1, double zero1, double min2, double max2,
+                 double zero2 );
     /** Constructor for 1D palettes.
 
         Scaling parameters are processed, and should be passed carefully:
 
         - palette is the object palette.
         - mini / maxi are min and max values used to address the colormap from
-          a source space. They can be either float texture values, or indices
+          a source space. They can be either double float texture values, or indices
           used to build in a colormap or texture image. The methods color() and
           paletteCoords() get their parameters in this space.
 
@@ -167,7 +167,7 @@ namespace anatomist
           zero-centered palette mode in order to have the center.
     */
     ColorTraits( const AObjectPalette *palette, const T & mini, const T & maxi,
-                 float min1, float max1, float zero1 );
+                 double min1, double max1, double zero1 );
     AimsRGBA color( const T & ) const;
     /// returns a black / transparent / zero color
     T neutralColor() const;
@@ -206,8 +206,8 @@ namespace anatomist
   ColorTraits<T>::ColorTraits( const AObjectPalette* pal, const T & mini,
                                const T & maxi, const T & mini2,
                                const T & maxi2,
-                               float min1, float max1, float zero1,
-                               float min2, float max2, float zero2 )
+                               double min1, double max1, double zero1,
+                               double min2, double max2, double zero2 )
     : _traitstype( pal, mini, maxi, mini2, maxi2, min1, max1, zero1,
                    min2, max2, zero2 )
   {
@@ -216,8 +216,8 @@ namespace anatomist
 
   template<typename T> inline
   ColorTraits<T>::ColorTraits( const AObjectPalette* pal, const T & mini,
-                               const T & maxi, float min1, float max1,
-                               float zero1 )
+                               const T & maxi, double min1, double max1,
+                               double zero1 )
     : _traitstype( pal, mini, maxi, min1, max1, zero1 )
   {
   }
@@ -267,7 +267,7 @@ namespace anatomist
   template<typename T> inline
   ColorNoPaletteTraits<T>::ColorNoPaletteTraits( const AObjectPalette*,
                                                  const T &, const T &,
-                                                 float, float )
+                                                 double, double )
   {
   }
 
@@ -300,12 +300,12 @@ namespace anatomist
                                                          const T & maxi,
                                                          const T & mini2,
                                                          const T & maxi2,
-                                                         float min1,
-                                                         float max1,
-                                                         float zero1,
-                                                         float min2,
-                                                         float max2,
-                                                         float zero2 )
+                                                         double min1,
+                                                         double max1,
+                                                         double zero1,
+                                                         double min2,
+                                                         double max2,
+                                                         double zero2 )
     : palette( pal )
   {
     setup( mini, maxi, mini2, maxi2, min1, max1, zero1, min2, max2, zero2 );
@@ -317,9 +317,9 @@ namespace anatomist
                                                          * pal,
                                                          const T & mini,
                                                          const T & maxi,
-                                                         float min1,
-                                                         float max1,
-                                                         float zero1 )
+                                                         double min1,
+                                                         double max1,
+                                                         double zero1 )
     : palette( pal )
   {
     setup( mini, maxi, mini, maxi, min1, max1, zero1, 0., 1., 0. );

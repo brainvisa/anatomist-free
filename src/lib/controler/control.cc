@@ -41,18 +41,18 @@
 #include <qtimer.h>
 #include <qlabel.h>
 #include <qlayout.h>
-#if QT_VERSION >= 0x040600
 #include <QGestureEvent>
 #include <QPinchGesture>
 #include <QPanGesture>
 #include <QTapGesture>
 #include <QTapAndHoldGesture>
 #include <math.h>
-#endif
 #include <qwidget.h>
 #include <qapplication.h>
 #include <iostream>
 #include <typeinfo>
+#include <tuple>
+#include <time.h>
 
 using namespace anatomist;
 using namespace std;
@@ -149,6 +149,8 @@ Control::SwipeActionLink::~SwipeActionLink() {}
 Control::TapActionLink::~TapActionLink() {}
 
 Control::TapAndHoldActionLink::~TapAndHoldActionLink() {}
+
+Control::TouchActionLink::~TouchActionLink() {}
 
 
 KeyAndMouseLongEvent::KeyAndMouseLongEvent
@@ -336,7 +338,8 @@ struct Control::Private
       myTapCancelAction(0), myTapAndHoldStartAction(0),
       myTapAndHoldMoveAction(0), myTapAndHoldStopAction(0),
       myTapAndHoldCancelAction(0),
-      doing_pan( false ), doing_pinch( false ), pinch_scale( 1. ) {}
+      doing_pan( false ), doing_pinch( false ), pinch_scale( 1. ), clock( 0 )
+  {}
   ~Private()
   {
     delete myPinchStartAction;
@@ -359,6 +362,13 @@ struct Control::Private
     delete myTapAndHoldMoveAction;
     delete myTapAndHoldStopAction;
     delete myTapAndHoldCancelAction;
+
+    for( auto it : myTouchActions )
+    {
+      delete get<0>( it.second );
+      delete get<1>( it.second );
+      delete get<2>( it.second );
+    }
   }
 
   Control::PinchActionLink* myPinchStartAction;
@@ -381,7 +391,8 @@ struct Control::Private
   Control::TapAndHoldActionLink* myTapAndHoldMoveAction;
   Control::TapAndHoldActionLink* myTapAndHoldStopAction;
   Control::TapAndHoldActionLink* myTapAndHoldCancelAction;
-
+  map<Qt::KeyboardModifiers,
+      tuple<TouchActionLink*, TouchActionLink*, TouchActionLink*> > myTouchActions;
   bool doing_pan;
   bool doing_pinch;
   float pinch_scale;
@@ -389,6 +400,11 @@ struct Control::Private
   // so we record it to substract to later ones
   QPoint last_pan_pos;
   QPoint last_pan_gpos;
+
+  set<string> inhibitedActions;
+
+  double clock;
+  Qt::KeyboardModifiers myCurrentTouch;
 };
 
 //------------------------------------------------------------
@@ -786,33 +802,112 @@ void Control::selectionChangedEvent()
 }
 
 
-#if QT_VERSION >= 0x040600
+void Control::touchEvent( QTouchEvent * event )
+{
+  // cout << "Control::Touch event\n";
+  event->setAccepted( false );
+  switch( event->type() )
+  {
+    case QEvent::TouchBegin:
+    {
+      auto state = event->modifiers();
+      auto iter = d->myTouchActions.find( state );
+      if( iter != d->myTouchActions.end() )
+      {
+        d->myCurrentTouch = state;
+        get<0>( iter->second )->execute( event );
+      }
+      break;
+    }
+    case QEvent::TouchUpdate:
+    {
+      auto iter = d->myTouchActions.find( d->myCurrentTouch );
+      if( iter != d->myTouchActions.end() )
+        get<1>( iter->second )->execute( event );
+      break;
+    }
+    case QEvent::TouchEnd:
+    {
+      auto iter = d->myTouchActions.find( d->myCurrentTouch );
+      d->myCurrentTouch = Qt::KeyboardModifiers();
+      if( iter != d->myTouchActions.end() )
+      {
+        get<2>( iter->second )->execute( event );
+        if( !event->isAccepted() && event->touchPoints().size() == 1 )
+        {
+          struct timespec now;
+          clock_gettime( CLOCK_MONOTONIC, &now );
+          double t = now.tv_sec + double(now.tv_nsec) / 1e9;
+
+          if( t - d->clock < 0.3 )
+          {
+            // generate double click
+            d->clock = 0;
+            const QTouchEvent::TouchPoint & tp = event->touchPoints()[0];
+            QMouseEvent ev(
+              QEvent::MouseButtonDblClick,
+              tp.pos(),
+              Qt::LeftButton, Qt::LeftButton,
+              event->modifiers() );
+            mouseDoubleClickEvent( &ev );
+          }
+          else
+          {
+            d->clock = t;
+            // generate click
+            const QTouchEvent::TouchPoint & tp = event->touchPoints()[0];
+            QMouseEvent evp(
+              QEvent::MouseButtonPress,
+              tp.pos(),
+              Qt::LeftButton, Qt::LeftButton,
+              event->modifiers() );
+            mousePressEvent( &evp );
+            QMouseEvent ev(
+              QEvent::MouseButtonRelease,
+              tp.pos(),
+              Qt::LeftButton, Qt::LeftButton,
+              event->modifiers() );
+            mouseReleaseEvent( &ev );
+          }
+        }
+      }
+      break;
+    }
+  }
+}
+
+
 void Control::gestureEvent( QGestureEvent * event )
 {
   // cout << "Gesture event\n";
   if( QGesture *swipe = event->gesture( Qt::SwipeGesture ) )
   {
+    // cout << "swipe\n";
     event->setAccepted( swipe,
                         swipeGesture(
                           static_cast<QSwipeGesture *>( swipe ) ) );
   }
   else if( QGesture *pan = event->gesture( Qt::PanGesture ) )
   {
+    // cout << "pan\n";
     event->setAccepted( pan, panGesture( static_cast<QPanGesture *>( pan ) ) );
   }
   if( QGesture *pinch = event->gesture(Qt::PinchGesture ) )
   {
+    // cout << "pinch\n";
     event->setAccepted( pinch, pinchGesture(
       static_cast<QPinchGesture *>( pinch ) ) );
   }
   if( QGesture *taphold = event->gesture( Qt::TapAndHoldGesture ) )
   {
+    // cout << "tap and hold\n";
     event->setAccepted( taphold,
                         tapAndHoldGesture(
                           static_cast<QTapAndHoldGesture *>( taphold ) ) );
   }
   else if( QGesture *tap = event->gesture( Qt::TapGesture ) )
   {
+    // cout << "tap\n";
     event->setAccepted( tap, tapGesture( static_cast<QTapGesture *>( tap ) ) );
   }
 }
@@ -1188,8 +1283,6 @@ bool Control::tapAndHoldGesture( QTapAndHoldGesture *gesture )
 
   return false;
 }
-
-#endif // Qt >= 4.6
 
 
 namespace
@@ -1595,6 +1688,7 @@ bool Control::panEventSubscribe(
   return true;
 }
 
+
 bool Control::panEventUnsubscribe()
 {
   delete d->myPanStartAction;
@@ -1605,6 +1699,34 @@ bool Control::panEventUnsubscribe()
   d->myPanStopAction = 0;
   delete d->myPanCancelAction;
   d->myPanCancelAction = 0;
+  return true;
+}
+
+
+bool Control::touchEventSubscribe(
+  Qt::KeyboardModifiers state,
+  const TouchActionLink & startMethod,
+  const TouchActionLink & moveMethod,
+  const TouchActionLink & stopMethod )
+{
+  if( d->myTouchActions.find( state ) != d->myTouchActions.end() )
+    return false;
+  d->myTouchActions[ state ] = make_tuple( startMethod.clone(), moveMethod.clone(),
+                                          stopMethod.clone() );
+  return true;
+}
+
+
+bool Control::touchEventUnsubscribe( Qt::KeyboardModifiers state )
+{
+  auto iter = d->myTouchActions.find( state );
+  if( iter == d->myTouchActions.end() )
+    return false;
+
+  delete get<0>( iter->second );
+  delete get<1>( iter->second );
+  delete get<2>( iter->second );
+  d->myTouchActions.erase( iter );
   return true;
 }
 
@@ -1666,6 +1788,34 @@ bool Control::tapEventUnsubscribe()
   return true;
 }
 
+
+bool Control::tapAndHoldEventSubscribe(
+  const TapAndHoldActionLink & startMethod,
+  const TapAndHoldActionLink & moveMethod,
+  const TapAndHoldActionLink & stopMethod,
+  const TapAndHoldActionLink & cancelMethod )
+{
+  if( d->myTapAndHoldStartAction != 0 )
+    return false;
+  d->myTapAndHoldStartAction  = startMethod.clone();
+  d->myTapAndHoldMoveAction   = moveMethod.clone();
+  d->myTapAndHoldStopAction   = stopMethod.clone();
+  d->myTapAndHoldCancelAction = cancelMethod.clone();
+  return true;
+}
+
+bool Control::tapAndHoldEventUnsubscribe()
+{
+  delete d->myTapAndHoldStartAction;
+  d->myTapAndHoldStartAction = 0;
+  delete d->myTapAndHoldMoveAction;
+  d->myTapAndHoldMoveAction = 0;
+  delete d->myTapAndHoldStopAction;
+  d->myTapAndHoldStopAction = 0;
+  delete d->myTapAndHoldCancelAction;
+  d->myTapAndHoldCancelAction = 0;
+  return true;
+}
 
 
 bool
@@ -2518,6 +2668,21 @@ set<string> Control::mouseMoveActionLinkNames() const
     names.insert( in->first );
 
   return names;
+}
+
+
+const set<string> & Control::inhibitedActions() const
+{
+  return d->inhibitedActions;
+}
+
+
+void Control::inhibitAction( const string & action, bool inhibit )
+{
+  if( inhibit )
+    d->inhibitedActions.insert( action );
+  else
+    d->inhibitedActions.erase( action );
 }
 
 

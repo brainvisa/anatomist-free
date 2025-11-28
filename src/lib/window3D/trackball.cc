@@ -118,6 +118,11 @@ void Trackball::endTrackball( int, int, int, int )
 
 void Trackball::moveTrackball( int x, int y, int, int )
 {
+  const set<string> & ih
+    = view()->controlSwitch()->activeControlInstance()->inhibitedActions();
+  if( ih.find( "trackball" ) != ih.end() )
+    return;
+
   if( moveTrackballInternal( x, y ) )
     {
       GLWidgetManager* w = dynamic_cast<GLWidgetManager *>( view() );
