@@ -43,7 +43,7 @@
 No real doc up to now...
 
 - <a href="../html/en/changelog.html">Change Log</a>
-- <a href="https://bioproj.extra.cea.fr/redmine/projects/brainvisa-anatomist/issues">Issues in Bioproj</a>, our Redmine based projects platform. To know more about Bioproj, see <a href="https://brainvisa.info/infrastructure.html#sources">this page on BrainVISA website</a>.
+- <a href="https://bioproj.cea.fr/redmine/projects/brainvisa-anatomist/issues">Issues in Bioproj</a>, our Redmine based projects platform. To know more about Bioproj, see <a href="https://brainvisa.info/infrastructure.html#sources">this page on BrainVISA website</a>.
 
 \ref objects_opengl
 
