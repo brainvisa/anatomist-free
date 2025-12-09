@@ -57,6 +57,7 @@
 #include <anatomist/controler/icondictionary.h>
 #include <anatomist/misc/error.h>
 #include <anatomist/selection/selectFactory.h>
+#include <anatomist/surface/transformedobject.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/color/Light.h>
 #include <anatomist/window3D/wLightModel.h>
@@ -249,6 +250,8 @@ struct AWindow3D::Private
 
     // Shader management
     dynamicShaderBuilder shaderBuilder; 
+
+    TransformedObject* cursor;
 };
 
 struct TmpCol
@@ -923,6 +926,17 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
   d->tooltip = new QAViewToolTip(this, d->draw->qglWidget());
 
   d->orientAnnot = new OrientationAnnotation( this );
+
+  if(hasCursor())
+  {
+    d->cursor = cursorObject();
+    setCursorColor();
+    if(d->cursor)
+    {
+      registerObject(d->cursor, true, 0);
+    }
+  }
+
   setChanged();
   Refresh();
 }
@@ -1258,6 +1272,14 @@ void AWindow3D::refreshNow()
   updateGeometryAndSliders(bbmin, bbmax);
   updateLeftRightAnnotations();
   applySelectionHighlight(tmpcol);
+
+  if(hasCursor())
+  {
+    GLfloat scl = ((GLfloat) cursorSize()) / 20;
+    d->cursor->setScale( scl);
+    d->cursor->setPosition( getPosition() );
+    setCursorColor();
+  }
 
   bool isok = rc.renderScene(_objects);
 
@@ -3410,10 +3432,45 @@ void AWindow3D::refreshTempNow()
       ++ior;
     }
 
-    d->draw->setPrimitives(plnew);
+    //d->draw->setPrimitives(plnew);
     d->draw->updateGL();
   }
   //cout << "refreshTempNow finished\n";
+}
+
+TransformedObject* AWindow3D::cursorObject() const
+{
+  if(!hasCursor())
+    return nullptr;
+
+  AObject* curs = Cursor::currentCursor();
+  if(!curs )
+    return nullptr;
+
+  std::vector<AObject*> cursvec;
+  cursvec.push_back(curs);
+  TransformedObject* tcurs = new TransformedObject(cursvec, true, true, getPosition());
+
+  Material mat = tcurs->GetMaterial();
+  mat.setRenderProperty(Material::RenderProperty::Ghost, 0);
+  tcurs->SetMaterial(mat);
+
+  return tcurs;
+}
+
+void AWindow3D::setCursorColor() const
+{
+  Material mat = d->cursor->GetMaterial();
+  if (!useDefaultCursorColor())
+  {
+    AimsRGB rgb = cursorColor();
+    mat.SetDiffuse(rgb[0]/255.0f, rgb[1]/255.0f, rgb[2]/255.0f, mat.Diffuse(3));
+  }
+  else
+  {
+    mat.SetDiffuse(224/255.0f, 0.f, 0.f, mat.Diffuse(3));
+  }
+  d->cursor->SetMaterial(mat);
 }
 
 int AWindow3D::getSliceSliderPosition()

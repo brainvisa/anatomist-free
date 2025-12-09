@@ -53,6 +53,7 @@ namespace anatomist
   class GLWidgetManager;
   class OrientationAnnotation;
   class IShaderModule;
+  class TransformedObject;
 
   namespace internal
   {
@@ -294,12 +295,14 @@ public:
   bool positionToPolygon( const anatomist::AObject* obj, unsigned poly );
   bool positionToTexture( const anatomist::AObject* obj, float texval );
 
-  //Jordan
   void clearTemporaryPrimitives();
   void updateBoundingBox(std::vector<float>& bbmin, std::vector<float>& bbmax);
   void updateGeometryAndSliders(std::vector<float>& bbmin, std::vector<float>& bbmax);
   void applySelectionHighlight(TmpCol* tmpCol);
   void removeSelectionHighlight(TmpCol *tmpCol);
+
+  anatomist::TransformedObject* cursorObject() const;
+  void setCursorColor() const;
 
   // gets the list of object modifiers
   std::list<ObjectModifier *>& getModifiers();

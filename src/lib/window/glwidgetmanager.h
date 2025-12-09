@@ -128,6 +128,7 @@ namespace anatomist
 
     void setPrimitives( const anatomist::GLPrimitives & li );
     anatomist::GLPrimitives primitives() const;
+    anatomist::GLPrimitives& primitivesRef();
     void setSelectionPrimitives( const anatomist::GLPrimitives & li );
     anatomist::GLPrimitives selectionPrimitives() const;
     void clearLists();
@@ -231,7 +232,6 @@ namespace anatomist
     void restoreFramebuffer();
     void resizeOtherFramebuffers( int w, int h );
 
-    //Jordan
     void initTextures();
     void initFBOs();
     void createFullScreenQuad();

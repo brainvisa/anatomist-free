@@ -139,23 +139,233 @@ bool TransformedObject::render( PrimList & pl, RenderContext & rc )
 }
 
 
+// void TransformedObject::setupTransforms( GLPrimitives & pl,
+//                                          const ViewState & vs )
+// {
+//   if( d->followorientation && d->followposition )
+//     return;
+//   GLList *gll = new GLList;
+//   gll->generate();
+//   pl.push_back( RefGLItem( gll ) );
+//   glNewList( gll->item(), GL_COMPILE );
+
+//   // save matrixes
+//   glMatrixMode( GL_MODELVIEW );
+//   glPushMatrix();
+//   glMatrixMode( GL_PROJECTION );
+//   glPushMatrix();
+
+//   if( !d->followposition )
+//   {
+//     int winDim = 70;
+//     glPushAttrib( GL_VIEWPORT_BIT );
+//     glViewport( 0, 0, winDim, winDim );
+//     glLoadIdentity();
+//     GLfloat orthoMinX = - 1.5;
+//     GLfloat orthoMinY = - 1.5;
+//     GLfloat orthoMinZ = - 1.5;
+//     GLfloat orthoMaxX =   1.5;
+//     GLfloat orthoMaxY =   1.5;
+//     GLfloat orthoMaxZ =   1.5;
+//     glOrtho( orthoMinX, orthoMaxX, orthoMinY, orthoMaxY, orthoMinZ,
+//              orthoMaxZ );
+//   }
+//   AWindow *win = vs.window;
+//   GLWidgetManager *view = 0;
+//   if( win )
+//   {
+//     ControlledWindow *cw = dynamic_cast<ControlledWindow *>( win );
+//     view = dynamic_cast<GLWidgetManager *>( cw->view() );
+//   }
+//   if( !view )
+//     return;
+
+//   Transformation *otov = theAnatomist->getTransformation(
+//     getReferential(), view->aWindow()->getReferential() );
+//   Point3df posoffset = d->posoffset;
+//   Point3df pos = d->pos;
+//   Point3df offsetfrom = d->offsetfrom;
+//   if( otov )
+//   {
+//     posoffset = otov->transform( posoffset )
+//                 - otov->transform( Point3df( 0., 0., 0. ) );
+//     pos = otov->transform( pos );
+//     offsetfrom = otov->transform( offsetfrom );
+//   }
+// //   cout << "posoffset: " << d->posoffset << ": " << posoffset << endl;
+// //   cout << "offsetfrom: " << d->offsetfrom << ": " << offsetfrom << endl;
+// //   cout << "pos: " << d->pos << ": " << pos << endl;
+
+//   if( !d->followorientation )
+//   {
+//     glTranslatef( posoffset[0], posoffset[1], posoffset[2] );
+//     if( d->dynamicoffset )
+//     {
+// //       cout << "dynamicoffset\n";
+//       // project offsetfrom point into camera coords
+//       AffineTransformation3d r \
+//         = AffineTransformation3d( view->quaternion() ); //.inverse();
+//       AffineTransformation3d p;
+//       if( view->invertedZ() )
+//         p.rotation()( 2, 2 ) = -1.;
+//       r = *( p * r ).inverse();
+//       Point3df proj = r.transform( pos - offsetfrom );
+
+//       // align correct corner
+//       vector<float> bmin( 3, 0.f ), bmax( 3, 0.f ), bmt, bmat;
+//       iterator io, eo = end();
+//       bool first = true;
+//       for( io=begin(); io!=eo; ++io ) // TODO: use refs
+//       {
+//         if( (*io)->boundingBox( bmt, bmat ) )
+//         {
+//           if( first )
+//           {
+//             bmin = bmt;
+//             bmax = bmat;
+//             first = false;
+//           }
+//           else
+//           {
+//             if( bmin[0] > bmt[0] )
+//               bmin[0] = bmt[0];
+//             if( bmin[1] > bmt[1] )
+//               bmin[1] = bmt[1];
+//             if( bmin[2] > bmt[2] )
+//               bmin[2] = bmt[2];
+//             if( bmax[0] < bmat[0] )
+//               bmax[0] = bmat[0];
+//             if( bmax[0] < bmat[1] )
+//               bmax[0] = bmat[0];
+//             if( bmax[0] < bmat[0] )
+//               bmax[0] = bmat[0];
+//           }
+//         }
+//       }
+//       Point3df dynoffset( 0, 0, 0 );
+//       if( proj[0] < 0 )
+//         dynoffset[0] = -bmax[0];
+//       else
+//         dynoffset[0] = -bmin[0];
+//       if( proj[1] > 0 )
+//         dynoffset[1] = bmax[1];
+//       else
+//         dynoffset[1] = bmin[1];
+//     //cout << "dynoffset: " << dynoffset << endl;
+//       glTranslatef( dynoffset[0], dynoffset[1], dynoffset[2] );
+//     }
+//     glMatrixMode( GL_MODELVIEW );
+//     glLoadIdentity();
+//     /* keep the translation part of the view orientation
+//     (mut apply the inverse rotation to it) */
+//     Point3df trans = pos - view->rotationCenter();
+//     AffineTransformation3d r \
+//       = *AffineTransformation3d( view->quaternion() ).inverse();
+//     AffineTransformation3d p;
+//     p.matrix()(0, 3) = trans[0];
+//     p.matrix()(1, 3) = trans[1];
+//     p.matrix()(2, 3) = trans[2];
+//     AffineTransformation3d inv;
+//     if( view->invertedZ() )
+//       inv.rotation()( 2, 2 ) = -1;
+//     r = r * inv * p;
+//     glTranslatef( r.translation()[0], r.translation()[1],
+//                   r.translation()[2] );
+//     float sym = ( view->invertedZ() ? 1 : -1 );
+//     glScalef( d->scale * sym, -d->scale * sym, d->scale * sym );
+//   }
+//   else
+//   {
+//     glMatrixMode( GL_MODELVIEW );
+//     /* keep the rotation part of the view orientation, removing the
+//       translation part */
+//     Point3df trans = view->rotationCenter();
+//     // TODO: find a better center than this -0.5
+//     glTranslatef( trans[0] - 0.5, trans[1] - 0.5, trans[2] + 0.5 );
+//     glScalef( d->scale, d->scale, d->scale );
+//   }
+
+//     /* counter the auto transfo done by underlying objects
+//        glHandleTransformation()
+//        FIXME: each object will transfor from its own ref to the view's
+//        so this code only works if all children are in the same ref.
+//        The right solution would be to disable glHandleTransformation on
+//        children, but our API doesn't allow it.
+//     */
+//   Transformation *vtoo = 0;
+//   iterator i = begin();
+//   if( i != end() )
+//     vtoo = theAnatomist->getTransformation(
+//       view->aWindow()->getReferential(), (*i)->getReferential() );
+//   if( vtoo )
+//   {
+//     GLfloat mat[16];
+
+//     // write 4x4 matrix in column
+//     mat[0] = vtoo->Rotation( 0, 0 );
+//     mat[1] = vtoo->Rotation( 1, 0 );
+//     mat[2] = vtoo->Rotation( 2, 0 );
+//     mat[3] = 0;
+//     mat[4] = vtoo->Rotation( 0, 1 );
+//     mat[5] = vtoo->Rotation( 1, 1 );
+//     mat[6] = vtoo->Rotation( 2, 1 );
+//     mat[7] = 0;
+//     mat[8] = vtoo->Rotation( 0, 2 );
+//     mat[9] = vtoo->Rotation( 1, 2 );
+//     mat[10] = vtoo->Rotation( 2, 2 );
+//     mat[11] = 0;
+//     mat[12] = vtoo->Translation( 0 );
+//     mat[13] = vtoo->Translation( 1 );
+//     mat[14] = vtoo->Translation( 2 );
+//     mat[15] = 1;
+
+//     glMultMatrixf( mat );
+//   }
+
+//   glEndList();
+// }
+
 void TransformedObject::setupTransforms( GLPrimitives & pl,
                                          const ViewState & vs )
 {
-  if( d->followorientation && d->followposition )
-    return;
   GLList *gll = new GLList;
   gll->generate();
   pl.push_back( RefGLItem( gll ) );
   glNewList( gll->item(), GL_COMPILE );
 
-  // save matrixes
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
   glMatrixMode( GL_PROJECTION );
   glPushMatrix();
 
-  if( !d->followposition )
+  bool followPos = d->followposition;
+  bool followRot = d->followorientation;
+
+  AWindow *win = vs.window;
+  GLWidgetManager *view = 0;
+  if( win )
+  {
+    ControlledWindow *cw = dynamic_cast<ControlledWindow *>( win );
+    view = dynamic_cast<GLWidgetManager *>( cw->view() );
+  }
+  if( !view )
+    return;
+
+  Transformation *otov = theAnatomist->getTransformation(
+    getReferential(), view->aWindow()->getReferential() );
+
+  Point3df posoffset = d->posoffset;
+  Point3df pos = d->pos;
+  Point3df offsetfrom = d->offsetfrom;
+  if( otov )
+  {
+    posoffset = otov->transform( posoffset )
+                - otov->transform( Point3df( 0., 0., 0. ) );
+    pos = otov->transform( pos );
+    offsetfrom = otov->transform( offsetfrom );
+  }
+
+  if( !d->followposition && !d->followorientation )
   {
     int winDim = 70;
     glPushAttrib( GL_VIEWPORT_BIT );
@@ -170,128 +380,83 @@ void TransformedObject::setupTransforms( GLPrimitives & pl,
     glOrtho( orthoMinX, orthoMaxX, orthoMinY, orthoMaxY, orthoMinZ,
              orthoMaxZ );
   }
-  AWindow *win = vs.window;
-  GLWidgetManager *view = 0;
-  if( win )
-  {
-    ControlledWindow *cw = dynamic_cast<ControlledWindow *>( win );
-    view = dynamic_cast<GLWidgetManager *>( cw->view() );
-  }
-  if( !view )
-    return;
 
-  Transformation *otov = theAnatomist->getTransformation(
-    getReferential(), view->aWindow()->getReferential() );
-  Point3df posoffset = d->posoffset;
-  Point3df pos = d->pos;
-  Point3df offsetfrom = d->offsetfrom;
-  if( otov )
+  else if(!d->followposition && d->followorientation )
   {
-    posoffset = otov->transform( posoffset )
-                - otov->transform( Point3df( 0., 0., 0. ) );
-    pos = otov->transform( pos );
-    offsetfrom = otov->transform( offsetfrom );
-  }
-//   cout << "posoffset: " << d->posoffset << ": " << posoffset << endl;
-//   cout << "offsetfrom: " << d->offsetfrom << ": " << offsetfrom << endl;
-//   cout << "pos: " << d->pos << ": " << pos << endl;
+    int winDim = 70;
+    glPushAttrib( GL_VIEWPORT_BIT );
+    glViewport( 0, 0, winDim, winDim );
 
-  if( !d->followorientation )
-  {
-    glTranslatef( posoffset[0], posoffset[1], posoffset[2] );
-    if( d->dynamicoffset )
-    {
-//       cout << "dynamicoffset\n";
-      // project offsetfrom point into camera coords
-      AffineTransformation3d r \
-        = AffineTransformation3d( view->quaternion() ); //.inverse();
-      AffineTransformation3d p;
-      if( view->invertedZ() )
-        p.rotation()( 2, 2 ) = -1.;
-      r = *( p * r ).inverse();
-      Point3df proj = r.transform( pos - offsetfrom );
+    glMatrixMode( GL_PROJECTION );
+    glLoadIdentity();
+    glOrtho( -1.5, 1.5, -1.5, 1.5, -1.5, 1.5 );
 
-      // align correct corner
-      vector<float> bmin( 3, 0.f ), bmax( 3, 0.f ), bmt, bmat;
-      iterator io, eo = end();
-      bool first = true;
-      for( io=begin(); io!=eo; ++io ) // TODO: use refs
-      {
-        if( (*io)->boundingBox( bmt, bmat ) )
-        {
-          if( first )
-          {
-            bmin = bmt;
-            bmax = bmat;
-            first = false;
-          }
-          else
-          {
-            if( bmin[0] > bmt[0] )
-              bmin[0] = bmt[0];
-            if( bmin[1] > bmt[1] )
-              bmin[1] = bmt[1];
-            if( bmin[2] > bmt[2] )
-              bmin[2] = bmt[2];
-            if( bmax[0] < bmat[0] )
-              bmax[0] = bmat[0];
-            if( bmax[0] < bmat[1] )
-              bmax[0] = bmat[0];
-            if( bmax[0] < bmat[0] )
-              bmax[0] = bmat[0];
-          }
-        }
-      }
-      Point3df dynoffset( 0, 0, 0 );
-      if( proj[0] < 0 )
-        dynoffset[0] = -bmax[0];
-      else
-        dynoffset[0] = -bmin[0];
-      if( proj[1] > 0 )
-        dynoffset[1] = bmax[1];
-      else
-        dynoffset[1] = bmin[1];
-//       cout << "dynoffset: " << dynoffset << endl;
-      glTranslatef( dynoffset[0], dynoffset[1], dynoffset[2] );
-    }
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
-    /* keep the translation part of the view orientation
-    (mut apply the inverse rotation to it) */
-    Point3df trans = pos - view->rotationCenter();
-    AffineTransformation3d r \
-      = *AffineTransformation3d( view->quaternion() ).inverse();
-    AffineTransformation3d p;
-    p.matrix()(0, 3) = trans[0];
-    p.matrix()(1, 3) = trans[1];
-    p.matrix()(2, 3) = trans[2];
-    AffineTransformation3d inv;
-    if( view->invertedZ() )
-      inv.rotation()( 2, 2 ) = -1;
-    r = r * inv * p;
-    glTranslatef( r.translation()[0], r.translation()[1],
-                  r.translation()[2] );
-    float sym = ( view->invertedZ() ? 1 : -1 );
-    glScalef( d->scale * sym, -d->scale * sym, d->scale * sym );
-  }
-  else
-  {
-    glMatrixMode( GL_MODELVIEW );
-    /* keep the rotation part of the view orientation, removing the
-      translation part */
-    Point3df trans = view->rotationCenter();
-    // TODO: find a better center than this -0.5
-    glTranslatef( trans[0] - 0.5, trans[1] - 0.5, trans[2] + 0.5 );
+
+    AffineTransformation3d r = *AffineTransformation3d( view->quaternion() ).inverse();
+
+    GLfloat rotmat[16];
+    rotmat[0] = r.rotation()(0,0);
+    rotmat[1] = r.rotation()(1,0);
+    rotmat[2] = r.rotation()(2,0);
+    rotmat[3] = 0;
+    rotmat[4] = r.rotation()(0,1);
+    rotmat[5] = r.rotation()(1,1);
+    rotmat[6] = r.rotation()(2,1);
+    rotmat[7] = 0;
+    rotmat[8] = r.rotation()(0,2);
+    rotmat[9] = r.rotation()(1,2);
+    rotmat[10] = r.rotation()(2,2);
+    rotmat[11] = 0;
+    rotmat[12] = 0;
+    rotmat[13] = 0;
+    rotmat[14] = 0;
+    rotmat[15] = 1;
+
+    glMultMatrixf( rotmat );
+    glTranslatef( 0.0, 0.0, 0.0 );
+
     glScalef( d->scale, d->scale, d->scale );
   }
 
-    /* counter the auto transfo done by underlying objects
-       glHandleTransformation()
-       FIXME: each object will transfor from its own ref to the view's
-       so this code only works if all children are in the same ref.
-       The right solution would be to disable glHandleTransformation on
-       children, but our API doesn't allow it.
-    */
+  else if( d->followposition && !d->followorientation )
+  {
+    glMatrixMode( GL_MODELVIEW );
+    glTranslatef( pos[0], pos[1], pos[2] );
+    glScalef( d->scale, d->scale, d->scale );
+  }
+
+  else if( d->followposition && d->followorientation )
+  {
+    glMatrixMode( GL_MODELVIEW );
+
+    glTranslatef( pos[0], pos[1], pos[2] );
+
+    AffineTransformation3d r = AffineTransformation3d( view->quaternion() );
+    GLfloat mat[16];
+
+    mat[0] = r.rotation()( 0, 0 );
+    mat[1] = r.rotation()( 1, 0 );
+    mat[2] = r.rotation()( 2, 0 );
+    mat[3] = 0;
+    mat[4] = r.rotation()( 0, 1 );
+    mat[5] = r.rotation()( 1, 1 );
+    mat[6] = r.rotation()( 2, 1 );
+    mat[7] = 0;
+    mat[8] = r.rotation()( 0, 2 );
+    mat[9] = r.rotation()( 1, 2 );
+    mat[10] = r.rotation()( 2, 2 );
+    mat[11] = 0;
+    mat[12] = 0;
+    mat[13] = 0;
+    mat[14] = 0;
+    mat[15] = 1;
+
+    glMultMatrixf( mat );
+    glScalef( d->scale, d->scale, d->scale );
+  }
+
   Transformation *vtoo = 0;
   iterator i = begin();
   if( i != end() )
@@ -301,7 +466,6 @@ void TransformedObject::setupTransforms( GLPrimitives & pl,
   {
     GLfloat mat[16];
 
-    // write 4x4 matrix in column
     mat[0] = vtoo->Rotation( 0, 0 );
     mat[1] = vtoo->Rotation( 1, 0 );
     mat[2] = vtoo->Rotation( 2, 0 );

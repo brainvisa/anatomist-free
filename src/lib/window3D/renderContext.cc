@@ -28,7 +28,7 @@ struct RenderContext::Private
 
   AWindow3D* window;
   GLWidgetManager * glwman;
-  PrimList primitives;
+  PrimList& primitives;
   dynamicShaderBuilder shaderBuilder;
   std::map<std::string, carto::rc_ptr<QOpenGLShaderProgram>> programs;
   carto::rc_ptr<QOpenGLShaderProgram> currentProgram;
@@ -36,14 +36,13 @@ struct RenderContext::Private
 };
 
 RenderContext::Private::Private(AWindow3D* win, GLWidgetManager* widgetManager) : 
-window(win), glwman(widgetManager), currentProgram(nullptr)
+window(win), glwman(widgetManager),primitives(glwman->primitivesRef()) ,currentProgram(nullptr)
 {
 }
 
 RenderContext::Private::~Private()
 {
   glwman = nullptr;
-  primitives.clear();
   programs.clear();
   currentProgram.reset();
 }
@@ -51,6 +50,7 @@ RenderContext::Private::~Private()
 RenderContext::RenderContext(AWindow3D* window, GLWidgetManager* widgetManager)
 {
   d = new Private(window, widgetManager);
+  d->glwman->clearLists();
   shaderMapping::initShaderMapping();
   GLuint localGLL = glGenLists(2);
   setupClippingPlanes(localGLL);
@@ -67,7 +67,6 @@ bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & o
   bool success = false;
   d->glwman->qglWidget()->makeCurrent();
   setupOpenGLState();
-  cursorGLL();
   success = renderObjects(objs);
   finalizeRendering();
   return success;
@@ -110,7 +109,6 @@ bool RenderContext::renderObjects( const std::list<carto::shared_ptr<AObject>> &
       success |= updateObject(obj);
     }
   }
-
   return success;
 }
 
@@ -372,7 +370,7 @@ void RenderContext::setupOpenGLState()
     glDisable( GL_FOG);
   }
 
-    switch (d->window->renderingMode())
+  switch (d->window->renderingMode())
   {
     case AWindow3D::Wireframe:
       glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -437,8 +435,6 @@ void RenderContext::finalizeRendering()
     duplicateRenderPrimitives();
   }
 
-  d->glwman->setPrimitives(d->primitives);
-  d->primitives.clear();
   if(d->window->light())
   {
     d->glwman->setLightGLList(d->window->light()->getGLList());
@@ -501,93 +497,4 @@ void RenderContext::duplicateRenderPrimitives()
       d->primitives.push_back(*ip);
 }
 
-void RenderContext::cursorGLL() const
-{
-  GLPrimitives curspl;
-  if (d->window->hasCursor())
-  {
-    AObject *curs = Cursor::currentCursor();
-    if (curs)
-    {
-      GLComponent *gc = curs->glAPI();
-      if (gc)
-      {
-        carto::rc_ptr<QOpenGLShaderProgram> program = d->shaderBuilder.initShader("", "main.vs.glsl", "noLightModel.fs.glsl");
-        d->primitives.push_back(carto::rc_ptr<GLItem>(new GLBindShader(program)));
-        d->primitives.push_back(carto::rc_ptr<GLItem>(new GLObjectUniforms(carto::rc_ptr<IShaderModule>(), program, gc)));
 
-        ViewState vs(0);
-        // cursor color
-        Material mat = curs->GetMaterial();
-        if (!d->window->useDefaultCursorColor())
-        {
-          AimsRGB rgb = d->window->cursorColor();
-          mat.SetDiffuse(((float) rgb[0]) / 255, ((float) rgb[1]) / 255,
-              ((float) rgb[2]) / 255, mat.Diffuse(3));
-        }
-        else
-          mat.SetDiffuse(224. / 255, 0, 0, mat.Diffuse(3));
-        curs->SetMaterial(mat);
-
-        curspl = gc->glMainGLL(vs);
-        if (!curspl.empty())
-        {
-          bool dr = d->window->getReferential() && d->window->getReferential()->isDirect();
-          Point3df pos = d->window->getPosition();
-          GLList *posl = new GLList;
-          posl->generate();
-          glNewList(posl->item(), GL_COMPILE);
-          GLfloat mat[16];
-          GLfloat scl = ((GLfloat) d->window->cursorSize()) / 20;
-
-          // write 4x4 matrix in column
-          mat[0] = scl;
-          mat[1] = 0;
-          mat[2] = 0;
-          mat[3] = 0;
-          mat[4] = 0;
-          mat[5] = scl;
-          mat[6] = 0;
-          mat[7] = 0;
-          mat[8] = 0;
-          mat[9] = 0;
-          mat[10] = scl;
-          mat[11] = 0;
-          mat[12] = pos[0];
-          mat[13] = pos[1];
-          mat[14] = pos[2];
-          mat[15] = 1;
-
-          if (dr) glFrontFace( GL_CCW);
-          glMatrixMode( GL_MODELVIEW);
-          glPushMatrix();
-          glMultMatrixf(mat);
-          glPushAttrib(GL_LIGHTING_BIT | GL_LINE_BIT | GL_CURRENT_BIT
-              | GL_DEPTH_BUFFER_BIT);
-          //glDepthMask( GL_FALSE ); // don't write cursor in z-buffer
-          glEndList();
-
-          curspl.insert(curspl.begin(), RefGLItem(posl));
-
-          posl = new GLList;
-          posl->generate();
-          glNewList(posl->item(), GL_COMPILE);
-          glPopAttrib();
-          glMatrixMode(GL_MODELVIEW);
-          glPopMatrix();
-          if (dr) glFrontFace( GL_CW);
-          glEndList();
-          curspl.push_back(RefGLItem(posl));
-
-          GLPrimitives::iterator i, e = curspl.end();
-          for (i = curspl.begin(); i != e; ++i)
-            (*i)->setGhost(true);
-
-          d->primitives.insert(d->primitives.end(), curspl.begin(),
-              curspl.end());
-        }
-        d->primitives.push_back(carto::rc_ptr<GLItem>(new GLReleaseShader(program)));
-      }
-    }
-  }
-}

@@ -162,7 +162,6 @@ namespace anatomist
       anatomist::Primitive* setupHiddenWireframeMode();
       anatomist::Primitive* setupOutlinedMode();
       void duplicateRenderPrimitives();
-      void cursorGLL() const;
       
 
       struct Private;
