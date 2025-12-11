@@ -194,10 +194,8 @@ void TransformedObject::setupTransforms( GLPrimitives & pl,
 
     glMultMatrixf( mat );
     glScalef( d->scale, d->scale, d->scale );
-    glEndList();
-    return;
   }
-
+  else{
   if( !d->followposition )
   {
     int winDim = 70;
@@ -355,6 +353,7 @@ void TransformedObject::setupTransforms( GLPrimitives & pl,
 
     glMultMatrixf( mat );
   }
+  } 
 
   glEndList();
 }
