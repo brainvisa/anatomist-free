@@ -142,7 +142,7 @@ bool TransformedObject::render( PrimList & pl, RenderContext & rc )
 void TransformedObject::setupTransforms( GLPrimitives & pl,
                                          const ViewState & vs )
 {
-   
+
   GLList *gll = new GLList;
   gll->generate();
   pl.push_back( RefGLItem( gll ) );
@@ -373,8 +373,6 @@ float TransformedObject::scale() const
 
 void TransformedObject::popTransformationMatrixes( GLPrimitives & pl )
 {
-  if( d->followorientation && d->followposition )
-    return;
   GLList *gll = new GLList;
   gll->generate();
   pl.push_back( RefGLItem( gll ) );
