@@ -1272,16 +1272,9 @@ void AWindow3D::refreshNow()
   updateGeometryAndSliders(bbmin, bbmax);
   updateLeftRightAnnotations();
   applySelectionHighlight(tmpcol);
+  updateCursor();
 
-  if(hasCursor())
-  {
-    GLfloat scl = ((GLfloat) cursorSize()) / 20;
-    d->cursor->setScale( scl);
-    d->cursor->setPosition( getPosition() );
-    setCursorColor();
-  }
-
-  bool isok = rc.renderScene(_objects);
+  bool isRenderingOk = rc.renderScene(_objects);
 
   removeSelectionHighlight(tmpcol);
   showReferential();
@@ -1289,6 +1282,37 @@ void AWindow3D::refreshNow()
   delete[] tmpcol;
   ResetRefreshFlag();
   emit refreshed();
+}
+
+void AWindow3D::updateCursor()
+{
+  bool firstItemIsCursor = _objects.size() > 0 && _objects.front().get() == d->cursor;
+  TransformedObject* currentCursor = cursorObject();
+
+  if(hasCursor())
+  {
+    if(d->cursor != currentCursor)
+    {
+      unregisterObject(d->cursor);    
+      d->cursor = currentCursor;
+      registerObject(d->cursor, true, 0);
+    }else if(!firstItemIsCursor)
+    {
+      unregisterObject(d->cursor);    
+      registerObject(d->cursor, true, 0);
+    }
+    GLfloat scl = ((GLfloat) cursorSize()) / 20;
+    d->cursor->setScale( scl);
+    d->cursor->setPosition( getPosition() );
+    setCursorColor();
+  }
+  else
+  {
+    if(firstItemIsCursor)
+    {
+      unregisterObject(d->cursor);
+    }
+  }
 }
 
 void AWindow3D::showReferential()
