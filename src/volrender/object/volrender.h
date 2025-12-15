@@ -52,7 +52,7 @@ namespace anatomist
     VolRender( AObject * vol );
     virtual ~VolRender();
 
-    virtual bool render( PrimList &, const ViewState & );
+    virtual bool render( PrimList &, anatomist::RenderContext & );
     virtual bool Is2DObject() { return true; }
     virtual bool Is3DObject() { return false; }
     virtual Tree* optionTree() const;

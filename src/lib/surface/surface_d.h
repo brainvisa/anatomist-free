@@ -42,6 +42,7 @@
 #include <anatomist/window/viewstate.h>
 #include <anatomist/object/actions.h>
 #include <anatomist/primitive/primitiveTypes.h>
+#include <anatomist/window3D/renderContext.h>
 #include <graph/tree/tree.h>
 #include <aims/mesh/surfaceOperation.h>
 #include <aims/io/writer.h>
@@ -102,9 +103,9 @@ namespace anatomist
 
 template<int D>
 bool ASurface<D>::render( anatomist::PrimList& primitiveList,
-                                   const anatomist::ViewState& viewState )
+                                   anatomist::RenderContext& rc )
 {
-	return anatomist::AObject::render( primitiveList, viewState );
+	return anatomist::AObject::render( primitiveList, rc );
 }
 
 

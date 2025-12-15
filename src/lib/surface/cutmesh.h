@@ -62,7 +62,7 @@ namespace anatomist
 
     virtual void update( const Observable* observable, void* arg );
     virtual std::list<AObject *> renderedSubObjects( const ViewState & ) const;
-    virtual bool render( PrimList &, const ViewState & );
+    virtual bool render( PrimList &, RenderContext & );
     virtual bool Is2DObject() { return( false ); }
     virtual bool Is3DObject() { return( true ); }
     virtual void clearHasChangedFlags() const;

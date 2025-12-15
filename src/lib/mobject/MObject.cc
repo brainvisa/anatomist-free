@@ -40,6 +40,7 @@
 #include <anatomist/reference/Referential.h>
 #include <anatomist/surface/glcomponent.h>
 #include <anatomist/window/viewstate.h>
+#include <anatomist/window3D/renderContext.h>
 #include <float.h>
 
 // uncomment this to enable debug output for update pattern
@@ -177,19 +178,16 @@ void MObject::clearHasChangedFlags() const
 }
 
 
-bool MObject::render( PrimList & prim, const ViewState & state )
+bool MObject::render( PrimList & prim, RenderContext & rc )
 {
   bool retcode = false;
 
-  list<AObject *> rendered = renderedSubObjects( state );
-  list<AObject *>::const_iterator i, j = rendered.end();
-  for( i=rendered.begin(); i!=j; ++i )
-  {
-//     if( (*i)->Is2DObject()
-//         && (*i)->render( prim, state ) )
-//     retcode = true;
-    retcode |= (*i)->render( prim, state );
-  }
+  list<AObject *> rendered = renderedSubObjects( rc.getViewState() );
+  list<carto::shared_ptr<anatomist::AObject>> ptr_rendered;
+  for( auto obj : rendered )
+    ptr_rendered.push_back( carto::rc_ptr<anatomist::AObject>( obj ) );
+
+  retcode = rc.renderObjects( ptr_rendered );
 
   return retcode;
 }

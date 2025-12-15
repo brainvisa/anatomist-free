@@ -42,6 +42,7 @@
 #include <anatomist/object/actions.h>
 #include <anatomist/surface/glcomponent.h>
 #include <anatomist/window/viewstate.h>
+#include <anatomist/window3D/renderContext.h>
 #include <anatomist/color/objectPalette.h>
 #include <graph/tree/tree.h>
 #include <anatomist/primitive/primitive.h>
@@ -355,10 +356,10 @@ void Fusion3D::refreshVTexture( const ViewState & s ) const
 }
 
 
-bool Fusion3D::render( PrimList & prim, const ViewState & state )
+bool Fusion3D::render( PrimList & prim, RenderContext & rc )
 {
   theAnatomist->setCursor( Anatomist::Working );
-  bool x = GLObjectVector::render( prim, state );
+  bool x = GLObjectVector::render( prim, rc );
   theAnatomist->setCursor( Anatomist::Normal );
   return x;
 }

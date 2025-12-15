@@ -76,7 +76,7 @@ namespace anatomist
 
     virtual bool CanRemove( AObject* obj );
 
-    virtual bool render( PrimList &, const ViewState & );
+    virtual bool render( PrimList &, RenderContext & );
     virtual bool update2DTexture( AImage &, const Point3df & posbase,
                                   const SliceViewState &, 
                                   unsigned tex = 0 ) const;

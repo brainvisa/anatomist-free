@@ -36,6 +36,7 @@
 #include <anatomist/surface/texsurface.h>
 #include <anatomist/surface/texture.h>
 #include <anatomist/surface/mtexture.h>
+#include <anatomist/window3D/renderContext.h>
 #include <anatomist/application/settings.h>
 #include <anatomist/control/qObjTree.h>
 #include <anatomist/color/objectPalette.h>
@@ -464,13 +465,16 @@ AConnectivityMatrix::~AConnectivityMatrix()
 }
 
 
-bool AConnectivityMatrix::render( PrimList & plist, const ViewState & vs )
+bool AConnectivityMatrix::render( PrimList & plist, RenderContext & rc )
 {
   if( d->marker )
-    d->marker->render( plist, vs );
+    d->marker->render( plist, rc );
   vector<ATexSurface *>::iterator its, ets = d->texsurfaces.end();
-  for( its=d->texsurfaces.begin(); its!=ets; ++its )
-    (*its)->render( plist, vs );
+  list<carto::shared_ptr<AObject>> ptr_rendered;
+  for(auto obj : d->texsurfaces)
+    ptr_rendered.push_back(carto::rc_ptr<AObject>(obj));
+  
+  rc.renderObjects( ptr_rendered );
   return true;
 }
 

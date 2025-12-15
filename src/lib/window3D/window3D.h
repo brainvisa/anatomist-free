@@ -53,6 +53,7 @@ namespace anatomist
   class GLWidgetManager;
   class OrientationAnnotation;
   class IShaderModule;
+  class TransformedObject;
 
   namespace internal
   {
@@ -294,22 +295,17 @@ public:
   bool positionToPolygon( const anatomist::AObject* obj, unsigned poly );
   bool positionToTexture( const anatomist::AObject* obj, float texval );
 
-  //Jordan
   void clearTemporaryPrimitives();
   void updateBoundingBox(std::vector<float>& bbmin, std::vector<float>& bbmax);
   void updateGeometryAndSliders(std::vector<float>& bbmin, std::vector<float>& bbmax);
-  void setupOpenGLRendering();
   void applySelectionHighlight(TmpCol* tmpCol);
   void removeSelectionHighlight(TmpCol *tmpCol);
-  void setupOpenGLState();
-  void setupClippingPlanes(GLuint localGLL);
-  void setupTransparentObjects();
-  void postTransparentRenderingSetup();
-  void finalizeRendering();
-  anatomist::Primitive* setupHiddenWireframeMode();
-  anatomist::Primitive* setupOutlinedMode();
-  void duplicateRenderPrimitives();
-  void finalizeRenderingSettings();
+
+  /// retunrs the cursor object with a ghost material, or null if none
+  anatomist::TransformedObject* cursorObject() const;
+  /// add or remove the cursor Object and update its color and position
+  void updateCursor();
+  void setCursorColor() const;
 
   // gets the list of object modifiers
   std::list<ObjectModifier *>& getModifiers();
@@ -405,16 +401,6 @@ protected:
   void setupSliceSlider( float mins, float maxs );
   void setupSliceSlider();
   void updateViewTypeToolBar();
-  void updateObject( anatomist::AObject* obj, anatomist::PrimList* pl = 0,
-                     anatomist::ViewState::glSelectRenderMode selectmode
-                         = anatomist::ViewState::glSELECTRENDER_NONE );
-  void updateObject2D( anatomist::AObject* obj, anatomist::PrimList* pl = 0,
-                       anatomist::ViewState::glSelectRenderMode selectmode
-                           = anatomist::ViewState::glSELECTRENDER_NONE );
-  void updateObject3D( anatomist::AObject* obj, anatomist::PrimList* pl = 0,
-                       anatomist::ViewState::glSelectRenderMode selectmode
-                           = anatomist::ViewState::glSELECTRENDER_NONE );
-  anatomist::GLPrimitives cursorGLL() const;
   int updateSliceSlider();
   void updateTimeSliders();
   /// Allows changing display lists from normal objects DLists

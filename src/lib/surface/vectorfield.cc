@@ -42,6 +42,7 @@
 #include <anatomist/surface/wvectorfield.h>
 #include <anatomist/control/qObjTree.h>
 #include <anatomist/application/settings.h>
+#include <anatomist/window3D/renderContext.h>
 #include <aims/resampling/quaternion.h>
 
 using namespace anatomist;
@@ -449,11 +450,11 @@ void VectorField::glAfterBodyGLL( const ViewState &,
 
 
 //--------------------------------------------------------------
-bool VectorField::render( PrimList & prim, const ViewState & state )
+bool VectorField::render( PrimList & prim, RenderContext & rc )
 {
-  buildMesh( state );
+  buildMesh( rc.getViewState() );
 
-  return d->vecField->render( prim, state );
+  return d->vecField->render( prim, rc );
 }
 
 //--------------------------------------------------------------

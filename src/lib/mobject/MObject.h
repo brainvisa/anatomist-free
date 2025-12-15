@@ -295,7 +295,7 @@ namespace anatomist
     //@{
     /// lis of objects displayed in render() in a default implementation
     virtual std::list<AObject *> renderedSubObjects( const ViewState & ) const;
-    virtual bool render( PrimList &, const ViewState & );
+    virtual bool render( PrimList &, RenderContext & );
     virtual bool renderingIsObserverDependent() const;
     /// Can be display in 2D windows.
     virtual bool Is2DObject();

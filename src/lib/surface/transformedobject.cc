@@ -37,6 +37,8 @@
 #include <anatomist/window/controlledWindow.h>
 #include <anatomist/reference/Transformation.h>
 #include <aims/transformation/affinetransformation3d.h>
+#include <anatomist/window3D/renderContext.h>
+
 
 using namespace anatomist;
 using namespace aims;
@@ -117,16 +119,18 @@ bool TransformedObject::renderingIsObserverDependent() const
 }
 
 
-bool TransformedObject::render( PrimList & pl, const ViewState & vs )
+bool TransformedObject::render( PrimList & pl, RenderContext & rc )
 {
   // change transformation matrices
-  setupTransforms( pl, vs );
+  setupTransforms( pl, rc.getViewState() );
 
   // render sub-objects
   bool res = false;
   iterator io, eo = end();
+  list<carto::shared_ptr<AObject>> ptr_rendered;
   for( io=begin(); io!=eo; ++io )
-    res |= (*io)->render( pl, vs );
+    ptr_rendered.push_back( carto::rc_ptr<AObject>( *io ) );
+  res = rc.renderObjects( ptr_rendered );
 
   // pop matrixes
   popTransformationMatrixes( pl );
@@ -138,8 +142,7 @@ bool TransformedObject::render( PrimList & pl, const ViewState & vs )
 void TransformedObject::setupTransforms( GLPrimitives & pl,
                                          const ViewState & vs )
 {
-  if( d->followorientation && d->followposition )
-    return;
+
   GLList *gll = new GLList;
   gll->generate();
   pl.push_back( RefGLItem( gll ) );
@@ -151,6 +154,48 @@ void TransformedObject::setupTransforms( GLPrimitives & pl,
   glMatrixMode( GL_PROJECTION );
   glPushMatrix();
 
+  AWindow *win = vs.window;
+  GLWidgetManager *view = 0;
+  if( win )
+  {
+    ControlledWindow *cw = dynamic_cast<ControlledWindow *>( win );
+    view = dynamic_cast<GLWidgetManager *>( cw->view() );
+  }
+  if( !view )
+    return;
+
+  Point3df pos = d->pos;
+
+  if( d->followorientation && d->followposition )
+  {
+    glMatrixMode( GL_MODELVIEW );
+
+    glTranslatef( pos[0], pos[1], pos[2] );
+
+    AffineTransformation3d r = AffineTransformation3d( view->quaternion() );
+    GLfloat mat[16];
+
+    mat[0] = r.rotation()( 0, 0 );
+    mat[1] = r.rotation()( 1, 0 );
+    mat[2] = r.rotation()( 2, 0 );
+    mat[3] = 0;
+    mat[4] = r.rotation()( 0, 1 );
+    mat[5] = r.rotation()( 1, 1 );
+    mat[6] = r.rotation()( 2, 1 );
+    mat[7] = 0;
+    mat[8] = r.rotation()( 0, 2 );
+    mat[9] = r.rotation()( 1, 2 );
+    mat[10] = r.rotation()( 2, 2 );
+    mat[11] = 0;
+    mat[12] = 0;
+    mat[13] = 0;
+    mat[14] = 0;
+    mat[15] = 1;
+
+    glMultMatrixf( mat );
+    glScalef( d->scale, d->scale, d->scale );
+  }
+  else{
   if( !d->followposition )
   {
     int winDim = 70;
@@ -166,20 +211,11 @@ void TransformedObject::setupTransforms( GLPrimitives & pl,
     glOrtho( orthoMinX, orthoMaxX, orthoMinY, orthoMaxY, orthoMinZ,
              orthoMaxZ );
   }
-  AWindow *win = vs.window;
-  GLWidgetManager *view = 0;
-  if( win )
-  {
-    ControlledWindow *cw = dynamic_cast<ControlledWindow *>( win );
-    view = dynamic_cast<GLWidgetManager *>( cw->view() );
-  }
-  if( !view )
-    return;
+
 
   Transformation *otov = theAnatomist->getTransformation(
     getReferential(), view->aWindow()->getReferential() );
   Point3df posoffset = d->posoffset;
-  Point3df pos = d->pos;
   Point3df offsetfrom = d->offsetfrom;
   if( otov )
   {
@@ -247,7 +283,7 @@ void TransformedObject::setupTransforms( GLPrimitives & pl,
         dynoffset[1] = bmax[1];
       else
         dynoffset[1] = bmin[1];
-//       cout << "dynoffset: " << dynoffset << endl;
+    //cout << "dynoffset: " << dynoffset << endl;
       glTranslatef( dynoffset[0], dynoffset[1], dynoffset[2] );
     }
     glMatrixMode( GL_MODELVIEW );
@@ -317,6 +353,7 @@ void TransformedObject::setupTransforms( GLPrimitives & pl,
 
     glMultMatrixf( mat );
   }
+  } 
 
   glEndList();
 }
@@ -336,8 +373,6 @@ float TransformedObject::scale() const
 
 void TransformedObject::popTransformationMatrixes( GLPrimitives & pl )
 {
-  if( d->followorientation && d->followposition )
-    return;
   GLList *gll = new GLList;
   gll->generate();
   pl.push_back( RefGLItem( gll ) );

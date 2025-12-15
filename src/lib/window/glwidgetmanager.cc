@@ -60,7 +60,6 @@
 #include <QIntValidator>
 #include <QWindow>
 
-//jordan  
 #include <cartobase/config/paths.h>
 #include <anatomist/surface/dynamicShaderBuilder.h>
 #include <QOpenGLTexture>
@@ -231,7 +230,6 @@ struct GLWidgetManager::Private
   int recordWidth;
   int recordHeight;
 
-  //jordan
   dynamicShaderBuilder shaderBuilder;
   bool useDepthPeeling;
   std::vector<QOpenGLFramebufferObject*> fbos;
@@ -886,7 +884,7 @@ void GLWidgetManager::resizeTexturesAndFBOs(int w, int h)
   {
     for(size_t i=0; i< _pd->nbLayers; ++i)
     {
-      _pd->colorTextures[i]->destroy(); // jordan : redundant with initTextures, should I create a methode for this
+      _pd->colorTextures[i]->destroy();
       _pd->colorTextures[i]->create();
       _pd->colorTextures[i]->setSize(w,h);
       _pd->colorTextures[i]->setFormat(QOpenGLTexture::RGBA32F);
@@ -908,9 +906,6 @@ void GLWidgetManager::resizeTexturesAndFBOs(int w, int h)
       _pd->fbos[i]->release();  
     }
   }
-
-  //initTextures(); // jordan : resize textures and fbos only would be better but it's segfaulting
-
 }
 
 void GLWidgetManager::initFBOs()
@@ -1059,6 +1054,8 @@ void GLWidgetManager::depthPeeling()
     if(i>0)
       _pd->depthTextures[i-1]->release();
   }
+  _pd->depthTextures[_pd->nbLayers-1]->release();
+  glBindFramebuffer(GL_FRAMEBUFFER, qglWidget()->defaultFramebufferObject());
   _pd->currentLayer = 0;
 }
 
@@ -1066,7 +1063,7 @@ void GLWidgetManager::depthPeeling()
 
 void GLWidgetManager::clearLists()
 {
-  _primitives.clear();
+  _primitives.clear(); 
   _selectprimitives.clear();
 }
 
@@ -1079,6 +1076,11 @@ void GLWidgetManager::setPrimitives( const GLPrimitives & pl )
 
 
 GLPrimitives GLWidgetManager::primitives() const
+{
+  return( _primitives );
+}
+
+GLPrimitives& GLWidgetManager::primitivesRef()
 {
   return( _primitives );
 }

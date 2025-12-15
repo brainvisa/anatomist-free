@@ -35,6 +35,7 @@
 #include <anatomist/object/actions.h>
 #include <anatomist/reference/Geometry.h>
 #include <anatomist/window3D/window3D.h>
+#include <anatomist/window3D/renderContext.h>
 #include <anatomist/control/qObjTree.h>
 #include <anatomist/application/settings.h>
 #include <anatomist/surface/glcomponent.h>
@@ -128,7 +129,7 @@ AObject* Slice::volume()
 }
 
 
-bool Slice::render( PrimList & prim, const ViewState & state )
+bool Slice::render( PrimList & prim, RenderContext & rc )
 {
   // cout << "Slice::render " << quaternion().vector() << endl;
   AObject	*obj = volume();
@@ -140,14 +141,15 @@ bool Slice::render( PrimList & prim, const ViewState & state )
     firstlist = true;
   else
     --ip;
-  SliceViewState  svs( state.timedims, true, offset(), &q,
+  SliceViewState  svs( rc.getViewState().timedims, true, offset(), &q,
                        obj->getReferential(), &geom,
-                       state.sliceVS() ? state.sliceVS()->vieworientation : 0,
-                       state.window );
-  if( volume()->render( prim, svs ) )
+                       rc.getViewState().sliceVS() ? rc.getViewState().sliceVS()->vieworientation : 0,
+                       rc.getViewState().window );
+  rc.setViewState( carto::rc_ptr<ViewState>(new SliceViewState( svs )) );
+  if( volume()->render( prim, rc ) )
   {
     const Referential *ref = getReferential();
-    GLPrimitives p2 = GLComponent::glHandleTransformation( state, ref );
+    GLPrimitives p2 = GLComponent::glHandleTransformation( rc.getViewState(), ref );
     bool hastr = !p2.empty();
     if( hastr )
     {
@@ -156,7 +158,7 @@ bool Slice::render( PrimList & prim, const ViewState & state )
       else
         ip = prim.begin();
       prim.insert( ip, p2.begin(), p2.end() );
-      p2 = GLComponent::glPopTransformation( state, ref );
+      p2 = GLComponent::glPopTransformation( rc.getViewState(), ref );
       prim.insert( prim.end(), p2.begin(), p2.end() );
     }
     return true;

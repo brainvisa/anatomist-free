@@ -71,7 +71,7 @@ namespace anatomist
       return true;
     }
 
-    virtual bool render( PrimList &, const ViewState & );
+    virtual bool render( PrimList &, RenderContext & );
     virtual void update( const Observable *, void * );
 
     virtual const Material * glMaterial() const;

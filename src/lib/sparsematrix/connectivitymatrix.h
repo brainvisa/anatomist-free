@@ -77,7 +77,7 @@ namespace anatomist
     virtual ~AConnectivityMatrix();
 
     virtual int MType() const { return( type() ); }
-    virtual bool render( PrimList &, const ViewState & );
+    virtual bool render( PrimList &, anatomist::RenderContext & );
     virtual void update( const Observable *observable, void *arg );
 
     void buildTexture( int mesh_index, uint32_t vertex, float time_pos = 0 );
