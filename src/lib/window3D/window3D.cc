@@ -927,14 +927,12 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
 
   d->orientAnnot = new OrientationAnnotation( this );
 
-  if(hasCursor())
+
+  d->cursor = cursorObject();
+  setCursorColor();
+  if(d->cursor)
   {
-    d->cursor = cursorObject();
-    setCursorColor();
-    if(d->cursor)
-    {
-      registerObject(d->cursor, true, 0);
-    }
+    registerObject(d->cursor, true, 0);
   }
 
   setChanged();
@@ -3464,9 +3462,6 @@ void AWindow3D::refreshTempNow()
 
 TransformedObject* AWindow3D::cursorObject() const
 {
-  if(!hasCursor())
-    return nullptr;
-
   AObject* curs = Cursor::currentCursor();
   if(!curs )
     return nullptr;
