@@ -244,11 +244,13 @@ void ATexture::setTexture( rc_ptr<TimeTexture<T> > tex, bool normalize_data )
     normalize();
   else
   {
-    setTexExtrema();
+    // setTexExtrema();
     for( unsigned i=0; i<dim; ++i )
     {
-      te.minquant[i] = te.min[i];
-      te.maxquant[i] = te.max[i];
+      te.minquant[i] = 0.f;
+      te.min[i] = 0.f;
+      te.maxquant[i] = 1.f;
+      te.max[i] = 1.f;
     }
   }
   d->header = Object::value( tex->header() );
