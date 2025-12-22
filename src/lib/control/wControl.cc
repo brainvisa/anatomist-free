@@ -1456,8 +1456,11 @@ void ControlWindow::graphParams()
 
 void ControlWindow::quit()
 {   
-  cout << "Exiting QApplication"<<endl;
-  clearAll();
+  cout << "Exiting QApplication" << endl;
+
+  DeleteAllCommand *dc = new DeleteAllCommand;
+  theProcessor->execute( dc );
+
   if( !d->deleting )
     delete this;
   if( !QApplication::closingDown() )
