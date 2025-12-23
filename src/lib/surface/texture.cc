@@ -242,6 +242,17 @@ void ATexture::setTexture( rc_ptr<TimeTexture<T> > tex, bool normalize_data )
   d = new Private_<T>( tex );
   if( normalize_data )
     normalize();
+  else
+  {
+    // setTexExtrema();
+    for( unsigned i=0; i<dim; ++i )
+    {
+      te.minquant[i] = 0.f;
+      te.min[i] = 0.f;
+      te.maxquant[i] = 1.f;
+      te.max[i] = 1.f;
+    }
+  }
   d->header = Object::value( tex->header() );
 }
 
@@ -456,7 +467,9 @@ namespace anatomist
       TimeTexture<float>::iterator i, e = tex->end();
       vector<float>::iterator it, et;
       float m0 = te.min[0];
-      float scl0 = (te.maxquant[0] - te.minquant[0])
+      float scl0 = 1.f;
+      if( te.max[0] != m0 )
+        scl0 = (te.maxquant[0] - te.minquant[0])
         / (te.max[0] - m0);
       float off0 = te.minquant[0] - m0 * scl0;
       for( i=tex->begin(); i!=e; ++i )
@@ -671,53 +684,53 @@ void ATexture::setTexExtrema()
 {
   float	m, M;
   switch( d->dim )
+  {
+  case 1:
     {
-    case 1:
-      {
-	Texture1d	*tex = (Texture1d *) d->data;
-	Texture1d::iterator	it, ft=tex->end();
-	float		val;
-	unsigned	i, n;
+      Texture1d	*tex = (Texture1d *) d->data;
+      Texture1d::iterator	it, ft=tex->end();
+      float		val;
+      unsigned	i, n;
 
-	m = FLT_MAX;
-	M = -FLT_MAX;
+      m = FLT_MAX;
+      M = -FLT_MAX;
 
-	for( it=tex->begin(); it!=ft; ++it )
-	  for( i=0, n=(*it).second.nItem(); i!=n; ++i )
-	    {
-	      val = (*it).second.item(i);
-	      if( val < m )
-		m = val;
-	      if( val > M )
-		M = val;
-	    }
-      }
-      break;
-    case 2:
-      {
-	Texture2d	*tex = (Texture2d *) d->data;
-	Texture2d::iterator	it, ft=tex->end();
-	m = FLT_MAX;
-	M = -FLT_MAX;
-	unsigned	i, n;
-	Point2df	val;
-
-	for( it=tex->begin(); it!=ft; ++it )
-	  for( i=0, n=(*it).second.nItem(); i!=n; ++i )
-	    {
-	      val = (*it).second.item(i);
-	      if( val[0] < m )
-		m = val[0];
-	      if( val[0] > M )
-		M = val[0];
-	    }
-      }
-      break;
-    default:
-      m = M = 0;
-      return;
-      break;
+      for( it=tex->begin(); it!=ft; ++it )
+        for( i=0, n=(*it).second.nItem(); i!=n; ++i )
+          {
+            val = (*it).second.item(i);
+            if( val < m )
+              m = val;
+            if( val > M )
+              M = val;
+          }
     }
+    break;
+  case 2:
+    {
+    Texture2d	*tex = (Texture2d *) d->data;
+    Texture2d::iterator	it, ft=tex->end();
+    m = FLT_MAX;
+    M = -FLT_MAX;
+    unsigned	i, n;
+    Point2df	val;
+
+    for( it=tex->begin(); it!=ft; ++it )
+      for( i=0, n=(*it).second.nItem(); i!=n; ++i )
+        {
+          val = (*it).second.item(i);
+          if( val[0] < m )
+            m = val[0];
+          if( val[0] > M )
+            M = val[0];
+        }
+    }
+    break;
+  default:
+    m = M = 0;
+    return;
+    break;
+  }
   TexExtrema	& te = glTexExtrema( 0 );
   te.min.clear();
   te.max.clear();
