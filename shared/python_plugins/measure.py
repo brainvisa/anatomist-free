@@ -115,16 +115,20 @@ class MeasureAction(anatomist.cpp.Action):
                 p0 = None
         objs = []
         a = anatomist.Anatomist()
+        v = self.view()
+        w = v.aWindow()
         if len(cyl_mesh.vertex()) != 0:
             o = a.toAObject(cyl_mesh)
             a.unmapObject(o)
             a.releaseObject(o)
             objs.append(o)
+            o.setReferential(w.getReferential())
         if len(sph_mesh.vertex()) != 0:
             o = a.toAObject(sph_mesh)
             a.unmapObject(o)
             a.releaseObject(o)
             objs.append(o)
+            o.setReferential(w.getReferential())
         return objs
 
     def make_mesh(self):
@@ -155,6 +159,10 @@ class MeasureAction(anatomist.cpp.Action):
         mesh.polygon().assign(polygons)
         a = anatomist.Anatomist()
         amesh = a.toAObject(mesh)
+        v = self.view()
+        w = v.aWindow()
+        amesh.setReferential(w.getReferential())
+
         return amesh
 
     def display_path(self):
