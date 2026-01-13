@@ -7,6 +7,7 @@
 #include <memory>
 #include <regex>
 #include <list>
+#include <anatomist/config/version.h> 
 
 #include <anatomist/surface/dynamicShaderBuilder.h>
 #include <anatomist/surface/shaderMapping.h>
@@ -16,13 +17,16 @@
 
 using namespace anatomist;
 
-dynamicShaderBuilder::dynamicShaderBuilder()
+dynamicShaderBuilder::dynamicShaderBuilder(): m_anatomistVersion(
+  std::to_string(ANATOMIST_VERSION_MAJOR) + "." +
+  std::to_string(ANATOMIST_VERSION_MINOR)
+)
 {
 }
 
-void dynamicShaderBuilder::setVersion(int version)
+void dynamicShaderBuilder::setGLSLVersion(int version) 
 {
-  m_version = version;
+  m_GLSLversion = version;
 }
 
 void dynamicShaderBuilder::setBaseTemplate(const std::string &templateSource)
@@ -54,7 +58,7 @@ std::string dynamicShaderBuilder::readShaderFile(const std::string &filePath)
   }
 
   QTextStream in(&file);
-  std::string shaderSource = "#version " + std::to_string(m_version) + " compatibility" + '\n';
+  std::string shaderSource = "#version " + std::to_string(m_GLSLversion) + " compatibility" + '\n';
   shaderSource += in.readAll().toStdString();
   file.close();
 
@@ -155,14 +159,14 @@ carto::rc_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initShader(const std::
   carto::rc_ptr<QOpenGLShaderProgram> program(new QOpenGLShaderProgram());
   std::string baseTemplate, vertexSource, fragmentSource;
   std::vector<carto::rc_ptr<IShaderModule>> shaderModules = shaderMapping::getModules(shaderIDs);
-  std::list<std::string> path =  carto::Paths::findResourceFiles("shaders/templates", "anatomist");
+  std::list<std::string> path =  carto::Paths::findResourceFiles("shaders/templates", "anatomist", m_anatomistVersion);
   if (path.empty()) {
     std::cerr << "Error : No template shader found in shaders/templates." << std::endl;
     return carto::rc_ptr<QOpenGLShaderProgram>();
   }
 
   program->create();
-  this->setVersion(330);
+  this->setGLSLVersion(330);
 
   // vertex shader
   baseTemplate =  readShaderFile(path.front()+"/"+vsTemplate);
@@ -212,14 +216,14 @@ carto::rc_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initBlendingShader()
   carto::rc_ptr<QOpenGLShaderProgram> program(new QOpenGLShaderProgram());
   std::string vertexSource, fragmentSource;
   
-  std::list<std::string> path =  carto::Paths::findResourceFiles("shaders/templates", "anatomist");
+  std::list<std::string> path =  carto::Paths::findResourceFiles("shaders/templates", "anatomist", m_anatomistVersion);
   if (path.empty()) {
     std::cerr << "Error : No template shader found in shaders/templates." << std::endl;
     return carto::rc_ptr<QOpenGLShaderProgram>();
   }
 
   program->create();
-  this->setVersion(330);
+  this->setGLSLVersion(330);
   vertexSource = readShaderFile(path.front()+"/blend.vs.glsl");
 
   if(!program->addShaderFromSourceCode(QOpenGLShader::Vertex, QString::fromStdString(vertexSource)))
