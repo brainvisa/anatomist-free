@@ -30,6 +30,14 @@ namespace anatomist
   * - uniform setup commands (\c GLSceneUniforms, \c GLObjectUniforms),
   * - object rendering calls (\c AObject::render()).
   */
+
+
+  enum class RenderMode
+  {
+    Full,
+    TemporaryOnly
+  };
+
   class RenderContext
   {
     public:
@@ -41,7 +49,7 @@ namespace anatomist
       RenderContext(AWindow3D* win, anatomist::GLWidgetManager* widgetManager);
       ~RenderContext();
 
-      bool renderScene( const std::list<carto::shared_ptr<anatomist::AObject>> & objs);
+      bool renderScene( const std::list<carto::shared_ptr<anatomist::AObject>> & objs, RenderMode mode = RenderMode::Full);
     
     /**
     * \brief Renders a list of objects and builds the corresponding primitive list.
@@ -58,7 +66,7 @@ namespace anatomist
     * \param objs List of objects to render.
     * \return Boolean to know if the rendering succeed or not.
     */
-      bool renderObjects( const std::list<carto::shared_ptr<anatomist::AObject>> & objs);
+      bool renderObjects( const std::list<carto::shared_ptr<anatomist::AObject>> & objs, RenderMode mode = RenderMode::Full);
 
 
       const anatomist::ViewState& getViewState() const ;
@@ -93,7 +101,7 @@ namespace anatomist
       *
       * \param isTransparent True if rendering the transparent group.
       */
-      bool renderObject(std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> & drawables);
+      bool renderObject(std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> & drawables, RenderMode mode);
 
       /**
       * \brief Sorts objects by shader type and transparency.

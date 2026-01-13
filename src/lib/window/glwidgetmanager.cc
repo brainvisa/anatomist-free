@@ -753,7 +753,8 @@ void GLWidgetManager::paintGL( DrawMode m, int virtualWidth,
   /*if (_frameOn)
     glCallList(_3DGuide->GetFrameGLList());*/
 
-  drawObjects( m );
+  drawObjects( m, &_permanentprimitives);
+  drawObjects( m, &_tempprimitives);
 
   glPopAttrib();
   glMatrixMode( GL_PROJECTION );
@@ -763,7 +764,7 @@ void GLWidgetManager::paintGL( DrawMode m, int virtualWidth,
 }
 
 
-void GLWidgetManager::drawObjects( DrawMode m )
+void GLWidgetManager::drawObjects( DrawMode m, GLPrimitives* pl)
 {
   GLenum err;
   while(glGetError() != GL_NO_ERROR)
@@ -773,8 +774,9 @@ void GLWidgetManager::drawObjects( DrawMode m )
 
   // Draw objects
   // cout << "GLWidgetManager::drawObjects " << m << endl;
-  GLPrimitives::const_iterator	il = _primitives.begin(),
-      el = _primitives.end();
+
+  GLPrimitives::const_iterator	il = pl->begin(),
+      el = pl->end();
   if( m == ObjectSelect || m == ObjectsSelect || m == PolygonSelect )
   {
     il = _selectprimitives.begin();
@@ -790,7 +792,7 @@ void GLWidgetManager::drawObjects( DrawMode m )
 
     while( glGetError() != GL_NO_ERROR ){}
 
-    depthPeeling();
+    depthPeeling(pl);
     err = glGetError();
     if( err != GL_NO_ERROR )
       cerr << "GLWidgetManager::drawObjects: OpenGL error after depthPeeling: "
@@ -880,6 +882,7 @@ void GLWidgetManager::initTextures()
 
 void GLWidgetManager::resizeTexturesAndFBOs(int w, int h)
 {
+  qglWidget()->makeCurrent();
   if(_pd->colorTextures.size() != 0 && _pd->depthTextures.size() != 0)
   {
     for(size_t i=0; i< _pd->nbLayers; ++i)
@@ -1028,7 +1031,7 @@ void GLWidgetManager::blendPass()
   glDisable(GL_BLEND);
 }
 
-void GLWidgetManager::depthPeeling()
+void GLWidgetManager::depthPeeling(GLPrimitives* pl)
 { 
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
@@ -1045,7 +1048,7 @@ void GLWidgetManager::depthPeeling()
 
     _pd->currentLayer = i;
     carto::rc_ptr<QOpenGLShaderProgram> currentShader;
-    for (auto& primitive : _primitives)
+    for (auto& primitive : *pl)
     {
       primitive->callList();
     }
@@ -1063,26 +1066,28 @@ void GLWidgetManager::depthPeeling()
 
 void GLWidgetManager::clearLists()
 {
-  _primitives.clear(); 
   _selectprimitives.clear();
 }
 
 
-void GLWidgetManager::setPrimitives( const GLPrimitives & pl )
+GLPrimitives GLWidgetManager::permanentPrimitives() const
 {
-  clearLists();
-  _primitives = pl;
+  return( _permanentprimitives );
 }
 
-
-GLPrimitives GLWidgetManager::primitives() const
+GLPrimitives GLWidgetManager::tempPrimitives() const
 {
-  return( _primitives );
+  return( _tempprimitives );
 }
 
-GLPrimitives& GLWidgetManager::primitivesRef()
+GLPrimitives& GLWidgetManager::permanentPrimitivesRef()
 {
-  return( _primitives );
+  return( _permanentprimitives );
+}
+
+GLPrimitives& GLWidgetManager::tempPrimitivesRef()
+{
+  return( _tempprimitives );
 }
 
 

@@ -28,7 +28,10 @@ struct RenderContext::Private
 
   AWindow3D* window;
   GLWidgetManager * glwman;
-  PrimList& primitives;
+  //PrimList& primitives;
+  PrimList& permanentPrimitives;
+  PrimList& temporaryPrimitives;
+  PrimList* currentPrimitives;
   dynamicShaderBuilder shaderBuilder;
   std::map<std::string, carto::rc_ptr<QOpenGLShaderProgram>> programs;
   carto::rc_ptr<QOpenGLShaderProgram> currentProgram;
@@ -36,7 +39,7 @@ struct RenderContext::Private
 };
 
 RenderContext::Private::Private(AWindow3D* win, GLWidgetManager* widgetManager) : 
-window(win), glwman(widgetManager),primitives(glwman->primitivesRef()) ,currentProgram(nullptr)
+window(win), glwman(widgetManager),permanentPrimitives(glwman->permanentPrimitivesRef()), temporaryPrimitives(glwman->tempPrimitivesRef()) ,currentProgram(nullptr), currentPrimitives(nullptr)
 {
 }
 
@@ -53,6 +56,7 @@ RenderContext::RenderContext(AWindow3D* window, GLWidgetManager* widgetManager)
   d->glwman->clearLists();
   shaderMapping::initShaderMapping();
   GLuint localGLL = glGenLists(2);
+  d->currentPrimitives = &d->permanentPrimitives;
   setupClippingPlanes(localGLL);
 }
 
@@ -62,19 +66,32 @@ RenderContext::~RenderContext()
   delete d;
 }
 
-bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & objs)
+bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & objs, RenderMode mode )
 {
   bool success = false;
   d->glwman->qglWidget()->makeCurrent();
+
+  if(mode == RenderMode::Full)
+    d->permanentPrimitives.clear();
+  
+  d->temporaryPrimitives.clear();
+
   setupOpenGLState();
-  success = renderObjects(objs);
+  if(mode == RenderMode::Full)
+  {
+    d->currentPrimitives = &d->permanentPrimitives;
+    success |= renderObjects(objs, mode);
+  }
+
+  d->currentPrimitives = &d->temporaryPrimitives;
+  success |= renderObjects(objs, mode);
   finalizeRendering();
   return success;
 
 }
 
 
-bool RenderContext::renderObjects( const std::list<carto::shared_ptr<AObject>> & objs)
+bool RenderContext::renderObjects( const std::list<carto::shared_ptr<AObject>> & objs, RenderMode mode)
 {
   bool success = false;
   std::vector<float> bbmin, bbmax;
@@ -86,19 +103,19 @@ bool RenderContext::renderObjects( const std::list<carto::shared_ptr<AObject>> &
   shaderBuilding( opaqueDrawables, transparentDrawables);
 
   if(!opaqueDrawables.empty())
-    success |= renderObject(opaqueDrawables);
+    success |= renderObject(opaqueDrawables, mode);
 
   if(!transparentDrawables.empty())
   {
     if(!d->glwman->useDepthPeeling())
     {
       setupTransparentObjects();
-      success |= renderObject(transparentDrawables);
+      success |= renderObject(transparentDrawables, mode);
       postTransparentRenderingSetup();
     }
     else
     {
-      success |= renderObject(transparentDrawables);
+      success |= renderObject(transparentDrawables, mode);
     }
   }
 
@@ -119,10 +136,10 @@ bool RenderContext::updateObject(carto::shared_ptr<AObject> obj, PrimList* pl,Vi
   if(pl)
     l1 = pl->size();
   else
-    l1 = d->primitives.size();
+    l1 = d->currentPrimitives->size();
 
   GLPrimitives gp;
-  if(!pl) pl = &d->primitives;
+  if(!pl) pl = d->currentPrimitives;
   if(!obj->Is2DObject() || (d->window->viewType() == AWindow3D::ThreeD && obj->Is3DObject()))
   {
     d->vs.reset(new ViewState(d->window->getTimes(), d->window, selectmode));
@@ -147,8 +164,8 @@ bool RenderContext::updateObject(carto::shared_ptr<AObject> obj, PrimList* pl,Vi
   }
   else
   {
-    d->primitives.insert(d->primitives.end(), gp.begin(), gp.end());
-    l2 = d->primitives.size();
+    d->currentPrimitives->insert(d->currentPrimitives->end(), gp.begin(), gp.end());
+    l2 = d->currentPrimitives->size();
   }
 
   //if(l2 > l1)
@@ -157,7 +174,7 @@ bool RenderContext::updateObject(carto::shared_ptr<AObject> obj, PrimList* pl,Vi
   return success;
 }
 
-bool RenderContext::renderObject(std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> & drawables)
+bool RenderContext::renderObject(std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> & drawables, RenderMode mode)
 {
   bool success = false;
 
@@ -167,15 +184,21 @@ bool RenderContext::renderObject(std::unordered_map<std::string, std::vector<car
     auto shaderModules = getEffectiveShaderModules(objects.front()->glAPI()->getShaderModuleIDs());
     for(size_t i=0; i< objects.size(); ++i)
     {
+      auto obj = objects[i];
+
+      if(mode == RenderMode::TemporaryOnly && !d->window->isTemporary(obj.get()))
+        continue;
+
       auto glObj = objects[i]->glAPI();
+
       for(const auto & module : shaderModules)
       {
         if(i==0)
-          d->primitives.push_back(carto::rc_ptr<GLItem>(new GLSceneUniforms(module, d->currentProgram, d->glwman)));
-        d->primitives.push_back(carto::rc_ptr<GLItem>(new GLObjectUniforms(module, d->currentProgram, glObj)));
+          d->currentPrimitives->push_back(carto::rc_ptr<GLItem>(new GLSceneUniforms(module, d->currentProgram, d->glwman)));
+        d->currentPrimitives->push_back(carto::rc_ptr<GLItem>(new GLObjectUniforms(module, d->currentProgram, glObj)));
       }
 
-      success |= updateObject(objects[i]);
+      success |= updateObject(obj);
     }
   }
   d->currentProgram = carto::rc_ptr<QOpenGLShaderProgram>();
@@ -239,7 +262,7 @@ void RenderContext::switchShaderProgram( carto::rc_ptr<QOpenGLShaderProgram> pro
     return;
 
   d->currentProgram = program;
-  d->primitives.push_back(carto::rc_ptr<GLItem>(new GLBindShader(program)));
+  d->currentPrimitives->push_back(carto::rc_ptr<GLItem>(new GLBindShader(program)));
 }
 
 void RenderContext::setupTransparentObjects()
@@ -258,7 +281,7 @@ void RenderContext::setupTransparentObjects()
   glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
   glDepthMask(GL_TRUE);
   glEndList();
-  d->primitives.push_back(RefGLItem(renderpr));
+  d->currentPrimitives->push_back(RefGLItem(renderpr));
 }
 
 void RenderContext::postTransparentRenderingSetup()
@@ -276,7 +299,7 @@ void RenderContext::postTransparentRenderingSetup()
   glDisable( GL_BLEND );
   glDepthMask(GL_TRUE);
   glEndList();
-  d->primitives.push_back(RefGLItem(renderpr));
+  d->currentPrimitives->push_back(RefGLItem(renderpr));
 }
 
 std::vector<carto::rc_ptr<IShaderModule>> RenderContext::getEffectiveShaderModules(const std::string& shaderID)
@@ -330,7 +353,7 @@ void RenderContext::setupClippingPlanes(GLuint localGLL)
   glEndList();
 
   pr->insertList(localGLL);
-  d->primitives.push_back(RefGLItem(pr));
+  d->currentPrimitives->push_back(RefGLItem(pr));
 }
 
 void RenderContext::setupOpenGLState()
@@ -393,7 +416,7 @@ void RenderContext::setupOpenGLState()
   }
 
   glEndList();
-  d->primitives.push_back(RefGLItem(renderpr));
+  d->currentPrimitives->push_back(RefGLItem(renderpr));
 }
 
 const ViewState& RenderContext::getViewState() const
@@ -427,7 +450,7 @@ void RenderContext::finalizeRendering()
 
   if (renderoffpr)
   {
-    d->primitives.push_back(RefGLItem(renderoffpr));
+    d->currentPrimitives->push_back(RefGLItem(renderoffpr)); // jordan : to check which primitive list we'll be using
   }
 
   if (rendertwice)
@@ -491,10 +514,10 @@ Primitive* RenderContext::setupOutlinedMode()
 
 void RenderContext::duplicateRenderPrimitives()
 {
-  unsigned i, n = d->primitives.size() - 2;
-  PrimList::iterator ip = d->primitives.begin();
+  unsigned i, n = d->currentPrimitives->size() - 2;
+  PrimList::iterator ip = d->currentPrimitives->begin();
   for (++ip, i = 0; i < n; ++i, ++ip)
-      d->primitives.push_back(*ip);
+      d->currentPrimitives->push_back(*ip);
 }
 
 

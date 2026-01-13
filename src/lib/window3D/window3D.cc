@@ -1250,17 +1250,19 @@ void AWindow3D::refreshNow()
   list<AObject *> renderobj;
   list<AObject *>::iterator transparent = processRenderingOrder(renderobj);
   list<AObject*>::iterator al, el = renderobj.end();
+  RenderMode rm = RenderMode::Full;
 
   sortPolygons();
   switch (d->refreshneeded)
   {
     case Private::LightRefresh:
-      refreshLightViewNow();
+    //   refreshLightViewNow();
       return;
     case Private::TempRefresh:
       // partial refresh: update only temp objects
-      refreshTempNow();
-      return;
+      //refreshTempNow();
+      rm = RenderMode::TemporaryOnly;
+      //return;
     default:
       break;
   }
@@ -1272,7 +1274,9 @@ void AWindow3D::refreshNow()
   applySelectionHighlight(tmpcol);
   updateCursor();
 
-  bool isRenderingOk = rc.renderScene(_objects);
+  std::string renderingString = rm==RenderMode::Full?"Full":"TemporaryOnly" ;
+  std::cout << "rendering mode is : " << renderingString<< std::endl;
+  bool isRenderingOk = rc.renderScene(_objects, rm);
 
   removeSelectionHighlight(tmpcol);
   showReferential();
@@ -3289,175 +3293,175 @@ void AWindow3D::refreshTemp()
   if (!needsRedraw() || d->refreshneeded == Private::LightRefresh)
   {
     d->refreshneeded = Private::TempRefresh;
-    ControlledWindow::Refresh();
+    ControlledWindow::Refresh(); 
   }
 }
 
 void AWindow3D::refreshTempNow()
 {
-  using carto::shared_ptr;
+  // using carto::shared_ptr;
 
-  // cout << "refreshTempNow...\n";
+  // // cout << "refreshTempNow...\n";
 
-  d->refreshneeded = Private::FullRefresh;
+  // d->refreshneeded = Private::FullRefresh;
 
-  // const set<AObject *>	& tempobj = temporaryObjects();
+  // // const set<AObject *>	& tempobj = temporaryObjects();
 
-  PrimList pl = d->draw->primitives();
-  PrimList::iterator ip, ip2, iendobj;
+  // PrimList pl = d->draw->primitives();
+  // PrimList::iterator ip, ip2, iendobj;
 
-  //cout << "re-order objects...\n";
-  //	re-order objects for faster deletion
-  map<unsigned, pair<AObject*, unsigned> > to2;
-  map<unsigned, pair<AObject*, unsigned> >::iterator io2, eo2;
-  map<AObject *, pair<unsigned, unsigned> >::iterator io, eo =
-      d->tmpprims.end();
+  // //cout << "re-order objects...\n";
+  // //	re-order objects for faster deletion
+  // map<unsigned, pair<AObject*, unsigned> > to2;
+  // map<unsigned, pair<AObject*, unsigned> >::iterator io2, eo2;
+  // map<AObject *, pair<unsigned, unsigned> >::iterator io, eo =
+  //     d->tmpprims.end();
 
-  for (io = d->tmpprims.begin(); io != eo; ++io)
-    to2[io->second.first] = pair<AObject *, unsigned> (io->first,
-        io->second.second);
+  // for (io = d->tmpprims.begin(); io != eo; ++io)
+  //   to2[io->second.first] = pair<AObject *, unsigned> (io->first,
+  //       io->second.second);
 
-  //cout << "done\n";
+  // //cout << "done\n";
 
-  //	convert unsigned pointers to iterators
-  unsigned i, j, k;
-  map<AObject *, pair<PrimList::iterator, PrimList::iterator> > pli;
-  map<unsigned, pair<PrimList::iterator, PrimList::iterator> > orphan_chunks;
+  // //	convert unsigned pointers to iterators
+  // unsigned i, j, k;
+  // map<AObject *, pair<PrimList::iterator, PrimList::iterator> > pli;
+  // map<unsigned, pair<PrimList::iterator, PrimList::iterator> > orphan_chunks;
 
-  // index of end-of-objects as iterator
-  ip = pl.begin();
-  i = 0;
-  k = 0;
+  // // index of end-of-objects as iterator
+  // ip = pl.begin();
+  // i = 0;
+  // k = 0;
 
-  // cout << "convert unsigned to iterators...\n";
-  for (io2 = to2.begin(), eo2 = to2.end(); io2 != eo2; ++io2)
-  {
-    j = io2->first;
-    ip2 = ip;
-    k = i;
-    while (i < j)
-    {
-      ++ip;
-      ++i;
-    }
-    if (k < j) orphan_chunks[k] = make_pair(ip2, ip);
-    ip2 = ip;
-    j = io2->second.second;
-    while (i < j)
-    {
-      ++ip;
-      ++i;
-    }
-    pli[io2->second.first] = pair<PrimList::iterator, PrimList::iterator> (ip2,
-        ip);
-  }
-  if (ip != pl.end())
-  {
-    orphan_chunks[i] = make_pair(ip, pl.end());
-  }
-  // cout << "done\n";
+  // // cout << "convert unsigned to iterators...\n";
+  // for (io2 = to2.begin(), eo2 = to2.end(); io2 != eo2; ++io2)
+  // {
+  //   j = io2->first;
+  //   ip2 = ip;
+  //   k = i;
+  //   while (i < j)
+  //   {
+  //     ++ip;
+  //     ++i;
+  //   }
+  //   if (k < j) orphan_chunks[k] = make_pair(ip2, ip);
+  //   ip2 = ip;
+  //   j = io2->second.second;
+  //   while (i < j)
+  //   {
+  //     ++ip;
+  //     ++i;
+  //   }
+  //   pli[io2->second.first] = pair<PrimList::iterator, PrimList::iterator> (ip2,
+  //       ip);
+  // }
+  // if (ip != pl.end())
+  // {
+  //   orphan_chunks[i] = make_pair(ip, pl.end());
+  // }
+  // // cout << "done\n";
 
-  list<AObject *> objs;
-  list<AObject *>::iterator ioo = objs.begin(), eoo = objs.end(), nexto;
-  AObject *ao;
-  map<AObject *, pair<PrimList::iterator, PrimList::iterator> >::iterator ipl,
-      epl = pli.end();
+  // list<AObject *> objs;
+  // list<AObject *>::iterator ioo = objs.begin(), eoo = objs.end(), nexto;
+  // AObject *ao;
+  // map<AObject *, pair<PrimList::iterator, PrimList::iterator> >::iterator ipl,
+  //     epl = pli.end();
 
-  processRenderingOrder(objs);
+  // processRenderingOrder(objs);
 
-  //	rebuild lists
-  // cout << "rebuild lists...\n";
+  // //	rebuild lists
+  // // cout << "rebuild lists...\n";
 
-  bool newobj = false;
-  i = 0;
-  map<AObject *, pair<PrimList::iterator, PrimList::iterator> >::iterator
-      nextipl = pli.begin();
+  // bool newobj = false;
+  // i = 0;
+  // map<AObject *, pair<PrimList::iterator, PrimList::iterator> >::iterator
+  //     nextipl = pli.begin();
 
-  PrimList plnew;
-  ip = pl.begin();
-  unsigned orphan, plnewlen = 0, oldlen;
-  map<unsigned, pair<PrimList::iterator, PrimList::iterator> >::iterator ior =
-      orphan_chunks.begin(), eor = orphan_chunks.end();
+  // PrimList plnew;
+  // ip = pl.begin();
+  // unsigned orphan, plnewlen = 0, oldlen;
+  // map<unsigned, pair<PrimList::iterator, PrimList::iterator> >::iterator ior =
+  //     orphan_chunks.begin(), eor = orphan_chunks.end();
 
-  // in real rendering order
-  for (ioo = objs.begin(); ioo != eoo; ++ioo)
-  {
-    if( inAutoFusion( *ioo ) )
-      continue;
+  // // in real rendering order
+  // for (ioo = objs.begin(); ioo != eoo; ++ioo)
+  // {
+  //   if( inAutoFusion( *ioo ) )
+  //     continue;
 
-    ao = *ioo;
-    // copy orphan lists
-    ipl = pli.find(ao);
-    if (ipl != epl)
-    {
-      orphan = d->tmpprims[ipl->first].first;
-      while (ior != eor && ior->first < orphan)
-      {
-        plnew.insert(plnew.end(), ior->second.first, ior->second.second);
-        ++ior;
-      }
-      plnewlen = plnew.size();
-    }
+  //   ao = *ioo;
+  //   // copy orphan lists
+  //   ipl = pli.find(ao);
+  //   if (ipl != epl)
+  //   {
+  //     orphan = d->tmpprims[ipl->first].first;
+  //     while (ior != eor && ior->first < orphan)
+  //     {
+  //       plnew.insert(plnew.end(), ior->second.first, ior->second.second);
+  //       ++ior;
+  //     }
+  //     plnewlen = plnew.size();
+  //   }
 
-    if (isTemporary(ao))
-    {
-      if (ipl == epl)
-      {
-        newobj = true;
-        // new temp object, copy orphans up to next object
-        nexto = ioo;
-        ++nexto;
-        while (nexto != eoo)
-        {
-          io = d->tmpprims.find(*nexto);
-          if (io != eo) break;
-          ++nexto;
-        }
-        if (nexto != eoo)
-        {
-          orphan = io->second.first;
-          while (ior != eor && ior->first < orphan)
-          {
-            plnew.insert(plnew.end(), ior->second.first, ior->second.second);
-            ++ior;
-          }
-          plnewlen = plnew.size();
-        }
-      }
+  //   if (isTemporary(ao))
+  //   {
+  //     if (ipl == epl)
+  //     {
+  //       newobj = true;
+  //       // new temp object, copy orphans up to next object
+  //       nexto = ioo;
+  //       ++nexto;
+  //       while (nexto != eoo)
+  //       {
+  //         io = d->tmpprims.find(*nexto);
+  //         if (io != eo) break;
+  //         ++nexto;
+  //       }
+  //       if (nexto != eoo)
+  //       {
+  //         orphan = io->second.first;
+  //         while (ior != eor && ior->first < orphan)
+  //         {
+  //           plnew.insert(plnew.end(), ior->second.first, ior->second.second);
+  //           ++ior;
+  //         }
+  //         plnewlen = plnew.size();
+  //       }
+  //     }
       
-      oldlen = plnewlen;
-      // updateObject(ao, &plnew); // jordan replace with renderContext
-      plnewlen = plnew.size();
-      if (plnewlen == oldlen) d->tmpprims.erase(ao);
-    }
-    else
-    {
-      // non-temp object: copy its lists without redrawing
-      if (ipl != epl) // already drawn
-      {
-        oldlen = plnewlen;
-        plnew.insert(plnew.end(), ipl->second.first, ipl->second.second);
-        plnewlen = plnew.size();
-        pair<unsigned, unsigned> & tp = d->tmpprims[ao];
-        tp.first = oldlen;
-        tp.second = plnewlen;
-      }
-    }
-  }
+  //     oldlen = plnewlen;
+  //     // updateObject(ao, &plnew); // jordan replace with renderContext
+  //     plnewlen = plnew.size();
+  //     if (plnewlen == oldlen) d->tmpprims.erase(ao);
+  //   }
+  //   else
+  //   {
+  //     // non-temp object: copy its lists without redrawing
+  //     if (ipl != epl) // already drawn
+  //     {
+  //       oldlen = plnewlen;
+  //       plnew.insert(plnew.end(), ipl->second.first, ipl->second.second);
+  //       plnewlen = plnew.size();
+  //       pair<unsigned, unsigned> & tp = d->tmpprims[ao];
+  //       tp.first = oldlen;
+  //       tp.second = plnewlen;
+  //     }
+  //   }
+  // }
 
-  if (newobj || !to2.empty())
-  {
-    // copy end of list
-    while (ior != eor)
-    {
-      plnew.insert(plnew.end(), ior->second.first, ior->second.second);
-      ++ior;
-    }
+  // if (newobj || !to2.empty())
+  // {
+  //   // copy end of list
+  //   while (ior != eor)
+  //   {
+  //     plnew.insert(plnew.end(), ior->second.first, ior->second.second);
+  //     ++ior;
+  //   }
 
-    //d->draw->setPrimitives(plnew);
-    d->draw->updateGL();
-  }
-  //cout << "refreshTempNow finished\n";
+  //   //d->draw->setPrimitives(plnew);
+  //   d->draw->updateGL();
+  // }
+  // //cout << "refreshTempNow finished\n";
 }
 
 TransformedObject* AWindow3D::cursorObject() const
