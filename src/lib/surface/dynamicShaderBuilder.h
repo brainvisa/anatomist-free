@@ -75,7 +75,7 @@ namespace anatomist
       * @brief Sets the GLSL version to be used in the generated shader.
       * @param version GLSL version number (e.g., 150 for "#version 150 compatibility").
       */
-      void setVersion(int version);
+      void setGLSLVersion(int version);
 
       /**
       * @brief Defines the base shader template as a string.
@@ -141,7 +141,8 @@ namespace anatomist
       std::string m_baseShaderTemplate;
       carto::rc_ptr<IShaderModule> m_illuminationModel;
       std::vector<carto::rc_ptr<IShaderModule>> m_effects;
-      int m_version;
+      int m_GLSLversion;
+      std::string m_anatomistVersion;
   };
 }
 
