@@ -44,7 +44,8 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.ifconfig',
               'sphinx.ext.viewcode',
               'sphinx.ext.extlinks',
-              'sphinx.ext.inheritance_diagram']
+              'sphinx.ext.inheritance_diagram',
+              'myst_parser']
 try:
     # try napoleon which replaces numpydoc (and googledoc),
     # comes with sphinx 1.2

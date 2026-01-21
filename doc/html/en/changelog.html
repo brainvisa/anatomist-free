@@ -3,7 +3,7 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <title>Anatomist Changelog</title>
+  <title>Anatomist 5 and earlier</title>
   <link rel="stylesheet" href="../anatomist.css" type="text/css" />
   <style type="text/css">
     BODY {
@@ -21,11 +21,10 @@
   <img
  src="../images/anaLogo.png" nosave="" height="96" width="96"
  align="middle">
-  Anatomist: changelog
+  Anatomist 5 and earlier
 </h1>
 
 <p>
-<b><a href="#version-6.0.0">Version 6.0.0</a></b><br/>
 <b><a href="#version-5.1.2">Version 5.1.2</a></b><br/>
 <b><a href="#version-5.1.1">Version 5.1.1</a></b><br/>
 <b><a href="#version-5.1.0">Version 5.1.0</a></b><br/>
@@ -78,62 +77,6 @@
 <b><a href="#version-1.16">Version 1.16</a></b> <br/>
 </p>
 
-
-<!-- -->
-<h4> <a name="version-6.0.0"></a>2025/12/03 - Version 6.0.0</h4>
-<h5>Visible changes (users):</h5>
-
-There has been several significant changes in this version...
-
-<ul>
-  <li><tt>Save</tt> button in 3D views appears when a modified object is displayed. It allows for instance to save a manually labelled graph or a ROI to be saved simply.
-  </li>
-  <li>Texture wrapping modes (OpenGL standard modes, like repeat or clamp_to_edge) are supported and can be setup in API, commands, objects header properties, and GUI.
-  </li>
-  <li>Important improvements in windows blocks: block grid elements can be resized, moved and reordered, and windows can be dropped at the desired place. A new empty block can be opened (ctrl+N) and will become a "default block": all new windows will open, by default, in this block (after all if we open a block, it's probably because we intend to use it).
-  </li>
-  <li>3 new windows types:
-    <ul>
-      <li>Values plots: plots the value of observed objects at the selected position, in various plots types
-      </li>
-      <li>Stats plots: 1D stats along a given axis using several boxplots, errorbars etc
-      </li>
-      <li>Info window: displays the cursor position (modifiable) and objects vertex, value and label at the cursor position
-      </li>
-    </ul>
-  </li>
-  <li>The new windows types, plus the profile window, can now display data (timecourses) from both volumes and textured meshes.
-  </li>
-  <li>Change in behavior of palettes with "zero at the center", allowing to have a modifiable low threshold. See the doc...
-  </li>
-  <li>Support (in AIMS library, actually) for reading various Freesurfer native formats: surfaces (meshes), curvature, annotations, and .xfm affine transformation files.
-  </li>
-  <li>Reworked the transformations graph update when adding / changing a transformation. The process is about 3 times faster and avoids triggering lots of unneeded change notifications. The process is still largely suboptimal I think, but it's better than it used to be...
-  </li>
-  <li>It is now possible to load multiple objects in parallal in the C++ and python APIs.The GUI still uses sequential loading for safety (data formats are not all guananteed to be thread-safe).
-  </li>
-  <li>Ensure thread safety in all code involved in object loading</li>
-  <li>Fixed selection issues in the ROI toolbox</li>
-  <li>New palette window, smaller, shows only what is useful and pops-up things when needed
-  </li>
-  <li>New control for measurements: allow to draw lines by clicking on 3D objects. The length of the line is displayed. Interestingly, this control may also be used to draw filar polygons meshes.
-  </li>
-  <li>Better touchscreen support</li>
-</ul>
-
-<h5>Internal changes (programmers):</h5>
-<ul>
-  <li>The <tt>anatomist</tt> command is no longer the C++ executable, but a python (pyanatomist) wrapper. It starts an IPython engine from the startup, in order to avoid hangups in recent versions of jupyter qtconsole. The former C++ executable is renamed <tt>anatomist-bin</tt>.
-  </li>
-  <li>Use the newer QOpenGLWidget class instead of the old QGLWidget (from Qt 1 or 2...). This had consequences in offscreen displays, we think all issues are fixed.
-  </li>
-  <li>Switch to Qt offscreen mode instead of Xvfb + VirtualGL for headless Anatomist. The code is much simpler.
-  </li>
-  <li>Porting to Qt6. The source code may be compiled for Qt5 or Qt6 as a build configuration option.
-  </li>
-  <li>new command: LoadObjects to load multiple objects at once.</li>
-  <li>Various bugfixes.</li>
-</ul>
 
 <!-- -->
 <h4> <a name="version-5.1.2"></a>2024/03/03 - Version 5.1.2</h4>
