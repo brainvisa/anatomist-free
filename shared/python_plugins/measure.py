@@ -118,12 +118,18 @@ class MeasureAction(anatomist.cpp.Action):
         v = self.view()
         w = v.aWindow()
         if len(cyl_mesh.vertex()) != 0:
+            if w.getReferential().isDirect():
+                cyl_mesh.header()['material']['front_face'] \
+                    = 'counterclockwise'
             o = a.toAObject(cyl_mesh)
             a.unmapObject(o)
             a.releaseObject(o)
             objs.append(o)
             o.setReferential(w.getReferential())
         if len(sph_mesh.vertex()) != 0:
+            if w.getReferential().isDirect():
+                sph_mesh.header()['material']['front_face'] \
+                    = 'counterclockwise'
             o = a.toAObject(sph_mesh)
             a.unmapObject(o)
             a.releaseObject(o)
