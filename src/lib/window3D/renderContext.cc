@@ -28,7 +28,6 @@ struct RenderContext::Private
 
   AWindow3D* window;
   GLWidgetManager * glwman;
-  //PrimList& primitives;
   PrimList& permanentPrimitives;
   PrimList& temporaryPrimitives;
   PrimList* currentPrimitives;
@@ -72,19 +71,28 @@ bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & o
   d->glwman->qglWidget()->makeCurrent();
 
   if(mode == RenderMode::Full)
-    d->permanentPrimitives.clear();
-  
-  d->temporaryPrimitives.clear();
-
-  setupOpenGLState();
-  if(mode == RenderMode::Full)
   {
+    d->permanentPrimitives.clear();
+    d->temporaryPrimitives.clear();
+
+    setupOpenGLState();
+    
     d->currentPrimitives = &d->permanentPrimitives;
+    success |= renderObjects(objs, mode);
+
+    d->currentPrimitives = &d->temporaryPrimitives;
+    success |= renderObjects(objs, mode);
+  }
+  else
+  {
+    d->temporaryPrimitives.clear();
+    
+    setupOpenGLState();
+
+    d->currentPrimitives = &d->temporaryPrimitives;
     success |= renderObjects(objs, mode);
   }
 
-  d->currentPrimitives = &d->temporaryPrimitives;
-  success |= renderObjects(objs, mode);
   finalizeRendering();
   return success;
 
