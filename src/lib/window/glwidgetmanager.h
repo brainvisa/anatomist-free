@@ -128,9 +128,6 @@ namespace anatomist
     recordStart, recordStop */
     QObject* qobject();
 
-    anatomist::GLPrimitives primitives() const;
-    anatomist::GLPrimitives& primitivesRef();
-
     anatomist::GLPrimitives permanentPrimitives() const;
     anatomist::GLPrimitives tempPrimitives() const;
     anatomist::GLPrimitives& permanentPrimitivesRef();
