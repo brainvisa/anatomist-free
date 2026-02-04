@@ -695,7 +695,6 @@ void vtkQAGLWidget::setupView( int width, int height )
 }
 
 
-#if QT_VERSION >= 0x040600
 bool vtkQAGLWidget::event( QEvent * event )
 {
   if( event->type() == QEvent::Gesture )
@@ -705,7 +704,6 @@ bool vtkQAGLWidget::event( QEvent * event )
   }
   return QWidget::event(event);
 }
-#endif
 
 
 void vtkQAGLWidget::mousePressEvent( QMouseEvent* ev )

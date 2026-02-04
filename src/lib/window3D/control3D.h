@@ -42,6 +42,7 @@
 
 class AWindow3D;
 class PinchGesture;
+class PanGesture;
 
 namespace anatomist
 {
@@ -410,7 +411,6 @@ namespace anatomist
   };
 
 
-#if QT_VERSION >= 0x040600
   class PinchZoomAction : public Action
   {
   public:
@@ -428,7 +428,25 @@ namespace anatomist
     struct Private;
     Private *d;
   };
-#endif
+
+
+  class TouchRotateAction : public Action
+  {
+  public:
+    TouchRotateAction();
+    virtual ~TouchRotateAction();
+
+    virtual std::string name() const { return "TouchRotateAction"; }
+    static Action* creator();
+
+    void touchStart( QTouchEvent *event );
+    void touchMove( QTouchEvent *event );
+    void touchStop( QTouchEvent *event );
+
+  private:
+    struct Private;
+    Private *d;
+  };
 
 }
 

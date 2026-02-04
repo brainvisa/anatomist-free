@@ -225,13 +225,12 @@ void StdModule::actionsDeclaration()
   ActionDictionary::instance()->addAction( va.name(),
                                            &ObjectStatAction::creator );
 
-#if QT_VERSION >= 0x040600
-
   PinchZoomAction pa;
   ActionDictionary::instance()->addAction( pa.name(),
                                            &PinchZoomAction::creator );
-
-#endif
+  TouchRotateAction tra;
+  ActionDictionary::instance()->addAction( tra.name(),
+                                           &TouchRotateAction::creator );
 
   //        Commands
   ActivateActionCommand::initSyntax();

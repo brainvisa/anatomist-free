@@ -45,6 +45,7 @@
 #include <QtOpenGL/QGLWidget>
 #endif
 class QGestureEvent;
+class QTouchEvent;
 class QOpenGLTexture;
 
 
@@ -95,6 +96,7 @@ namespace anatomist
     virtual void resizeGL( int w, int h );
     virtual void paintGL();
     virtual void gestureEvent( QGestureEvent *event );
+    virtual void touchEvent( QTouchEvent *event );
     virtual void mousePressEvent( QMouseEvent* me );
     virtual void mouseReleaseEvent( QMouseEvent* me );
     virtual void mouseMoveEvent( QMouseEvent* me );

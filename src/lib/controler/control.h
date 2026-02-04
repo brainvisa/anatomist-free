@@ -591,6 +591,32 @@ namespace anatomist {
       Callback actionCallback;
     };
 
+    class TouchActionLink
+    {
+    public:
+      virtual ~TouchActionLink() = 0;
+      virtual void execute( QTouchEvent* ) = 0;
+      virtual TouchActionLink* clone() const = 0;
+    };
+
+    template <typename T>
+    class TouchActionLinkOf : public TouchActionLink
+    {
+    public:
+      typedef void (T:: * Callback)( QTouchEvent* );
+      TouchActionLinkOf();
+      TouchActionLinkOf( anatomist::Action* action,
+                         Callback actioncb );
+      virtual ~TouchActionLinkOf() {}
+
+      virtual void execute( QTouchEvent * );
+      virtual TouchActionLink* clone() const;
+
+    private:
+      T * actionInstance;
+      Callback actionCallback;
+    };
+
     // ----
 
     int priority( ) { return myPriority; }
@@ -620,14 +646,13 @@ namespace anatomist {
     virtual void hideEvent ( QHideEvent * event );
     virtual void selectionChangedEvent();
     //virtual void customEvent ( QCustomEvent * );
-#if QT_VERSION >= 0x040600
     virtual void gestureEvent( QGestureEvent * event );
+    virtual void touchEvent( QTouchEvent * event );
     virtual bool pinchGesture( QPinchGesture * gesture );
     virtual bool panGesture( QPanGesture * gesture );
     virtual bool tapGesture( QTapGesture* gesture );
     virtual bool tapAndHoldGesture( QTapAndHoldGesture* gesture );
     virtual bool swipeGesture( QSwipeGesture* gesture );
-#endif
 
     bool keyPressEventSubscribe( int key,
                                  Qt::KeyboardModifiers buttonState,
@@ -723,6 +748,10 @@ namespace anatomist {
                                    const TapAndHoldActionLink & moveMethod,
                                    const TapAndHoldActionLink & stopMethod,
                                    const TapAndHoldActionLink & cancelMethod );
+    bool touchEventSubscribe( Qt::KeyboardModifiers state,
+                              const TouchActionLink & startMethod,
+                              const TouchActionLink & moveMethod,
+                              const TouchActionLink & stopMethod );
 
     /// obsolete, use the other one
     bool keyPressEventUnsubscribe( int key,
@@ -820,6 +849,7 @@ namespace anatomist {
     bool swipeEventUnsubscribe();
     bool tapEventUnsubscribe();
     bool tapAndHoldEventUnsubscribe();
+    bool touchEventUnsubscribe( Qt::KeyboardModifiers state );
 
     //   static bool controlFusion( const Control& control1, const Control& control2,
     //                           Control& controlsFusion );
@@ -845,6 +875,9 @@ namespace anatomist {
     std::set<std::string> mouseReleaseActionLinkNames() const;
     std::set<std::string> mouseDoubleClickActionLinkNames() const;
     std::set<std::string> mouseMoveActionLinkNames() const;
+
+    void inhibitAction( const std::string & action, bool inhibit );
+    const std::set<std::string> & inhibitedActions() const;
 
   protected :
     std::map<std::string, anatomist::ActionPtr> myActions;

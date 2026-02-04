@@ -46,6 +46,7 @@ Observer::~Observer()
 
 void Observer::cleanupObserver()
 {
+  // cout << "Observer::cleanupObserver " << _observed.size() << endl;
   unsigned    n;
   while( !_observed.empty() )
   {

@@ -30,8 +30,7 @@
 #
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL-B license and that you accept its terms.
-from __future__ import absolute_import
-import sys
+
 import anatomist.direct.api as anatomist
 from soma.qt_gui import qt_backend
 qt_backend.set_qt_backend(compatible_qt5=True)
@@ -45,8 +44,6 @@ import anatomist.cpp.followerobject as followerobject
 from soma import aims
 import os
 import sip
-
-# disable_me
 
 
 class SelectionActionView(QtGui.QWidget):
@@ -209,6 +206,10 @@ class SelectionAction(anatomist.cpp.Action):
             else:
                 self.boxSelectionCustomColor.a = 1.
                 self.boxSelectionCustomColor.na = True
+        self._timer = QtCore.QTimer()
+        self._timer.setSingleShot(True)
+        self._timer.setInterval(50)
+        self._timer.timeout.connect(self.selectionChanged_now)
 
     def setMode(self, mode):
         if type(mode) is type('') or type(mode) is type(u''):
@@ -411,6 +412,7 @@ class SelectionAction(anatomist.cpp.Action):
         return col
 
     def boxSelection(self):
+        # print('boxSelection', getattr(self, '_recursing', False))
         if hasattr(self, '_recursing'):
             return
         self._recursing = True
@@ -452,8 +454,9 @@ class SelectionAction(anatomist.cpp.Action):
             tosel.append(obj)
             if not globalbb:
                 if anatomist.cpp.weak_ptr_AObject(obj) in self._selectboxes:
-                    selectboxes[ anatomist.cpp.weak_ptr_AObject( obj ) ] \
-                        = self._selectboxes[anatomist.cpp.weak_ptr_AObject(obj)]
+                    selectboxes[anatomist.cpp.weak_ptr_AObject(obj)] \
+                        = self._selectboxes[
+                            anatomist.cpp.weak_ptr_AObject(obj)]
                     continue
                 makefollower(self, [obj], w, selectboxes,
                              anatomist.cpp.weak_ptr_AObject(obj))
@@ -503,7 +506,7 @@ class SelectionAction(anatomist.cpp.Action):
             QtGui.QColor(int(sc.r * 255.99),
                          int(sc.g * 255.99),
                          int(sc.b * 255.99)), None,
-          'Selection color', alpha, nalpha)
+            'Selection color', alpha, nalpha)
         if col.isValid():
             hcol = anatomist.cpp.SelectFactory.HColor()
             hcol.r = float(col.red()) / 255.99
@@ -527,6 +530,9 @@ class SelectionAction(anatomist.cpp.Action):
             self.boxSelection()
 
     def selectionChanged(self):
+        self._timer.start()
+
+    def selectionChanged_now(self):
         self.edgeSelection()
         self.boxSelection()
 
