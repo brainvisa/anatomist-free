@@ -59,6 +59,10 @@ namespace anatomist
     virtual void setShaderParameters( const Shader &shader,
                                       const ViewState & state ) const;
     virtual void internalUpdate();
+    /// some Nifti volumes are RGB/RGBA with channels separated in the 5th dim
+    virtual AObject *rgbVolumeFrom5D() const = 0;
+    /// some Nifti volumes are RGB/RGBA with channels separated in the 5th dim
+    virtual AObject *rgbaVolumeFrom5D() const = 0;
   };
 
   /**	Volume object */
@@ -128,8 +132,12 @@ namespace anatomist
 
     /// should be replaced by a real referential
     virtual bool printTalairachCoord( const Point3df & pos, 
-				      const Referential* ) const;
+                                      const Referential* ) const;
     virtual void setInternalsChanged();
+    /// some Nifti volumes are RGB/RGBA with channels separated in the 5th dim
+    virtual AObject *rgbVolumeFrom5D() const;
+    /// some Nifti volumes are RGB/RGBA with channels separated in the 5th dim
+    virtual AObject *rgbaVolumeFrom5D() const;
 
   protected:
     ///	Generic texture filling routine for any transformation
