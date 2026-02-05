@@ -5,6 +5,9 @@
 ### Changed
 
 - fixed a crash when deleting a graph with selected nodes
+- added a fusion from a 5D volume to build a RGB volume. Some NIFTI RGB are stored this way.
+- fixed size of FusionRGBAVolume fusion when voxel size is not 1x1x1mm
+- measure control: fixed markers display in direct referentials
 
 
 ## [6.6.0] 2026-01-12
