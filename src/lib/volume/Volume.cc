@@ -1651,6 +1651,74 @@ float VolumeVectorTraits<T>::mixedTexValue( const vector<int> & pos ) const
 }
 
 
+namespace
+{
+
+  template <typename U> inline int _rgbDim()
+  {
+    return 3;
+  }
+
+
+  template <> int _rgbDim<AimsRGBA>()
+  {
+    return 4;
+  }
+
+
+  template <typename T, typename U> AVolume<U> *
+  _fillVolFrom5D( const AVolume<T> & avol )
+  {
+    auto vol = avol.volume().get();
+    auto dims = vol->getSize();
+    dims.resize( 4 );
+    auto rgbr = rc_ptr( new Volume<U>( dims ) );
+    auto rgb = new AVolume<U>( rgbr );
+    auto rgbv = rgbr.get();
+
+    int x, y, z, t, c, cc;
+    cc = std::min( _rgbDim<U>(), dims[4] );
+    U rgbp;
+
+    double scale = 1.;
+    if( !numeric_limits<T>::is_integer )
+    {
+      T maxi = vol->max();
+      if( maxi > 255.5 )
+        scale = 255. / maxi;
+    }
+
+    for( t=0; t<dims[3]; ++t )
+      for( z=0; z<dims[2]; ++z )
+        for( y=0; y<dims[1]; ++y )
+          for( x=0; x<dims[0]; ++x )
+          {
+            U & rgbp = rgbv->at( x, y, z, t );
+            for( c=0; c<cc; ++c )
+              rgbp[c] = (uint8_t)(
+                rint( double( vol->at( x, y, z, t, c ) ) * scale ) );
+          }
+    rgbv->copyHeaderFrom( vol->header() );
+    rgb->setReferential( const_cast<Referential *>( avol.getReferential() ) );
+
+    return rgb;
+  }
+
+}
+
+
+template <typename T> AObject *AVolume<T>::rgbVolumeFrom5D() const
+{
+  return _fillVolFrom5D<T, AimsRGB>( *this );
+}
+
+
+template <typename T> AObject *AVolume<T>::rgbaVolumeFrom5D() const
+{
+  return _fillVolFrom5D<T, AimsRGBA>( *this );
+}
+
+
 // instanciations
 
 template class AVolume<int8_t>;

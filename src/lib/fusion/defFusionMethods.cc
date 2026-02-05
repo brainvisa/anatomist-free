@@ -456,6 +456,55 @@ string FusionRGBAVolumeMethod::ID() const
 
 // ---------------
 
+int FusionRGBVolumeFrom5DMethod::canFusion( const std::set<AObject *> & obj )
+{
+  if( obj.size() != 1 )
+    return 0;
+
+  AVolumeBase *glc = dynamic_cast<AVolumeBase *>( *obj.begin() );
+  if( glc  )
+  {
+    vector<float> dmin, dmax;
+    if( glc->boundingBox2D( dmin, dmax ) )
+    {
+      if( dmax.size() >= 5 && dmin.size() >= 5 && dmax[4] - dmin[4] >= 2 )
+        return 85;
+    }
+  }
+  return 0;
+}
+
+
+string FusionRGBVolumeFrom5DMethod::generatedObjectType() const
+{
+  return AObject::objectTypeName( AObject::VOLUME );
+}
+
+
+AObject* FusionRGBVolumeFrom5DMethod::fusion( const std::vector<AObject *> & obj )
+{
+  AObject *o = *obj.begin();
+  AVolumeBase *glc = dynamic_cast<AVolumeBase *>( *obj.begin() );
+  vector<float> dmin, dmax;
+  if( !glc->boundingBox2D( dmin, dmax ) || dmax.size() < 5 || dmin.size() < 5 )
+    return 0;
+  vector<float> vs = glc->voxelSize();
+  int d5 = int( round( ( dmax[4] - dmin[4] ) ) ) + 1;
+  if( d5 >= 4 )
+    return glc->rgbaVolumeFrom5D();
+  else
+    return glc->rgbVolumeFrom5D();
+}
+
+
+string FusionRGBVolumeFrom5DMethod::ID() const
+{
+  return QT_TRANSLATE_NOOP( "FusionChooser", "FusionRGBVolumeFrom5DMethod" );
+}
+
+
+// ---------------
+
 string FusionClipMethod::ID() const
 {
   return( QT_TRANSLATE_NOOP( "FusionChooser", "FusionClipMethod" ) );
