@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [6.0.6]
 
 ### Changed
 
@@ -11,7 +11,7 @@
 - little demo script: `ana_demo.py`
 
 
-## [6.6.0] 2026-01-12
+## [6.0.0] 2026-01-12
 
 There has been several significant changes in this version...
 
