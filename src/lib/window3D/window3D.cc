@@ -1983,6 +1983,12 @@ void AWindow3D::changeReferential()
 
 void AWindow3D::unregisterObject(AObject* o)
 {
+  GLWidgetManager *glw = d->draw;
+  if( glw )
+  {
+    glw->permanentPrimitivesRef().clear();
+    glw->tempPrimitivesRef().clear();
+  }
   d->tmpprims.erase(o);
   d->renderconstraints.erase(o);
   map<AObject *, Private::ConstrainedObject>::iterator i =
