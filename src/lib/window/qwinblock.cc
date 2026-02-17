@@ -142,7 +142,7 @@ QAWindowBlock::QAWindowBlock( QWidget *parent, const char* name,
 
 QAWindowBlock::~QAWindowBlock()
 {
-  if( theAnatomist->defaultWindowsBlock() == this )
+  if( theAnatomist && theAnatomist->defaultWindowsBlock() == this )
     theAnatomist->setDefaultWindowsBlock( 0 );
    delete d;
 }
