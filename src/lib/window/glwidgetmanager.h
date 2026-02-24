@@ -45,6 +45,7 @@
 #include <QtOpenGL/QGLWidget>
 #endif
 class QGestureEvent;
+class QTouchEvent;
 class QOpenGLTexture;
 
 
@@ -95,6 +96,7 @@ namespace anatomist
     virtual void resizeGL( int w, int h );
     virtual void paintGL();
     virtual void gestureEvent( QGestureEvent *event );
+    virtual void touchEvent( QTouchEvent *event );
     virtual void mousePressEvent( QMouseEvent* me );
     virtual void mouseReleaseEvent( QMouseEvent* me );
     virtual void mouseMoveEvent( QMouseEvent* me );
@@ -126,9 +128,11 @@ namespace anatomist
     recordStart, recordStop */
     QObject* qobject();
 
-    void setPrimitives( const anatomist::GLPrimitives & li );
-    anatomist::GLPrimitives primitives() const;
-    anatomist::GLPrimitives& primitivesRef();
+    anatomist::GLPrimitives permanentPrimitives() const;
+    anatomist::GLPrimitives tempPrimitives() const;
+    anatomist::GLPrimitives& permanentPrimitivesRef();
+    anatomist::GLPrimitives& tempPrimitivesRef();
+
     void setSelectionPrimitives( const anatomist::GLPrimitives & li );
     anatomist::GLPrimitives selectionPrimitives() const;
     void clearLists();
@@ -237,7 +241,7 @@ namespace anatomist
     void createFullScreenQuad();
     void drawFullScreenQuad();
     void blendPass();
-    void depthPeeling();
+    void depthPeeling(anatomist::GLPrimitives* pl);
     bool useDepthPeeling() const;
     void setUseDepthPeeling( bool use );
     int nbLayers() const;
@@ -256,14 +260,16 @@ namespace anatomist
   protected:
     virtual void project( int virtualWidth=0, int virtualHeight=0 );
     virtual void setupView( int virtualWidth=0, int virtualHeight=0 );
-    void drawObjects( DrawMode m = Normal );
+    void drawObjects( DrawMode m = Normal , anatomist::GLPrimitives* pl = 0 );
     /** Virtual width and height are used to perform off-screen rendering.
         They are used only in the context of a framebuffer.
     */
     virtual void paintGL( DrawMode m, int virtualWidth=0, int virtualHeight=0 );
     void record();
 
-    anatomist::GLPrimitives _primitives;
+    // anatomist::GLPrimitives _primitives;
+    anatomist::GLPrimitives _permanentprimitives;
+    anatomist::GLPrimitives _tempprimitives;
     anatomist::GLPrimitives _selectprimitives;
 
     virtual void updateZBuffer();

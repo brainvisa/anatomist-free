@@ -591,6 +591,32 @@ namespace anatomist {
       Callback actionCallback;
     };
 
+    class TouchActionLink
+    {
+    public:
+      virtual ~TouchActionLink() = 0;
+      virtual void execute( QTouchEvent* ) = 0;
+      virtual TouchActionLink* clone() const = 0;
+    };
+
+    template <typename T>
+    class TouchActionLinkOf : public TouchActionLink
+    {
+    public:
+      typedef void (T:: * Callback)( QTouchEvent* );
+      TouchActionLinkOf();
+      TouchActionLinkOf( anatomist::Action* action,
+                         Callback actioncb );
+      virtual ~TouchActionLinkOf() {}
+
+      virtual void execute( QTouchEvent * );
+      virtual TouchActionLink* clone() const;
+
+    private:
+      T * actionInstance;
+      Callback actionCallback;
+    };
+
     // ----
 
     int priority( ) { return myPriority; }
@@ -621,6 +647,7 @@ namespace anatomist {
     virtual void selectionChangedEvent();
     //virtual void customEvent ( QCustomEvent * );
     virtual void gestureEvent( QGestureEvent * event );
+    virtual void touchEvent( QTouchEvent * event );
     virtual bool pinchGesture( QPinchGesture * gesture );
     virtual bool panGesture( QPanGesture * gesture );
     virtual bool tapGesture( QTapGesture* gesture );
@@ -721,6 +748,10 @@ namespace anatomist {
                                    const TapAndHoldActionLink & moveMethod,
                                    const TapAndHoldActionLink & stopMethod,
                                    const TapAndHoldActionLink & cancelMethod );
+    bool touchEventSubscribe( Qt::KeyboardModifiers state,
+                              const TouchActionLink & startMethod,
+                              const TouchActionLink & moveMethod,
+                              const TouchActionLink & stopMethod );
 
     /// obsolete, use the other one
     bool keyPressEventUnsubscribe( int key,
@@ -818,6 +849,7 @@ namespace anatomist {
     bool swipeEventUnsubscribe();
     bool tapEventUnsubscribe();
     bool tapAndHoldEventUnsubscribe();
+    bool touchEventUnsubscribe( Qt::KeyboardModifiers state );
 
     //   static bool controlFusion( const Control& control1, const Control& control2,
     //                           Control& controlsFusion );

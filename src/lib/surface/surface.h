@@ -60,7 +60,7 @@ namespace anatomist
     typedef AimsTimeSurface<D,Void> TimeSurfaceType;
 
     ASurface( const char *filename = "" );
-    ~ASurface();
+    virtual ~ASurface();
 
     virtual AObject* clone( bool shallow = true );
 
