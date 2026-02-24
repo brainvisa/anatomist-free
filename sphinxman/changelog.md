@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.0.9] 2026-02-06
+
+### Changed
+
+- avoid crash in windows blocks when the application has been deleted
+
+
 ## [6.0.6] 2026-02-06
 
 ### Changed
