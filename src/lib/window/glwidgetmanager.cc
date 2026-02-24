@@ -1047,12 +1047,12 @@ void GLWidgetManager::depthPeeling(GLPrimitives* pl)
       _pd->depthTextures[i-1]->bind(_pd->depthPeelingUnitTexture);
 
     _pd->currentLayer = i;
-    carto::rc_ptr<QOpenGLShaderProgram> currentShader;
+
     for (auto& primitive : *pl)
     {
       primitive->callList();
     }
-    glFlush();
+
     _pd->fbos[i]->release();
     if(i>0)
       _pd->depthTextures[i-1]->release();

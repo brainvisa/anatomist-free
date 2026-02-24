@@ -41,6 +41,9 @@ namespace anatomist
   class RenderContext
   {
     public:
+      RenderContext(){};
+
+
     /**
     * \brief Constructs a RenderContext for a given 3D window and GL manager.
     * \param window The parent 3D window.

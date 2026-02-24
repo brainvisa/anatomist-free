@@ -252,6 +252,7 @@ struct AWindow3D::Private
     dynamicShaderBuilder shaderBuilder; 
 
     TransformedObject* cursor;
+    RenderContext rc;
 };
 
 struct TmpCol
@@ -935,6 +936,8 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
     registerObject(d->cursor, true, 0);
   }
 
+  d->rc = RenderContext(this, d->draw);
+
   setChanged();
   Refresh();
 }
@@ -1239,7 +1242,7 @@ void AWindow3D::removeSelectionHighlight(TmpCol* tmpcol)
 void AWindow3D::refreshNow()
 {
   using carto::shared_ptr;
-  RenderContext rc(this, d->draw);
+  
 
   //bounding box
   std::vector<float> bbmin, bbmax;
@@ -1276,7 +1279,7 @@ void AWindow3D::refreshNow()
 
   std::string renderingString = rm==RenderMode::Full?"Full":"TemporaryOnly" ;
   std::cout << "rendering mode is : " << renderingString<< std::endl;
-  bool isRenderingOk = rc.renderScene(_objects, rm);
+  bool isRenderingOk = d->rc.renderScene(_objects, rm);
 
   removeSelectionHighlight(tmpcol);
   showReferential();
