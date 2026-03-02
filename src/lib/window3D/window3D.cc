@@ -436,7 +436,7 @@ AWindow3D::Private::Private() :
       righteye(0), objvallabel(0), statusbarvisible(false),
       needsextrema(false),
       mouseX(0), mouseY(0), surfpaintState(false), constraintEditorState(false),
-      constraintList(), constraintType(0), texConstraint(0), orientAnnot( 0 ), sortPolygons( false ), sortPolygonsDirection( false ), autoFusion( 0 )
+      constraintList(), constraintType(0), texConstraint(0), orientAnnot( 0 ), sortPolygons( false ), sortPolygonsDirection( false ), autoFusion( 0 ), cursor(nullptr)
 {
   try
   {
@@ -929,12 +929,7 @@ AWindow3D::AWindow3D(ViewType t, QWidget* parent, Object options, Qt::WindowFlag
   d->orientAnnot = new OrientationAnnotation( this );
 
 
-  d->cursor = cursorObject();
-  setCursorColor();
-  if(d->cursor)
-  {
-    registerObject(d->cursor, true, 0);
-  }
+  updateCursor();
 
   d->rc = RenderContext(this, d->draw);
 
@@ -1291,33 +1286,56 @@ void AWindow3D::refreshNow()
 
 void AWindow3D::updateCursor()
 {
-  bool firstItemIsCursor = _objects.size() > 0 && _objects.front().get() == d->cursor;
-  TransformedObject* currentCursor = cursorObject();
+   AObject* currentCursor = Cursor::currentCursor();
 
-  if(hasCursor())
+  if(!hasCursor() || !currentCursor)
   {
-    if(d->cursor != currentCursor)
+    if(d->cursor)
     {
-      unregisterObject(d->cursor);    
-      d->cursor = currentCursor;
-      registerObject(d->cursor, true, 0);
-    }else if(!firstItemIsCursor)
-    {
-      unregisterObject(d->cursor);    
-      registerObject(d->cursor, true, 0);
+      unregisterObject(d->cursor);
+      delete d->cursor;
+      d->cursor = nullptr;
     }
-    GLfloat scl = ((GLfloat) cursorSize()) / 20;
-    d->cursor->setScale( scl);
-    d->cursor->setPosition( getPosition() );
-    setCursorColor();
+    return;
+  }
+
+  bool cursorChanged = false;
+  if(d->cursor)
+  {
+    TransformedObject::iterator it = d->cursor->begin();
+    if(it == d->cursor->end() || *it != currentCursor)
+      cursorChanged = true;
+  }
+
+  if(!d->cursor || cursorChanged)
+  {
+    if(d->cursor)
+    {
+      unregisterObject(d->cursor);
+      delete d->cursor;
+      d->cursor = nullptr;
+    }
+    std::vector<AObject*> cursvec = { currentCursor };
+    d->cursor = new TransformedObject(cursvec, true, true, getPosition());
+    Material mat = d->cursor->GetMaterial();
+    mat.setRenderProperty(Material::RenderProperty::Ghost, 0);
+    d->cursor->SetMaterial(mat);
+    registerObject(d->cursor, true, 0);
   }
   else
   {
-    if(firstItemIsCursor)
+    bool firstItemIsCursor = !_objects.empty() && _objects.front().get() == d->cursor;
+    if(!firstItemIsCursor)
     {
       unregisterObject(d->cursor);
+      registerObject(d->cursor, true, 0);
     }
   }
+
+  GLfloat scl = ((GLfloat) cursorSize()) / 20;
+  d->cursor->setScale(scl);
+  d->cursor->setPosition(getPosition());
+  setCursorColor();
 }
 
 void AWindow3D::showReferential()
@@ -3293,7 +3311,7 @@ void AWindow3D::refreshLightViewNow()
     emit refreshed();
   }
   else
-    // could be optimized on a by-object basis
+    // could be optimized on a by-object basis 
     refreshNow();
 }
 
@@ -3473,25 +3491,11 @@ void AWindow3D::refreshTempNow()
   // //cout << "refreshTempNow finished\n";
 }
 
-TransformedObject* AWindow3D::cursorObject() const
-{
-  AObject* curs = Cursor::currentCursor();
-  if(!curs )
-    return nullptr;
-
-  std::vector<AObject*> cursvec;
-  cursvec.push_back(curs);
-  TransformedObject* tcurs = new TransformedObject(cursvec, true, true, getPosition());
-
-  Material mat = tcurs->GetMaterial();
-  mat.setRenderProperty(Material::RenderProperty::Ghost, 0);
-  tcurs->SetMaterial(mat);
-
-  return tcurs;
-}
-
 void AWindow3D::setCursorColor() const
 {
+  if( !d->cursor )
+    return;
+
   Material mat = d->cursor->GetMaterial();
   if (!useDefaultCursorColor())
   {
