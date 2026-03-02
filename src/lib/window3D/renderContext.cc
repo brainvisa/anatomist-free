@@ -78,10 +78,10 @@ bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & o
     setupOpenGLState();
     
     d->currentPrimitives = &d->permanentPrimitives;
-    success |= renderObjects(objs, mode);
+    success |= renderObjects(objs, RenderMode::PermanentOnly);
 
     d->currentPrimitives = &d->temporaryPrimitives;
-    success |= renderObjects(objs, mode);
+    success |= renderObjects(objs, RenderMode::TemporaryOnly);
   }
   else
   {
@@ -90,7 +90,7 @@ bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & o
     setupOpenGLState();
 
     d->currentPrimitives = &d->temporaryPrimitives;
-    success |= renderObjects(objs, mode);
+    success |= renderObjects(objs, RenderMode::TemporaryOnly);
   }
 
   finalizeRendering();
@@ -194,10 +194,13 @@ bool RenderContext::renderObject(std::unordered_map<std::string, std::vector<car
     {
       auto obj = objects[i];
 
+      if(mode == RenderMode::PermanentOnly && d->window->isTemporary(obj.get()))
+        continue;
+
       if(mode == RenderMode::TemporaryOnly && !d->window->isTemporary(obj.get()))
         continue;
 
-      auto glObj = objects[i]->glAPI();
+      auto glObj = obj->glAPI();
 
       for(const auto & module : shaderModules)
       {

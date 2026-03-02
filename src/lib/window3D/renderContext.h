@@ -35,7 +35,8 @@ namespace anatomist
   enum class RenderMode
   {
     Full,
-    TemporaryOnly
+    TemporaryOnly,
+    PermanentOnly
   };
 
   class RenderContext
