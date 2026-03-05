@@ -301,8 +301,6 @@ public:
   void applySelectionHighlight(TmpCol* tmpCol);
   void removeSelectionHighlight(TmpCol *tmpCol);
 
-  /// retunrs the cursor object with a ghost material, or null if none
-  anatomist::TransformedObject* cursorObject() const;
   /// add or remove the cursor Object and update its color and position
   void updateCursor();
   void setCursorColor() const;

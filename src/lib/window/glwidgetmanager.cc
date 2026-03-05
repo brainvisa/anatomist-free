@@ -753,8 +753,10 @@ void GLWidgetManager::paintGL( DrawMode m, int virtualWidth,
   /*if (_frameOn)
     glCallList(_3DGuide->GetFrameGLList());*/
 
-  drawObjects( m, &_permanentprimitives);
-  drawObjects( m, &_tempprimitives);
+  anatomist::GLPrimitives drawPrimitives = _permanentprimitives;
+  drawPrimitives.insert( drawPrimitives.end(), _tempprimitives.begin(), _tempprimitives.end() );
+
+  drawObjects( m, &drawPrimitives );
 
   glPopAttrib();
   glMatrixMode( GL_PROJECTION );
@@ -813,7 +815,6 @@ void GLWidgetManager::drawObjects( DrawMode m, GLPrimitives* pl)
   }
   else
   {
-
     for( ; il!=el; ++il )
     {
       if( (*il)->ghost() )
