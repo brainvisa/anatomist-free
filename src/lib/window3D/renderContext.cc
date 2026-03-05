@@ -70,27 +70,44 @@ bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & o
   bool success = false;
   d->glwman->qglWidget()->makeCurrent();
 
+  bool hasTemporary = false;
+  for(const auto & obj : objs) // Jordan : might be optimized not to browse the list multiple times (one time here and then in retrieveShaders)
+  {
+    if(d->window->isTemporary(obj.get()))
+    {
+      hasTemporary = true;
+      break;
+    }
+  }
+
   if(mode == RenderMode::Full)
   {
     d->permanentPrimitives.clear();
     d->temporaryPrimitives.clear();
 
-    setupOpenGLState();
+    
     
     d->currentPrimitives = &d->permanentPrimitives;
+    setupOpenGLState();
     success |= renderObjects(objs, RenderMode::PermanentOnly);
 
-    d->currentPrimitives = &d->temporaryPrimitives;
-    success |= renderObjects(objs, RenderMode::TemporaryOnly);
+    if(hasTemporary)
+    {
+      d->currentPrimitives = &d->temporaryPrimitives;
+      setupOpenGLState();
+      success |= renderObjects(objs, RenderMode::TemporaryOnly);
+    }
   }
   else
   {
-    d->temporaryPrimitives.clear();
-    
-    setupOpenGLState();
+    if(hasTemporary)
+    {
+      d->temporaryPrimitives.clear();
 
-    d->currentPrimitives = &d->temporaryPrimitives;
-    success |= renderObjects(objs, RenderMode::TemporaryOnly);
+      d->currentPrimitives = &d->temporaryPrimitives;
+      setupOpenGLState();
+      success |= renderObjects(objs, RenderMode::TemporaryOnly);
+    }
   }
 
   finalizeRendering();
@@ -442,18 +459,18 @@ void RenderContext::setViewState(carto::rc_ptr<ViewState> vs)
 
 void RenderContext::finalizeRendering()
 {
-  Primitive* renderoffpr = 0;
+  Primitive* renderoffpr = nullptr;
   bool rendertwice = false;
 
   switch (d->window->renderingMode())
   {
     case AWindow3D::HiddenWireframe:
       renderoffpr = setupHiddenWireframeMode();
-      rendertwice = true;
+      rendertwice = renderoffpr != nullptr;
       break;
     case Material::Outlined:
       renderoffpr = setupOutlinedMode();
-      rendertwice = true;
+      rendertwice = renderoffpr != nullptr;
       break;
     default:
       break;
@@ -525,6 +542,8 @@ Primitive* RenderContext::setupOutlinedMode()
 
 void RenderContext::duplicateRenderPrimitives()
 {
+  if(d->currentPrimitives->size() < 2)
+    return;
   unsigned i, n = d->currentPrimitives->size() - 2;
   PrimList::iterator ip = d->currentPrimitives->begin();
   for (++ip, i = 0; i < n; ++i, ++ip)
