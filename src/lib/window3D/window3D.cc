@@ -2007,7 +2007,8 @@ void AWindow3D::unregisterObject(AObject* o)
   GLWidgetManager *glw = d->draw;
   if( glw )
   {
-    glw->permanentPrimitivesRef().clear();
+    if( !isTemporary( o ) )
+      glw->permanentPrimitivesRef().clear();
     glw->tempPrimitivesRef().clear();
   }
   d->tmpprims.erase(o);
@@ -2036,6 +2037,13 @@ void AWindow3D::unregisterObject(AObject* o)
   }
 
   ControlledWindow::unregisterObject(o);
+
+  if( isTemporary( o ) && ( !needsRedraw()
+    || d->refreshneeded == Private::LightRefresh ) )
+  {
+    d->refreshneeded = Private::TempRefresh;
+    ControlledWindow::Refresh();
+  }
 }
 
 void AWindow3D::registerObject(AObject* o, bool temporaryObject, int pos)
