@@ -165,15 +165,8 @@ bool RenderContext::updateObject(carto::shared_ptr<AObject> obj, PrimList* pl,Vi
 
   GLPrimitives gp;
   if(!pl) pl = d->currentPrimitives;
-  if(!obj->Is2DObject() || (d->window->viewType() == AWindow3D::ThreeD && obj->Is3DObject()))
-  {
-    d->vs.reset(new ViewState(d->window->getTimes(), d->window, selectmode));
-  }
-  else
-  {
-    d->vs.reset(new SliceViewState(d->window->getTimes(), true, d->window->getPosition(), &d->window->sliceQuaternion(),
-                      d->window->getReferential(), d->window->windowGeometry(), &d->glwman->quaternion(), d->window, selectmode));
-  }
+  bool slice = obj->Is2DObject();
+  d->vs = d->window->viewState( slice, selectmode );
 
   success |= obj->render(*pl, *this);
 

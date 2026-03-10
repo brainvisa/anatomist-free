@@ -4395,8 +4395,10 @@ void AWindow3D::renderSelectionBuffer(ViewState::glSelectRenderMode mode,
 
   //	Draw objects
   // for( al = renderobj.begin(); al != el; ++al )
-  //   if( mode != ViewState::glSELECTRENDER_POLYGON || *al == selectedobject ) //jordan move this with renderContext
-  //     updateObject( *al, &primitives, mode );
+  //   if( mode != ViewState::glSELECTRENDER_POLYGON || *al == selectedobject )
+      //jordan move this with renderContext
+      // d->rc.updateObject( carto::shared_ptr<AObject>(
+      //   carto::shared_ptr<AObject>::Weak, *al ), &primitives, mode );
 
   renderpr = new GLList;
   renderpr->generate();
@@ -4588,13 +4590,13 @@ void AWindow3D::saveSnapshotWithCustomSize()
 }
 
 
-rc_ptr<ViewState> AWindow3D::viewState(bool slice)
+rc_ptr<ViewState> AWindow3D::viewState(
+    bool slice, ViewState::glSelectRenderMode mode )
 {
   rc_ptr<ViewState> vs;
   if( d->viewtype == ThreeD && !slice )
   {
-    vs.reset( new ViewState( _timepos, this,
-                             ViewState::glSELECTRENDER_NONE ) );
+    vs.reset( new ViewState( _timepos, this, mode ) );
   }
   else
   {
@@ -4602,7 +4604,7 @@ rc_ptr<ViewState> AWindow3D::viewState(bool slice)
       new SliceViewState( _timepos, true, _position, &d->slicequat,
                           getReferential(),
                           windowGeometry(), &d->draw->quaternion(), this,
-                          ViewState::glSELECTRENDER_NONE ) );
+                          mode ) );
   }
   return vs;
 }

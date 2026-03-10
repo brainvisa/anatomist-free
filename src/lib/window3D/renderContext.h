@@ -42,6 +42,8 @@ namespace anatomist
   class RenderContext
   {
     public:
+      friend class ::AWindow3D;
+
       RenderContext(){};
 
 
