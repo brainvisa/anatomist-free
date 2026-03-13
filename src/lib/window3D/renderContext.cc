@@ -165,7 +165,8 @@ bool RenderContext::updateObject(carto::shared_ptr<AObject> obj, PrimList* pl,Vi
 
   GLPrimitives gp;
   if(!pl) pl = d->currentPrimitives;
-  bool slice = obj->Is2DObject();
+  bool slice = obj->Is2DObject()
+    && ( d->window->viewType() != AWindow3D::ThreeD || !obj->Is3DObject() );
   d->vs = d->window->viewState( slice, selectmode );
 
   success |= obj->render(*pl, *this);
