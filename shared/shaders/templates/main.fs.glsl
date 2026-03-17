@@ -8,6 +8,7 @@ varying vec3 v_directionLight;
 
 
 uniform bool u_hasTexture;
+uniform bool u_isSelectionPass;
 
 uniform sampler1D u_texture1D[MAX_TEXTURE_UNITS];
 uniform int u_nbTexture1D;
@@ -222,10 +223,17 @@ vec4 basicColor()
 
 void main()
 {
- vec4 color = basicColor();
- {Illumination Model Call}
- {Effect Call}
- fragColor = color;
+  if(u_isSelectionPass)
+  {
+    /* In selection pass, we want to output the color as is, without any lighting or texture effect, 
+    to be able to retrieve the object ID from the color.*/
+    fragColor = v_color;
+    return;
+  }
+  vec4 color = basicColor();
+  {Illumination Model Call}
+  {Effect Call}
+  fragColor = color;
 }
 
 

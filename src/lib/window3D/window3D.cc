@@ -4401,12 +4401,16 @@ void AWindow3D::renderSelectionBuffer(ViewState::glSelectRenderMode mode,
   glEndList();
   primitives.push_back(RefGLItem(renderpr));
 
-  //	Draw objects
-  // for( al = renderobj.begin(); al != el; ++al )
-  //   if( mode != ViewState::glSELECTRENDER_POLYGON || *al == selectedobject )
-      //jordan move this with renderContext
-      // d->rc.updateObject( carto::shared_ptr<AObject>(
-      //   carto::shared_ptr<AObject>::Weak, *al ), &primitives, mode );
+
+  //Draw objects
+  for( al = renderobj.begin(); al != el; ++al )
+    if( (mode != ViewState::glSELECTRENDER_POLYGON || *al == selectedobject) && *al != d->cursor ) //jordan move this with renderContext
+    {
+      d->draw->setSelectionPass(true);
+      d->rc.updateObject( carto::shared_ptr<AObject>(
+        carto::shared_ptr<AObject>::Weak, *al ), &primitives, mode);
+      d->draw->setSelectionPass(false);
+    }
 
   renderpr = new GLList;
   renderpr->generate();
