@@ -2818,7 +2818,7 @@ void GLWidgetManager::texToPng()
     QImage image(colorPixels.data(), width, height, QImage::Format_RGBA8888);
     image = image.mirrored();
 
-    std::list<std::string> path =  carto::Paths::findResourceFiles("shaders/templates", "anatomist");
+    std::list<std::string> path =  carto::Paths::findResourceFiles("shaders/templates", "anatomist",theAnatomist->libraryVersionString());
     if( path.empty() )
     {
       cerr << "Error: cannot find the templates directory for saving textures.\n";
@@ -2847,7 +2847,7 @@ void GLWidgetManager::texToPng()
 
         image = image.mirrored();
 
-        std::list<std::string> path = carto::Paths::findResourceFiles("shaders/templates", "anatomist");
+        std::list<std::string> path = carto::Paths::findResourceFiles("shaders/templates", "anatomist", theAnatomist->libraryVersionString());
         if (path.empty()) {
             std::cerr << "Error: cannot find the templates directory for saving textures.\n";
             return;

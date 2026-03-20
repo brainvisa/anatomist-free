@@ -135,6 +135,9 @@ namespace anatomist
 
     void setSelectionPrimitives( const anatomist::GLPrimitives & li );
     anatomist::GLPrimitives selectionPrimitives() const;
+    void setSelectionPass( bool x );
+    bool isSelectionPass() const;
+
     void clearLists();
     /** set objects extrema, this also automatically sets the window bounding 
         box */

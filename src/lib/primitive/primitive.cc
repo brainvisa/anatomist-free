@@ -453,7 +453,14 @@ void GLSceneUniforms::callList() const
       return;
     }
 
-  _module->setupSceneUniforms(*_shader, *_scene);
+    GLint isSelectionPassLoc = _shader->uniformLocation("u_isSelectionPass");
+    if(isSelectionPassLoc >= 0)
+    {
+      _shader->setUniformValue(isSelectionPassLoc, _scene->isSelectionPass());
+    }
+
+  if(_module)
+    _module->setupSceneUniforms(*_shader, *_scene);
   GLenum status = glGetError();
   if( status != GL_NO_ERROR )
     cerr << "GLSceneUniforms::callList() Could not set scene uniforms ! - "
