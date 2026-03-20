@@ -4263,6 +4263,9 @@ AObject* AWindow3D::objectAtCursorPosition(int x, int y)
   /*  cout << "RGBA " << x << ", " << y << ": " << (unsigned) r << ", " << (unsigned) g << ", " << (unsigned) b << " : ID: " << id << endl;*/
   // get object with the same ID
   obj = objectWithGLID(id);
+
+  if(obj) cout << "object at cursor: " << obj->name() << endl; //jordan to rmeove
+  else cout << "no object at cursor\n";
   // cout << "object: " << obj << endl;
   return obj;
 }
@@ -4336,6 +4339,11 @@ void AWindow3D::renderSelectionBuffer(ViewState::glSelectRenderMode mode,
   cout << endl;
   */
 
+
+  bool isRenderingOk = d->rc.renderScene(_objects, RenderMode::Selection);
+
+
+
   d->refreshneeded = Private::FullRefresh;
   d->draw->qglWidget()->makeCurrent();
   d->draw->bindOtherFramebuffer( GLWidgetManager::ObjectSelect );
@@ -4344,90 +4352,22 @@ void AWindow3D::renderSelectionBuffer(ViewState::glSelectRenderMode mode,
   list<AObject *>::iterator transparent = processRenderingOrder(renderobj);
   list<AObject*>::iterator al, el = renderobj.end();
 
-  GLPrimitives primitives;
-
-  //	Rendering mode primitive (must be first)
-  GLList *renderpr = new GLList;
-  renderpr->generate();
-  GLuint renderGLL = renderpr->item();
-  if (!renderGLL) AWarning("AWindow3D::Refresh: OpenGL error.");
-
-  glNewList(renderGLL, GL_COMPILE);
-
-  glPushAttrib( GL_ALL_ATTRIB_BITS);
-  glLineWidth(1);
-  glShadeModel( GL_FLAT);
-  glDisable( GL_LINE_SMOOTH);
-  glDisable( GL_POLYGON_SMOOTH);
-  glDisable( GL_LIGHTING);
-  glPolygonOffset(0, 0);
-  glDisable( GL_POLYGON_OFFSET_FILL);
-  glDisable( GL_FOG);
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-  glDisable( GL_BLEND);
-  // clipping planes
-  GLdouble plane[4];
-  Point3df dir = d->slicequat.transformInverse(Point3df(0, 0, -1));
-  plane[0] = dir[0];
-  plane[1] = dir[1];
-  plane[2] = dir[2];
-  plane[3] = -dir.dot(_position) + d->clipdist;
-  switch (clipMode())
-  {
-    case Single:
-      glEnable( GL_CLIP_PLANE0);
-      glDisable( GL_CLIP_PLANE1);
-      glClipPlane(GL_CLIP_PLANE0, plane);
-      // glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
-      break;
-    case Double:
-      glEnable(GL_CLIP_PLANE0);
-      glEnable(GL_CLIP_PLANE1);
-      glClipPlane(GL_CLIP_PLANE0, plane);
-      plane[0] *= -1;
-      plane[1] *= -1;
-      plane[2] *= -1;
-      plane[3] = dir.dot(_position) + d->clipdist;
-      glClipPlane(GL_CLIP_PLANE1, plane);
-      // glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
-      break;
-    default:
-      glDisable(GL_CLIP_PLANE0);
-      glDisable(GL_CLIP_PLANE1);
-      // glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE );
-      break;
-  }
-  glEndList();
-  primitives.push_back(RefGLItem(renderpr));
-
-
   //Draw objects
-  for( al = renderobj.begin(); al != el; ++al )
-    if( (mode != ViewState::glSELECTRENDER_POLYGON || *al == selectedobject) && *al != d->cursor ) //jordan move this with renderContext
-    {
-      d->draw->setSelectionPass(true);
-      d->rc.updateObject( carto::shared_ptr<AObject>(
-        carto::shared_ptr<AObject>::Weak, *al ), &primitives, mode);
-      d->draw->setSelectionPass(false);
-    }
+  //d->draw->setSelectionPass(true);
+  // for( al = renderobj.begin(); al != el; ++al )
+  //   if( (mode != ViewState::glSELECTRENDER_POLYGON || *al == selectedobject) && *al != d->cursor ) //jordan move this with renderContext
+  //     d->rc.updateObject( carto::shared_ptr<AObject>(
+  //       carto::shared_ptr<AObject>::Weak, *al ), &primitives, mode);
+  
+  
 
-  renderpr = new GLList;
-  renderpr->generate();
-  renderGLL = renderpr->item();
-  if (!renderGLL) AWarning("AWindow3D::Refresh: OpenGL error.");
-
-  glNewList(renderGLL, GL_COMPILE);
-  glPopAttrib();
-  glEndList();
-  primitives.push_back(RefGLItem(renderpr));
+ 
 
   // d->draw->setPrimitives( d->primitives );
-  d->draw->setSelectionPrimitives(primitives);
-
   // perform rendering, without swapBuffers
 
   d->draw->renderBackBuffer(mode);
+
 }
 
 

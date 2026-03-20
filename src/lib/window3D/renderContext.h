@@ -36,7 +36,8 @@ namespace anatomist
   {
     Full,
     TemporaryOnly,
-    PermanentOnly
+    PermanentOnly,
+    Selection
   };
 
   class RenderContext
@@ -173,6 +174,8 @@ namespace anatomist
       std::vector<carto::rc_ptr<anatomist::IShaderModule>> getEffectiveShaderModules(const std::string& shaderID);
 
       void setupOpenGLState();
+      void setupSelectionOpenGLState();
+      void resetSelectionOpenGLState();
       anatomist::Primitive* setupHiddenWireframeMode();
       anatomist::Primitive* setupOutlinedMode();
       void duplicateRenderPrimitives();

@@ -244,6 +244,7 @@ struct GLWidgetManager::Private
   GLuint    z_framebuffer;
   GLuint    z_renderbuffer;
   GLuint    select_renderbuffer;
+  bool      isSelectionPass;
 #endif
 };
 
@@ -267,7 +268,7 @@ GLWidgetManager::Private::Private()
     qobject( 0 ),
     transparentBackground( true ), backgroundAlpha( 128 ),
     mouseX( 0 ), mouseY( 0 ), resized(false), saveInProgress( false ),
-    cameraChanged( true ), recordWidth( 0 ), recordHeight( 0 ), useDepthPeeling(false), nbLayers(8), currentLayer(0), fullScreenQuadList(0), depthPeelingUnitTexture(7)
+    cameraChanged( true ), recordWidth( 0 ), recordHeight( 0 ), useDepthPeeling(false), nbLayers(8), currentLayer(0), fullScreenQuadList(0), depthPeelingUnitTexture(7), isSelectionPass(false)
 #ifdef ANA_USE_QOPENGLWIDGET
     ,
     z_framebuffer( 0 ), z_renderbuffer( 0 ),
@@ -505,7 +506,12 @@ void GLWidgetManager::renderBackBuffer( ViewState::glSelectRenderMode
   default:
     break;
   }
+
+  setSelectionPass( true );
   paintGL( mode );
+  setSelectionPass( false );
+
+  texToPng();
 }
 
 
@@ -768,6 +774,8 @@ void GLWidgetManager::paintGL( DrawMode m, int virtualWidth,
 
 void GLWidgetManager::drawObjects( DrawMode m, GLPrimitives* pl)
 {
+  std::cout << "GLWidgetManager::drawObjects with select pass : " << isSelectionPass() << endl; //jordan to remove
+
   GLenum err;
   while(glGetError() != GL_NO_ERROR)
   {
@@ -1101,6 +1109,21 @@ void GLWidgetManager::setSelectionPrimitives( const GLPrimitives & pl )
 GLPrimitives GLWidgetManager::selectionPrimitives() const
 {
   return( _selectprimitives );
+}
+
+GLPrimitives& GLWidgetManager::selectionPrimitivesRef()
+{
+  return( _selectprimitives );
+}
+
+void GLWidgetManager::setSelectionPass( bool x )
+{
+  _pd->isSelectionPass = x; 
+}
+
+bool GLWidgetManager::isSelectionPass() const
+{
+  return _pd->isSelectionPass;
 }
 
 
@@ -2805,56 +2828,48 @@ void GLWidgetManager::texToPng()
 {
   int width = this->width();
   int height = this->height();
-  for( int i = 0; i < _pd->nbLayers; ++i )
-  {
+  // for( int i = 0; i < _pd->nbLayers; ++i )
+  // {
+  //   {
+  //   //color texture
+  //   std::vector<unsigned char> colorPixels(width * height * 4); // RGBA8
+
+  //   _pd->colorTextures[i]->bind();
+  //   glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, colorPixels.data());
+  //   _pd->colorTextures[i]->release();
+
+  //   QImage image(colorPixels.data(), width, height, QImage::Format_RGBA8888);
+  //   image = image.mirrored();
+
+  //   std::list<std::string> path =  carto::Paths::findResourceFiles("shaders/templates", "anatomist",theAnatomist->libraryVersionString());
+  //   if( path.empty() )
+  //   {
+  //     cerr << "Error: cannot find the templates directory for saving textures.\n";
+  //     return;
+  //   }
+  //   QString filename = QString::fromStdString(path.front()+ "/colorTexture_" + std::to_string(i) + ".png") ;
+  //   image.save(filename);
+  //   }
+
     {
-    //color texture
-    std::vector<unsigned char> colorPixels(width * height * 4); // RGBA8
-
-    _pd->colorTextures[i]->bind();
-    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, colorPixels.data());
-    _pd->colorTextures[i]->release();
-
-    QImage image(colorPixels.data(), width, height, QImage::Format_RGBA8888);
-    image = image.mirrored();
-
-    std::list<std::string> path =  carto::Paths::findResourceFiles("shaders/templates", "anatomist",theAnatomist->libraryVersionString());
-    if( path.empty() )
-    {
-      cerr << "Error: cannot find the templates directory for saving textures.\n";
-      return;
-    }
-    QString filename = QString::fromStdString(path.front()+ "/colorTexture_" + std::to_string(i) + ".png") ;
-    image.save(filename);
-    }
-
-    {
-    //depth texture
-    std::vector<float> depthPixels(width * height);
-
-        _pd->depthTextures[i]->bind();
-        glGetTexImage(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, GL_FLOAT, depthPixels.data());
-        _pd->depthTextures[i]->release();
-
-        float minD = 1.0f, maxD = 0.0f;
-        for (float d : depthPixels) {
-            if (d < minD) minD = d;
-            if (d > maxD) maxD = d;
-        }
-        //std::cout << "Layer " << i << " depth range: " << minD << " - " << maxD << std::endl;
-
-        QImage image(width, height, QImage::Format_Grayscale8);
-
-        image = image.mirrored();
-
-        std::list<std::string> path = carto::Paths::findResourceFiles("shaders/templates", "anatomist", theAnatomist->libraryVersionString());
-        if (path.empty()) {
-            std::cerr << "Error: cannot find the templates directory for saving textures.\n";
-            return;
-        }
-
-        QString filename = QString::fromStdString(path.front() + "/depthTex_" + std::to_string(i) + ".png");
-        image.save(filename);
+      // back buffer texture
+      std::vector<unsigned char> backBufferPixels(width * height * 3); // RGB
+      _pd->backBufferTexture.resize(width * height * 3);
+      _pd->glwidget->makeCurrent();
+      glReadBuffer(GL_BACK);
+      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+      glPixelStorei(GL_PACK_ALIGNMENT, 1);
+      glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, backBufferPixels.data()); 
+      QImage backBufferImage(backBufferPixels.data(), width, height, QImage::Format_RGB888);
+      backBufferImage = backBufferImage.mirrored();
+      std::list<std::string> path =  carto::Paths::findResourceFiles("shaders/templates", "anatomist",theAnatomist->libraryVersionString());
+      if( path.empty() )
+      {
+        cerr << "Error: cannot find the templates directory for saving textures.\n";
+        return;
       }
-  }
+      QString backBufferFilename = QString::fromStdString(path.front()+ "/backBufferTexture.png") ;
+      backBufferImage.save(backBufferFilename);
+    }
+  // }
 }

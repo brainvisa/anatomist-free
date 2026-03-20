@@ -456,6 +456,8 @@ void GLSceneUniforms::callList() const
     GLint isSelectionPassLoc = _shader->uniformLocation("u_isSelectionPass");
     if(isSelectionPassLoc >= 0)
     {
+      if(_scene->isSelectionPass())
+        std::cout << "GLSceneUniforms::callList() Setting selection pass uniform" << std::endl; // jordan to remove
       _shader->setUniformValue(isSelectionPassLoc, _scene->isSelectionPass());
     }
 

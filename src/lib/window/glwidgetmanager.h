@@ -135,6 +135,7 @@ namespace anatomist
 
     void setSelectionPrimitives( const anatomist::GLPrimitives & li );
     anatomist::GLPrimitives selectionPrimitives() const;
+    anatomist::GLPrimitives& selectionPrimitivesRef();
     void setSelectionPass( bool x );
     bool isSelectionPass() const;
 

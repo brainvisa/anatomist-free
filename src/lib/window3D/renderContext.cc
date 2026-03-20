@@ -30,15 +30,17 @@ struct RenderContext::Private
   GLWidgetManager * glwman;
   PrimList& permanentPrimitives;
   PrimList& temporaryPrimitives;
+  PrimList& selectionPrimitives;
   PrimList* currentPrimitives;
   dynamicShaderBuilder shaderBuilder;
   std::map<std::string, carto::rc_ptr<QOpenGLShaderProgram>> programs;
   carto::rc_ptr<QOpenGLShaderProgram> currentProgram;
   carto::rc_ptr<ViewState> vs;
+  std::list<AObject *> renderobj;
 };
 
 RenderContext::Private::Private(AWindow3D* win, GLWidgetManager* widgetManager) : 
-window(win), glwman(widgetManager),permanentPrimitives(glwman->permanentPrimitivesRef()), temporaryPrimitives(glwman->tempPrimitivesRef()) ,currentProgram(nullptr), currentPrimitives(nullptr)
+window(win), glwman(widgetManager),permanentPrimitives(glwman->permanentPrimitivesRef()), temporaryPrimitives(glwman->tempPrimitivesRef()), selectionPrimitives(glwman->selectionPrimitivesRef()) ,currentProgram(nullptr), currentPrimitives(nullptr)
 {
 }
 
@@ -98,7 +100,7 @@ bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & o
       success |= renderObjects(objs, RenderMode::TemporaryOnly);
     }
   }
-  else
+  else if(mode == RenderMode::TemporaryOnly)
   {
     if(hasTemporary)
     {
@@ -108,6 +110,17 @@ bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & o
       setupOpenGLState();
       success |= renderObjects(objs, RenderMode::TemporaryOnly);
     }
+  }
+  else if(mode == RenderMode::Selection)
+  {
+    d->selectionPrimitives.clear();
+
+    d->currentPrimitives = &d->selectionPrimitives;
+    setupSelectionOpenGLState();
+    //sortSelectionPrimitives(objs);
+    success |= renderObjects(objs, RenderMode::Selection);
+    resetSelectionOpenGLState();
+    d->glwman->setSelectionPrimitives(d->selectionPrimitives);
   }
 
   finalizeRendering();
@@ -437,6 +450,76 @@ void RenderContext::setupOpenGLState()
       glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
   }
 
+  glEndList();
+  d->currentPrimitives->push_back(RefGLItem(renderpr));
+}
+
+void RenderContext::setupSelectionOpenGLState()
+{
+  GLList *renderpr = new GLList;
+  renderpr->generate();
+  GLuint renderGLL = renderpr->item();
+  if (!renderGLL) AWarning("AWindow3D::Refresh: OpenGL error.");
+
+  glNewList(renderGLL, GL_COMPILE);
+
+  glPushAttrib( GL_ALL_ATTRIB_BITS);
+  glLineWidth(1);
+  glShadeModel( GL_FLAT);
+  glDisable( GL_LINE_SMOOTH);
+  glDisable( GL_POLYGON_SMOOTH);
+  glDisable( GL_LIGHTING);
+  glPolygonOffset(0, 0);
+  glDisable( GL_POLYGON_OFFSET_FILL);
+  glDisable( GL_FOG);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  glDisable( GL_BLEND);
+  // clipping planes
+  GLdouble plane[4];
+  Point3df dir = d->window->sliceQuaternion().transformInverse(Point3df(0, 0, -1));
+  plane[0] = dir[0];
+  plane[1] = dir[1];
+  plane[2] = dir[2];
+  plane[3] = -dir.dot(d->window->getPosition()) + d->window->clipDistance();
+  switch (d->window->clipMode())
+  {
+    case AWindow3D::Single:
+      glEnable( GL_CLIP_PLANE0);
+      glDisable( GL_CLIP_PLANE1);
+      glClipPlane(GL_CLIP_PLANE0, plane);
+      // glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
+      break;
+    case AWindow3D::Double:
+      glEnable(GL_CLIP_PLANE0);
+      glEnable(GL_CLIP_PLANE1);
+      glClipPlane(GL_CLIP_PLANE0, plane);
+      plane[0] *= -1;
+      plane[1] *= -1;
+      plane[2] *= -1;
+      plane[3] = dir.dot(d->window->getPosition()) + d->window->clipDistance();
+      glClipPlane(GL_CLIP_PLANE1, plane);
+      // glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
+      break;
+    default:
+      glDisable(GL_CLIP_PLANE0);
+      glDisable(GL_CLIP_PLANE1);
+      // glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE );
+      break;
+  }
+  glEndList();
+  d->currentPrimitives->push_back(RefGLItem(renderpr));
+}
+
+void RenderContext::resetSelectionOpenGLState()
+{
+  GLList *renderpr = new GLList;
+  renderpr->generate();
+  GLuint renderGLL = renderpr->item();
+  if (!renderGLL) AWarning("AWindow3D::Refresh: OpenGL error.");
+
+  glNewList(renderGLL, GL_COMPILE);
+  glPopAttrib();
   glEndList();
   d->currentPrimitives->push_back(RefGLItem(renderpr));
 }
