@@ -93,7 +93,8 @@ namespace anatomist
       * \param pl Optional primitive list to append to. If null, uses the internal list.
       * \param selectmode The OpenGL render mode (normal, selection, etc.).
       */
-      bool updateObject(carto::shared_ptr<anatomist::AObject> obj, anatomist::PrimList* pl=0, anatomist::ViewState::glSelectRenderMode selectmode
+      bool updateObject(carto::shared_ptr<anatomist::AObject> obj, anatomist::PrimList* pl=0,
+                        anatomist::ViewState::glSelectRenderMode selectmode
                           = anatomist::ViewState::glSELECTRENDER_NONE);
       /**
       * \brief Renders all objects of a given group (opaque or transparent).
@@ -108,7 +109,9 @@ namespace anatomist
       *
       * \param isTransparent True if rendering the transparent group.
       */
-      bool renderObject(std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> & drawables, RenderMode mode);
+      bool renderObject(std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> & drawables, RenderMode mode,
+                        anatomist::ViewState::glSelectRenderMode selectmode
+                          = anatomist::ViewState::glSELECTRENDER_NONE);
 
       /**
       * \brief Sorts objects by shader type and transparency.

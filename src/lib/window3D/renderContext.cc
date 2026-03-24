@@ -205,7 +205,8 @@ bool RenderContext::updateObject(carto::shared_ptr<AObject> obj, PrimList* pl,Vi
   return success;
 }
 
-bool RenderContext::renderObject(std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> & drawables, RenderMode mode)
+bool RenderContext::renderObject(std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> & drawables, RenderMode mode,
+                                 anatomist::ViewState::glSelectRenderMode selectmode)
 {
   bool success = false;
 
@@ -232,7 +233,7 @@ bool RenderContext::renderObject(std::unordered_map<std::string, std::vector<car
         d->currentPrimitives->push_back(carto::rc_ptr<GLItem>(new GLObjectUniforms(module, d->currentProgram, glObj)));
       }
 
-      success |= updateObject(obj);
+      success |= updateObject(obj, selectmode);
     }
   }
   d->currentProgram = carto::rc_ptr<QOpenGLShaderProgram>();
