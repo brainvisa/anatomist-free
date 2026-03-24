@@ -506,12 +506,13 @@ void GLWidgetManager::renderBackBuffer( ViewState::glSelectRenderMode
   default:
     break;
   }
-
+  bindOtherFramebuffer( mode );
   setSelectionPass( true );
   paintGL( mode );
   setSelectionPass( false );
+  restoreFramebuffer();
 
-  texToPng();
+  //texToPng(); jordan to remove
 }
 
 
@@ -674,8 +675,6 @@ void GLWidgetManager::paintGL( DrawMode m, int virtualWidth,
 
   _pd->cameraChanged = false;
 
-  bindOtherFramebuffer( m );
-
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
   glMatrixMode( GL_PROJECTION );
@@ -774,8 +773,6 @@ void GLWidgetManager::paintGL( DrawMode m, int virtualWidth,
 
 void GLWidgetManager::drawObjects( DrawMode m, GLPrimitives* pl)
 {
-  std::cout << "GLWidgetManager::drawObjects with select pass : " << isSelectionPass() << endl; //jordan to remove
-
   GLenum err;
   while(glGetError() != GL_NO_ERROR)
   {
@@ -2852,24 +2849,43 @@ void GLWidgetManager::texToPng()
   //   }
 
     {
-      // back buffer texture
-      std::vector<unsigned char> backBufferPixels(width * height * 3); // RGB
-      _pd->backBufferTexture.resize(width * height * 3);
-      _pd->glwidget->makeCurrent();
-      glReadBuffer(GL_BACK);
-      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+      // default framebuffer texture
+      restoreFramebuffer();
+      std::vector<unsigned char> defaultFramebufferPixels(width * height * 4); // RGBA8
+      //glReadBuffer(GL_BACK);
       glPixelStorei(GL_PACK_ALIGNMENT, 1);
-      glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, backBufferPixels.data()); 
-      QImage backBufferImage(backBufferPixels.data(), width, height, QImage::Format_RGB888);
-      backBufferImage = backBufferImage.mirrored();
+      glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, defaultFramebufferPixels.data());
+      QImage image(defaultFramebufferPixels.data(), width, height, QImage::Format_RGBA8888);
+      image = image.mirrored();
       std::list<std::string> path =  carto::Paths::findResourceFiles("shaders/templates", "anatomist",theAnatomist->libraryVersionString());
       if( path.empty() )
       {
         cerr << "Error: cannot find the templates directory for saving textures.\n";
         return;
       }
-      QString backBufferFilename = QString::fromStdString(path.front()+ "/backBufferTexture.png") ;
-      backBufferImage.save(backBufferFilename);
+      QString filename = QString::fromStdString(path.front()+ "/defaultFramebufferTexture.png") ;
+      image.save(filename);
+    }
+
+
+    {
+      // back buffer texture
+      bindOtherFramebuffer( ObjectSelect );
+      std::vector<unsigned char> backBufferPixels(width * height * 4); // RGB8
+      glReadBuffer(GL_BACK);
+      glPixelStorei(GL_PACK_ALIGNMENT, 1);
+      glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, backBufferPixels.data());
+      QImage image(backBufferPixels.data(), width, height, QImage::Format_RGBA8888);
+      image = image.mirrored();
+      std::list<std::string> path =  carto::Paths::findResourceFiles("shaders/templates", "anatomist",theAnatomist->libraryVersionString());
+      if( path.empty() )
+      {
+        cerr << "Error: cannot find the templates directory for saving textures.\n";
+        return;
+      }
+      QString filename = QString::fromStdString(path.front()+ "/backBufferTexture.png") ;
+      image.save(filename);
+      restoreFramebuffer();
     }
   // }
 }

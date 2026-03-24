@@ -456,8 +456,6 @@ void GLSceneUniforms::callList() const
     GLint isSelectionPassLoc = _shader->uniformLocation("u_isSelectionPass");
     if(isSelectionPassLoc >= 0)
     {
-      if(_scene->isSelectionPass())
-        std::cout << "GLSceneUniforms::callList() Setting selection pass uniform" << std::endl; // jordan to remove
       _shader->setUniformValue(isSelectionPassLoc, _scene->isSelectionPass());
     }
 
@@ -500,6 +498,16 @@ void GLObjectUniforms::callList() const
 
   updateTextureUniforms(locations, texturesData, maxSamplers);
 
+  float idColorf[3];
+  idColorf[0] = ((_glObj->glObjectID() >> 16) & 0xFF) / 255.0f;
+  idColorf[1] = ((_glObj->glObjectID() >> 8)  & 0xFF) / 255.0f;
+  idColorf[2] = (_glObj->glObjectID()         & 0xFF) / 255.0f;
+
+  if(locations.idColor >= 0)
+  {
+    _shader->setUniformValue(locations.idColor, QVector3D(idColorf[0], idColorf[1], idColorf[2]));
+  }
+
   if(_module)
     _module->setupObjectUniforms(*_shader, *_glObj);
 }
@@ -508,6 +516,8 @@ void GLObjectUniforms::getUniformsLocations(UniformsLocations & locations) const
 {
   if(!_shader)
     return;
+
+  locations.idColor = _shader->uniformLocation("u_idColor");
 
   locations.hasTexture = _shader->uniformLocation("u_hasTexture");
   locations.textureDim = _shader->uniformLocation("u_textureDim[0]");

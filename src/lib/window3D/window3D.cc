@@ -1272,8 +1272,6 @@ void AWindow3D::refreshNow()
   applySelectionHighlight(tmpcol);
   updateCursor();
 
-  std::string renderingString = rm==RenderMode::Full?"Full":"TemporaryOnly" ;
-  std::cout << "rendering mode is : " << renderingString<< std::endl;
   bool isRenderingOk = d->rc.renderScene(_objects, rm);
 
   removeSelectionHighlight(tmpcol);
@@ -4264,8 +4262,8 @@ AObject* AWindow3D::objectAtCursorPosition(int x, int y)
   // get object with the same ID
   obj = objectWithGLID(id);
 
-  if(obj) cout << "object at cursor: " << obj->name() << endl; //jordan to rmeove
-  else cout << "no object at cursor\n";
+  // if(obj) cout << "object at cursor: " << obj->name() << endl; //jordan to rmeove
+  // else cout << "no object at cursor\n";
   // cout << "object: " << obj << endl;
   return obj;
 }
@@ -4332,39 +4330,19 @@ int AWindow3D::polygonAtCursorPosition(int x, int y, const AObject* obj)
 void AWindow3D::renderSelectionBuffer(ViewState::glSelectRenderMode mode,
     const AObject *selectedobject)
 {
-  /* cout << "renderSelectionBuffer... mode: " << mode << " for object: "
-       << selectedobject;
-  if( selectedobject )
-    cout << ": " << selectedobject->name();
-  cout << endl;
-  */
-
-
-  bool isRenderingOk = d->rc.renderScene(_objects, RenderMode::Selection);
-
-
 
   d->refreshneeded = Private::FullRefresh;
   d->draw->qglWidget()->makeCurrent();
   d->draw->bindOtherFramebuffer( GLWidgetManager::ObjectSelect );
 
-  list<AObject *> renderobj;
-  list<AObject *>::iterator transparent = processRenderingOrder(renderobj);
-  list<AObject*>::iterator al, el = renderobj.end();
+  list<carto::shared_ptr<AObject> > objs;
+  list<carto::shared_ptr<AObject> >::iterator al, el = _objects.end();
 
-  //Draw objects
-  //d->draw->setSelectionPass(true);
-  // for( al = renderobj.begin(); al != el; ++al )
-  //   if( (mode != ViewState::glSELECTRENDER_POLYGON || *al == selectedobject) && *al != d->cursor ) //jordan move this with renderContext
-  //     d->rc.updateObject( carto::shared_ptr<AObject>(
-  //       carto::shared_ptr<AObject>::Weak, *al ), &primitives, mode);
-  
-  
+  for(al = _objects.begin(); al != el; ++al)
+    if( (mode != ViewState::glSELECTRENDER_POLYGON || *al == selectedobject) && *al != d->cursor ) //jordan move this with renderContext
+      objs.push_back( *al);
 
- 
-
-  // d->draw->setPrimitives( d->primitives );
-  // perform rendering, without swapBuffers
+  bool isRenderingOk = d->rc.renderScene( objs, RenderMode::Selection);
 
   d->draw->renderBackBuffer(mode);
 
