@@ -784,7 +784,9 @@ void GLWidgetManager::drawObjects( DrawMode m, GLPrimitives* pl)
 
   GLPrimitives::const_iterator	il = pl->begin(),
       el = pl->end();
-  if( m == ObjectSelect || m == ObjectsSelect || m == PolygonSelect )
+
+  bool isSelectionPass = ( m == ObjectSelect || m == ObjectsSelect || m == PolygonSelect );
+  if( isSelectionPass )
   {
     il = _selectprimitives.begin();
     el = _selectprimitives.end();
@@ -792,7 +794,7 @@ void GLWidgetManager::drawObjects( DrawMode m, GLPrimitives* pl)
 
   //cout << "paintGL, prim : " << _primitives.size() << endl;
 
-  if(_pd->useDepthPeeling)
+  if(_pd->useDepthPeeling && !isSelectionPass)
   {
     qglWidget()->makeCurrent();
     GLenum err;
