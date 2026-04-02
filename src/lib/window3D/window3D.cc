@@ -1269,8 +1269,8 @@ void AWindow3D::refreshNow()
   updateBoundingBox(bbmin, bbmax);
   updateGeometryAndSliders(bbmin, bbmax);
   updateLeftRightAnnotations();
-  applySelectionHighlight(tmpcol);
   updateCursor();
+  applySelectionHighlight(tmpcol);
 
   bool isRenderingOk = d->rc.renderScene(_objects, rm);
 
@@ -4339,7 +4339,7 @@ void AWindow3D::renderSelectionBuffer(ViewState::glSelectRenderMode mode,
   list<carto::shared_ptr<AObject> >::iterator al, el = _objects.end();
 
   for(al = _objects.begin(); al != el; ++al)
-    if( (mode != ViewState::glSELECTRENDER_POLYGON || *al == selectedobject) && *al != d->cursor ) //jordan move this with renderContext
+    if( (mode != ViewState::glSELECTRENDER_POLYGON || *al == selectedobject))
       objs.push_back( *al);
 
   bool isRenderingOk = d->rc.renderScene( objs, RenderMode::Selection);

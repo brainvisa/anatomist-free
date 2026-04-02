@@ -245,6 +245,7 @@ struct GLWidgetManager::Private
   GLuint    z_renderbuffer;
   GLuint    select_renderbuffer;
   bool      isSelectionPass;
+  bool      isPolygonSelectionPass;
 #endif
 };
 
@@ -268,7 +269,7 @@ GLWidgetManager::Private::Private()
     qobject( 0 ),
     transparentBackground( true ), backgroundAlpha( 128 ),
     mouseX( 0 ), mouseY( 0 ), resized(false), saveInProgress( false ),
-    cameraChanged( true ), recordWidth( 0 ), recordHeight( 0 ), useDepthPeeling(false), nbLayers(8), currentLayer(0), fullScreenQuadList(0), depthPeelingUnitTexture(7), isSelectionPass(false)
+    cameraChanged( true ), recordWidth( 0 ), recordHeight( 0 ), useDepthPeeling(false), nbLayers(8), currentLayer(0), fullScreenQuadList(0), depthPeelingUnitTexture(7), isSelectionPass(false), isPolygonSelectionPass(false)
 #ifdef ANA_USE_QOPENGLWIDGET
     ,
     z_framebuffer( 0 ), z_renderbuffer( 0 ),
@@ -508,6 +509,7 @@ void GLWidgetManager::renderBackBuffer( ViewState::glSelectRenderMode
   }
   bindOtherFramebuffer( mode );
   setSelectionPass( true );
+  setPolygonSelectionPass( mode == PolygonSelect );
   paintGL( mode );
   setSelectionPass( false );
   restoreFramebuffer();
@@ -785,8 +787,7 @@ void GLWidgetManager::drawObjects( DrawMode m, GLPrimitives* pl)
   GLPrimitives::const_iterator	il = pl->begin(),
       el = pl->end();
 
-  bool isSelectionPass = ( m == ObjectSelect || m == ObjectsSelect || m == PolygonSelect );
-  if( isSelectionPass )
+  if( _pd->isSelectionPass )
   {
     il = _selectprimitives.begin();
     el = _selectprimitives.end();
@@ -794,7 +795,7 @@ void GLWidgetManager::drawObjects( DrawMode m, GLPrimitives* pl)
 
   //cout << "paintGL, prim : " << _primitives.size() << endl;
 
-  if(_pd->useDepthPeeling && !isSelectionPass)
+  if(_pd->useDepthPeeling && !_pd->isSelectionPass)
   {
     qglWidget()->makeCurrent();
     GLenum err;
@@ -1123,6 +1124,16 @@ void GLWidgetManager::setSelectionPass( bool x )
 bool GLWidgetManager::isSelectionPass() const
 {
   return _pd->isSelectionPass;
+}
+
+void GLWidgetManager::setPolygonSelectionPass( bool x )
+{
+  _pd->isPolygonSelectionPass = x; 
+}
+
+bool GLWidgetManager::isPolygonSelectionPass() const
+{
+  return _pd->isPolygonSelectionPass;
 }
 
 

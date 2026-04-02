@@ -459,6 +459,12 @@ void GLSceneUniforms::callList() const
       _shader->setUniformValue(isSelectionPassLoc, _scene->isSelectionPass());
     }
 
+    GLint isPolygonSelectionPassLoc = _shader->uniformLocation("u_isPolygonSelectionPass");
+    if(isPolygonSelectionPassLoc >= 0)
+    {
+      _shader->setUniformValue(isPolygonSelectionPassLoc, _scene->isPolygonSelectionPass());
+    }
+
   if(_module)
     _module->setupSceneUniforms(*_shader, *_scene);
   GLenum status = glGetError();

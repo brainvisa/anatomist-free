@@ -10,6 +10,7 @@ uniform vec3 u_idColor;
 
 uniform bool u_hasTexture;
 uniform bool u_isSelectionPass;
+uniform bool u_isPolygonSelectionPass;
 
 uniform sampler1D u_texture1D[MAX_TEXTURE_UNITS];
 uniform int u_nbTexture1D;
@@ -226,6 +227,16 @@ void main()
 {
   if(u_isSelectionPass)
   {
+    if(u_isPolygonSelectionPass)
+    {
+      int id = gl_PrimitiveID;
+      vec3 color;
+      color.r = (id >> 16 & 0xFF)/255.0;
+      color.g = (id >> 8 & 0xFF)/255.0;
+      color.b = (id & 0xFF)/255.0;
+      fragColor = vec4(color, 1.0);
+      return;
+    }
     /* In selection pass, we want to output the color as is, without any lighting or texture effect, 
     to be able to retrieve the object ID from the color.*/
     fragColor = vec4(u_idColor, 1.0);

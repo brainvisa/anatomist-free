@@ -117,7 +117,6 @@ bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & o
 
     d->currentPrimitives = &d->selectionPrimitives;
     setupSelectionOpenGLState();
-    //sortSelectionPrimitives(objs);
     success |= renderObjects(objs, RenderMode::Selection);
     resetSelectionOpenGLState();
     d->glwman->setSelectionPrimitives(d->selectionPrimitives);
