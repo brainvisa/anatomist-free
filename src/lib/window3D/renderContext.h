@@ -56,7 +56,9 @@ namespace anatomist
       RenderContext(AWindow3D* win, anatomist::GLWidgetManager* widgetManager);
       ~RenderContext();
 
-      bool renderScene( const std::list<carto::shared_ptr<anatomist::AObject>> & objs, RenderMode mode = RenderMode::Full);
+      bool renderScene( const std::list<carto::shared_ptr<anatomist::AObject>> & objs, RenderMode mode = RenderMode::Full,
+                        anatomist::ViewState::glSelectRenderMode selectmode
+                          = anatomist::ViewState::glSELECTRENDER_NONE);
     
     /**
     * \brief Renders a list of objects and builds the corresponding primitive list.
@@ -73,7 +75,9 @@ namespace anatomist
     * \param objs List of objects to render.
     * \return Boolean to know if the rendering succeed or not.
     */
-      bool renderObjects( const std::list<carto::shared_ptr<anatomist::AObject>> & objs, RenderMode mode = RenderMode::Full);
+      bool renderObjects( const std::list<carto::shared_ptr<anatomist::AObject>> & objs, RenderMode mode = RenderMode::Full,
+                          anatomist::ViewState::glSelectRenderMode selectmode
+                          = anatomist::ViewState::glSELECTRENDER_NONE);
 
 
       const anatomist::ViewState& getViewState() const ;
@@ -93,7 +97,8 @@ namespace anatomist
       * \param pl Optional primitive list to append to. If null, uses the internal list.
       * \param selectmode The OpenGL render mode (normal, selection, etc.).
       */
-      bool updateObject(carto::shared_ptr<anatomist::AObject> obj, anatomist::PrimList* pl=0,
+      bool updateObject(carto::shared_ptr<anatomist::AObject> obj,
+                        anatomist::PrimList* pl=0,
                         anatomist::ViewState::glSelectRenderMode selectmode
                           = anatomist::ViewState::glSELECTRENDER_NONE);
       /**

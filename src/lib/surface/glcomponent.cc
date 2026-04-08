@@ -1746,6 +1746,7 @@ bool GLComponent::glMakeBodyGLL( const ViewState & state,
       }
       break;
     case ViewState::glSELECTRENDER_POLYGON:
+      cout << "SELECT POLYGON\n";
       glBegin( polytype );
       for( i=0; i<npoly; ++i )
       {

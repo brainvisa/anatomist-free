@@ -4342,7 +4342,7 @@ void AWindow3D::renderSelectionBuffer(ViewState::glSelectRenderMode mode,
     if( (mode != ViewState::glSELECTRENDER_POLYGON || *al == selectedobject))
       objs.push_back( *al);
 
-  bool isRenderingOk = d->rc.renderScene( objs, RenderMode::Selection);
+  bool isRenderingOk = d->rc.renderScene( objs, RenderMode::Selection, mode);
 
   d->draw->renderBackBuffer(mode);
 

@@ -67,7 +67,7 @@ RenderContext::~RenderContext()
   delete d;
 }
 
-bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & objs, RenderMode mode )
+bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & objs, RenderMode mode, anatomist::ViewState::glSelectRenderMode selectmode )
 {
   bool success = false;
   d->glwman->qglWidget()->makeCurrent();
@@ -91,13 +91,13 @@ bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & o
     
     d->currentPrimitives = &d->permanentPrimitives;
     setupOpenGLState();
-    success |= renderObjects(objs, RenderMode::PermanentOnly);
+    success |= renderObjects(objs, RenderMode::PermanentOnly, selectmode);
 
     if(hasTemporary)
     {
       d->currentPrimitives = &d->temporaryPrimitives;
       setupOpenGLState();
-      success |= renderObjects(objs, RenderMode::TemporaryOnly);
+      success |= renderObjects(objs, RenderMode::TemporaryOnly, selectmode);
     }
   }
   else if(mode == RenderMode::TemporaryOnly)
@@ -108,7 +108,7 @@ bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & o
 
       d->currentPrimitives = &d->temporaryPrimitives;
       setupOpenGLState();
-      success |= renderObjects(objs, RenderMode::TemporaryOnly);
+      success |= renderObjects(objs, RenderMode::TemporaryOnly, selectmode);
     }
   }
   else if(mode == RenderMode::Selection)
@@ -117,7 +117,7 @@ bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & o
 
     d->currentPrimitives = &d->selectionPrimitives;
     setupSelectionOpenGLState();
-    success |= renderObjects(objs, RenderMode::Selection);
+    success |= renderObjects(objs, RenderMode::Selection, selectmode);
     resetSelectionOpenGLState();
     d->glwman->setSelectionPrimitives(d->selectionPrimitives);
   }
@@ -128,7 +128,7 @@ bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & o
 }
 
 
-bool RenderContext::renderObjects( const std::list<carto::shared_ptr<AObject>> & objs, RenderMode mode)
+bool RenderContext::renderObjects( const std::list<carto::shared_ptr<AObject>> & objs, RenderMode mode, anatomist::ViewState::glSelectRenderMode selectmode )
 {
   bool success = false;
   std::vector<float> bbmin, bbmax;
@@ -140,19 +140,19 @@ bool RenderContext::renderObjects( const std::list<carto::shared_ptr<AObject>> &
   shaderBuilding( opaqueDrawables, transparentDrawables);
 
   if(!opaqueDrawables.empty())
-    success |= renderObject(opaqueDrawables, mode);
+    success |= renderObject(opaqueDrawables, mode, selectmode);
 
   if(!transparentDrawables.empty())
   {
     if(!d->glwman->useDepthPeeling())
     {
       setupTransparentObjects();
-      success |= renderObject(transparentDrawables, mode);
+      success |= renderObject(transparentDrawables, mode, selectmode);
       postTransparentRenderingSetup();
     }
     else
     {
-      success |= renderObject(transparentDrawables, mode);
+      success |= renderObject(transparentDrawables, mode, selectmode);
     }
   }
 
@@ -160,14 +160,17 @@ bool RenderContext::renderObjects( const std::list<carto::shared_ptr<AObject>> &
   {
     for(const auto & obj : nonDrawables)
     {
-      success |= updateObject(obj);
+      success |= updateObject(obj, 0, selectmode);
     }
   }
   return success;
 }
 
-bool RenderContext::updateObject(carto::shared_ptr<AObject> obj, PrimList* pl,ViewState::glSelectRenderMode selectmode)
+bool RenderContext::updateObject(carto::shared_ptr<AObject> obj, PrimList* pl,
+                                 ViewState::glSelectRenderMode selectmode)
 {
+  if( selectmode != ViewState::glSELECTRENDER_NONE )
+    std::cout << "render select: " << int(selectmode) << std::endl;
   bool success = false;
   unsigned l1=0, l2;
   if(pl)
@@ -180,6 +183,9 @@ bool RenderContext::updateObject(carto::shared_ptr<AObject> obj, PrimList* pl,Vi
   bool slice = obj->Is2DObject()
     && ( d->window->viewType() != AWindow3D::ThreeD || !obj->Is3DObject() );
   d->vs = d->window->viewState( slice, selectmode );
+
+  if( selectmode != ViewState::glSELECTRENDER_NONE )
+    std::cout << "render viewstate select: " << d->vs->selectRenderMode << std::endl;
 
   success |= obj->render(*pl, *this);
 
@@ -233,7 +239,7 @@ bool RenderContext::renderObject(std::unordered_map<std::string, std::vector<car
         d->currentPrimitives->push_back(carto::rc_ptr<GLItem>(new GLObjectUniforms(module, d->currentProgram, glObj)));
       }
 
-      success |= updateObject(obj, selectmode);
+      success |= updateObject(obj, 0, selectmode);
     }
   }
   d->currentProgram = carto::rc_ptr<QOpenGLShaderProgram>();
