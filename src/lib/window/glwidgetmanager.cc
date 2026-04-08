@@ -2246,7 +2246,7 @@ void GLWidgetManager::copyBackBuffer2Texture(void)
   glMatrixMode( GL_PROJECTION );
   glPushMatrix();
 
-  bindOtherFramebuffer( ObjectSelect );
+  bindOtherFramebuffer( PolygonSelect );
   setupView();
 
   AWindow3D *w3 = dynamic_cast<AWindow3D *> (aWindow());
@@ -2309,6 +2309,7 @@ void GLWidgetManager::copyBackBuffer2Texture(void)
 
     //glFlush(); // or glFinish() ?
     glFinish();
+    bindOtherFramebuffer( GLWidgetManager::PolygonSelect );
     glReadBuffer( GL_BACK);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
@@ -2316,22 +2317,20 @@ void GLWidgetManager::copyBackBuffer2Texture(void)
     unsigned long bufsz = _pd->glwidget->width() * _pd->glwidget->height() * 3;
 
     //if (theAnatomist->userLevel() >= 3)
-    cout << "back buffer size: " << _pd->backBufferTexture.size() << ", needs: "<< _pd->glwidget->width() << " x " << _pd->glwidget->height() << " x 4 = " << bufsz << endl;
+    // cout << "back buffer size: " << _pd->backBufferTexture.size() << ", needs: "<< _pd->glwidget->width() << " x " << _pd->glwidget->height() << " x 3 = " << bufsz << endl;
 
     if( bufsz != _pd->backBufferTexture.size() )
-      _pd->backBufferTexture.resize( _pd->glwidget->width() * _pd->glwidget->height() * 3 );
+      _pd->backBufferTexture.resize( bufsz );
 
     GLint width = _pd->glwidget->width();
     GLint height = _pd->glwidget->height();
-#if QT_VERSION >= 0x050000
     QWindow *win = qglWidget()->window()->windowHandle();
     if( win )
     {
       width *= win->devicePixelRatio();
       height *= win->devicePixelRatio();
     }
-#endif
-    glReadPixels(0, 0, width, height,GL_RGB, GL_UNSIGNED_BYTE,
+    glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE,
                  &_pd->backBufferTexture[0] );
 
     //glFinish();
@@ -2359,14 +2358,12 @@ void GLWidgetManager::readBackBuffer( int x, int y, GLubyte & red,
   glFlush(); // or glFinish() ?
   glReadBuffer( GL_BACK );
   GLubyte rgba[4];
-#if QT_VERSION >= 0x050000
   QWindow *win = qglWidget()->window()->windowHandle();
   if( win )
   {
     x *= win->devicePixelRatio();
     y *= win->devicePixelRatio();
   }
-#endif
   glReadPixels( x, y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, rgba );
   red = rgba[0];
   green = rgba[1];

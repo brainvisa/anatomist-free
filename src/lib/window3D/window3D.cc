@@ -1408,6 +1408,7 @@ void AWindow3D::getInfos3DFromClickPoint(int x, int y, Point3df & position,
   d->draw->positionFromCursor(x, y, position);
 
   *poly = polygonAtCursorPosition(x, y, objselect);
+  // cout << "getInfos3DFromClickPoint poly: " << *poly << endl;
 
   vector<float> fpos = getFullPosition();
   fpos[0] = position[0];
@@ -4257,7 +4258,7 @@ AObject* AWindow3D::objectAtCursorPosition(int x, int y)
   GLubyte r, g, b;
   d->draw->readBackBuffer(x, d->draw->qglWidget()->height() - y, r, g, b);
   // convert color -> ID
-  int id = (r << 16) | (g << 8) | b;
+  int id = (r << 16) | (g << 8) | b;  // a not used
   /*  cout << "RGBA " << x << ", " << y << ": " << (unsigned) r << ", " << (unsigned) g << ", " << (unsigned) b << " : ID: " << id << endl;*/
   // get object with the same ID
   obj = objectWithGLID(id);
@@ -4304,9 +4305,8 @@ int AWindow3D::polygonAtCursorPosition(int x, int y, const AObject* obj)
     b = tex[3 * (d->draw->qglWidget()->height() - y)
         * d->draw->qglWidget()->width() + 3 * x + 2];
 
-    //  cout << "RGBA " << x << ", " << y << ": " << (unsigned) r << ", "
-    //      << (unsigned) g << ", " << (unsigned) b << " : ID: " << poly << endl;
-    //  cout << "ID polygon selected: " << poly << endl;
+     // cout << "RGBA " << x << ", " << y << ": " << (unsigned) r << ", "
+     //     << (unsigned) g << ", " << (unsigned) b << endl;
   }
   else
   {
@@ -4321,8 +4321,10 @@ int AWindow3D::polygonAtCursorPosition(int x, int y, const AObject* obj)
   }
 
   // convert color -> ID
+  // alpha is always 255, we can't use it.
   poly = (r << 16) | (g << 8) | b;
   // polygon num is this ID
+  // cout << "ID polygon selected: " << poly << endl;
 
   return poly;
 }
