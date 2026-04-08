@@ -459,12 +459,6 @@ void GLSceneUniforms::callList() const
       _shader->setUniformValue(isSelectionPassLoc, _scene->isSelectionPass());
     }
 
-    GLint isPolygonSelectionPassLoc = _shader->uniformLocation("u_isPolygonSelectionPass");
-    if(isPolygonSelectionPassLoc >= 0)
-    {
-      _shader->setUniformValue(isPolygonSelectionPassLoc, _scene->isPolygonSelectionPass());
-    }
-
   if(_module)
     _module->setupSceneUniforms(*_shader, *_scene);
   GLenum status = glGetError();
@@ -504,16 +498,6 @@ void GLObjectUniforms::callList() const
 
   updateTextureUniforms(locations, texturesData, maxSamplers);
 
-  float idColorf[3];
-  idColorf[0] = ((_glObj->glObjectID() >> 16) & 0xFF) / 255.0f;
-  idColorf[1] = ((_glObj->glObjectID() >> 8)  & 0xFF) / 255.0f;
-  idColorf[2] = (_glObj->glObjectID()         & 0xFF) / 255.0f;
-
-  if(locations.idColor >= 0)
-  {
-    _shader->setUniformValue(locations.idColor, QVector3D(idColorf[0], idColorf[1], idColorf[2]));
-  }
-
   if(_module)
     _module->setupObjectUniforms(*_shader, *_glObj);
 }
@@ -522,8 +506,6 @@ void GLObjectUniforms::getUniformsLocations(UniformsLocations & locations) const
 {
   if(!_shader)
     return;
-
-  locations.idColor = _shader->uniformLocation("u_idColor");
 
   locations.hasTexture = _shader->uniformLocation("u_hasTexture");
   locations.textureDim = _shader->uniformLocation("u_textureDim[0]");

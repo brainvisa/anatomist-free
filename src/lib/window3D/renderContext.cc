@@ -169,8 +169,6 @@ bool RenderContext::renderObjects( const std::list<carto::shared_ptr<AObject>> &
 bool RenderContext::updateObject(carto::shared_ptr<AObject> obj, PrimList* pl,
                                  ViewState::glSelectRenderMode selectmode)
 {
-  if( selectmode != ViewState::glSELECTRENDER_NONE )
-    std::cout << "render select: " << int(selectmode) << std::endl;
   bool success = false;
   unsigned l1=0, l2;
   if(pl)
@@ -183,9 +181,6 @@ bool RenderContext::updateObject(carto::shared_ptr<AObject> obj, PrimList* pl,
   bool slice = obj->Is2DObject()
     && ( d->window->viewType() != AWindow3D::ThreeD || !obj->Is3DObject() );
   d->vs = d->window->viewState( slice, selectmode );
-
-  if( selectmode != ViewState::glSELECTRENDER_NONE )
-    std::cout << "render viewstate select: " << d->vs->selectRenderMode << std::endl;
 
   success |= obj->render(*pl, *this);
 

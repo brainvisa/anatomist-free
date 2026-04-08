@@ -138,8 +138,6 @@ namespace anatomist
     anatomist::GLPrimitives& selectionPrimitivesRef();
     void setSelectionPass( bool x );
     bool isSelectionPass() const;
-    void setPolygonSelectionPass( bool x );
-    bool isPolygonSelectionPass() const;
 
     void clearLists();
     /** set objects extrema, this also automatically sets the window bounding 

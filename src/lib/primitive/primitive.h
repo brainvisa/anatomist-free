@@ -213,7 +213,6 @@ namespace anatomist
       GLint hasTexture = -1;
       GLint textureDim = -1;
       GLint texModes = -1;
-      GLint idColor = -1;
     };
 
     struct TexturesData
