@@ -171,28 +171,6 @@ void TransformedObject::setupTransforms( GLPrimitives & pl,
     glMatrixMode( GL_MODELVIEW );
 
     glTranslatef( pos[0], pos[1], pos[2] );
-
-    AffineTransformation3d r = AffineTransformation3d( view->quaternion() );
-    GLfloat mat[16];
-
-    mat[0] = r.rotation()( 0, 0 );
-    mat[1] = r.rotation()( 1, 0 );
-    mat[2] = r.rotation()( 2, 0 );
-    mat[3] = 0;
-    mat[4] = r.rotation()( 0, 1 );
-    mat[5] = r.rotation()( 1, 1 );
-    mat[6] = r.rotation()( 2, 1 );
-    mat[7] = 0;
-    mat[8] = r.rotation()( 0, 2 );
-    mat[9] = r.rotation()( 1, 2 );
-    mat[10] = r.rotation()( 2, 2 );
-    mat[11] = 0;
-    mat[12] = 0;
-    mat[13] = 0;
-    mat[14] = 0;
-    mat[15] = 1;
-
-    glMultMatrixf( mat );
     glScalef( d->scale, d->scale, d->scale );
   }
   else{
