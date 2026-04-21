@@ -154,10 +154,10 @@ std::string dynamicShaderBuilder::generateShaderSource() const
   return shaderSource;
 }
 
-carto::rc_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initShader(const std::string shaderIDs, std::string vsTemplate, std::string fsTemplate)
+carto::rc_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initShader(const std::string shaderIDs, std::string vsTemplate, std::string fsTemplate, std::string gsTemplate)
 {
   carto::rc_ptr<QOpenGLShaderProgram> program(new QOpenGLShaderProgram());
-  std::string baseTemplate, vertexSource, fragmentSource;
+  std::string baseTemplate, vertexSource, fragmentSource, geometrySource;
   std::vector<carto::rc_ptr<IShaderModule>> shaderModules = shaderMapping::getModules(shaderIDs);
   std::list<std::string> path =  carto::Paths::findResourceFiles("shaders/templates", "anatomist", m_anatomistVersion);
   if (path.empty()) {
@@ -203,6 +203,19 @@ carto::rc_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initShader(const std::
   {
     std::cerr << "Fragment shader error : " << program->log().toStdString() << std::endl;
   }
+
+  // Geometry shader (optional)
+  if(!gsTemplate.empty())
+  {
+    baseTemplate = readShaderFile(path.front()+"/"+gsTemplate);
+    this->setBaseTemplate(baseTemplate);
+    geometrySource = this->generateShaderSource();
+    if(!program->addShaderFromSourceCode(QOpenGLShader::Geometry, QString::fromStdString(geometrySource)))
+    {
+      std::cout << "Geometry shader error : " << program->log().toStdString() << std::endl;
+    }
+  }
+  
 
   if(!program->link())
   {

@@ -273,7 +273,7 @@ void RenderContext::shaderBuilding(std::unordered_map<std::string, std::vector<c
   {
     if(d->programs[shader].isNull())
     {
-      d->programs[shader] = d->shaderBuilder.initShader(shader);
+      d->programs[shader] = d->shaderBuilder.initShader(shader, "main.vs.glsl", "main.fs.glsl", "main.gs.glsl");
     }
   }
 
@@ -281,7 +281,7 @@ void RenderContext::shaderBuilding(std::unordered_map<std::string, std::vector<c
   {
     if(d->programs[shader].isNull())
     {
-      d->programs[shader] = d->shaderBuilder.initShader(shader);
+      d->programs[shader] = d->shaderBuilder.initShader(shader, "main.vs.glsl", "main.fs.glsl", "main.gs.glsl");
     }
   }
 }

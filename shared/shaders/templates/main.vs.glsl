@@ -1,10 +1,12 @@
 #define MAX_TEXTURE_UNITS 8
 
-varying vec4 v_color;
-varying vec3 v_normal;
-varying vec3 v_texcoord[MAX_TEXTURE_UNITS];
-varying vec4 v_eyeVertexPosition;
-varying vec3 v_directionLight;
+out VertexData {
+    vec4 v_color;
+    vec3 v_normal;
+    vec3 v_texcoord[MAX_TEXTURE_UNITS];
+    vec4 v_eyeVertexPosition;
+    vec3 v_directionLight;
+};
 
 void main()
 {
