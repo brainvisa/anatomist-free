@@ -1,5 +1,10 @@
 # Changelog
 
+## [6.0.14] 2026-05-21
+
+- internal improvements in ana_atlas_nonlin and fixes
+
+
 ## [6.0.13] 2026-04-07
 
 ### Added
