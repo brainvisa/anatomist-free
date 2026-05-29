@@ -66,6 +66,12 @@ namespace anatomist
     class AGraphicsView;
   }
 
+    struct ClipPlaneState
+  {
+    GLdouble plane0[4] = {};
+    GLdouble plane1[4] = {};
+    int activePlanes = 0;
+  };
 
   /** Base class for OpenGL-rendering widget. Actually this is *not* a
   QWidget (or a QGLWidget) since in some cases we need to separate this
@@ -254,6 +260,8 @@ namespace anatomist
     void setCurrentLayer( int n );
     int depthPeelingUnitTexture() const;
     void setDepthPeelingUnitTexture( int unit );
+    ClipPlaneState& clipState() const;
+    void setClipState( const ClipPlaneState& state );
     void texToPng();
     void clearTexturesAndFBOs();
     void resizeTexturesAndFBOs( int w, int h );

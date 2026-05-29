@@ -82,7 +82,7 @@ namespace anatomist
 
       const anatomist::ViewState& getViewState() const ;
       void setViewState(carto::rc_ptr<anatomist::ViewState> vs);
-      void setupClippingPlanes(GLuint localGLL);
+      void setupClippingPlanes();
       void finalizeRendering();
 
     private:

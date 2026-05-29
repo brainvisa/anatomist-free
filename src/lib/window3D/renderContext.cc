@@ -56,9 +56,8 @@ RenderContext::RenderContext(AWindow3D* window, GLWidgetManager* widgetManager)
   d = new Private(window, widgetManager);
   d->glwman->clearLists();
   shaderMapping::initShaderMapping();
-  GLuint localGLL = glGenLists(2);
   d->currentPrimitives = &d->permanentPrimitives;
-  setupClippingPlanes(localGLL);
+
 }
 
 RenderContext::~RenderContext()
@@ -69,11 +68,14 @@ RenderContext::~RenderContext()
 
 bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & objs, RenderMode mode, anatomist::ViewState::glSelectRenderMode selectmode )
 {
+    setupClippingPlanes();
+
+
   bool success = false;
   d->glwman->qglWidget()->makeCurrent();
 
   bool hasTemporary = false;
-  for(const auto & obj : objs) // Jordan : might be optimized not to browse the list multiple times (one time here and then in retrieveShaders)
+  for(const auto & obj : objs)
   {
     if(d->window->isTemporary(obj.get()))
     {
@@ -199,9 +201,6 @@ bool RenderContext::updateObject(carto::shared_ptr<AObject> obj, PrimList* pl,
     d->currentPrimitives->insert(d->currentPrimitives->end(), gp.begin(), gp.end());
     l2 = d->currentPrimitives->size();
   }
-
-  //if(l2 > l1)
-    //Jordan : tmpprims utile ?
   
   return success;
 }
@@ -349,43 +348,47 @@ std::vector<carto::rc_ptr<IShaderModule>> RenderContext::getEffectiveShaderModul
   return modules;
 }
 
-void RenderContext::setupClippingPlanes(GLuint localGLL)
+void RenderContext::setupClippingPlanes()
 {
+
+  GLuint localGLL = glGenLists(1);
   Primitive *pr = new Primitive;
   if (!localGLL) AWarning("renderContext::setupClippingPlanes: OpenGL error.");
 
   glNewList(localGLL, GL_COMPILE);
-  glDisable( GL_BLEND);
-  GLdouble plane[4];
-  Point3df dir = d->window->sliceQuaternion().transformInverse( Point3df(0, 0, -1) );
-  plane[0] = dir[0];
-  plane[1] = dir[1];
-  plane[2] = dir[2];
-  plane[3] = -dir.dot(d->window->getPosition()) + d->window->clipDistance();
+
+    Point3df dir = d->window->sliceQuaternion().transformInverse(Point3df(0, 0, -1));
+  d->glwman->clipState().plane0[0] = dir[0];
+  d->glwman->clipState().plane0[1] = dir[1];
+  d->glwman->clipState().plane0[2] = dir[2];
+  d->glwman->clipState().plane0[3] = -dir.dot(d->window->getPosition()) + d->window->clipDistance();
 
   switch (d->window->clipMode())
   {
     case AWindow3D::Single:
-      glEnable( GL_CLIP_PLANE0);
-      glDisable( GL_CLIP_PLANE1);
-      glClipPlane(GL_CLIP_PLANE0, plane);
+      d->glwman->clipState().activePlanes = 1;
       break;
     case AWindow3D::Double:
-      glEnable(GL_CLIP_PLANE0);
-      glEnable(GL_CLIP_PLANE1);
-      glClipPlane(GL_CLIP_PLANE0, plane);
-      plane[0] *= -1;
-      plane[1] *= -1;
-      plane[2] *= -1;
-      plane[3] = dir.dot(d->window->getPosition()) + d->window->clipDistance();
-      glClipPlane(GL_CLIP_PLANE1, plane);
+      d->glwman->clipState().activePlanes = 2;
+      d->glwman->clipState().plane1[0] = -dir[0];
+      d->glwman->clipState().plane1[1] = -dir[1];
+      d->glwman->clipState().plane1[2] = -dir[2];
+      d->glwman->clipState().plane1[3] = dir.dot(d->window->getPosition()) + d->window->clipDistance();
       break;
     default:
-      glDisable(GL_CLIP_PLANE0);
-      glDisable(GL_CLIP_PLANE1);
+      d->glwman->clipState().activePlanes = 0;
       break;
   }
 
+  glDisable( GL_BLEND);
+  if(d->glwman->clipState().activePlanes >= 1)
+    glEnable(GL_CLIP_DISTANCE0);
+  else
+    glDisable( GL_CLIP_DISTANCE0);
+  if(d->glwman->clipState().activePlanes >= 2)
+    glEnable( GL_CLIP_DISTANCE1);
+  else
+    glDisable( GL_CLIP_DISTANCE1);
   glEndList();
 
   pr->insertList(localGLL);
@@ -556,7 +559,7 @@ void RenderContext::finalizeRendering()
 
   if (renderoffpr)
   {
-    d->currentPrimitives->push_back(RefGLItem(renderoffpr)); // jordan : to check which primitive list we'll be using
+    d->currentPrimitives->push_back(RefGLItem(renderoffpr));
   }
 
   if (rendertwice)
@@ -620,9 +623,9 @@ Primitive* RenderContext::setupOutlinedMode()
 
 void RenderContext::duplicateRenderPrimitives()
 {
-  if(d->currentPrimitives->size() < 2)
+  if(d->currentPrimitives->size() < 1)
     return;
-  unsigned i, n = d->currentPrimitives->size() - 2;
+  unsigned i, n = d->currentPrimitives->size() - 1;
   PrimList::iterator ip = d->currentPrimitives->begin();
   for (++ip, i = 0; i < n; ++i, ++ip)
       d->currentPrimitives->push_back(*ip);

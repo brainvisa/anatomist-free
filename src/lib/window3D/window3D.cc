@@ -3216,6 +3216,7 @@ AWindow3D::ClipMode AWindow3D::clipMode() const
 void AWindow3D::setClipMode(ClipMode m)
 {
   d->clipmode = m;
+  d->rc.setupClippingPlanes();
   setChanged();
 }
 

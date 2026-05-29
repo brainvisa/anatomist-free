@@ -239,6 +239,8 @@ struct GLWidgetManager::Private
   int currentLayer;
   GLuint fullScreenQuadList;
   int depthPeelingUnitTexture;
+  ClipPlaneState clipState;
+
 
 #ifdef ANA_USE_QOPENGLWIDGET
   GLuint    z_framebuffer;
@@ -511,8 +513,6 @@ void GLWidgetManager::renderBackBuffer( ViewState::glSelectRenderMode
   paintGL( mode );
   setSelectionPass( false );
   restoreFramebuffer();
-
-  //texToPng(); jordan to remove
 }
 
 
@@ -792,6 +792,15 @@ void GLWidgetManager::drawObjects( DrawMode m, GLPrimitives* pl)
   }
 
   //cout << "paintGL, prim : " << _primitives.size() << endl;
+  if (clipState().activePlanes >= 1)
+    glEnable(GL_CLIP_DISTANCE0);  
+  else
+    glDisable(GL_CLIP_PLANE0);
+
+  if (clipState().activePlanes >= 2)
+    glEnable(GL_CLIP_DISTANCE1);  
+  else
+    glDisable(GL_CLIP_PLANE1);
 
   if(_pd->useDepthPeeling && !_pd->isSelectionPass)
   {
@@ -2100,7 +2109,7 @@ bool GLWidgetManager::positionFromCursor( int x, int y, Point3df & position )
 
   updateZBuffer();
   bindOtherFramebuffer( ZSelect );
-  if(_pd->useDepthPeeling) //Jordan should be done in bindOtherFramebuffer but has weird effects 
+  if(_pd->useDepthPeeling)
   {
     _pd->fbos[0]->bind();
   }
@@ -2818,6 +2827,18 @@ void GLWidgetManager::setDepthPeelingUnitTexture( int unit )
     unit = 7;
   _pd->depthPeelingUnitTexture = unit;
 }
+
+ClipPlaneState& GLWidgetManager::clipState() const
+{
+  return _pd->clipState;
+}
+
+void GLWidgetManager::setClipState( const ClipPlaneState& state )
+{
+  _pd->clipState = state;
+}
+
+
 
 void GLWidgetManager::texToPng()
 {
