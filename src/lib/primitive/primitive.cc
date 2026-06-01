@@ -421,7 +421,7 @@ void GLReleaseShader::callList() const
   if(!ctx)
       return;
   
-  //while(glGetError() != GL_NO_ERROR){}; //Jordan : check why there are errors here
+  while(glGetError() != GL_NO_ERROR){}; //Jordan 
   
   QSurfaceFormat fmt = ctx->format();
   if(fmt.profile() != QSurfaceFormat::CompatibilityProfile)
@@ -453,11 +453,46 @@ void GLSceneUniforms::callList() const
       return;
     }
 
-    GLint isSelectionPassLoc = _shader->uniformLocation("u_isSelectionPass");
-    if(isSelectionPassLoc >= 0)
-    {
-      _shader->setUniformValue(isSelectionPassLoc, _scene->isSelectionPass());
-    }
+  GLint activeClipPlanesLoc = _shader->uniformLocation("u_activeClipPlanes");
+  if(activeClipPlanesLoc >= 0)
+  {
+    int activeClipPlanes = _scene->clipState().activePlanes;
+    _shader->setUniformValue(activeClipPlanesLoc, activeClipPlanes);
+  }
+
+  GLfloat mv[16];
+  glGetFloatv(GL_MODELVIEW_MATRIX, mv);
+  QMatrix4x4 modelView(mv);
+  modelView = modelView.transposed();
+  QMatrix4x4 mvInvT = modelView.inverted().transposed();
+
+  if(_scene->clipState().activePlanes >= 1)
+  {
+    QVector4D plane(
+      _scene->clipState().plane0[0],
+      _scene->clipState().plane0[1],
+      _scene->clipState().plane0[2],
+      _scene->clipState().plane0[3]
+    );
+    QVector4D planeEye = mvInvT * plane;
+    int clipPlane0Loc = _shader->uniformLocation("u_clipPlane0");
+    if(clipPlane0Loc >= 0)
+      _shader->setUniformValue(clipPlane0Loc, planeEye);
+  }
+
+  if(_scene->clipState().activePlanes >= 2)
+  {
+    QVector4D plane(
+      _scene->clipState().plane1[0],
+      _scene->clipState().plane1[1],
+      _scene->clipState().plane1[2],
+      _scene->clipState().plane1[3]
+    );
+    QVector4D planeEye = mvInvT * plane;
+    int clipPlane1Loc = _shader->uniformLocation("u_clipPlane1");
+    if(clipPlane1Loc >= 0)
+      _shader->setUniformValue(clipPlane1Loc, planeEye);
+  }
 
   if(_module)
     _module->setupSceneUniforms(*_shader, *_scene);

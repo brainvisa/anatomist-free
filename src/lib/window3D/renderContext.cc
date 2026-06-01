@@ -350,20 +350,13 @@ std::vector<carto::rc_ptr<IShaderModule>> RenderContext::getEffectiveShaderModul
 
 void RenderContext::setupClippingPlanes()
 {
-
-  GLuint localGLL = glGenLists(1);
-  Primitive *pr = new Primitive;
-  if (!localGLL) AWarning("renderContext::setupClippingPlanes: OpenGL error.");
-
-  glNewList(localGLL, GL_COMPILE);
-
-    Point3df dir = d->window->sliceQuaternion().transformInverse(Point3df(0, 0, -1));
+  Point3df dir = d->window->sliceQuaternion().transformInverse(Point3df(0, 0, -1));
   d->glwman->clipState().plane0[0] = dir[0];
   d->glwman->clipState().plane0[1] = dir[1];
   d->glwman->clipState().plane0[2] = dir[2];
   d->glwman->clipState().plane0[3] = -dir.dot(d->window->getPosition()) + d->window->clipDistance();
 
-  switch (d->window->clipMode())
+  switch(d->window->clipMode())
   {
     case AWindow3D::Single:
       d->glwman->clipState().activePlanes = 1;
@@ -380,15 +373,20 @@ void RenderContext::setupClippingPlanes()
       break;
   }
 
-  glDisable( GL_BLEND);
+  GLuint localGLL = glGenLists(1);
+  Primitive *pr = new Primitive;
+  if(!localGLL) AWarning("renderContext::setupClippingPlanes: OpenGL error.");
+
+  glNewList(localGLL, GL_COMPILE);
+  glDisable(GL_BLEND);
   if(d->glwman->clipState().activePlanes >= 1)
     glEnable(GL_CLIP_DISTANCE0);
   else
-    glDisable( GL_CLIP_DISTANCE0);
+    glDisable(GL_CLIP_DISTANCE0);
   if(d->glwman->clipState().activePlanes >= 2)
-    glEnable( GL_CLIP_DISTANCE1);
+    glEnable(GL_CLIP_DISTANCE1);
   else
-    glDisable( GL_CLIP_DISTANCE1);
+    glDisable(GL_CLIP_DISTANCE1);
   glEndList();
 
   pr->insertList(localGLL);
