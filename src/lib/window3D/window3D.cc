@@ -1269,11 +1269,9 @@ void AWindow3D::refreshNow()
   updateBoundingBox(bbmin, bbmax);
   updateGeometryAndSliders(bbmin, bbmax);
   updateLeftRightAnnotations();
-  applySelectionHighlight(tmpcol);
   updateCursor();
+  applySelectionHighlight(tmpcol);
 
-  std::string renderingString = rm==RenderMode::Full?"Full":"TemporaryOnly" ;
-  std::cout << "rendering mode is : " << renderingString<< std::endl;
   bool isRenderingOk = d->rc.renderScene(_objects, rm);
 
   removeSelectionHighlight(tmpcol);
@@ -1410,6 +1408,7 @@ void AWindow3D::getInfos3DFromClickPoint(int x, int y, Point3df & position,
   d->draw->positionFromCursor(x, y, position);
 
   *poly = polygonAtCursorPosition(x, y, objselect);
+  // cout << "getInfos3DFromClickPoint poly: " << *poly << endl;
 
   vector<float> fpos = getFullPosition();
   fpos[0] = position[0];
@@ -3217,6 +3216,7 @@ AWindow3D::ClipMode AWindow3D::clipMode() const
 void AWindow3D::setClipMode(ClipMode m)
 {
   d->clipmode = m;
+  d->rc.setupClippingPlanes();
   setChanged();
 }
 
@@ -4259,10 +4259,13 @@ AObject* AWindow3D::objectAtCursorPosition(int x, int y)
   GLubyte r, g, b;
   d->draw->readBackBuffer(x, d->draw->qglWidget()->height() - y, r, g, b);
   // convert color -> ID
-  int id = (r << 16) | (g << 8) | b;
+  int id = (r << 16) | (g << 8) | b;  // a not used
   /*  cout << "RGBA " << x << ", " << y << ": " << (unsigned) r << ", " << (unsigned) g << ", " << (unsigned) b << " : ID: " << id << endl;*/
   // get object with the same ID
   obj = objectWithGLID(id);
+
+  // if(obj) cout << "object at cursor: " << obj->name() << endl; //jordan to rmeove
+  // else cout << "no object at cursor\n";
   // cout << "object: " << obj << endl;
   return obj;
 }
@@ -4303,9 +4306,8 @@ int AWindow3D::polygonAtCursorPosition(int x, int y, const AObject* obj)
     b = tex[3 * (d->draw->qglWidget()->height() - y)
         * d->draw->qglWidget()->width() + 3 * x + 2];
 
-    //  cout << "RGBA " << x << ", " << y << ": " << (unsigned) r << ", "
-    //      << (unsigned) g << ", " << (unsigned) b << " : ID: " << poly << endl;
-    //  cout << "ID polygon selected: " << poly << endl;
+     // cout << "RGBA " << x << ", " << y << ": " << (unsigned) r << ", "
+     //     << (unsigned) g << ", " << (unsigned) b << endl;
   }
   else
   {
@@ -4320,8 +4322,10 @@ int AWindow3D::polygonAtCursorPosition(int x, int y, const AObject* obj)
   }
 
   // convert color -> ID
+  // alpha is always 255, we can't use it.
   poly = (r << 16) | (g << 8) | b;
   // polygon num is this ID
+  // cout << "ID polygon selected: " << poly << endl;
 
   return poly;
 }
@@ -4329,105 +4333,22 @@ int AWindow3D::polygonAtCursorPosition(int x, int y, const AObject* obj)
 void AWindow3D::renderSelectionBuffer(ViewState::glSelectRenderMode mode,
     const AObject *selectedobject)
 {
-  /* cout << "renderSelectionBuffer... mode: " << mode << " for object: "
-       << selectedobject;
-  if( selectedobject )
-    cout << ": " << selectedobject->name();
-  cout << endl;
-  */
 
   d->refreshneeded = Private::FullRefresh;
   d->draw->qglWidget()->makeCurrent();
   d->draw->bindOtherFramebuffer( GLWidgetManager::ObjectSelect );
 
-  list<AObject *> renderobj;
-  list<AObject *>::iterator transparent = processRenderingOrder(renderobj);
-  list<AObject*>::iterator al, el = renderobj.end();
+  list<carto::shared_ptr<AObject> > objs;
+  list<carto::shared_ptr<AObject> >::iterator al, el = _objects.end();
 
-  GLPrimitives primitives;
+  for(al = _objects.begin(); al != el; ++al)
+    if( (mode != ViewState::glSELECTRENDER_POLYGON || *al == selectedobject))
+      objs.push_back( *al);
 
-  //	Rendering mode primitive (must be first)
-  GLList *renderpr = new GLList;
-  renderpr->generate();
-  GLuint renderGLL = renderpr->item();
-  if (!renderGLL) AWarning("AWindow3D::Refresh: OpenGL error.");
-
-  glNewList(renderGLL, GL_COMPILE);
-
-  glPushAttrib( GL_ALL_ATTRIB_BITS);
-  glLineWidth(1);
-  glShadeModel( GL_FLAT);
-  glDisable( GL_LINE_SMOOTH);
-  glDisable( GL_POLYGON_SMOOTH);
-  glDisable( GL_LIGHTING);
-  glPolygonOffset(0, 0);
-  glDisable( GL_POLYGON_OFFSET_FILL);
-  glDisable( GL_FOG);
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-  glDisable( GL_BLEND);
-  // clipping planes
-  GLdouble plane[4];
-  Point3df dir = d->slicequat.transformInverse(Point3df(0, 0, -1));
-  plane[0] = dir[0];
-  plane[1] = dir[1];
-  plane[2] = dir[2];
-  plane[3] = -dir.dot(_position) + d->clipdist;
-  switch (clipMode())
-  {
-    case Single:
-      glEnable( GL_CLIP_PLANE0);
-      glDisable( GL_CLIP_PLANE1);
-      glClipPlane(GL_CLIP_PLANE0, plane);
-      // glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
-      break;
-    case Double:
-      glEnable(GL_CLIP_PLANE0);
-      glEnable(GL_CLIP_PLANE1);
-      glClipPlane(GL_CLIP_PLANE0, plane);
-      plane[0] *= -1;
-      plane[1] *= -1;
-      plane[2] *= -1;
-      plane[3] = dir.dot(_position) + d->clipdist;
-      glClipPlane(GL_CLIP_PLANE1, plane);
-      // glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
-      break;
-    default:
-      glDisable(GL_CLIP_PLANE0);
-      glDisable(GL_CLIP_PLANE1);
-      // glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE );
-      break;
-  }
-  glEndList();
-  primitives.push_back(RefGLItem(renderpr));
-
-
-  //Draw objects
-  for( al = renderobj.begin(); al != el; ++al )
-    if( (mode != ViewState::glSELECTRENDER_POLYGON || *al == selectedobject) && *al != d->cursor ) //jordan move this with renderContext
-    {
-      d->draw->setSelectionPass(true);
-      d->rc.updateObject( carto::shared_ptr<AObject>(
-        carto::shared_ptr<AObject>::Weak, *al ), &primitives, mode);
-      d->draw->setSelectionPass(false);
-    }
-
-  renderpr = new GLList;
-  renderpr->generate();
-  renderGLL = renderpr->item();
-  if (!renderGLL) AWarning("AWindow3D::Refresh: OpenGL error.");
-
-  glNewList(renderGLL, GL_COMPILE);
-  glPopAttrib();
-  glEndList();
-  primitives.push_back(RefGLItem(renderpr));
-
-  // d->draw->setPrimitives( d->primitives );
-  d->draw->setSelectionPrimitives(primitives);
-
-  // perform rendering, without swapBuffers
+  bool isRenderingOk = d->rc.renderScene( objs, RenderMode::Selection, mode);
 
   d->draw->renderBackBuffer(mode);
+
 }
 
 

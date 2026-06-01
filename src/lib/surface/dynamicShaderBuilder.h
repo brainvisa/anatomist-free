@@ -126,7 +126,7 @@ namespace anatomist
       * The method automatically loads the templates, generates the shader source
       * using the defined modules, and compiles and links the final OpenGL program.
       */
-      carto::rc_ptr<QOpenGLShaderProgram> initShader(const std::string shaderIDs, std::string vsTemplate = "main.vs.glsl", std::string fsTemplate = "main.fs.glsl");
+      carto::rc_ptr<QOpenGLShaderProgram> initShader(const std::string shaderIDs, std::string vsTemplate = "main.vs.glsl", std::string fsTemplate = "main.fs.glsl", std::string gsTemplate = "");
       
       /**
       * @brief Initializes the shader program used for depth-peeling blending.

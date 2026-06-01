@@ -239,11 +239,14 @@ struct GLWidgetManager::Private
   int currentLayer;
   GLuint fullScreenQuadList;
   int depthPeelingUnitTexture;
+  ClipPlaneState clipState;
+
 
 #ifdef ANA_USE_QOPENGLWIDGET
   GLuint    z_framebuffer;
   GLuint    z_renderbuffer;
   GLuint    select_renderbuffer;
+  bool      isSelectionPass;
 #endif
 };
 
@@ -267,7 +270,7 @@ GLWidgetManager::Private::Private()
     qobject( 0 ),
     transparentBackground( true ), backgroundAlpha( 128 ),
     mouseX( 0 ), mouseY( 0 ), resized(false), saveInProgress( false ),
-    cameraChanged( true ), recordWidth( 0 ), recordHeight( 0 ), useDepthPeeling(false), nbLayers(8), currentLayer(0), fullScreenQuadList(0), depthPeelingUnitTexture(7)
+    cameraChanged( true ), recordWidth( 0 ), recordHeight( 0 ), useDepthPeeling(false), nbLayers(8), currentLayer(0), fullScreenQuadList(0), depthPeelingUnitTexture(7), isSelectionPass(false)
 #ifdef ANA_USE_QOPENGLWIDGET
     ,
     z_framebuffer( 0 ), z_renderbuffer( 0 ),
@@ -505,7 +508,11 @@ void GLWidgetManager::renderBackBuffer( ViewState::glSelectRenderMode
   default:
     break;
   }
+  bindOtherFramebuffer( mode );
+  setSelectionPass( true );
   paintGL( mode );
+  setSelectionPass( false );
+  restoreFramebuffer();
 }
 
 
@@ -668,8 +675,6 @@ void GLWidgetManager::paintGL( DrawMode m, int virtualWidth,
 
   _pd->cameraChanged = false;
 
-  bindOtherFramebuffer( m );
-
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
   glMatrixMode( GL_PROJECTION );
@@ -779,15 +784,25 @@ void GLWidgetManager::drawObjects( DrawMode m, GLPrimitives* pl)
 
   GLPrimitives::const_iterator	il = pl->begin(),
       el = pl->end();
-  if( m == ObjectSelect || m == ObjectsSelect || m == PolygonSelect )
+
+  if( _pd->isSelectionPass )
   {
     il = _selectprimitives.begin();
     el = _selectprimitives.end();
   }
 
   //cout << "paintGL, prim : " << _primitives.size() << endl;
+  if (clipState().activePlanes >= 1)
+    glEnable(GL_CLIP_DISTANCE0);  
+  else
+    glDisable(GL_CLIP_PLANE0);
 
-  if(_pd->useDepthPeeling)
+  if (clipState().activePlanes >= 2)
+    glEnable(GL_CLIP_DISTANCE1);  
+  else
+    glDisable(GL_CLIP_PLANE1);
+
+  if(_pd->useDepthPeeling && !_pd->isSelectionPass)
   {
     qglWidget()->makeCurrent();
     GLenum err;
@@ -1101,6 +1116,21 @@ void GLWidgetManager::setSelectionPrimitives( const GLPrimitives & pl )
 GLPrimitives GLWidgetManager::selectionPrimitives() const
 {
   return( _selectprimitives );
+}
+
+GLPrimitives& GLWidgetManager::selectionPrimitivesRef()
+{
+  return( _selectprimitives );
+}
+
+void GLWidgetManager::setSelectionPass( bool x )
+{
+  _pd->isSelectionPass = x; 
+}
+
+bool GLWidgetManager::isSelectionPass() const
+{
+  return _pd->isSelectionPass;
 }
 
 
@@ -2079,7 +2109,7 @@ bool GLWidgetManager::positionFromCursor( int x, int y, Point3df & position )
 
   updateZBuffer();
   bindOtherFramebuffer( ZSelect );
-  if(_pd->useDepthPeeling) //Jordan should be done in bindOtherFramebuffer but has weird effects 
+  if(_pd->useDepthPeeling)
   {
     _pd->fbos[0]->bind();
   }
@@ -2225,7 +2255,7 @@ void GLWidgetManager::copyBackBuffer2Texture(void)
   glMatrixMode( GL_PROJECTION );
   glPushMatrix();
 
-  bindOtherFramebuffer( ObjectSelect );
+  bindOtherFramebuffer( PolygonSelect );
   setupView();
 
   AWindow3D *w3 = dynamic_cast<AWindow3D *> (aWindow());
@@ -2288,6 +2318,7 @@ void GLWidgetManager::copyBackBuffer2Texture(void)
 
     //glFlush(); // or glFinish() ?
     glFinish();
+    bindOtherFramebuffer( GLWidgetManager::PolygonSelect );
     glReadBuffer( GL_BACK);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
@@ -2295,22 +2326,20 @@ void GLWidgetManager::copyBackBuffer2Texture(void)
     unsigned long bufsz = _pd->glwidget->width() * _pd->glwidget->height() * 3;
 
     //if (theAnatomist->userLevel() >= 3)
-    cout << "back buffer size: " << _pd->backBufferTexture.size() << ", needs: "<< _pd->glwidget->width() << " x " << _pd->glwidget->height() << " x 4 = " << bufsz << endl;
+    // cout << "back buffer size: " << _pd->backBufferTexture.size() << ", needs: "<< _pd->glwidget->width() << " x " << _pd->glwidget->height() << " x 3 = " << bufsz << endl;
 
     if( bufsz != _pd->backBufferTexture.size() )
-      _pd->backBufferTexture.resize( _pd->glwidget->width() * _pd->glwidget->height() * 3 );
+      _pd->backBufferTexture.resize( bufsz );
 
     GLint width = _pd->glwidget->width();
     GLint height = _pd->glwidget->height();
-#if QT_VERSION >= 0x050000
     QWindow *win = qglWidget()->window()->windowHandle();
     if( win )
     {
       width *= win->devicePixelRatio();
       height *= win->devicePixelRatio();
     }
-#endif
-    glReadPixels(0, 0, width, height,GL_RGB, GL_UNSIGNED_BYTE,
+    glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE,
                  &_pd->backBufferTexture[0] );
 
     //glFinish();
@@ -2338,14 +2367,12 @@ void GLWidgetManager::readBackBuffer( int x, int y, GLubyte & red,
   glFlush(); // or glFinish() ?
   glReadBuffer( GL_BACK );
   GLubyte rgba[4];
-#if QT_VERSION >= 0x050000
   QWindow *win = qglWidget()->window()->windowHandle();
   if( win )
   {
     x *= win->devicePixelRatio();
     y *= win->devicePixelRatio();
   }
-#endif
   glReadPixels( x, y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, rgba );
   red = rgba[0];
   green = rgba[1];
@@ -2801,60 +2828,83 @@ void GLWidgetManager::setDepthPeelingUnitTexture( int unit )
   _pd->depthPeelingUnitTexture = unit;
 }
 
+ClipPlaneState& GLWidgetManager::clipState() const
+{
+  return _pd->clipState;
+}
+
+void GLWidgetManager::setClipState( const ClipPlaneState& state )
+{
+  _pd->clipState = state;
+}
+
+
+
 void GLWidgetManager::texToPng()
 {
   int width = this->width();
   int height = this->height();
-  for( int i = 0; i < _pd->nbLayers; ++i )
-  {
+  // for( int i = 0; i < _pd->nbLayers; ++i )
+  // {
+  //   {
+  //   //color texture
+  //   std::vector<unsigned char> colorPixels(width * height * 4); // RGBA8
+
+  //   _pd->colorTextures[i]->bind();
+  //   glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, colorPixels.data());
+  //   _pd->colorTextures[i]->release();
+
+  //   QImage image(colorPixels.data(), width, height, QImage::Format_RGBA8888);
+  //   image = image.mirrored();
+
+  //   std::list<std::string> path =  carto::Paths::findResourceFiles("shaders/templates", "anatomist",theAnatomist->libraryVersionString());
+  //   if( path.empty() )
+  //   {
+  //     cerr << "Error: cannot find the templates directory for saving textures.\n";
+  //     return;
+  //   }
+  //   QString filename = QString::fromStdString(path.front()+ "/colorTexture_" + std::to_string(i) + ".png") ;
+  //   image.save(filename);
+  //   }
+
     {
-    //color texture
-    std::vector<unsigned char> colorPixels(width * height * 4); // RGBA8
-
-    _pd->colorTextures[i]->bind();
-    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, colorPixels.data());
-    _pd->colorTextures[i]->release();
-
-    QImage image(colorPixels.data(), width, height, QImage::Format_RGBA8888);
-    image = image.mirrored();
-
-    std::list<std::string> path =  carto::Paths::findResourceFiles("shaders/templates", "anatomist",theAnatomist->libraryVersionString());
-    if( path.empty() )
-    {
-      cerr << "Error: cannot find the templates directory for saving textures.\n";
-      return;
-    }
-    QString filename = QString::fromStdString(path.front()+ "/colorTexture_" + std::to_string(i) + ".png") ;
-    image.save(filename);
-    }
-
-    {
-    //depth texture
-    std::vector<float> depthPixels(width * height);
-
-        _pd->depthTextures[i]->bind();
-        glGetTexImage(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, GL_FLOAT, depthPixels.data());
-        _pd->depthTextures[i]->release();
-
-        float minD = 1.0f, maxD = 0.0f;
-        for (float d : depthPixels) {
-            if (d < minD) minD = d;
-            if (d > maxD) maxD = d;
-        }
-        //std::cout << "Layer " << i << " depth range: " << minD << " - " << maxD << std::endl;
-
-        QImage image(width, height, QImage::Format_Grayscale8);
-
-        image = image.mirrored();
-
-        std::list<std::string> path = carto::Paths::findResourceFiles("shaders/templates", "anatomist", theAnatomist->libraryVersionString());
-        if (path.empty()) {
-            std::cerr << "Error: cannot find the templates directory for saving textures.\n";
-            return;
-        }
-
-        QString filename = QString::fromStdString(path.front() + "/depthTex_" + std::to_string(i) + ".png");
-        image.save(filename);
+      // default framebuffer texture
+      restoreFramebuffer();
+      std::vector<unsigned char> defaultFramebufferPixels(width * height * 4); // RGBA8
+      //glReadBuffer(GL_BACK);
+      glPixelStorei(GL_PACK_ALIGNMENT, 1);
+      glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, defaultFramebufferPixels.data());
+      QImage image(defaultFramebufferPixels.data(), width, height, QImage::Format_RGBA8888);
+      image = image.mirrored();
+      std::list<std::string> path =  carto::Paths::findResourceFiles("shaders/templates", "anatomist",theAnatomist->libraryVersionString());
+      if( path.empty() )
+      {
+        cerr << "Error: cannot find the templates directory for saving textures.\n";
+        return;
       }
-  }
+      QString filename = QString::fromStdString(path.front()+ "/defaultFramebufferTexture.png") ;
+      image.save(filename);
+    }
+
+
+    {
+      // back buffer texture
+      bindOtherFramebuffer( ObjectSelect );
+      std::vector<unsigned char> backBufferPixels(width * height * 4); // RGB8
+      glReadBuffer(GL_BACK);
+      glPixelStorei(GL_PACK_ALIGNMENT, 1);
+      glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, backBufferPixels.data());
+      QImage image(backBufferPixels.data(), width, height, QImage::Format_RGBA8888);
+      image = image.mirrored();
+      std::list<std::string> path =  carto::Paths::findResourceFiles("shaders/templates", "anatomist",theAnatomist->libraryVersionString());
+      if( path.empty() )
+      {
+        cerr << "Error: cannot find the templates directory for saving textures.\n";
+        return;
+      }
+      QString filename = QString::fromStdString(path.front()+ "/backBufferTexture.png") ;
+      image.save(filename);
+      restoreFramebuffer();
+    }
+  // }
 }

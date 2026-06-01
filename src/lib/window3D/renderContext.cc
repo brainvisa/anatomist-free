@@ -30,15 +30,17 @@ struct RenderContext::Private
   GLWidgetManager * glwman;
   PrimList& permanentPrimitives;
   PrimList& temporaryPrimitives;
+  PrimList& selectionPrimitives;
   PrimList* currentPrimitives;
   dynamicShaderBuilder shaderBuilder;
   std::map<std::string, carto::rc_ptr<QOpenGLShaderProgram>> programs;
   carto::rc_ptr<QOpenGLShaderProgram> currentProgram;
   carto::rc_ptr<ViewState> vs;
+  std::list<AObject *> renderobj;
 };
 
 RenderContext::Private::Private(AWindow3D* win, GLWidgetManager* widgetManager) : 
-window(win), glwman(widgetManager),permanentPrimitives(glwman->permanentPrimitivesRef()), temporaryPrimitives(glwman->tempPrimitivesRef()) ,currentProgram(nullptr), currentPrimitives(nullptr)
+window(win), glwman(widgetManager),permanentPrimitives(glwman->permanentPrimitivesRef()), temporaryPrimitives(glwman->tempPrimitivesRef()), selectionPrimitives(glwman->selectionPrimitivesRef()) ,currentProgram(nullptr), currentPrimitives(nullptr)
 {
 }
 
@@ -54,9 +56,8 @@ RenderContext::RenderContext(AWindow3D* window, GLWidgetManager* widgetManager)
   d = new Private(window, widgetManager);
   d->glwman->clearLists();
   shaderMapping::initShaderMapping();
-  GLuint localGLL = glGenLists(2);
   d->currentPrimitives = &d->permanentPrimitives;
-  setupClippingPlanes(localGLL);
+
 }
 
 RenderContext::~RenderContext()
@@ -65,13 +66,16 @@ RenderContext::~RenderContext()
   delete d;
 }
 
-bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & objs, RenderMode mode )
+bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & objs, RenderMode mode, anatomist::ViewState::glSelectRenderMode selectmode )
 {
+    setupClippingPlanes();
+
+
   bool success = false;
   d->glwman->qglWidget()->makeCurrent();
 
   bool hasTemporary = false;
-  for(const auto & obj : objs) // Jordan : might be optimized not to browse the list multiple times (one time here and then in retrieveShaders)
+  for(const auto & obj : objs)
   {
     if(d->window->isTemporary(obj.get()))
     {
@@ -89,16 +93,16 @@ bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & o
     
     d->currentPrimitives = &d->permanentPrimitives;
     setupOpenGLState();
-    success |= renderObjects(objs, RenderMode::PermanentOnly);
+    success |= renderObjects(objs, RenderMode::PermanentOnly, selectmode);
 
     if(hasTemporary)
     {
       d->currentPrimitives = &d->temporaryPrimitives;
       setupOpenGLState();
-      success |= renderObjects(objs, RenderMode::TemporaryOnly);
+      success |= renderObjects(objs, RenderMode::TemporaryOnly, selectmode);
     }
   }
-  else
+  else if(mode == RenderMode::TemporaryOnly)
   {
     if(hasTemporary)
     {
@@ -106,8 +110,18 @@ bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & o
 
       d->currentPrimitives = &d->temporaryPrimitives;
       setupOpenGLState();
-      success |= renderObjects(objs, RenderMode::TemporaryOnly);
+      success |= renderObjects(objs, RenderMode::TemporaryOnly, selectmode);
     }
+  }
+  else if(mode == RenderMode::Selection)
+  {
+    d->selectionPrimitives.clear();
+
+    d->currentPrimitives = &d->selectionPrimitives;
+    setupSelectionOpenGLState();
+    success |= renderObjects(objs, RenderMode::Selection, selectmode);
+    resetSelectionOpenGLState();
+    d->glwman->setSelectionPrimitives(d->selectionPrimitives);
   }
 
   finalizeRendering();
@@ -116,7 +130,7 @@ bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & o
 }
 
 
-bool RenderContext::renderObjects( const std::list<carto::shared_ptr<AObject>> & objs, RenderMode mode)
+bool RenderContext::renderObjects( const std::list<carto::shared_ptr<AObject>> & objs, RenderMode mode, anatomist::ViewState::glSelectRenderMode selectmode )
 {
   bool success = false;
   std::vector<float> bbmin, bbmax;
@@ -128,19 +142,19 @@ bool RenderContext::renderObjects( const std::list<carto::shared_ptr<AObject>> &
   shaderBuilding( opaqueDrawables, transparentDrawables);
 
   if(!opaqueDrawables.empty())
-    success |= renderObject(opaqueDrawables, mode);
+    success |= renderObject(opaqueDrawables, mode, selectmode);
 
   if(!transparentDrawables.empty())
   {
     if(!d->glwman->useDepthPeeling())
     {
       setupTransparentObjects();
-      success |= renderObject(transparentDrawables, mode);
+      success |= renderObject(transparentDrawables, mode, selectmode);
       postTransparentRenderingSetup();
     }
     else
     {
-      success |= renderObject(transparentDrawables, mode);
+      success |= renderObject(transparentDrawables, mode, selectmode);
     }
   }
 
@@ -148,13 +162,14 @@ bool RenderContext::renderObjects( const std::list<carto::shared_ptr<AObject>> &
   {
     for(const auto & obj : nonDrawables)
     {
-      success |= updateObject(obj);
+      success |= updateObject(obj, 0, selectmode);
     }
   }
   return success;
 }
 
-bool RenderContext::updateObject(carto::shared_ptr<AObject> obj, PrimList* pl,ViewState::glSelectRenderMode selectmode)
+bool RenderContext::updateObject(carto::shared_ptr<AObject> obj, PrimList* pl,
+                                 ViewState::glSelectRenderMode selectmode)
 {
   bool success = false;
   unsigned l1=0, l2;
@@ -186,14 +201,12 @@ bool RenderContext::updateObject(carto::shared_ptr<AObject> obj, PrimList* pl,Vi
     d->currentPrimitives->insert(d->currentPrimitives->end(), gp.begin(), gp.end());
     l2 = d->currentPrimitives->size();
   }
-
-  //if(l2 > l1)
-    //Jordan : tmpprims utile ?
   
   return success;
 }
 
-bool RenderContext::renderObject(std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> & drawables, RenderMode mode)
+bool RenderContext::renderObject(std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> & drawables, RenderMode mode,
+                                 anatomist::ViewState::glSelectRenderMode selectmode)
 {
   bool success = false;
 
@@ -220,7 +233,7 @@ bool RenderContext::renderObject(std::unordered_map<std::string, std::vector<car
         d->currentPrimitives->push_back(carto::rc_ptr<GLItem>(new GLObjectUniforms(module, d->currentProgram, glObj)));
       }
 
-      success |= updateObject(obj);
+      success |= updateObject(obj, 0, selectmode);
     }
   }
   d->currentProgram = carto::rc_ptr<QOpenGLShaderProgram>();
@@ -259,7 +272,7 @@ void RenderContext::shaderBuilding(std::unordered_map<std::string, std::vector<c
   {
     if(d->programs[shader].isNull())
     {
-      d->programs[shader] = d->shaderBuilder.initShader(shader);
+      d->programs[shader] = d->shaderBuilder.initShader(shader, "main.vs.glsl", "main.fs.glsl", "main.gs.glsl");
     }
   }
 
@@ -267,7 +280,7 @@ void RenderContext::shaderBuilding(std::unordered_map<std::string, std::vector<c
   {
     if(d->programs[shader].isNull())
     {
-      d->programs[shader] = d->shaderBuilder.initShader(shader);
+      d->programs[shader] = d->shaderBuilder.initShader(shader, "main.vs.glsl", "main.fs.glsl", "main.gs.glsl");
     }
   }
 }
@@ -335,43 +348,47 @@ std::vector<carto::rc_ptr<IShaderModule>> RenderContext::getEffectiveShaderModul
   return modules;
 }
 
-void RenderContext::setupClippingPlanes(GLuint localGLL)
+void RenderContext::setupClippingPlanes()
 {
+
+  GLuint localGLL = glGenLists(1);
   Primitive *pr = new Primitive;
   if (!localGLL) AWarning("renderContext::setupClippingPlanes: OpenGL error.");
 
   glNewList(localGLL, GL_COMPILE);
-  glDisable( GL_BLEND);
-  GLdouble plane[4];
-  Point3df dir = d->window->sliceQuaternion().transformInverse( Point3df(0, 0, -1) );
-  plane[0] = dir[0];
-  plane[1] = dir[1];
-  plane[2] = dir[2];
-  plane[3] = -dir.dot(d->window->getPosition()) + d->window->clipDistance();
+
+    Point3df dir = d->window->sliceQuaternion().transformInverse(Point3df(0, 0, -1));
+  d->glwman->clipState().plane0[0] = dir[0];
+  d->glwman->clipState().plane0[1] = dir[1];
+  d->glwman->clipState().plane0[2] = dir[2];
+  d->glwman->clipState().plane0[3] = -dir.dot(d->window->getPosition()) + d->window->clipDistance();
 
   switch (d->window->clipMode())
   {
     case AWindow3D::Single:
-      glEnable( GL_CLIP_PLANE0);
-      glDisable( GL_CLIP_PLANE1);
-      glClipPlane(GL_CLIP_PLANE0, plane);
+      d->glwman->clipState().activePlanes = 1;
       break;
     case AWindow3D::Double:
-      glEnable(GL_CLIP_PLANE0);
-      glEnable(GL_CLIP_PLANE1);
-      glClipPlane(GL_CLIP_PLANE0, plane);
-      plane[0] *= -1;
-      plane[1] *= -1;
-      plane[2] *= -1;
-      plane[3] = dir.dot(d->window->getPosition()) + d->window->clipDistance();
-      glClipPlane(GL_CLIP_PLANE1, plane);
+      d->glwman->clipState().activePlanes = 2;
+      d->glwman->clipState().plane1[0] = -dir[0];
+      d->glwman->clipState().plane1[1] = -dir[1];
+      d->glwman->clipState().plane1[2] = -dir[2];
+      d->glwman->clipState().plane1[3] = dir.dot(d->window->getPosition()) + d->window->clipDistance();
       break;
     default:
-      glDisable(GL_CLIP_PLANE0);
-      glDisable(GL_CLIP_PLANE1);
+      d->glwman->clipState().activePlanes = 0;
       break;
   }
 
+  glDisable( GL_BLEND);
+  if(d->glwman->clipState().activePlanes >= 1)
+    glEnable(GL_CLIP_DISTANCE0);
+  else
+    glDisable( GL_CLIP_DISTANCE0);
+  if(d->glwman->clipState().activePlanes >= 2)
+    glEnable( GL_CLIP_DISTANCE1);
+  else
+    glDisable( GL_CLIP_DISTANCE1);
   glEndList();
 
   pr->insertList(localGLL);
@@ -441,6 +458,76 @@ void RenderContext::setupOpenGLState()
   d->currentPrimitives->push_back(RefGLItem(renderpr));
 }
 
+void RenderContext::setupSelectionOpenGLState()
+{
+  GLList *renderpr = new GLList;
+  renderpr->generate();
+  GLuint renderGLL = renderpr->item();
+  if (!renderGLL) AWarning("AWindow3D::Refresh: OpenGL error.");
+
+  glNewList(renderGLL, GL_COMPILE);
+
+  glPushAttrib( GL_ALL_ATTRIB_BITS);
+  glLineWidth(1);
+  glShadeModel( GL_FLAT);
+  glDisable( GL_LINE_SMOOTH);
+  glDisable( GL_POLYGON_SMOOTH);
+  glDisable( GL_LIGHTING);
+  glPolygonOffset(0, 0);
+  glDisable( GL_POLYGON_OFFSET_FILL);
+  glDisable( GL_FOG);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  glDisable( GL_BLEND);
+  // clipping planes
+  GLdouble plane[4];
+  Point3df dir = d->window->sliceQuaternion().transformInverse(Point3df(0, 0, -1));
+  plane[0] = dir[0];
+  plane[1] = dir[1];
+  plane[2] = dir[2];
+  plane[3] = -dir.dot(d->window->getPosition()) + d->window->clipDistance();
+  switch (d->window->clipMode())
+  {
+    case AWindow3D::Single:
+      glEnable( GL_CLIP_PLANE0);
+      glDisable( GL_CLIP_PLANE1);
+      glClipPlane(GL_CLIP_PLANE0, plane);
+      // glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
+      break;
+    case AWindow3D::Double:
+      glEnable(GL_CLIP_PLANE0);
+      glEnable(GL_CLIP_PLANE1);
+      glClipPlane(GL_CLIP_PLANE0, plane);
+      plane[0] *= -1;
+      plane[1] *= -1;
+      plane[2] *= -1;
+      plane[3] = dir.dot(d->window->getPosition()) + d->window->clipDistance();
+      glClipPlane(GL_CLIP_PLANE1, plane);
+      // glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
+      break;
+    default:
+      glDisable(GL_CLIP_PLANE0);
+      glDisable(GL_CLIP_PLANE1);
+      // glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE );
+      break;
+  }
+  glEndList();
+  d->currentPrimitives->push_back(RefGLItem(renderpr));
+}
+
+void RenderContext::resetSelectionOpenGLState()
+{
+  GLList *renderpr = new GLList;
+  renderpr->generate();
+  GLuint renderGLL = renderpr->item();
+  if (!renderGLL) AWarning("AWindow3D::Refresh: OpenGL error.");
+
+  glNewList(renderGLL, GL_COMPILE);
+  glPopAttrib();
+  glEndList();
+  d->currentPrimitives->push_back(RefGLItem(renderpr));
+}
+
 const ViewState& RenderContext::getViewState() const
 {
   return *d->vs;
@@ -472,7 +559,7 @@ void RenderContext::finalizeRendering()
 
   if (renderoffpr)
   {
-    d->currentPrimitives->push_back(RefGLItem(renderoffpr)); // jordan : to check which primitive list we'll be using
+    d->currentPrimitives->push_back(RefGLItem(renderoffpr));
   }
 
   if (rendertwice)
@@ -536,9 +623,9 @@ Primitive* RenderContext::setupOutlinedMode()
 
 void RenderContext::duplicateRenderPrimitives()
 {
-  if(d->currentPrimitives->size() < 2)
+  if(d->currentPrimitives->size() < 1)
     return;
-  unsigned i, n = d->currentPrimitives->size() - 2;
+  unsigned i, n = d->currentPrimitives->size() - 1;
   PrimList::iterator ip = d->currentPrimitives->begin();
   for (++ip, i = 0; i < n; ++i, ++ip)
       d->currentPrimitives->push_back(*ip);

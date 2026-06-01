@@ -1,11 +1,12 @@
 #define MAX_TEXTURE_UNITS 8
 
-varying vec4 v_color;
-varying vec3 v_normal;
-varying vec3 v_texcoord[MAX_TEXTURE_UNITS];
-varying vec4 v_eyeVertexPosition;
-varying vec3 v_directionLight;
-
+in VertexData {
+    vec4 v_color;
+    vec3 v_normal;
+    vec3 v_texcoord[MAX_TEXTURE_UNITS];
+    vec4 v_eyeVertexPosition;
+    vec3 v_directionLight;
+}; 
 
 uniform bool u_hasTexture;
 uniform bool u_isSelectionPass;
@@ -227,7 +228,7 @@ void main()
   {
     /* In selection pass, we want to output the color as is, without any lighting or texture effect, 
     to be able to retrieve the object ID from the color.*/
-    fragColor = v_color;
+    fragColor = vec4(v_color.rgb, 1.0);
     return;
   }
   vec4 color = basicColor();

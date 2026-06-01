@@ -602,6 +602,13 @@ void GLObjectUniforms::updateTextureUniforms(const UniformsLocations& locations,
     data.usedUnits.insert(freeUnit);
   };
 
+  if(!data.texUnits1D.empty())
+  {
+    int location = _shader->uniformLocation("u_paletteTexUnit");
+    if(location >= 0)
+      _shader->setUniformValue(location, (int) data.texUnits1D[0]);
+  }
+
   fillWithFreeUnit(data.texUnits1D);
   fillWithFreeUnit(data.texUnits2D);
   fillWithFreeUnit(data.texUnits3D);

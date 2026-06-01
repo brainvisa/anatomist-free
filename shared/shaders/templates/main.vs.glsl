@@ -1,10 +1,18 @@
 #define MAX_TEXTURE_UNITS 8
 
-varying vec4 v_color;
-varying vec3 v_normal;
-varying vec3 v_texcoord[MAX_TEXTURE_UNITS];
-varying vec4 v_eyeVertexPosition;
-varying vec3 v_directionLight;
+uniform int   u_activeClipPlanes;
+uniform vec4  u_clipPlane0;
+uniform vec4  u_clipPlane1;
+
+out VertexData {
+    vec4 v_color;
+    vec3 v_normal;
+    vec3 v_texcoord[MAX_TEXTURE_UNITS];
+    vec4 v_eyeVertexPosition;
+    vec3 v_directionLight;
+};
+
+out float gl_ClipDistance[]; 
 
 void main()
 {
@@ -23,4 +31,8 @@ void main()
     v_texcoord[5] = (gl_TextureMatrix[5] * gl_MultiTexCoord5).xyz;
     v_texcoord[6] = (gl_TextureMatrix[6] * gl_MultiTexCoord6).xyz;
     v_texcoord[7] = (gl_TextureMatrix[7] * gl_MultiTexCoord7).xyz;
+
+    gl_ClipDistance[0] = (u_activeClipPlanes >= 1) ? dot(u_clipPlane0, v_eyeVertexPosition) : 1.0;
+    gl_ClipDistance[1] = (u_activeClipPlanes >= 2) ? dot(u_clipPlane1, v_eyeVertexPosition) : 1.0;
+   
 }
