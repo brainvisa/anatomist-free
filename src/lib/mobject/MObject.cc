@@ -187,7 +187,17 @@ bool MObject::render( PrimList & prim, RenderContext & rc )
   for( auto obj : rendered )
     ptr_rendered.push_back( carto::rc_ptr<anatomist::AObject>( obj ) );
 
-  retcode = rc.renderObjects( ptr_rendered );
+  /* RenderContext::renderObjects() will rebuild ist ViewState from the
+     selection mode we pass to it here. It's a bit weird but we must recover it
+     and pass it to renderObjects().
+  */
+  RenderMode rcmode = RenderMode::Full;
+  if( rc.getViewState().selectRenderMode != ViewState::glSELECTRENDER_NONE )
+    rcmode = RenderMode::Selection;
+
+  retcode = rc.renderObjects( ptr_rendered,
+                              rcmode,
+                              rc.getViewState().selectRenderMode );
 
   return retcode;
 }

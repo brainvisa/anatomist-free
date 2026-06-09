@@ -453,12 +453,12 @@ void GLSceneUniforms::callList() const
       return;
     }
 
-
   GLint isSelectionPassLoc = _shader->uniformLocation("u_isSelectionPass");
   if(isSelectionPassLoc >= 0)
   {
     _shader->setUniformValue(isSelectionPassLoc, _scene->isSelectionPass());
   }
+
   GLint activeClipPlanesLoc = _shader->uniformLocation("u_activeClipPlanes");
   if(activeClipPlanesLoc >= 0)
   {
