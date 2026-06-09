@@ -535,8 +535,6 @@ void GLObjectUniforms::callList() const
       return;
   }
 
-  _obj->objectUniforms(_shader);
-
   ViewState vs; // jordan - how to pass viewstate?
   const unsigned maxSamplers = 8;
 

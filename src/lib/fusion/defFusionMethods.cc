@@ -496,7 +496,7 @@ int FusionClipMethod::canFusion( const set<AObject *> & obj )
 
 AObject* FusionClipMethod::fusion( const vector<AObject *> & obj )
 {
-  return new ClippedObject( obj.front() );
+  return new ClippedObject( obj );
 }
 
 

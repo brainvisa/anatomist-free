@@ -483,8 +483,6 @@ namespace anatomist
     /// cleanup static global variables (called when quitting anatomist)
     static void cleanStatic();
 
-    virtual void objectUniforms(carto::rc_ptr<QOpenGLShaderProgram> _shader) const;
-
     ///
     carto::Object aimsMeshFromGLComponent();
 

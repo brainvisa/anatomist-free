@@ -1,6 +1,7 @@
 #define MAX_TEXTURE_UNITS 8
 
 uniform int   u_activeClipPlanes;
+uniform int   u_clippedObjectActive;
 uniform vec4  u_clipPlane0;
 uniform vec4  u_clipPlane1;
 uniform vec4  u_clipPlane2;
@@ -35,6 +36,6 @@ void main()
 
     gl_ClipDistance[0] = (u_activeClipPlanes >= 1) ? dot(u_clipPlane0, v_eyeVertexPosition) : 1.0;
     gl_ClipDistance[1] = (u_activeClipPlanes >= 2) ? dot(u_clipPlane1, v_eyeVertexPosition) : 1.0;
-    gl_ClipDistance[2] = (u_activeClipPlanes >= 3) ? dot(u_clipPlane1, v_eyeVertexPosition) : 1.0; //jordan to change
+    gl_ClipDistance[2] = (u_clippedObjectActive == 1) ? dot(u_clipPlane2, v_eyeVertexPosition) : 1.0; //jordan to change
    
 }

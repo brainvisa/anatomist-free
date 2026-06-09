@@ -229,7 +229,6 @@ bool RenderContext::renderObject(std::unordered_map<std::string, std::vector<car
         if(i==0)
           d->currentPrimitives->push_back(carto::rc_ptr<GLItem>(new GLSceneUniforms(module, d->currentProgram, d->glwman)));
         d->currentPrimitives->push_back(carto::rc_ptr<GLItem>(new GLObjectUniforms(module, d->currentProgram, obj.get())));
-        std::cout << "object address: " << obj.get() << std::endl;
       }
 
       success |= updateObject(obj, 0, selectmode);

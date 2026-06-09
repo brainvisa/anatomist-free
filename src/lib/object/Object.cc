@@ -2133,12 +2133,6 @@ AObject::Private::objectMenuRegistrers()
   return reg;
 }
 
-void AObject::objectUniforms(carto::rc_ptr<QOpenGLShaderProgram> _shader) const
-{
-  // std::cout << "AObject uniforms test" << std::endl;
-}
-
-
 }
 
 
