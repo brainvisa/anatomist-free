@@ -53,7 +53,7 @@ BlinnPhongMaterial BlinnPhong(vec3 normal)
   vec4 b_ambient = (gl_LightSource[0].ambient + gl_LightModel.ambient) * u_materialAmbient;
 
   // diffuse
-  float cos_theta = max(dot(normal, lightDirection), 0.0);
+  float cos_theta = abs(dot(normal, lightDirection));
   vec4 diffuse = gl_LightSource[0].diffuse * cos_theta;
 
   // specular
