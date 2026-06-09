@@ -32,6 +32,7 @@ void emitFull(int s, float zoneVal)
   gl_Position         = gl_in[s].gl_Position;
   gl_ClipDistance[0]  = gl_in[s].gl_ClipDistance[0];
   gl_ClipDistance[1]  = gl_in[s].gl_ClipDistance[1];
+  gl_ClipDistance[2]  = gl_in[s].gl_ClipDistance[2];
   v_color             = gs_in[s].v_color;
   v_normal            = gs_in[s].v_normal;
   v_eyeVertexPosition = gs_in[s].v_eyeVertexPosition;
@@ -48,6 +49,7 @@ void emitMid(int i, int j, float zoneVal)
   gl_Position = 0.5 * (gl_in[i].gl_Position + gl_in[j].gl_Position);
   gl_ClipDistance[0]  = 0.5 * (gl_in[i].gl_ClipDistance[0] + gl_in[j].gl_ClipDistance[0]);
   gl_ClipDistance[1]  = 0.5 * (gl_in[i].gl_ClipDistance[1] + gl_in[j].gl_ClipDistance[1]);
+  gl_ClipDistance[2]  = 0.5 * (gl_in[i].gl_ClipDistance[2] + gl_in[j].gl_ClipDistance[2]);
   v_color = 0.5 * (gs_in[i].v_color + gs_in[j].v_color);
   v_normal = normalize(gs_in[i].v_normal + gs_in[j].v_normal);
   v_eyeVertexPosition = 0.5 * (gs_in[i].v_eyeVertexPosition + gs_in[j].v_eyeVertexPosition);
@@ -64,6 +66,7 @@ void emitCenter(float zoneVal)
   gl_Position = (gl_in[0].gl_Position + gl_in[1].gl_Position + gl_in[2].gl_Position) / 3.0;
   gl_ClipDistance[0]  = (gl_in[0].gl_ClipDistance[0] + gl_in[1].gl_ClipDistance[0] + gl_in[2].gl_ClipDistance[0]) / 3.0;
   gl_ClipDistance[1]  = (gl_in[0].gl_ClipDistance[1] + gl_in[1].gl_ClipDistance[1] + gl_in[2].gl_ClipDistance[1]) / 3.0;
+  gl_ClipDistance[2] = (gl_in[0].gl_ClipDistance[2] + gl_in[1].gl_ClipDistance[2] + gl_in[2].gl_ClipDistance[2]) / 3.0;
   v_color = (gs_in[0].v_color + gs_in[1].v_color + gs_in[2].v_color) / 3.0;
   v_normal = normalize(gs_in[0].v_normal + gs_in[1].v_normal + gs_in[2].v_normal);
   v_eyeVertexPosition = (gs_in[0].v_eyeVertexPosition + gs_in[1].v_eyeVertexPosition + gs_in[2].v_eyeVertexPosition) / 3.0;

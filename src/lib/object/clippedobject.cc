@@ -1,35 +1,35 @@
-/* This software and supporting documentation are distributed by
- *     Institut Federatif de Recherche 49
- *     CEA/NeuroSpin, Batiment 145,
- *     91191 Gif-sur-Yvette cedex
- *     France
- *
- * This software is governed by the CeCILL-B license under
- * French law and abiding by the rules of distribution of free software.
- * You can  use, modify and/or redistribute the software under the
- * terms of the CeCILL-B license as circulated by CEA, CNRS
- * and INRIA at the following URL "http://www.cecill.info".
- *
- * As a counterpart to the access to the source code and  rights to copy,
- * modify and redistribute granted by the license, users are provided only
- * with a limited warranty  and the software's author,  the holder of the
- * economic rights,  and the successive licensors  have only  limited
- * liability.
- *
- * In this respect, the user's attention is drawn to the risks associated
- * with loading,  using,  modifying and/or developing or reproducing the
- * software by the user in light of its specific status of free software,
- * that may mean  that it is complicated to manipulate,  and  that  also
- * therefore means  that it is reserved for developers  and  experienced
- * professionals having in-depth computer knowledge. Users are therefore
- * encouraged to load and test the software's suitability as regards their
- * requirements in conditions enabling the security of their systems and/or
- * data to be ensured and,  more generally, to use and operate it in the
- * same conditions as regards security.
- *
- * The fact that you are presently reading this means that you have had
- * knowledge of the CeCILL-B license and that you accept its terms.
- */
+// /* This software and supporting documentation are distributed by
+//  *     Institut Federatif de Recherche 49
+//  *     CEA/NeuroSpin, Batiment 145,
+//  *     91191 Gif-sur-Yvette cedex
+//  *     France
+//  *
+//  * This software is governed by the CeCILL-B license under
+//  * French law and abiding by the rules of distribution of free software.
+//  * You can  use, modify and/or redistribute the software under the
+//  * terms of the CeCILL-B license as circulated by CEA, CNRS
+//  * and INRIA at the following URL "http://www.cecill.info".
+//  *
+//  * As a counterpart to the access to the source code and  rights to copy,
+//  * modify and redistribute granted by the license, users are provided only
+//  * with a limited warranty  and the software's author,  the holder of the
+//  * economic rights,  and the successive licensors  have only  limited
+//  * liability.
+//  *
+//  * In this respect, the user's attention is drawn to the risks associated
+//  * with loading,  using,  modifying and/or developing or reproducing the
+//  * software by the user in light of its specific status of free software,
+//  * that may mean  that it is complicated to manipulate,  and  that  also
+//  * therefore means  that it is reserved for developers  and  experienced
+//  * professionals having in-depth computer knowledge. Users are therefore
+//  * encouraged to load and test the software's suitability as regards their
+//  * requirements in conditions enabling the security of their systems and/or
+//  * data to be ensured and,  more generally, to use and operate it in the
+//  * same conditions as regards security.
+//  *
+//  * The fact that you are presently reading this means that you have had
+//  * knowledge of the CeCILL-B license and that you accept its terms.
+//  */
 
 #include <anatomist/object/clippedobject.h>
 #include <anatomist/object/actions.h>
@@ -52,84 +52,61 @@ using namespace anatomist;
 using namespace carto;
 using namespace std;
 
-
 struct ClippedObject::Private
 {
-  Private() : clipID( 0 ) {}
+  Private( AObject* obj ) : clipID( 0 ), object( obj ) {}
 
-  int clipID;
+  int      clipID;
+  AObject* object;
 };
-
 
 int ClippedObject::registerClass()
 {
-  int	type = registerObjectType( "ClippedObject" );
-  return type;
-}
-
-
-ClippedObject::ClippedObject( const vector<AObject *> & obj )
-  : ObjectVector(), SelfSliceable(), d( new ClippedObject::Private )
-{
-  _type = classType();
-
-  if( QObjectTree::TypeNames.find( _type ) == QObjectTree::TypeNames.end() )
-  {
-    string str = Settings::findResourceFile(
-      "icons/list_clippedobject.png" );
-    if( !QObjectTree::TypeIcons[ _type ].load( str.c_str() ) )
-    {
-      QObjectTree::TypeIcons.erase( _type );
-      cerr << "Icon " << str.c_str() << " not found\n";
-    }
-
-    QObjectTree::TypeNames[ _type ] = "ClippedObject";
-  }
-
-  vector<AObject *>::const_iterator	io, fo=obj.end();
-  vector<AObject *>			vol;
-  AObject				*o = 0;
-
-  for( io=obj.begin(); io!=fo; ++io )
-  {
-    o = *io;
-    insert( o );
-    ClippedObject *co = dynamic_cast<ClippedObject *>( o );
-    if( co )
-    {
-      if( co->clipID() >= d->clipID )
-        d->clipID = co->clipID() + 1;
-    }
-  }
-
-  if( size() > 0 )
-  {
-    o = *begin();
-    setReferentialInheritance( o );
-
-    vector<float> bmin, bmax;
-    if( boundingBox( bmin, bmax ) )
-      _offset = ( Point3df( bmin[0], bmin[1], bmin[2] )
-                  + Point3df( bmax[0], bmax[1], bmax[2] ) ) / 2;
-
-  }
-}
-
-
-ClippedObject::~ClippedObject()
-{
-  iterator	i = begin();
-  erase( i );
-  delete d;
+  return registerObjectType( "ClippedObject" );
 }
 
 
 int ClippedObject::classType()
 {
-  static int	_classType = registerClass();
+  static int _classType = registerClass();
   return _classType;
 }
 
+ClippedObject::ClippedObject( AObject* obj )
+  : d( new Private( obj ) )
+{
+  _type = classType();
+
+  if( QObjectTree::TypeNames.find( _type ) == QObjectTree::TypeNames.end() )
+  {
+    string str = Settings::findResourceFile( "icons/list_clippedobject.png" );
+    if( !QObjectTree::TypeIcons[ _type ].load( str.c_str() ) )
+    {
+      QObjectTree::TypeIcons.erase( _type );
+      cerr << "Icon " << str.c_str() << " not found\n";
+    }
+    QObjectTree::TypeNames[ _type ] = "ClippedObject";
+  }
+
+  if( obj )
+  {
+    obj->addObserver( this );
+    setReferentialInheritance( obj );
+
+    vector<float> bmin, bmax;
+    if( obj->boundingBox( bmin, bmax ) )
+      _offset = ( Point3df( bmin[0], bmin[1], bmin[2] )
+                  + Point3df( bmax[0], bmax[1], bmax[2] ) ) / 2;
+  }
+}
+
+ClippedObject::~ClippedObject()
+{
+  if( d->object )
+    d->object->deleteObserver( this );
+
+  delete d;
+}
 
 int ClippedObject::clipID() const
 {
@@ -137,177 +114,134 @@ int ClippedObject::clipID() const
 }
 
 
-bool ClippedObject::render( PrimList & prim,RenderContext & rc )
+AObject* ClippedObject::wrappedObject() const
 {
-  // cout << "ClippedObject::render " << quaternion().vector() << endl;
-  /* always use a SliceViewState since the underlying object may need
-     orientation information (a VolRender needs view orientation) */
-  const SliceViewState *osvs = rc.getViewState().sliceVS();
-  SliceViewState svs;
-  if( !osvs || !osvs->vieworientation )
-  {
-    if( osvs )
-      svs = *osvs;
-    else
-      // copy state before completing it
-      static_cast<ViewState &>( svs ) = rc.getViewState();
-
-    const AWindow3D * w3 = dynamic_cast<const AWindow3D *>( rc.getViewState().window );
-    if( w3 )
-    {
-      svs.orientation = &w3->sliceQuaternion();
-      svs.winref = w3->getReferential();
-      const GLWidgetManager
-          *glv = dynamic_cast<const GLWidgetManager *>( w3->view() );
-      if( glv )
-        svs.vieworientation = &glv->quaternion();
-    }
-    osvs = &svs;
-  }
-
-  bool firstlist = false;
-  PrimList::iterator ip = prim.end();
-  if( ip == prim.begin() )
-    firstlist = true;
-  else
-    --ip;
-  bool hasrendered = false;
-  iterator i, e = end();
-  std::list<carto::shared_ptr<AObject>> ptr_rendered;
-
-  for( i=begin(); i!=e; ++i )
-  {
-    ptr_rendered.push_back( carto::rc_ptr<AObject>( *i ) );
-  }
-  hasrendered = rc.renderObjects( ptr_rendered );
-  if( hasrendered )
-  {
-    // clipping
-    if( !firstlist )
-      ++ip;
-    else
-      ip = prim.begin();
-    GLList* gll = new GLList;
-    gll->generate();
-    glNewList( gll->item(), GL_COMPILE );
-    glPushAttrib( GL_ENABLE_BIT );
-    glEnable( GL_CLIP_PLANE2 + d->clipID );
-    GLdouble pl[4];
-
-    const SliceViewState  *svs = rc.getViewState().sliceVS();
-    const Referential *wr = 0, *objref = getReferential();
-    if( objref )
-    {
-      if( svs )
-        wr = svs->winref;
-      else if( rc.getViewState().window )
-        wr = rc.getViewState().window->getReferential();
-    }
-    Transformation *trans = theAnatomist->getTransformation( objref, wr );
-    const Point4df & p = plane();
-    if( trans )
-    {
-      // transform clipping plane
-      Point3df p2( p[0], p[1], p[2] );
-      p2.normalize();
-      p2 = trans->motion().transformUnitNormal( p2 );
-      pl[0] = p2[0];
-      pl[1] = p2[1];
-      pl[2] = p2[2];
-      Point3df p3( 0. );
-      if( p[2] != 0 )
-        p3[2] = -p[3] / p[2];
-      else if( p[1] != 0 )
-        p3[1] = -p[3] / p[1];
-      else
-        p3[0] = -p[3] / p[0];
-      p3 = trans->transform( p3 );
-      pl[3] = - ( pl[0] * p3[0] + pl[1] * p3[1] + pl[2] * p3[2] );
-    }
-    else
-    {
-      pl[0] = p[0];
-      pl[1] = p[1];
-      pl[2] = p[2];
-      pl[3] = p[3];
-    }
-    if( wr && wr->isDirect() )
-    {
-      // invert plane in direct ref
-      pl[0] *= -1;
-      pl[1] *= -1;
-      pl[2] *= -1;
-      pl[3] *= -1;
-    }
-
-    glClipPlane( GL_CLIP_PLANE2 + d->clipID, pl );
-    glEndList();
-    prim.insert( ip, RefGLItem( gll ) );
-
-    // finish clipping
-    GLList *gll2 = new GLList;
-    gll2->generate();
-    glNewList( gll2->item(), GL_COMPILE );
-    glPopAttrib();
-    glEndList();
-    prim.insert( prim.end(), RefGLItem( gll2 ) );
-  }
-  return hasrendered;
+  return d->object;
 }
 
-
-Tree* ClippedObject::optionTree() const
+GLComponent* ClippedObject::glAPI()
 {
-  static Tree*	_optionTree = 0;
-
-  if( !_optionTree )
-    {
-      Tree	*t, *t2;
-      _optionTree = new Tree( true, "option tree" );
-      t = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "File" ) );
-      _optionTree->insert( t );
-      t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "Save" ) );
-      t2->setProperty( "callback", &ObjectActions::saveStatic );
-      t->insert( t2 );
-      t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu",
-                                              "Rename object" ) );
-      t2->setProperty( "callback", &ObjectActions::renameObject );
-      t->insert( t2 );
-    }
-  return( _optionTree );
+  return d->object ? d->object->glAPI() : nullptr;
 }
 
+const GLComponent* ClippedObject::glAPI() const
+{
+  return d->object ? d->object->glAPI() : nullptr;
+}
+
+void ClippedObject::objectUniforms(
+  carto::rc_ptr<QOpenGLShaderProgram> shader ) const
+{
+  //std::cout << "ClippedObject::objectUniforms\n";
+  if( d->object )
+    d->object->objectUniforms( shader );
+
+  // const Point4df & p = plane();
+  // GLdouble pl[4] = { p[0], p[1], p[2], p[3] };
+
+  // const Referential *objref = getReferential();
+  // if( objref )
+  // {
+  //   const Referential *wr = nullptr;
+  //   if( !_winList.empty() )
+  //     wr = (*_winList.begin())->getReferential();
+
+  //   Transformation *trans = theAnatomist->getTransformation( objref, wr );
+  //   if( trans )
+  //   {
+  //     Point3df p2( p[0], p[1], p[2] );
+  //     p2.normalize();
+  //     p2 = trans->motion().transformUnitNormal( p2 );
+  //     pl[0] = p2[0];
+  //     pl[1] = p2[1];
+  //     pl[2] = p2[2];
+
+  //     Point3df p3( 0.f );
+  //     if     ( p[2] != 0 ) p3[2] = -p[3] / p[2];
+  //     else if( p[1] != 0 ) p3[1] = -p[3] / p[1];
+  //     else                 p3[0] = -p[3] / p[0];
+
+  //     p3    = trans->transform( p3 );
+  //     pl[3] = -( pl[0]*p3[0] + pl[1]*p3[1] + pl[2]*p3[2] );
+  //   }
+
+  //   if( wr && wr->isDirect() )
+  //   {
+  //     pl[0] *= -1; pl[1] *= -1; pl[2] *= -1; pl[3] *= -1;
+  //   }
+  // }
+
+  // shader->setUniformValue( "u_objectClipPlane",
+  //                          (float)pl[0], (float)pl[1],
+  //                          (float)pl[2], (float)pl[3] );
+  // shader->setUniformValue( "u_useObjectClip", 1 );
+}
+
+bool ClippedObject::render( PrimList & prim, RenderContext & rc )
+{
+  if( !d->object )
+    return false;
+
+    std::cout << "clipped subobject address : "<<d->object << std::endl;
+
+  // GLList *gll_on = new GLList;
+  // gll_on->generate();
+  // glNewList( gll_on->item(), GL_COMPILE );
+  // glEnable( GL_CLIP_DISTANCE2 + d->clipID );
+  // glEndList();
+  // prim.push_back( RefGLItem( gll_on ) );
+
+  size_t before = prim.size();
+  bool result = d->object->render( prim, rc );
+  std::cout << "ClippedObject::render, prim size before: " << before << ", after: " << prim.size() << std::endl;
+
+  // GLList *gll_off = new GLList;
+  // gll_off->generate();
+  // glNewList( gll_off->item(), GL_COMPILE );
+  // glDisable( GL_CLIP_DISTANCE2 + d->clipID );
+  // glEndList();
+  // prim.push_back( RefGLItem( gll_off ) );
+
+  return result;
+}
+
+bool ClippedObject::Is2DObject()
+{
+  return d->object ? d->object->Is2DObject() : false;
+}
+
+bool ClippedObject::Is3DObject()
+{
+  return d->object ? d->object->Is3DObject() : false;
+}
 
 Material & ClippedObject::GetMaterial()
 {
-  return( (*begin())->GetMaterial() );
+  return d->object->GetMaterial();
 }
 
 
 void ClippedObject::SetMaterial( const Material & mat )
 {
-  (*begin())->SetMaterial( mat );
+  d->object->SetMaterial( mat );
 }
 
 
 const AObjectPalette* ClippedObject::palette() const
 {
-  const AObject	*obj = *begin();
-  return obj->palette();
+  return d->object->palette();
 }
 
 
 AObjectPalette* ClippedObject::palette()
 {
-  AObject	*obj = *begin();
-  return obj->palette();
+  return d->object->palette();
 }
 
 
 void ClippedObject::setPalette( const AObjectPalette & palette )
 {
-  AObject	*obj= *begin();
-  obj->setPalette( palette );
+  d->object->setPalette( palette );
   setChanged();
 }
 
@@ -318,56 +252,66 @@ void ClippedObject::sliceChanged()
   setChanged();
 }
 
-
 void ClippedObject::update( const Observable *observable, void * )
 {
-  // cout << "ClippedObject::update\n";
+  if( observable != d->object )
+  {
+    notifyObservers( this );
+    return;
+  }
 
-  iterator i, e = end();
-  for( i=begin(); i!=e; ++i )
-    if( observable == *i )
-    {
-      const AObject *obj = static_cast<const AObject *>( observable );
-      // cout << "obj: " << obj << ", : " << obj->name() << endl;
+  const AObject *obj = static_cast<const AObject *>( observable );
 
-      if( obj->obsHasChanged( GLComponent::glTEXIMAGE ) )
-      {
-        setChanged();
-        // g->glSetTexImageChanged( true, 0 );
-      }
-      if( obj->obsHasChanged( GLComponent::glTEXENV ) )
-      {
-        setChanged();
-        // g->glSetTexEnvChanged( true, 0 );
-      }
-      if( obj->obsHasChanged( GLComponent::glREFERENTIAL )
-          || obj->obsHasChanged( GLComponent::glBODY ) )
-      {
-        setChanged();
-        // g->glSetChanged( GLComponent::glBODY );
-      }
-      if( obj->obsHasChanged( GLComponent::glMATERIAL ) )
-      {
-        setChanged();
-        // g->glSetChanged( GLComponent::glMATERIAL );
-      }
-      if( obj->obsHasChanged( GLComponent::glREFERENTIAL )
-          || obj->obsHasChanged( GLComponent::glGEOMETRY ) )
-      {
-        setChanged();
-        // g->glSetChanged( GLComponent::glGEOMETRY );
-      }
-      updateSubObjectReferential( obj );
-    }
+  if( obj->obsHasChanged( GLComponent::glTEXIMAGE ) )
+    setChanged();
+
+  if( obj->obsHasChanged( GLComponent::glTEXENV ) )
+    setChanged();
+
+  if( obj->obsHasChanged( GLComponent::glBODY )
+      || obj->obsHasChanged( GLComponent::glREFERENTIAL ) )
+    setChanged();
+
+  if( obj->obsHasChanged( GLComponent::glMATERIAL ) )
+    setChanged();
+
+  if( obj->obsHasChanged( GLComponent::glGEOMETRY )
+      || obj->obsHasChanged( GLComponent::glREFERENTIAL ) )
+    setChanged();
+
+  if( obj->obsHasChanged( GLComponent::glREFERENTIAL ) )
+    setReferentialInheritance( d->object );
 
   notifyObservers( this );
 }
 
 
+Tree* ClippedObject::optionTree() const
+{
+  static Tree *_optionTree = nullptr;
+
+  if( !_optionTree )
+  {
+    Tree *t, *t2;
+    _optionTree = new Tree( true, "option tree" );
+
+    t = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "File" ) );
+    _optionTree->insert( t );
+
+    t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "Save" ) );
+    t2->setProperty( "callback", &ObjectActions::saveStatic );
+    t->insert( t2 );
+
+    t2 = new Tree( true, QT_TRANSLATE_NOOP( "QSelectMenu", "Rename object" ) );
+    t2->setProperty( "callback", &ObjectActions::renameObject );
+    t->insert( t2 );
+  }
+  return _optionTree;
+}
 
 Object ClippedObject::makeHeaderOptions() const
 {
-  Object opts = ObjectVector::makeHeaderOptions();
+  Object opts = AObject::makeHeaderOptions();
   makeSliceHeaderOptions( opts );
   return opts;
 }
@@ -375,7 +319,6 @@ Object ClippedObject::makeHeaderOptions() const
 
 void ClippedObject::setProperties( Object options )
 {
-  ObjectVector::setProperties( options );
+  AObject::setProperties( options );
   setSliceProperties( options );
 }
-

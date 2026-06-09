@@ -3,6 +3,7 @@
 uniform int   u_activeClipPlanes;
 uniform vec4  u_clipPlane0;
 uniform vec4  u_clipPlane1;
+uniform vec4  u_clipPlane2;
 
 out VertexData {
     vec4 v_color;
@@ -34,5 +35,6 @@ void main()
 
     gl_ClipDistance[0] = (u_activeClipPlanes >= 1) ? dot(u_clipPlane0, v_eyeVertexPosition) : 1.0;
     gl_ClipDistance[1] = (u_activeClipPlanes >= 2) ? dot(u_clipPlane1, v_eyeVertexPosition) : 1.0;
+    gl_ClipDistance[2] = (u_activeClipPlanes >= 3) ? dot(u_clipPlane1, v_eyeVertexPosition) : 1.0; //jordan to change
    
 }

@@ -795,17 +795,6 @@ void GLWidgetManager::drawObjects( DrawMode m, GLPrimitives* pl)
     el = _selectprimitives.end();
   }
 
-  //cout << "paintGL, prim : " << _primitives.size() << endl;
-  if (clipState().activePlanes >= 1)
-    glEnable(GL_CLIP_DISTANCE0);  
-  else
-    glDisable(GL_CLIP_PLANE0);
-
-  if (clipState().activePlanes >= 2)
-    glEnable(GL_CLIP_DISTANCE1);  
-  else
-    glDisable(GL_CLIP_PLANE1);
-
   if(_pd->useDepthPeeling && !_pd->isSelectionPass)
   {
     qglWidget()->makeCurrent();

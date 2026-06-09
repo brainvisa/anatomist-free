@@ -68,9 +68,6 @@ RenderContext::~RenderContext()
 
 bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & objs, RenderMode mode, anatomist::ViewState::glSelectRenderMode selectmode )
 {
-    setupClippingPlanes();
-
-
   bool success = false;
   d->glwman->qglWidget()->makeCurrent();
 
@@ -88,10 +85,9 @@ bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & o
   {
     d->permanentPrimitives.clear();
     d->temporaryPrimitives.clear();
-
-    
     
     d->currentPrimitives = &d->permanentPrimitives;
+    setupClippingPlanes();
     setupOpenGLState();
     success |= renderObjects(objs, RenderMode::PermanentOnly, selectmode);
 
@@ -109,6 +105,7 @@ bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & o
       d->temporaryPrimitives.clear();
 
       d->currentPrimitives = &d->temporaryPrimitives;
+     setupClippingPlanes();
       setupOpenGLState();
       success |= renderObjects(objs, RenderMode::TemporaryOnly, selectmode);
     }
@@ -118,6 +115,7 @@ bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & o
     d->selectionPrimitives.clear();
 
     d->currentPrimitives = &d->selectionPrimitives;
+   setupClippingPlanes();
     setupSelectionOpenGLState();
     success |= renderObjects(objs, RenderMode::Selection, selectmode);
     resetSelectionOpenGLState();
@@ -230,7 +228,8 @@ bool RenderContext::renderObject(std::unordered_map<std::string, std::vector<car
       {
         if(i==0)
           d->currentPrimitives->push_back(carto::rc_ptr<GLItem>(new GLSceneUniforms(module, d->currentProgram, d->glwman)));
-        d->currentPrimitives->push_back(carto::rc_ptr<GLItem>(new GLObjectUniforms(module, d->currentProgram, glObj)));
+        d->currentPrimitives->push_back(carto::rc_ptr<GLItem>(new GLObjectUniforms(module, d->currentProgram, obj.get())));
+        std::cout << "object address: " << obj.get() << std::endl;
       }
 
       success |= updateObject(obj, 0, selectmode);
@@ -272,7 +271,7 @@ void RenderContext::shaderBuilding(std::unordered_map<std::string, std::vector<c
   {
     if(d->programs[shader].isNull())
     {
-      d->programs[shader] = d->shaderBuilder.initShader(shader, "main.vs.glsl", "main.fs.glsl", "main.gs.glsl");
+      d->programs[shader] = d->shaderBuilder.initShader(shader, "main.vs.glsl", "main.fs.glsl");
     }
   }
 
@@ -280,7 +279,7 @@ void RenderContext::shaderBuilding(std::unordered_map<std::string, std::vector<c
   {
     if(d->programs[shader].isNull())
     {
-      d->programs[shader] = d->shaderBuilder.initShader(shader, "main.vs.glsl", "main.fs.glsl", "main.gs.glsl");
+      d->programs[shader] = d->shaderBuilder.initShader(shader, "main.vs.glsl", "main.fs.glsl");
     }
   }
 }

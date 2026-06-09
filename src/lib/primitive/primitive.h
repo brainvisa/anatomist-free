@@ -36,6 +36,7 @@
 #define ANATOMIST_PRIMITIVE_PRIMITIVE_H
 
 #include <cartobase/smart/rcobject.h>
+#include <cartobase/smart/sharedptr.h>
 #include <QOpenGLShaderProgram>
 #include <anatomist/surface/IShaderModule.h>
 #include <list>
@@ -47,7 +48,7 @@ namespace anatomist
   class GLWidgetManager;
   class GLComponent;
   class ViewState;
-
+  class AObject;
 
   /** OpenGL item (display list, texture, ...) with reference counter and 
       cleanup upon destruction */
@@ -226,7 +227,7 @@ namespace anatomist
       std::vector<int> textureDim;
     };
 
-    GLObjectUniforms(carto::rc_ptr<IShaderModule> shaderModule, carto::rc_ptr<QOpenGLShaderProgram> glShader, GLComponent* glObj) : GLItem(),_module(shaderModule), _shader(glShader), _glObj(glObj) {}
+  GLObjectUniforms(carto::rc_ptr<IShaderModule> shaderModule, carto::rc_ptr<QOpenGLShaderProgram> glShader, AObject* obj);
     virtual ~GLObjectUniforms();
     virtual void callList() const;
     virtual void getUniformsLocations(UniformsLocations & locations) const;
@@ -235,6 +236,7 @@ namespace anatomist
   private:
     carto::rc_ptr<IShaderModule> _module;
     carto::rc_ptr<QOpenGLShaderProgram> _shader;
+    AObject* _obj;
     GLComponent* _glObj;
   };
 

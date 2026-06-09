@@ -453,6 +453,12 @@ void GLSceneUniforms::callList() const
       return;
     }
 
+
+  GLint isSelectionPassLoc = _shader->uniformLocation("u_isSelectionPass");
+  if(isSelectionPassLoc >= 0)
+  {
+    _shader->setUniformValue(isSelectionPassLoc, _scene->isSelectionPass());
+  }
   GLint activeClipPlanesLoc = _shader->uniformLocation("u_activeClipPlanes");
   if(activeClipPlanesLoc >= 0)
   {
@@ -504,6 +510,12 @@ void GLSceneUniforms::callList() const
     
 }
 
+GLObjectUniforms::GLObjectUniforms(carto::rc_ptr<IShaderModule> shaderModule, carto::rc_ptr<QOpenGLShaderProgram> glShader, AObject* obj) : GLItem(),_module(shaderModule), _shader(glShader), _obj(obj)
+{
+  _glObj = obj->glAPI();
+}
+
+
 GLObjectUniforms::~GLObjectUniforms()
 {
   // do nothing
@@ -511,7 +523,7 @@ GLObjectUniforms::~GLObjectUniforms()
 
 void GLObjectUniforms::callList() const
 {
-  if(!_shader || !_glObj)
+  if(!_shader || !_obj)
   {
     std::cerr << "GLObjectUniforms::callList() No shader or GL object !" << std::endl;
     return;
@@ -522,6 +534,9 @@ void GLObjectUniforms::callList() const
       std::cerr << "GLObjectUniforms::callList() No current GL context !" << std::endl;
       return;
   }
+
+  _obj->objectUniforms(_shader);
+
   ViewState vs; // jordan - how to pass viewstate?
   const unsigned maxSamplers = 8;
 
