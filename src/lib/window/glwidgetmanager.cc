@@ -461,6 +461,7 @@ void GLWidgetManager::paintGL()
   // cout << "GLWidgetManager::paintGL\n";
 #if ANA_USE_QOPENGLWIDGET
   // needed only using offscreen rendering, I don't know why.
+  // cout << "invalidating Z buffer.\n";
   _pd->zbufready = false;
 #else
   _pd->zbufready = true;
@@ -521,6 +522,7 @@ void GLWidgetManager::updateZBuffer()
   stopZBufferTimer();
   if( isZBufferUpToDate() )
     return;
+  // cout << "updateZBuffer\n";
   // render the Z buffer without ghost objects
   _pd->glwidget->makeCurrent();
   paintGL( ZSelect );
@@ -674,6 +676,8 @@ void GLWidgetManager::paintGL( DrawMode m, int virtualWidth,
     height = virtualHeight;
 
   _pd->cameraChanged = false;
+
+  bindOtherFramebuffer( m );
 
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
