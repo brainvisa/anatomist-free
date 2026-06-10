@@ -245,7 +245,13 @@ bool ClippedObject::render( PrimList & prim, RenderContext & rc )
   for( auto it = begin(); it != end(); ++it )
       subObjects.push_back( rc_ptr<AObject>( *it ) );
 
-  const bool hasRendered = rc.renderObjects( subObjects );
+  RenderMode rcmode = RenderMode::Full;
+  if( rc.getViewState().selectRenderMode != ViewState::glSELECTRENDER_NONE )
+    rcmode = RenderMode::Selection;
+
+  const bool hasRendered = rc.renderObjects( subObjects,
+                              rcmode,
+                              rc.getViewState().selectRenderMode );
 
   if( hasRendered )
   {
