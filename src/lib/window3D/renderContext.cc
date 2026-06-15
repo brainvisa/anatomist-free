@@ -400,7 +400,7 @@ void RenderContext::setupOpenGLState()
 
   glNewList(renderGLL, GL_COMPILE);
   glLineWidth(1);
-  d->window->flatShading() ? glShadeModel(GL_FLAT) : glShadeModel(GL_SMOOTH); //jordan : might be deleted ?
+  d->glwman->setFlatShading(d->window->flatShading());
   d->window->cullingEnabled() ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE);
   if(d->window->smoothing())
   {

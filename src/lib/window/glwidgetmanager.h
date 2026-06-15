@@ -145,6 +145,9 @@ namespace anatomist
     void setSelectionPass( bool x );
     bool isSelectionPass() const;
 
+    void setFlatShading( bool x );
+    bool isFlatShading() const;
+
     void clearLists();
     /** set objects extrema, this also automatically sets the window bounding 
         box */

@@ -73,7 +73,7 @@ BlinnPhongMaterial BlinnPhong(vec3 normal)
 
 std::string BlinnPhongIlluminationModel::getFunctionCall() const
 {
-  return R"(BlinnPhongMaterial blinnPhong = BlinnPhong(v_normal);
+  return R"(BlinnPhongMaterial blinnPhong = BlinnPhong(normal);
   vec3 ambientTerm = blinnPhong.ambient.rgb;
   vec3 diffuseTerm = color.rgb * blinnPhong.diffuse.rgb;
   vec3 specularTerm = blinnPhong.specular.rgb;

@@ -240,6 +240,7 @@ struct GLWidgetManager::Private
   GLuint fullScreenQuadList;
   int depthPeelingUnitTexture;
   ClipPlaneState clipState;
+  bool isFlatShading;
 
 
 #ifdef ANA_USE_QOPENGLWIDGET
@@ -270,7 +271,8 @@ GLWidgetManager::Private::Private()
     qobject( 0 ),
     transparentBackground( true ), backgroundAlpha( 128 ),
     mouseX( 0 ), mouseY( 0 ), resized(false), saveInProgress( false ),
-    cameraChanged( true ), recordWidth( 0 ), recordHeight( 0 ), useDepthPeeling(false), nbLayers(8), currentLayer(0), fullScreenQuadList(0), depthPeelingUnitTexture(7), isSelectionPass(false)
+    cameraChanged( true ), recordWidth( 0 ), recordHeight( 0 ), useDepthPeeling(false), nbLayers(8),
+    currentLayer(0), fullScreenQuadList(0), depthPeelingUnitTexture(7), isSelectionPass(false), isFlatShading(false)
 #ifdef ANA_USE_QOPENGLWIDGET
     ,
     z_framebuffer( 0 ), z_renderbuffer( 0 ),
@@ -1126,6 +1128,15 @@ bool GLWidgetManager::isSelectionPass() const
   return _pd->isSelectionPass;
 }
 
+void GLWidgetManager::setFlatShading( bool x )
+{
+  _pd->isFlatShading = x;
+}
+
+bool GLWidgetManager::isFlatShading() const
+{
+  return _pd->isFlatShading;
+}
 
 void GLWidgetManager::setExtrema( const Point3df & bmin,
                                   const Point3df & bmax )

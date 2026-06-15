@@ -7,6 +7,7 @@ in VertexData
 {
   vec4 v_color;
   vec3 v_normal;
+  flat vec3 v_normalFlat;
   vec3 v_texcoord[MAX_TEXTURE_UNITS];
   vec4 v_eyeVertexPosition;
   vec3 v_directionLight;
@@ -17,6 +18,7 @@ out VertexData
 {
   vec4 v_color;
   vec3 v_normal;
+  flat vec3 v_normalFlat;
   vec3 v_texcoord[MAX_TEXTURE_UNITS];
   vec4 v_eyeVertexPosition;
   vec3 v_directionLight;
@@ -35,6 +37,7 @@ void emitFull(int s, float zoneVal)
   gl_ClipDistance[2]  = gl_in[s].gl_ClipDistance[2];
   v_color             = gs_in[s].v_color;
   v_normal            = gs_in[s].v_normal;
+  v_normalFlat        = v_normal;
   v_eyeVertexPosition = gs_in[s].v_eyeVertexPosition;
   v_directionLight    = gs_in[s].v_directionLight;
   for(int t = 0; t < MAX_TEXTURE_UNITS; ++t)
@@ -52,6 +55,7 @@ void emitMid(int i, int j, float zoneVal)
   gl_ClipDistance[2]  = 0.5 * (gl_in[i].gl_ClipDistance[2] + gl_in[j].gl_ClipDistance[2]);
   v_color = 0.5 * (gs_in[i].v_color + gs_in[j].v_color);
   v_normal = normalize(gs_in[i].v_normal + gs_in[j].v_normal);
+  v_normalFlat = v_normal;
   v_eyeVertexPosition = 0.5 * (gs_in[i].v_eyeVertexPosition + gs_in[j].v_eyeVertexPosition);
   v_directionLight = gs_in[0].v_directionLight;
   for(int t = 0; t < MAX_TEXTURE_UNITS; ++t)
@@ -69,6 +73,7 @@ void emitCenter(float zoneVal)
   gl_ClipDistance[2] = (gl_in[0].gl_ClipDistance[2] + gl_in[1].gl_ClipDistance[2] + gl_in[2].gl_ClipDistance[2]) / 3.0;
   v_color = (gs_in[0].v_color + gs_in[1].v_color + gs_in[2].v_color) / 3.0;
   v_normal = normalize(gs_in[0].v_normal + gs_in[1].v_normal + gs_in[2].v_normal);
+  v_normalFlat = v_normal;
   v_eyeVertexPosition = (gs_in[0].v_eyeVertexPosition + gs_in[1].v_eyeVertexPosition + gs_in[2].v_eyeVertexPosition) / 3.0;
   v_directionLight = gs_in[0].v_directionLight;
   for(int t = 0; t < MAX_TEXTURE_UNITS; ++t)

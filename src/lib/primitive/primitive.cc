@@ -500,6 +500,12 @@ void GLSceneUniforms::callList() const
       _shader->setUniformValue(clipPlane1Loc, planeEye);
   }
 
+  GLint flatShadingLoc = _shader->uniformLocation("u_flatShading");
+  if(flatShadingLoc >= 0)
+  {
+    _shader->setUniformValue(flatShadingLoc, _scene->isFlatShading());
+  }
+
   if(_module)
     _module->setupSceneUniforms(*_shader, *_scene);
   GLenum status = glGetError();

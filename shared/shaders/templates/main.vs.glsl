@@ -9,6 +9,7 @@ uniform vec4  u_clipPlane2;
 out VertexData {
     vec4 v_color;
     vec3 v_normal;
+    flat vec3 v_normalFlat;
     vec3 v_texcoord[MAX_TEXTURE_UNITS];
     vec4 v_eyeVertexPosition;
     vec3 v_directionLight;
@@ -24,6 +25,7 @@ void main()
     vec4 normal = vec4(0., 0., 0., 0.);
     normal.xyz = gl_Normal;
     v_normal = normalize((gl_ModelViewMatrix * normal).xyz);
+    v_normalFlat = v_normal;
     v_color = gl_Color;
     v_texcoord[0] = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xyz;
     v_texcoord[1] = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xyz;

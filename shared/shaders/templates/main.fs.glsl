@@ -3,6 +3,7 @@
 in VertexData {
     vec4 v_color;
     vec3 v_normal;
+    flat vec3 v_normalFlat;
     vec3 v_texcoord[MAX_TEXTURE_UNITS];
     vec4 v_eyeVertexPosition;
     vec3 v_directionLight;
@@ -10,6 +11,7 @@ in VertexData {
 
 uniform bool u_hasTexture;
 uniform bool u_isSelectionPass;
+uniform bool u_flatShading;
 
 uniform sampler1D u_texture1D[MAX_TEXTURE_UNITS];
 uniform int u_nbTexture1D;
@@ -231,6 +233,8 @@ void main()
     fragColor = vec4(v_color.rgb, 1.0);
     return;
   }
+
+  vec3 normal = u_flatShading ? v_normalFlat : v_normal;
   vec4 color = basicColor();
   {Illumination Model Call}
   {Effect Call}
