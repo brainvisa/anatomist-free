@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.0.15] 2026-06-16
+
+### Changed
+
+- fixed crash in volume rendering from a Fusion 2D
+
+
 ## [6.0.14] 2026-05-21
 
 - internal improvements in ana_atlas_nonlin and fixes
@@ -18,7 +25,7 @@
 - new method in pyanatomist to check if the application exists
 - ana_demo doesn't download data if they are already installed
 
-# Changed
+### Changed
 
 
 ## [6.0.9] 2026-02-27
