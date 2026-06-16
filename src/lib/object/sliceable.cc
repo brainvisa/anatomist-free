@@ -699,9 +699,9 @@ VolumeRef<AimsRGBA> Sliceable::rgbaVolume( const SliceViewState* svs,
     vvs[2] = vs[2];
     Point4dl dmm = svs->wingeom->DimMin();
     Point4dl	dm = svs->wingeom->DimMax() - dmm;
-    dims[0] = int( rint( dm[0] / vvs[0] ) );
-    dims[1] = int( rint( dm[1] / vvs[1] ) );
-    dims[2] = int( rint( dm[2] / vvs[2] ) );
+    dims[0] = dm[0] + 1;
+    dims[1] = dm[1] + 1;
+    dims[2] = dm[2] + 1;
     dmin = Point3df( dmm[0], dmm[1], dmm[2] );
   }
   else
@@ -712,10 +712,10 @@ VolumeRef<AimsRGBA> Sliceable::rgbaVolume( const SliceViewState* svs,
     Point3df max2d = Point3df( dmax2d[0], dmax2d[1], dmax2d[2] )
       - Point3df( dmm[0], dmm[1], dmm[2] ) + Point3df( 1.F );
     vvs = glVoxelSize();
-    dims = Point3dl( (int) rint( max2d[0] / vvs[0] ),
-                     (int) rint( max2d[1] / vvs[1] ),
-                     (int) rint( max2d[2] / vvs[2] ) );
-    dmin = Point3df( dmm[0] / vvs[0], dmm[1] / vvs[1], dmm[2] / vvs[2] );
+    dims = Point3dl( (int) ceil( max2d[0] ),
+                     (int) ceil( max2d[1] ),
+                     (int) ceil( max2d[2] ) );
+    dmin = Point3df( dmm[0], dmm[1], dmm[2] );
   }
 
   VolumeRef<AimsRGBA> vol( new Volume<AimsRGBA>( dims[0], dims[1], dims[2] ) );
@@ -898,6 +898,10 @@ vector<float> SliceableObject::glMin2D() const
 {
   vector<float> bmin, bmax;
   boundingBox2D( bmin, bmax );
+  vector<float> vs = glVoxelSize();
+  vector<float>::iterator i, j;
+  for( i=bmin.begin(), j=vs.begin(); i!=bmin.end() && j!=vs.end(); ++i, ++j )
+    *i = floor( *i / *j  + 0.5 );
   return bmin;
 }
 
@@ -906,6 +910,10 @@ vector<float> SliceableObject::glMax2D() const
 {
   vector<float> bmin, bmax;
   boundingBox2D( bmin, bmax );
+  vector<float> vs = glVoxelSize();
+  vector<float>::iterator i, j;
+  for( i=bmax.begin(), j=vs.begin(); i!=bmax.end() && j!=vs.end(); ++i, ++j )
+    *i = ceil( *i / *j  - 0.5 );
   return bmax;
 }
 

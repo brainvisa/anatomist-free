@@ -404,9 +404,9 @@ namespace
     glpixtype<AimsRGBA>( p );
     vector<float> vmax = avol->glMax2D();
     vector<float> vs = avol->glVoxelSize();
-    Point3df max = Point3df( ceil( vmax[0] / vs[0] ),
-                             ceil( vmax[1] / vs[1] ),
-                             ceil( vmax[2] / vs[2] ) ) + Point3df( 1.F );
+    Point3df max = Point3df( ceil( vmax[0] ),
+                             ceil( vmax[1] ),
+                             ceil( vmax[2] ) ) + Point3df( 1.F );
     p.dimx = (unsigned) rint( max[0] );
     p.dimy = (unsigned) rint( max[1] );
     p.dimz = (unsigned) rint( max[2] );
@@ -430,7 +430,8 @@ namespace
     Quaternion q( 0.F, 0.F, 0.F, 1.F );
     vector<float> vox = avol->glVoxelSize();
     Geometry geom( Point3df( vox[0], vox[1], vox[2] ), Point4dl( 0, 0, 0, 0 ),
-                   Point4dl( d->texdimx, d->texdimy, d->texdimz, 1 ) );
+                   Point4dl( d->texdimx - 1, d->texdimy - 1, d->texdimz - 1,
+                             1 ) );
     SliceViewState vs( td, true, Point3df( 0.F ), &q, avol->getReferential(),
                        &geom );
     VolumeRef<AimsRGBA> vol = avol->rgbaVolume( &vs );
@@ -714,15 +715,18 @@ bool VolRender::checkObject() const
   if( d->dimx == 0 )
     return false;
 
-  d->texdimx = next2pow( d->dimx );
-  d->texdimy = next2pow( d->dimy );
-  d->texdimz = next2pow( d->dimz );
+  // d->texdimx = next2pow( d->dimx );
+  // d->texdimy = next2pow( d->dimy );
+  // d->texdimz = next2pow( d->dimz );
+  d->texdimz = d->dimz;
+  d->texdimx = d->dimx;
+  d->texdimy = d->dimy;
   d->xscalefac = 1;
   d->yscalefac = 1;
   d->zscalefac = 1;
-  /* cout << "vol dims: " << Point3dl( d->dimx, d->dimy, d->dimz ) << endl;
-  cout << "tex dim : " << Point3dl( d->texdimx, d->texdimy,  d->texdimz)
-      << endl; */
+  // cout << "vol dims: " << Point3dl( d->dimx, d->dimy, d->dimz ) << endl;
+  // cout << "tex dim : " << Point3dl( d->texdimx, d->texdimy,  d->texdimz)
+  //      << endl;
   return true;
 }
 
