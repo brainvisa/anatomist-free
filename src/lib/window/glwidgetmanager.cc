@@ -241,6 +241,8 @@ struct GLWidgetManager::Private
   int depthPeelingUnitTexture;
   ClipPlaneState clipState;
   bool isFlatShading;
+  bool isOutlinedRendering;
+  bool uniformOutlinedRendering;
 
 
 #ifdef ANA_USE_QOPENGLWIDGET
@@ -272,7 +274,7 @@ GLWidgetManager::Private::Private()
     transparentBackground( true ), backgroundAlpha( 128 ),
     mouseX( 0 ), mouseY( 0 ), resized(false), saveInProgress( false ),
     cameraChanged( true ), recordWidth( 0 ), recordHeight( 0 ), useDepthPeeling(false), nbLayers(8),
-    currentLayer(0), fullScreenQuadList(0), depthPeelingUnitTexture(7), isSelectionPass(false), isFlatShading(false)
+    currentLayer(0), fullScreenQuadList(0), depthPeelingUnitTexture(7), isSelectionPass(false), isFlatShading(false), isOutlinedRendering(false), uniformOutlinedRendering(false)
 #ifdef ANA_USE_QOPENGLWIDGET
     ,
     z_framebuffer( 0 ), z_renderbuffer( 0 ),
@@ -764,10 +766,31 @@ void GLWidgetManager::paintGL( DrawMode m, int virtualWidth,
   /*if (_frameOn)
     glCallList(_3DGuide->GetFrameGLList());*/
 
-  anatomist::GLPrimitives drawPrimitives = _permanentprimitives;
-  drawPrimitives.insert( drawPrimitives.end(), _tempprimitives.begin(), _tempprimitives.end() );
+  anatomist::GLPrimitives drawPrimitives;
+  
+  if(!_pd->isOutlinedRendering)
+  {
+    drawPrimitives = _permanentprimitives;
+    drawPrimitives.insert( drawPrimitives.end(), _tempprimitives.begin(), _tempprimitives.end() );
+    drawObjects( m, &drawPrimitives );
+  }
+  else
+  {
+    drawPrimitives.insert(drawPrimitives.end(), _permanentprimitives.begin(), next(_permanentprimitives.begin(), _permanentprimitives.size() / 2));
+    drawPrimitives.insert( drawPrimitives.end(), _tempprimitives.begin(), _tempprimitives.end() );
+    setUniformOutlinedRendering(false);
+    drawObjects( m, &drawPrimitives );
 
-  drawObjects( m, &drawPrimitives );
+    drawPrimitives.clear();
+
+    auto secondHalf = std::next(_permanentprimitives.begin(), _permanentprimitives.size() / 2)++;
+    drawPrimitives.insert(drawPrimitives.end(), secondHalf, _permanentprimitives.end());
+    setUniformOutlinedRendering(true);
+    drawObjects( m, &drawPrimitives );
+
+    setUniformOutlinedRendering(false);
+  }
+
 
   glPopAttrib();
   glMatrixMode( GL_PROJECTION );
@@ -1136,6 +1159,21 @@ void GLWidgetManager::setFlatShading( bool x )
 bool GLWidgetManager::isFlatShading() const
 {
   return _pd->isFlatShading;
+}
+
+bool GLWidgetManager::isOutlinedRendering() const
+{
+  return _pd->uniformOutlinedRendering;
+}
+
+void GLWidgetManager::setOutlinedRendering( bool x )
+{
+  _pd->isOutlinedRendering = x;
+}
+
+void GLWidgetManager::setUniformOutlinedRendering( bool x )
+{
+  _pd->uniformOutlinedRendering = x;
 }
 
 void GLWidgetManager::setExtrema( const Point3df & bmin,

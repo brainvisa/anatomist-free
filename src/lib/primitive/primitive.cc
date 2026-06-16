@@ -506,6 +506,12 @@ void GLSceneUniforms::callList() const
     _shader->setUniformValue(flatShadingLoc, _scene->isFlatShading());
   }
 
+  GLint outlinedRenderingLoc = _shader->uniformLocation("u_isOutlinedRendering");
+  if(outlinedRenderingLoc >= 0)
+  {
+    _shader->setUniformValue(outlinedRenderingLoc, _scene->isOutlinedRendering());
+  }
+
   if(_module)
     _module->setupSceneUniforms(*_shader, *_scene);
   GLenum status = glGetError();

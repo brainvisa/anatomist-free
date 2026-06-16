@@ -87,14 +87,17 @@ bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & o
     d->temporaryPrimitives.clear();
     
     d->currentPrimitives = &d->permanentPrimitives;
-    setupClippingPlanes();
+    d->glwman->setOutlinedRendering(false);
     setupOpenGLState();
+    setupClippingPlanes();
+
     success |= renderObjects(objs, RenderMode::PermanentOnly, selectmode);
+
+    doubleRender();
 
     if(hasTemporary)
     {
       d->currentPrimitives = &d->temporaryPrimitives;
-      setupOpenGLState();
       success |= renderObjects(objs, RenderMode::TemporaryOnly, selectmode);
     }
   }
@@ -105,8 +108,9 @@ bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & o
       d->temporaryPrimitives.clear();
 
       d->currentPrimitives = &d->temporaryPrimitives;
-     setupClippingPlanes();
       setupOpenGLState();
+      setupClippingPlanes();
+
       success |= renderObjects(objs, RenderMode::TemporaryOnly, selectmode);
     }
   }
@@ -115,8 +119,9 @@ bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & o
     d->selectionPrimitives.clear();
 
     d->currentPrimitives = &d->selectionPrimitives;
-   setupClippingPlanes();
     setupSelectionOpenGLState();
+    setupClippingPlanes();
+
     success |= renderObjects(objs, RenderMode::Selection, selectmode);
     resetSelectionOpenGLState();
     d->glwman->setSelectionPrimitives(d->selectionPrimitives);
@@ -329,7 +334,6 @@ void RenderContext::postTransparentRenderingSetup()
     return;
   }
   glNewList( renderGLL, GL_COMPILE );
-  glDisable( GL_BLEND );
   glDepthMask(GL_TRUE);
   glEndList();
   d->currentPrimitives->push_back(RefGLItem(renderpr));
@@ -534,7 +538,8 @@ void RenderContext::setViewState(carto::rc_ptr<ViewState> vs)
   d->vs = vs;
 }
 
-void RenderContext::finalizeRendering()
+
+void RenderContext::doubleRender()
 {
   Primitive* renderoffpr = nullptr;
   bool rendertwice = false;
@@ -548,6 +553,7 @@ void RenderContext::finalizeRendering()
     case Material::Outlined:
       renderoffpr = setupOutlinedMode();
       rendertwice = renderoffpr != nullptr;
+      d->glwman->setOutlinedRendering(true);
       break;
     default:
       break;
@@ -562,7 +568,10 @@ void RenderContext::finalizeRendering()
   {
     duplicateRenderPrimitives();
   }
+}
 
+void RenderContext::finalizeRendering()
+{
   if(d->window->light())
   {
     d->glwman->setLightGLList(d->window->light()->getGLList());
@@ -621,9 +630,9 @@ void RenderContext::duplicateRenderPrimitives()
 {
   if(d->currentPrimitives->size() < 1)
     return;
-  unsigned i, n = d->currentPrimitives->size() - 1;
+  unsigned i, n = d->currentPrimitives->size();
   PrimList::iterator ip = d->currentPrimitives->begin();
-  for (++ip, i = 0; i < n; ++i, ++ip)
+  for (ip++, i = 0; i < n; ++i, ++ip)
       d->currentPrimitives->push_back(*ip);
 }
 

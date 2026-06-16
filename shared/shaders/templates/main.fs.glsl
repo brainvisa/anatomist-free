@@ -12,6 +12,7 @@ in VertexData {
 uniform bool u_hasTexture;
 uniform bool u_isSelectionPass;
 uniform bool u_flatShading;
+uniform bool u_isOutlinedRendering;
 
 uniform sampler1D u_texture1D[MAX_TEXTURE_UNITS];
 uniform int u_nbTexture1D;
@@ -233,9 +234,9 @@ void main()
     fragColor = vec4(v_color.rgb, 1.0);
     return;
   }
-
+  vec4 outlineColor = vec4(0.0, 0.0, 0.0, 1.0); //could be better than black
   vec3 normal = u_flatShading ? v_normalFlat : v_normal;
-  vec4 color = basicColor();
+  vec4 color = u_isOutlinedRendering ? outlineColor : basicColor();
   {Illumination Model Call}
   {Effect Call}
   fragColor = color;

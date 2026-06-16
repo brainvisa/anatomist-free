@@ -147,6 +147,8 @@ namespace anatomist
 
     void setFlatShading( bool x );
     bool isFlatShading() const;
+    void setOutlinedRendering( bool x );
+    bool isOutlinedRendering() const;
 
     void clearLists();
     /** set objects extrema, this also automatically sets the window bounding 
@@ -293,6 +295,10 @@ namespace anatomist
     void stopZBufferTimer();
     bool isRGBBufferUpToDate() const;
     void setRGBBufferUpdated( bool );
+
+    void setUniformOutlinedRendering( bool x );
+    
+
 
   private:
     Private *_pd;

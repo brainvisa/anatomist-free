@@ -184,6 +184,7 @@ namespace anatomist
       void setupOpenGLState();
       void setupSelectionOpenGLState();
       void resetSelectionOpenGLState();
+      void doubleRender();
       anatomist::Primitive* setupHiddenWireframeMode();
       anatomist::Primitive* setupOutlinedMode();
       void duplicateRenderPrimitives();
