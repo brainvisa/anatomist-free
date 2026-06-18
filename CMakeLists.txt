@@ -35,6 +35,9 @@ elseif( DESIRED_QT_VERSION EQUAL 5 )
 elseif( DESIRED_QT_VERSION EQUAL 6 )
   find_package( Qt6 REQUIRED COMPONENTS Widgets OpenGL OpenGLWidgets Network
                 Multimedia WebEngineWidgets )
+  # Workaround a strang bug where a very strange string is insterted in Qt6WebEngineWidgets_DEFINITIONS
+  string(REGEX REPLACE "\\$<\\$.*QT_QML_DEBUG>;" "" Qt6WebEngineWidgets_DEFINITIONS "${Qt6WebEngineWidgets_DEFINITIONS}")
+  
   add_definitions( ${Qt6Core_DEFINITIONS} ${Qt6Widgets_DEFINITIONS}
                    ${Qt6OpenGL_DEFINITIONS} ${Qt6OpenGLWidgets_DEFINITIONS}
                    ${Qt6Network_DEFINITIONS} ${Qt6Multimedia_DEFINITIONS}
@@ -189,7 +192,6 @@ BRAINVISA_GENERATE_SPHINX_DOC( "sphinxman"
   "share/doc/anatomist-${BRAINVISA_PACKAGE_VERSION_MAJOR}.${BRAINVISA_PACKAGE_VERSION_MINOR}/user_doc" USER )
 BRAINVISA_GENERATE_SPHINX_DOC( "sphinxdev"
   "share/doc/anatomist-${BRAINVISA_PACKAGE_VERSION_MAJOR}.${BRAINVISA_PACKAGE_VERSION_MINOR}/dev_doc" )
-
 
 BRAINVISA_CREATE_CMAKE_CONFIG_FILES()
 

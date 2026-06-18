@@ -1,37 +1,3 @@
-/* This software and supporting documentation are distributed by
- *     Institut Federatif de Recherche 49
- *     CEA/NeuroSpin, Batiment 145,
- *     91191 Gif-sur-Yvette cedex
- *     France
- *
- * This software is governed by the CeCILL-B license under
- * French law and abiding by the rules of distribution of free software.
- * You can  use, modify and/or redistribute the software under the
- * terms of the CeCILL-B license as circulated by CEA, CNRS
- * and INRIA at the following URL "http://www.cecill.info".
- *
- * As a counterpart to the access to the source code and  rights to copy,
- * modify and redistribute granted by the license, users are provided only
- * with a limited warranty  and the software's author,  the holder of the
- * economic rights,  and the successive licensors  have only  limited
- * liability.
- *
- * In this respect, the user's attention is drawn to the risks associated
- * with loading,  using,  modifying and/or developing or reproducing the
- * software by the user in light of its specific status of free software,
- * that may mean  that it is complicated to manipulate,  and  that  also
- * therefore means  that it is reserved for developers  and  experienced
- * professionals having in-depth computer knowledge. Users are therefore
- * encouraged to load and test the software's suitability as regards their
- * requirements in conditions enabling the security of their systems and/or
- * data to be ensured and,  more generally, to use and operate it in the
- * same conditions as regards security.
- *
- * The fact that you are presently reading this means that you have had
- * knowledge of the CeCILL-B license and that you accept its terms.
- */
-
-
 #include <cstdlib>
 #include <cartobase/stream/fileutil.h>
 #include <anatomist/action/roimanagementaction.h>
@@ -283,10 +249,10 @@ RoiManagementActionView::RoiManagementActionView( RoiManagementAction * action,
   lay1->addWidget( _private->myMainMenu );
 
   _private->mySessionMenu->addAction(
-    tr("New"), this, SLOT( newGraph() ), Qt::CTRL + Qt::ALT + Qt::Key_N );
+    tr("New"), this, SLOT( newGraph() ), Qt::CTRL | Qt::ALT | Qt::Key_N );
 
   _private->mySessionMenu->addAction(
-    tr("Open"), this, SLOT( loadGraph() ), Qt::CTRL + Qt::Key_O );
+    tr("Open"), this, SLOT( loadGraph() ), Qt::CTRL | Qt::Key_O );
 
 //   _private->mySessionMenu->addAction( tr("Reload"), this,
 //                                     SLOT( reloadGraph() ) ) ;
@@ -296,25 +262,25 @@ RoiManagementActionView::RoiManagementActionView( RoiManagementAction * action,
 
   _private->mySessionMenu->addSeparator() ;
   _private->mySaveGraphAction = _private->mySessionMenu->addAction(
-    tr("Save"), this, SLOT( saveGraph() ), Qt::CTRL + Qt::Key_S );
+    tr("Save"), this, SLOT( saveGraph() ), Qt::CTRL | Qt::Key_S );
 
   _private->mySessionMenu->addAction(
     tr("Save As"), this, SLOT( saveGraphAs() ),
-    Qt::CTRL + Qt::SHIFT + Qt::Key_S );
+    Qt::CTRL | Qt::SHIFT | Qt::Key_S );
 
   _private->mySessionMenu->addAction(
     tr("Clean"), this, SLOT( cleanSession() ),
-    Qt::CTRL + Qt::SHIFT + Qt::Key_C );
+    Qt::CTRL | Qt::SHIFT | Qt::Key_C );
 
   _private->mySaveGraphAction->setEnabled(
     _private->myRoiManagementAction->savableGraph() );
 
   _private->myRegionMenu = _private->myMainMenu->addMenu( tr( "Region" ) );
   _private->myRegionMenu->addAction(
-    tr("New"), this, SLOT( newRegion() ), Qt::CTRL + Qt::Key_N );
+    tr("New"), this, SLOT( newRegion() ), Qt::CTRL | Qt::Key_N );
 
   _private->myRegionMenu->addAction(
-    tr("Delete"), this, SLOT( deleteRegion() ), Qt::CTRL + Qt::Key_D );
+    tr("Delete"), this, SLOT( deleteRegion() ), Qt::CTRL | Qt::Key_D );
   _private->myRegionMenu->addAction(
     tr("Fusion"), this, SLOT( regionsFusion() ) );
 
@@ -322,7 +288,7 @@ RoiManagementActionView::RoiManagementActionView( RoiManagementAction * action,
   _private->myRegionMenu->addAction(
     tr("Export as mask"), this, SLOT( exportAsMask() ) );
   _private->myRegionMenu->addAction(
-    tr("Morpho Stats"), this, SLOT( regionStats() ), Qt::CTRL + Qt::Key_M );
+    tr("Morpho Stats"), this, SLOT( regionStats() ), Qt::CTRL | Qt::Key_M );
 
   _private->myFrameWorkMenu
     = _private->myMainMenu->addMenu( tr( "FrameWork" ) );
@@ -1193,7 +1159,7 @@ RoiManagementActionView::modifyFWRegionName()
   nameSetter->setWindowTitle( tr( "Modify Frame Work Region Name" ) );
 
   QVBoxLayout * l = new QVBoxLayout( nameSetter );
-  l->setMargin( 5 );
+  l->setContentsMargins( 5, 5, 5, 5 );
   l->setSpacing( 5 );
   QLineEdit * lineEdition = 0 ;
   QComboBox * selectRegionName = 0;
