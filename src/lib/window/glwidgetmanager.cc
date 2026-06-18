@@ -243,6 +243,7 @@ struct GLWidgetManager::Private
   bool isFlatShading;
   bool isOutlinedRendering;
   bool uniformOutlinedRendering;
+  FogParameters fogParameters;
 
 
 #ifdef ANA_USE_QOPENGLWIDGET
@@ -2880,6 +2881,15 @@ void GLWidgetManager::setClipState( const ClipPlaneState& state )
   _pd->clipState = state;
 }
 
+FogParameters& GLWidgetManager::fogParameters() const
+{
+  return _pd->fogParameters;
+}
+
+void GLWidgetManager::setFogParameters( const FogParameters& params )
+{
+  _pd->fogParameters = params;
+}
 
 
 void GLWidgetManager::texToPng()

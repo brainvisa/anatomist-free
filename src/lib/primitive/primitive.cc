@@ -512,6 +512,27 @@ void GLSceneUniforms::callList() const
     _shader->setUniformValue(outlinedRenderingLoc, _scene->isOutlinedRendering());
   }
 
+  GLint hasFogLoc = _shader->uniformLocation("u_hasFog");
+  if(hasFogLoc >= 0)
+  {
+    bool hasFog = _scene->fogParameters().hasFog;
+    _shader->setUniformValue(hasFogLoc, hasFog);
+    if(hasFog)
+    {
+      GLint fogDensityLoc = _shader->uniformLocation("u_fogDensity");
+      if(fogDensityLoc >= 0)
+        _shader->setUniformValue(fogDensityLoc, _scene->fogParameters().fogDensity);
+      GLint fogColorLoc = _shader->uniformLocation("u_fogColor");
+      if(fogColorLoc >= 0)
+        _shader->setUniformValue(fogColorLoc, QVector4D(
+          _scene->fogParameters().fogColor[0],
+          _scene->fogParameters().fogColor[1],
+          _scene->fogParameters().fogColor[2],
+          _scene->fogParameters().fogColor[3]
+        ));
+    }
+  }
+
   if(_module)
     _module->setupSceneUniforms(*_shader, *_scene);
   GLenum status = glGetError();

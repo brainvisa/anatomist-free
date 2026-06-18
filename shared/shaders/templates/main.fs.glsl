@@ -14,6 +14,10 @@ uniform bool u_isSelectionPass;
 uniform bool u_flatShading;
 uniform bool u_isOutlinedRendering;
 
+uniform bool u_hasFog;
+uniform float u_fogDensity;
+uniform vec4 u_fogColor;
+
 uniform sampler1D u_texture1D[MAX_TEXTURE_UNITS];
 uniform int u_nbTexture1D;
 
@@ -239,6 +243,14 @@ void main()
   vec4 color = u_isOutlinedRendering ? outlineColor : basicColor();
   {Illumination Model Call}
   {Effect Call}
+
+  if(u_hasFog)
+  {
+    float dist = length(v_eyeVertexPosition.xyz);
+    float fogFactor = exp(-u_fogDensity * dist);
+    fogFactor = clamp(fogFactor, 0.0, 1.0);
+    color = mix(u_fogColor, color, fogFactor);
+  }
   fragColor = color;
 }
 

@@ -66,11 +66,18 @@ namespace anatomist
     class AGraphicsView;
   }
 
-    struct ClipPlaneState
+  struct ClipPlaneState
   {
     GLdouble plane0[4] = {};
     GLdouble plane1[4] = {};
     int activePlanes = 0;
+  };
+
+  struct FogParameters
+  {
+    bool hasFog = true;
+    float fogDensity = 0.0f;
+    GLfloat fogColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
   };
 
   /** Base class for OpenGL-rendering widget. Actually this is *not* a
@@ -149,6 +156,8 @@ namespace anatomist
     bool isFlatShading() const;
     void setOutlinedRendering( bool x );
     bool isOutlinedRendering() const;
+    FogParameters& fogParameters() const;
+    void setFogParameters( const FogParameters& params );
 
     void clearLists();
     /** set objects extrema, this also automatically sets the window bounding 

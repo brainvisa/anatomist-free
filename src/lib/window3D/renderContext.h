@@ -182,8 +182,6 @@ namespace anatomist
       std::vector<carto::rc_ptr<anatomist::IShaderModule>> getEffectiveShaderModules(const std::string& shaderID);
 
       void setupOpenGLState();
-      void setupSelectionOpenGLState();
-      void resetSelectionOpenGLState();
       void doubleRender();
       anatomist::Primitive* setupHiddenWireframeMode();
       anatomist::Primitive* setupOutlinedMode();

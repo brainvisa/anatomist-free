@@ -119,11 +119,9 @@ bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & o
     d->selectionPrimitives.clear();
 
     d->currentPrimitives = &d->selectionPrimitives;
-    setupSelectionOpenGLState();
     setupClippingPlanes();
 
     success |= renderObjects(objs, RenderMode::Selection, selectmode);
-    resetSelectionOpenGLState();
     d->glwman->setSelectionPrimitives(d->selectionPrimitives);
   }
 
@@ -275,7 +273,7 @@ void RenderContext::shaderBuilding(std::unordered_map<std::string, std::vector<c
   {
     if(d->programs[shader].isNull())
     {
-      d->programs[shader] = d->shaderBuilder.initShader(shader, "main.vs.glsl", "main.fs.glsl");
+      d->programs[shader] = d->shaderBuilder.initShader(shader, "main.vs.glsl", "main.fs.glsl", "main.gs.glsl");
     }
   }
 
@@ -283,7 +281,7 @@ void RenderContext::shaderBuilding(std::unordered_map<std::string, std::vector<c
   {
     if(d->programs[shader].isNull())
     {
-      d->programs[shader] = d->shaderBuilder.initShader(shader, "main.vs.glsl", "main.fs.glsl");
+      d->programs[shader] = d->shaderBuilder.initShader(shader, "main.vs.glsl", "main.fs.glsl", "main.gs.glsl");
     }
   }
 }
@@ -406,7 +404,7 @@ void RenderContext::setupOpenGLState()
   glLineWidth(1);
   d->glwman->setFlatShading(d->window->flatShading());
   d->window->cullingEnabled() ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE);
-  if(d->window->smoothing())
+  if(d->window->smoothing()) // jordan : is it still working like this ?
   {
     glEnable( GL_LINE_SMOOTH);
     glEnable( GL_POLYGON_SMOOTH);
@@ -420,16 +418,18 @@ void RenderContext::setupOpenGLState()
   glEnable( GL_LIGHTING);
   glPolygonOffset(0, 0);
   glDisable( GL_POLYGON_OFFSET_FILL);
-  if (d->window->fog())
+  if (d->window->fog()) // jordan : is it still working like this ? 
   {
-    glEnable( GL_FOG);
-    glFogi(GL_FOG_MODE, GL_EXP);
-    glFogf(GL_FOG_DENSITY, 0.01);
-    glFogfv(GL_FOG_COLOR, d->window->light()->Background());
+    d->glwman->fogParameters().hasFog = true;
+    d->glwman->fogParameters().fogDensity = 0.01; 
+    d->glwman->fogParameters().fogColor[0] = d->window->light()->Background()[0];
+    d->glwman->fogParameters().fogColor[1] = d->window->light()->Background()[1];
+    d->glwman->fogParameters().fogColor[2] = d->window->light()->Background()[2];
+    d->glwman->fogParameters().fogColor[3] = d->window->light()->Background()[3];
   }
   else
   {
-    glDisable( GL_FOG);
+    d->glwman->fogParameters().hasFog = false;
   }
 
   switch (d->window->renderingMode())
@@ -454,76 +454,6 @@ void RenderContext::setupOpenGLState()
       glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
   }
 
-  glEndList();
-  d->currentPrimitives->push_back(RefGLItem(renderpr));
-}
-
-void RenderContext::setupSelectionOpenGLState()
-{
-  GLList *renderpr = new GLList;
-  renderpr->generate();
-  GLuint renderGLL = renderpr->item();
-  if (!renderGLL) AWarning("AWindow3D::Refresh: OpenGL error.");
-
-  glNewList(renderGLL, GL_COMPILE);
-
-  glPushAttrib( GL_ALL_ATTRIB_BITS);
-  glLineWidth(1);
-  glShadeModel( GL_FLAT);
-  glDisable( GL_LINE_SMOOTH);
-  glDisable( GL_POLYGON_SMOOTH);
-  glDisable( GL_LIGHTING);
-  glPolygonOffset(0, 0);
-  glDisable( GL_POLYGON_OFFSET_FILL);
-  glDisable( GL_FOG);
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-  glDisable( GL_BLEND);
-  // clipping planes
-  GLdouble plane[4];
-  Point3df dir = d->window->sliceQuaternion().transformInverse(Point3df(0, 0, -1));
-  plane[0] = dir[0];
-  plane[1] = dir[1];
-  plane[2] = dir[2];
-  plane[3] = -dir.dot(d->window->getPosition()) + d->window->clipDistance();
-  switch (d->window->clipMode())
-  {
-    case AWindow3D::Single:
-      glEnable( GL_CLIP_PLANE0);
-      glDisable( GL_CLIP_PLANE1);
-      glClipPlane(GL_CLIP_PLANE0, plane);
-      // glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
-      break;
-    case AWindow3D::Double:
-      glEnable(GL_CLIP_PLANE0);
-      glEnable(GL_CLIP_PLANE1);
-      glClipPlane(GL_CLIP_PLANE0, plane);
-      plane[0] *= -1;
-      plane[1] *= -1;
-      plane[2] *= -1;
-      plane[3] = dir.dot(d->window->getPosition()) + d->window->clipDistance();
-      glClipPlane(GL_CLIP_PLANE1, plane);
-      // glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
-      break;
-    default:
-      glDisable(GL_CLIP_PLANE0);
-      glDisable(GL_CLIP_PLANE1);
-      // glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE );
-      break;
-  }
-  glEndList();
-  d->currentPrimitives->push_back(RefGLItem(renderpr));
-}
-
-void RenderContext::resetSelectionOpenGLState()
-{
-  GLList *renderpr = new GLList;
-  renderpr->generate();
-  GLuint renderGLL = renderpr->item();
-  if (!renderGLL) AWarning("AWindow3D::Refresh: OpenGL error.");
-
-  glNewList(renderGLL, GL_COMPILE);
-  glPopAttrib();
   glEndList();
   d->currentPrimitives->push_back(RefGLItem(renderpr));
 }
