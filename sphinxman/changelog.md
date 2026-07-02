@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.0.17] 2026-07-02
+
+### Changed
+
+- fixed bounds handling for 4D+ volumes when the timestep is not 1. This bug had appeared in 6.0.15 as a side effect of another fix (primarily targetting volume rendering)
+
+
 ## [6.0.15] 2026-06-16
 
 ### Changed
