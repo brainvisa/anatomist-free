@@ -155,7 +155,7 @@ void ColorScalarPaletteTraits<T>::setup1D( int dim,
     paletteCoord0(mini, valmi);
     paletteCoord0(maxi, valma);
     paletteCoord0(0, valz);
-    // std::cout << "colortaits " << mini << ": " << valmi << ", " << maxi << ": " << valma << ", zero: " << valz << std::endl;
+    /* std::cout << "colortaits " << mini << ": " << valmi << ", " << maxi << ": " << valma << ", zero: " << valz << std::endl; */
   }
   else
   {

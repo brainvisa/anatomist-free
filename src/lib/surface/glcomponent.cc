@@ -1774,29 +1774,47 @@ bool GLComponent::glMakeBodyGLL( const ViewState & state,
               AimsRGBA		col;
               float		r = glTexRate( i ), ir = 1. - r;
 
+              double z2 = pal->relValue2( this, 0. );
+              const TexExtrema & te = glTexExtrema( i );
+
+              float mini2 = -0.5f, maxi2 = 0.5f;
+              double m2 = 0., M2 = 1.;
+              if( te.min.size() >= 2 )
+              {
+                mini2 = te.min[1] - 0.5;
+                maxi2 = te.max[1] - 0.5;
+                m2 = pal->relValue2( this, te.minquant[0] );
+                M2 = pal->relValue2( this, te.maxquant[0] );
+              }
+
+              // mini/maxi need to be positive/negative for
+              // zero-centered palettes
+              ColorTraits<float> colortraits(
+                pal, te.min[0] - 0.5, te.max[0] - 0.5,
+                mini2, maxi2,
+                pal->relValue1( this, te.minquant[0] ),
+                pal->relValue1( this, te.maxquant[0] ),
+                pal->relValue1( this, 0. ),
+                m2, M2, z2 );
+              const Volume<AimsRGBA> *cols = pal->colors();
+              double x, y;
+              int xp, yp;
+              /* cout << "min/max: " << te.min[0] << ", " << te.max[0] << ", rmin/max/z:" << m1 << ", " <<  M1 << ", " << z1 << endl;
+              cout << "pal sz: " << cols->getSizeX() << endl; */
+
               for( v=0; v<nvert; ++v )
-                {
-                  if( dimtex == 1 )
-                    col = pal->normColor( *dt );
-                  else
-                    col = pal->normColor( *dt, *(dt+1) );
-                  //cout << "color: " << col << endl;
-                  dt += dimtex;
-                  /* if( glTexMode( i ) == glLINEAR )
-                    {
-                      vrg.push_back( float( col.red() ) / 255.01 );
-                      vrg.push_back( float( col.green() ) / 255.01 );
-                      vba.push_back( float( col.blue() ) / 255.01 );
-                      vba.push_back( float( col.alpha() ) / 255.01 * r );
-                    }
-                  else
-                  {*/
-                      vrg.push_back( float( col.red() ) / 255.01 * r + ir );
-                      vrg.push_back( float( col.green() ) / 255.01 * r + ir );
-                      vba.push_back( float( col.blue() ) / 255.01 * r + ir );
-                      vba.push_back( float( col.alpha() ) / 255.01 );
-                      //}
-                }
+              {
+                x = *dt;
+                y = ( dimtex == 1 ? z2 : *(dt + 1) );
+                colortraits.paletteCoords( x - 0.5, y, xp, yp );
+                col = (*cols)( xp, yp );
+
+                dt += dimtex;
+                vrg.push_back( float( col.red() ) / 255.01 * r + ir );
+                vrg.push_back( float( col.green() ) / 255.01 * r + ir );
+                vba.push_back( float( col.blue() ) / 255.01 * r + ir );
+                vba.push_back( float( col.alpha() ) / 255.01 );
+              }
               glTexCoordPointer( 2, GL_FLOAT, 0, &vrg[0] );
 
               ++tex;

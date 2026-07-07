@@ -450,9 +450,11 @@ void AVolume<T>::updateSlice( AImage & image, const Point3df & p0,
   const AObjectPalette *pal = getOrCreatePalette();
   ColorTraits<T>	coltraits(
     pal, d->traits.minTypedTexValue(), d->traits.maxTypedTexValue(),
-    pal->relValue1( this, d->traits.minTypedTexValue() ),
-    pal->relValue1( this, d->traits.maxTypedTexValue() ),
-    pal->relValue1( this, 0. ) );
+    pal->relValue1( static_cast<const GLComponent *>( this ),
+                    d->traits.minTypedTexValue() ),
+    pal->relValue1( static_cast<const GLComponent *>( this ),
+                    d->traits.maxTypedTexValue() ),
+    pal->relValue1( static_cast<const GLComponent *>( this ), 0. ) );
   T iempty = coltraits.neutralColor();
   AimsRGBA empty = coltraits.color( iempty );
 
@@ -671,9 +673,12 @@ void AVolume<T>::updateAxial( AImage *ximage, const Point3df & pf0,
   */
   ColorTraits<T>	coltraits(
     pal, d->traits.minTypedTexValue(), d->traits.maxTypedTexValue(),
-    pal->relValue1( this, d->traits.minTypedTexValue() ),
-    pal->relValue1( this, d->traits.maxTypedTexValue() ),
-    pal->relValue1( this, 0. ) );
+    pal->relValue1( static_cast<const GLComponent *>( this ),
+                    d->traits.minTypedTexValue() ),
+    pal->relValue1( static_cast<const GLComponent *>( this ),
+                    d->traits.maxTypedTexValue() ),
+    pal->relValue1( static_cast<const GLComponent *>( this ),
+                    0. ) );
   AimsRGBA empty = coltraits.color( coltraits.neutralColor() );
 
   if( vs[2] == 0 )
@@ -775,9 +780,11 @@ void AVolume<T>::updateCoronal( AImage *ximage, const Point3df &pf0,
   const AObjectPalette *pal = getOrCreatePalette();
   ColorTraits<T>	coltraits(
     pal, d->traits.minTypedTexValue(), d->traits.maxTypedTexValue(),
-    pal->relValue1( this, d->traits.minTypedTexValue() ),
-    pal->relValue1( this, d->traits.maxTypedTexValue() ),
-    pal->relValue1( this, 0. ) );
+    pal->relValue1( static_cast<const GLComponent *>( this ),
+                    d->traits.minTypedTexValue() ),
+    pal->relValue1( static_cast<const GLComponent *>( this ),
+                    d->traits.maxTypedTexValue() ),
+    pal->relValue1( static_cast<const GLComponent *>( this ), 0. ) );
   AimsRGBA empty = coltraits.color( coltraits.neutralColor() );
 
   vector<int> dims = _volume->getSize();
@@ -880,9 +887,11 @@ void AVolume<T>::updateSagittal( AImage *ximage, const Point3df & pf0,
   const AObjectPalette *pal = getOrCreatePalette();
   ColorTraits<T>	coltraits(
     pal, d->traits.minTypedTexValue(), d->traits.maxTypedTexValue(),
-    pal->relValue1( this, d->traits.minTypedTexValue() ),
-    pal->relValue1( this, d->traits.maxTypedTexValue() ),
-    pal->relValue1( this, 0. ) );
+    pal->relValue1( static_cast<const GLComponent *>( this ),
+                    d->traits.minTypedTexValue() ),
+    pal->relValue1( static_cast<const GLComponent *>( this ),
+                    d->traits.maxTypedTexValue() ),
+    pal->relValue1( static_cast<const GLComponent *>( this ), 0. ) );
   AimsRGBA empty = coltraits.color( coltraits.neutralColor() );
 
   if( xx >= _volume->getSizeX() || xx < 0 )

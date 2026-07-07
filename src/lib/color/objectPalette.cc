@@ -299,24 +299,64 @@ AimsRGBA AObjectPalette::normColor( double x, double y ) const
   double	xs;
   if( isnan( x ) || isinf( x ) )
     xs = 0;
-  else if( _min == _max )
-    xs = x - _min;
   else
-    xs = ( x - _min ) / ( _max - _min );
-  if( xs < 0 )
-    xs = 0;
-  else if( xs >= 0.9999 )
-    xs = 0.9999;
+  {
+    if( zeroCenteredAxis1() )
+    {
+      if( _max == 0. )
+        xs = 0.5;
+      else
+      {
+        x = x * 2. - 1.; // range -1, 1
+        if( _max == _min || ( x >= 0 && x < _min )
+            || ( x <= 0 && x > -_min ) )
+          xs = 0.5;
+        else
+          if( _max > 0 )
+            xs = (x - _min) / ( _max - _min ) * 0.5 + 0.5;
+          else
+            xs = (x + _min) / ( _max + _min ) * 0.5 + 0.5;
+      }
+    }
+    else
+    {
+      if( _min == _max )
+        xs = x - _min;
+      else
+        xs = ( x - _min ) / ( _max - _min );
+    }
+    if( xs < 0 )
+      xs = 0;
+    else if( xs >= 0.9999 )
+      xs = 0.9999;
+  }
 
   double	ys;
-  if( _min2 == _max2 )
-    ys = y - _min2;
-  else
-    ys = ( y - _min2 ) / ( _max2 - _min2 );
-  if( ys < 0 )
+  if( isnan( y ) || isinf( y ) )
     ys = 0;
-  else if( ys >= 0.9999 )
-    ys = 0.9999;
+  else
+  {
+    if( zeroCenteredAxis2() )
+    {
+      if( _max2 == 0. )
+        ys = 0.5;
+      else
+      {
+        ys = (y - _min2) / _max2 * 0.5 + 0.5;
+      }
+    }
+    else
+    {
+      if( _min2 == _max2 )
+        ys = y - _min2;
+      else
+        ys = ( y - _min2 ) / ( _max2 - _min2 );
+    }
+    if( ys < 0 )
+      ys = 0;
+    else if( ys >= 0.9999 )
+      ys = 0.9999;
+  }
 
   return _colors->at( int( xs * _colors->getSizeX() ),
                       int( ys * _colors->getSizeY() ) );
@@ -801,33 +841,32 @@ rc_ptr<Volume<AimsRGBA> > AObjectPalette::toVolume( int w, int h,
 }
 
 
-double AObjectPalette::absMin1( const AObject * obj ) const
+double AObjectPalette::absMin1( const GLComponent *glc ) const
 {
-  return absValue1( obj, min1() );
+  return absValue1( glc, min1() );
 }
 
 
-double AObjectPalette::absMax1( const AObject * obj ) const
+double AObjectPalette::absMax1( const GLComponent *glc ) const
 {
-  return absValue1( obj, max1() );
+  return absValue1( glc, max1() );
 }
 
 
-double AObjectPalette::absMin2( const AObject * obj ) const
+double AObjectPalette::absMin2( const GLComponent *glc ) const
 {
-  return absValue2( obj, min2() );
+  return absValue2( glc, min2() );
 }
 
 
-double AObjectPalette::absMax2( const AObject * obj ) const
+double AObjectPalette::absMax2( const GLComponent *glc ) const
 {
-  return absValue2( obj, max2() );
+  return absValue2( glc, max2() );
 }
 
 
-void AObjectPalette::setAbsMin1( const AObject * obj, double x )
+void AObjectPalette::setAbsMin1( const GLComponent *glc, double x )
 {
-  const GLComponent *glc = obj->glAPI();
   if( glc )
   {
     const GLComponent::TexExtrema	& te = glc->glTexExtrema();
@@ -855,9 +894,8 @@ void AObjectPalette::setAbsMin1( const AObject * obj, double x )
 }
 
 
-void AObjectPalette::setAbsMax1( const AObject * obj, double x )
+void AObjectPalette::setAbsMax1( const GLComponent *glc, double x )
 {
-  const GLComponent *glc = obj->glAPI();
   if( glc )
   {
     const GLComponent::TexExtrema	& te = glc->glTexExtrema();
@@ -885,9 +923,8 @@ void AObjectPalette::setAbsMax1( const AObject * obj, double x )
 }
 
 
-void AObjectPalette::setAbsMin2( const AObject * obj, double x )
+void AObjectPalette::setAbsMin2( const GLComponent *glc, double x )
 {
-  const GLComponent *glc = obj->glAPI();
   if( glc )
   {
     const GLComponent::TexExtrema	& te = glc->glTexExtrema();
@@ -918,9 +955,8 @@ void AObjectPalette::setAbsMin2( const AObject * obj, double x )
 }
 
 
-void AObjectPalette::setAbsMax2( const AObject * obj, double x )
+void AObjectPalette::setAbsMax2( const GLComponent *glc, double x )
 {
-  const GLComponent *glc = obj->glAPI();
   if( glc )
   {
     const GLComponent::TexExtrema	& te = glc->glTexExtrema();
@@ -951,9 +987,57 @@ void AObjectPalette::setAbsMax2( const AObject * obj, double x )
 }
 
 
-double AObjectPalette::relValue1( const AObject * obj, double absval ) const
+double AObjectPalette::absMin1( const AObject *obj ) const
 {
-  const GLComponent *glc = obj->glAPI();
+  return absValue1( obj->glAPI(), min1() );
+}
+
+
+double AObjectPalette::absMax1( const AObject *obj ) const
+{
+  return absValue1( obj->glAPI(), max1() );
+}
+
+
+double AObjectPalette::absMin2( const AObject *obj ) const
+{
+  return absValue2( obj->glAPI(), min2() );
+}
+
+
+double AObjectPalette::absMax2( const AObject *obj ) const
+{
+  return absValue2( obj->glAPI(), max2() );
+}
+
+
+void AObjectPalette::setAbsMin1( const AObject *obj, double x )
+{
+  setAbsMin1( obj->glAPI(), x );
+}
+
+
+void AObjectPalette::setAbsMax1( const AObject *obj, double x )
+{
+  setAbsMax1( obj->glAPI(), x );
+}
+
+
+void AObjectPalette::setAbsMin2( const AObject *obj, double x )
+{
+  setAbsMin2( obj->glAPI(), x );
+}
+
+
+void AObjectPalette::setAbsMax2( const AObject * obj, double x )
+{
+  setAbsMax2( obj->glAPI(), x );
+}
+
+
+double AObjectPalette::relValue1( const GLComponent *glc,
+                                  double absval ) const
+{
   if( glc )
   {
     const GLComponent::TexExtrema	& te = glc->glTexExtrema();
@@ -986,9 +1070,9 @@ double AObjectPalette::relValue1( const AObject * obj, double absval ) const
 }
 
 
-double AObjectPalette::relValue2( const AObject * obj, double absval ) const
+double AObjectPalette::relValue2( const GLComponent *glc,
+                                  double absval ) const
 {
-  const GLComponent *glc = obj->glAPI();
   if( glc )
   {
     const GLComponent::TexExtrema	& te = glc->glTexExtrema();
@@ -1021,9 +1105,9 @@ double AObjectPalette::relValue2( const AObject * obj, double absval ) const
 }
 
 
-double AObjectPalette::absValue1( const AObject * obj, double relval ) const
+double AObjectPalette::absValue1( const GLComponent *glc,
+                                  double relval ) const
 {
-  const GLComponent *glc = obj->glAPI();
   if( glc )
   {
     const GLComponent::TexExtrema	& te = glc->glTexExtrema();
@@ -1045,9 +1129,9 @@ double AObjectPalette::absValue1( const AObject * obj, double relval ) const
 }
 
 
-double AObjectPalette::absValue2( const AObject * obj, double relval ) const
+double AObjectPalette::absValue2( const GLComponent *glc,
+                                  double relval ) const
 {
-  const GLComponent *glc = obj->glAPI();
   if( glc )
   {
     const GLComponent::TexExtrema	& te = glc->glTexExtrema();
@@ -1069,4 +1153,31 @@ double AObjectPalette::absValue2( const AObject * obj, double relval ) const
   return relval;
 }
 
+
+double AObjectPalette::relValue1( const AObject *obj,
+                                  double absval ) const
+{
+  return relValue1( obj->glAPI(), absval );
+}
+
+
+double AObjectPalette::relValue2( const AObject *obj,
+                                  double absval ) const
+{
+  return relValue2( obj->glAPI(), absval );
+}
+
+
+double AObjectPalette::absValue1( const AObject *obj,
+                                  double relval ) const
+{
+  return absValue1( obj->glAPI(), relval );
+}
+
+
+double AObjectPalette::absValue2( const AObject *obj,
+                                  double relval ) const
+{
+  return absValue2( obj->glAPI(), relval );
+}
 
