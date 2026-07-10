@@ -479,9 +479,9 @@ namespace
     glpixtype<AimsRGBA>( p );
     vector<float> vmax = avol->glMax2D();
     Point3df max = Point3df( vmax[0], vmax[1], vmax[2] ) + Point3df( 1.F );
-    p.dimx = (unsigned) rint( max[0] );
-    p.dimy = (unsigned) rint( max[1] );
-    p.dimz = (unsigned) rint( max[2] );
+    p.dimx = (unsigned) ceil( max[0] );
+    p.dimy = (unsigned) ceil( max[1] );
+    p.dimz = (unsigned) ceil( max[2] );
   }
 
 
@@ -501,7 +501,7 @@ namespace
     Quaternion q( 0.F, 0.F, 0.F, 1.F );
     vector<float> vox = avol->glVoxelSize();
     Geometry geom( Point3df( vox[0], vox[1], vox[2] ), Point4dl( 0, 0, 0, 0 ),
-                   Point4dl( d->dimx, d->dimy, d->dimz, 1 ) );
+                   Point4dl( d->dimx - 1, d->dimy - 1, d->dimz - 1, 1 ) );
     SliceViewState vs( t, true, Point3df( 0.F ), &q, avol->getReferential(),
                        &geom );
     VolumeRef<AimsRGBA> vol = avol->rgbaVolume( &vs );

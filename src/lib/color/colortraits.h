@@ -141,9 +141,12 @@ namespace anatomist
 
         - palette is the object palette.
         - mini / maxi are min and max values used to address the colormap from
-          a source space. They can be either double float texture values, or indices
-          used to build in a colormap or texture image. The methods color() and
-          paletteCoords() get their parameters in this space.
+          a source space. They can be either double float texture values, or
+          indices used to build in a colormap or texture image. The methods
+          color() and paletteCoords() get their parameters in this space.
+
+          For zero-centered palettes, a technical issue currently makes it
+          mandatory to use positive and negative velues here.
 
         - min1 / max1 are the range to be mapped within the [mini, maxi] input
           space. They are coordinates in relative palette space (as in
@@ -331,7 +334,7 @@ namespace anatomist
     double val0, double val1, int & ival0, int & ival1 ) const
   {
     paletteCoord0( val0, ival0 );
-    paletteCoord1( val0, ival0 );
+    paletteCoord1( val1, ival1 );
   }
 
 

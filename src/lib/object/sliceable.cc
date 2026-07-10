@@ -424,71 +424,72 @@ bool Sliceable::glMakeTexImage( const ViewState & state,
   bool	retcode = update2DTexture( xim, si.posbase, *st, tex );
 
   if( retcode )
+  {
+    //	GL texture
+    GLint	twidth;
+    GLuint	tex = gltex.item();
+
+    glBindTexture( GL_TEXTURE_2D, tex );
+    glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
+    do
     {
-      //	GL texture
-      GLint	twidth;
-      GLuint	tex = gltex.item();
+      glTexImage2D( GL_PROXY_TEXTURE_2D, 0, 4, w, h, 0, GL_RGBA,
+                    GL_UNSIGNED_BYTE, (GLvoid*) xim.data );
+      //cout << "proxy created " << w << " x " << h << "\n";
+      glGetTexLevelParameteriv( GL_PROXY_TEXTURE_2D, 0,
+                                GL_TEXTURE_WIDTH, &twidth );
+      //cout << "twidth: " << twidth << endl;
+      if( twidth == 0 )	// too large
+      {
+        cerr << "Texture too large for OpenGL implementation. "
+             << "Degrading image.\n";
+        // degraded image
+        unsigned	dxs = w * 2 - xim.effectiveWidth;
 
-      glBindTexture( GL_TEXTURE_2D, tex );
-      glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
-      do
-	{
-          glTexImage2D( GL_PROXY_TEXTURE_2D, 0, 4, w, h, 0, GL_RGBA, 
-                        GL_UNSIGNED_BYTE, (GLvoid*) xim.data );
-          //cout << "proxy created " << w << " x " << h << "\n";
-	  glGetTexLevelParameteriv( GL_PROXY_TEXTURE_2D, 0, 
-				    GL_TEXTURE_WIDTH, &twidth );
-          //cout << "twidth: " << twidth << endl;
-	  if( twidth == 0 )	// too large
-	    {
-	      cerr << "Texture too large for OpenGL implementation. " 
-                   << "Degrading image.\n";
-	      // degraded image
-	      unsigned	dxs = w * 2 - xim.effectiveWidth;
+        w /= 2;
+        h /= 2;
+        xim.effectiveWidth /= 2;
+        xim.effectiveHeight /= 2;
 
-	      w /= 2;
-	      h /= 2;
-	      xim.effectiveWidth /= 2;
-	      xim.effectiveHeight /= 2;
+        int	x, y;
+        unsigned	dxd = w - xim.effectiveWidth;
+        char	*ps = new char[ w * h * 4 ];
+        unsigned	*p = (unsigned *) ps, *q = (unsigned *) xim.data;
 
-	      int	x, y;
-	      unsigned	dxd = w - xim.effectiveWidth;
-	      char	*ps = new char[ w * h * 4 ];
-	      unsigned	*p = (unsigned *) ps, *q = (unsigned *) xim.data;
-
-	      for( y=0; y<xim.effectiveHeight; ++y )
-		{
-		  for( x=0; x<xim.effectiveWidth; ++x )
-		    {
-		      *p++ = *q;
-		      q += 2;
-		    }
-		  p += dxd;
-		  q += dxs;
-		}
-	      delete[] xim.data;
-	      xim.data = ps;
-	    }
-	} while( twidth == 0 && w > 0 && h > 0 );
-      if( w > 0 && h > 0 )
+        for( y=0; y<xim.effectiveHeight; ++y )
         {
-          // cout << "glTexImage2D " << w << " x " << h << endl;
-          glTexImage2D( GL_TEXTURE_2D, 0, 4, w, h, 0, GL_RGBA, 
-                        GL_UNSIGNED_BYTE, (GLvoid*) xim.data );
-          GLenum status = glGetError();
-          if( status != GL_NO_ERROR )
+          for( x=0; x<xim.effectiveWidth; ++x )
           {
-            cerr << "OpenGL error tex: " << gluErrorString(status) << endl;
-            retcode = false;
+            *p++ = *q;
+            q += 2;
           }
+          p += dxd;
+          q += dxs;
         }
-      else
-        {
-          cerr << "OpenGL seems not to be able to display a texture at all. " 
-               << "Nothing will be displayed." << endl;
-          retcode = false;
-        }
+        delete[] xim.data;
+        xim.data = ps;
+      }
+    } while( twidth == 0 && w > 0 && h > 0 );
+
+    if( w > 0 && h > 0 )
+    {
+      // cout << "glTexImage2D " << w << " x " << h << endl;
+      glTexImage2D( GL_TEXTURE_2D, 0, 4, w, h, 0, GL_RGBA,
+                    GL_UNSIGNED_BYTE, (GLvoid*) xim.data );
+      GLenum status = glGetError();
+      if( status != GL_NO_ERROR )
+      {
+        cerr << "OpenGL error tex: " << gluErrorString(status) << endl;
+        retcode = false;
+      }
     }
+    else
+    {
+      cerr << "OpenGL seems not to be able to display a texture at all. "
+           << "Nothing will be displayed." << endl;
+      retcode = false;
+    }
+  }
 
   delete[] xim.data;
   return retcode;
@@ -572,21 +573,24 @@ string Sliceable::viewStateID( glPart part,
     return GLComponent::viewStateID( part, state );
 
   vector<float> timedims = state.timedims;
-  vector<float> gmin = glMin2D(), gmax = glMax2D();
+  vector<float> gmin = glMin2D(), gmax = glMax2D(); // in voxels
   unsigned i, n = std::min( timedims.size(), gmax.size() - 3 );
+  vector<float> vs = glVoxelSize();
+  while( vs.size() < gmax.size() )
+    vs.push_back( 1. );
   timedims.resize( n );
   for( i=0; i<n; ++i )
   {
-    if( timedims[i] < gmin[3 + i] )
-      timedims[i] = gmin[3 + i];
-    if( timedims[i] > gmax[3 + i] )
-      timedims[i] = gmax[3 + i];
+    if( timedims[i] / vs[i + 3] < gmin[3 + i] )
+      timedims[i] = gmin[3 + i] * vs[i + 3];
+    if( timedims[i] / vs[i + 3] > gmax[3 + i] )
+      timedims[i] = gmax[3 + i] * vs[i + 3];
   }
   if( n < gmax.size() - 3 )
   {
     n = gmax.size() - 3;
     for( ; i<n; ++i )
-      timedims.push_back( gmin[i + 3] );
+      timedims.push_back( gmin[i + 3] * vs[i + 3] );
   }
 
   string		s;
@@ -699,9 +703,9 @@ VolumeRef<AimsRGBA> Sliceable::rgbaVolume( const SliceViewState* svs,
     vvs[2] = vs[2];
     Point4dl dmm = svs->wingeom->DimMin();
     Point4dl	dm = svs->wingeom->DimMax() - dmm;
-    dims[0] = int( rint( dm[0] / vvs[0] ) );
-    dims[1] = int( rint( dm[1] / vvs[1] ) );
-    dims[2] = int( rint( dm[2] / vvs[2] ) );
+    dims[0] = dm[0] + 1;
+    dims[1] = dm[1] + 1;
+    dims[2] = dm[2] + 1;
     dmin = Point3df( dmm[0], dmm[1], dmm[2] );
   }
   else
@@ -712,10 +716,10 @@ VolumeRef<AimsRGBA> Sliceable::rgbaVolume( const SliceViewState* svs,
     Point3df max2d = Point3df( dmax2d[0], dmax2d[1], dmax2d[2] )
       - Point3df( dmm[0], dmm[1], dmm[2] ) + Point3df( 1.F );
     vvs = glVoxelSize();
-    dims = Point3dl( (int) rint( max2d[0] / vvs[0] ),
-                     (int) rint( max2d[1] / vvs[1] ),
-                     (int) rint( max2d[2] / vvs[2] ) );
-    dmin = Point3df( dmm[0] / vvs[0], dmm[1] / vvs[1], dmm[2] / vvs[2] );
+    dims = Point3dl( (int) ceil( max2d[0] ),
+                     (int) ceil( max2d[1] ),
+                     (int) ceil( max2d[2] ) );
+    dmin = Point3df( dmm[0], dmm[1], dmm[2] );
   }
 
   VolumeRef<AimsRGBA> vol( new Volume<AimsRGBA>( dims[0], dims[1], dims[2] ) );
@@ -898,6 +902,10 @@ vector<float> SliceableObject::glMin2D() const
 {
   vector<float> bmin, bmax;
   boundingBox2D( bmin, bmax );
+  vector<float> vs = glVoxelSize();
+  vector<float>::iterator i, j;
+  for( i=bmin.begin(), j=vs.begin(); i!=bmin.end() && j!=vs.end(); ++i, ++j )
+    *i = floor( *i / *j  + 0.5 );
   return bmin;
 }
 
@@ -906,6 +914,10 @@ vector<float> SliceableObject::glMax2D() const
 {
   vector<float> bmin, bmax;
   boundingBox2D( bmin, bmax );
+  vector<float> vs = glVoxelSize();
+  vector<float>::iterator i, j;
+  for( i=bmax.begin(), j=vs.begin(); i!=bmax.end() && j!=vs.end(); ++i, ++j )
+    *i = ceil( *i / *j  - 0.5 );
   return bmax;
 }
 

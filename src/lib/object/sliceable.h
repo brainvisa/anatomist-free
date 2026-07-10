@@ -94,7 +94,9 @@ namespace anatomist
     virtual void rgbaVolume( carto::Volume<AimsRGBA> &,
                              const SliceViewState* = 0, int tex = 0 ) const;
     virtual std::vector<float> glVoxelSize() const;
+    // in voxels
     virtual std::vector<float> glMin2D() const = 0;
+    // in voxels
     virtual std::vector<float> glMax2D() const = 0;
     virtual bool glAllowedTexRGBInterpolation( unsigned tex = 0 ) const;
     virtual const Referential *getReferential() const = 0;

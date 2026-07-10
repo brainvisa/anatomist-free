@@ -797,6 +797,10 @@ vector<float> Fusion2D::glMin2D() const
 {
   vector<float> bmin, bmax;
   boundingBox2D( bmin, bmax );
+  vector<float> vs = glVoxelSize();
+  vector<float>::iterator i, j;
+  for( i=bmin.begin(), j=vs.begin(); i!=bmin.end() && j!=vs.end(); ++i, ++j )
+    *i = floor( *i / *j + 0.5 );
   return bmin;
 }
 
@@ -805,6 +809,10 @@ vector<float> Fusion2D::glMax2D() const
 {
   vector<float> bmin, bmax;
   boundingBox2D( bmin, bmax );
+  vector<float> vs = glVoxelSize();
+  vector<float>::iterator i, j;
+  for( i=bmax.begin(), j=vs.begin(); i!=bmax.end() && j!=vs.end(); ++i, ++j )
+    *i = ceil( *i / *j  - 0.5 );
   return bmax;
 }
 

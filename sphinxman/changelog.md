@@ -1,5 +1,40 @@
 # Changelog
 
+## [6.0.17] 2026-07-02
+
+### Changed
+
+- fixed bounds handling for 4D+ volumes when the timestep is not 1. This bug had appeared in 6.0.15 as a side effect of another fix (primarily targetting volume rendering)
+
+
+## [6.0.15] 2026-06-16
+
+### Changed
+
+- fixed crash in volume rendering from a Fusion 2D
+
+
+## [6.0.14] 2026-05-21
+
+- internal improvements in ana_atlas_nonlin and fixes
+
+
+## [6.0.13] 2026-04-07
+
+### Added
+
+- new large palettes with random colors
+
+## [6.0.12] 2026-03-11
+
+### Added
+
+- new method in pyanatomist to check if the application exists
+- ana_demo doesn't download data if they are already installed
+
+### Changed
+
+
 ## [6.0.9] 2026-02-27
 
 ### Changed
