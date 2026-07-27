@@ -536,9 +536,17 @@ namespace
         return false;
       uniquevals.insert( int( rint( *it ) ) );
     }
-    uniquevals.erase( 0 ); // remove background
+    // cout << "uniquevals: " << uniquevals.size() << ", cols: " << ncol << endl;
     if( uniquevals.size() == ncol ) // match matrix columns
       canbebasins = true;
+    if( !canbebasins )
+    {
+      uniquevals.erase( 0 ); // remove background
+      if( uniquevals.size() == ncol ) // match matrix columns
+        canbebasins = true;
+    }
+
+    // cout << "checkTextureAsBasins 4: " << canbebasins << "\n";
 
     return canbebasins;
   }
@@ -1160,7 +1168,8 @@ bool AConnectivityMatrix::checkObjects( const set<AObject *> & objects,
         if( t2asconn )
           transpose4 = true;
       }
-     // cout << "t1asconn: " << t1asconn << ", t2asconn: " << t2asconn << endl;
+      cout << "t1asconn: " << t1asconn << ", t2asconn: " << t2asconn << endl;
+      cout << "t1asbasins: " << t1asbasins << ", t2asbasins: " << t2asbasins << endl;
       if( t1asconn && t2asbasins && transpose3 == transpose2 )
       {
         patchnummode = patchmode1;
