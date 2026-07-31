@@ -579,6 +579,8 @@ void GLObjectUniforms::callList() const
 
   updateTextureUniforms(locations, texturesData, maxSamplers);
 
+  _obj->glAPI()->updateObjectUniforms(_shader.get());
+
   if(_module)
     _module->setupObjectUniforms(*_shader, *_glObj);
 }

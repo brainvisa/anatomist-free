@@ -175,6 +175,17 @@ namespace anatomist
     virtual std::string generatedObjectType() const;
   };
 
+  class FusionVolumeMethod : public FusionMethod
+  {
+  public:
+    FusionVolumeMethod() {}
+    virtual ~FusionVolumeMethod() {}
+    virtual int canFusion( const std::set<AObject *> & );
+    virtual AObject* fusion( const std::vector<AObject *> & );
+    virtual std::string ID() const;
+    virtual std::string generatedObjectType() const;
+  };
+
 
   class FusionClipMethod : public FusionMethod
   {

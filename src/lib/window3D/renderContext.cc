@@ -269,19 +269,31 @@ void RenderContext::retrieveShaders(const std::list<carto::shared_ptr<AObject>> 
 void RenderContext::shaderBuilding(std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> & opaqueDrawables,
                                   std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>>  & transparentDrawables)
 {
-  for(const auto & [shader, _] : opaqueDrawables)
+  for(const auto & [shader, objs] : opaqueDrawables)
   {
     if(d->programs[shader].isNull())
     {
-      d->programs[shader] = d->shaderBuilder.initShader(shader, "main.vs.glsl", "main.fs.glsl", "main.gs.glsl");
+      auto glObj = objs.front()->glAPI();
+      d->programs[shader] = d->shaderBuilder.initShader(
+        shader,
+        glObj->glVertexShaderTemplate(),
+        glObj->glFragmentShaderTemplate(),
+        glObj->glGeometryShaderTemplate()
+      );
     }
   }
 
-  for(const auto & [shader, _] : transparentDrawables)
+  for(const auto & [shader, objs] : transparentDrawables)
   {
     if(d->programs[shader].isNull())
     {
-      d->programs[shader] = d->shaderBuilder.initShader(shader, "main.vs.glsl", "main.fs.glsl", "main.gs.glsl");
+      auto glObj = objs.front()->glAPI();
+      d->programs[shader] = d->shaderBuilder.initShader(
+        shader,
+        glObj->glVertexShaderTemplate(),
+        glObj->glFragmentShaderTemplate(),
+        glObj->glGeometryShaderTemplate()
+      );
     }
   }
 }
@@ -339,7 +351,10 @@ void RenderContext::postTransparentRenderingSetup()
 
 std::vector<carto::rc_ptr<IShaderModule>> RenderContext::getEffectiveShaderModules(const std::string& shaderID)
 {
-  auto modules = shaderMapping::getModules(shaderID);
+  std::string ids = shaderID;
+  if(!ids.empty() && ids.back() == 'V')
+    ids.pop_back(); // remove V module for now, as it is not used in the shader building process
+  auto modules = shaderMapping::getModules(ids);
   if(d->glwman->useDepthPeeling())
   {
     auto dpmodules = shaderMapping::getModules("1"); //jordan : id for depth peeling, may change

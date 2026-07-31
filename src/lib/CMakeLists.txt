@@ -253,6 +253,7 @@ set( _headers
     mobject/ObjectList.h
     mobject/wFusion2D.h
     mobject/wFusion3D.h
+    mobject/VObject.h
     volume/slice.h
     volume/Volume.h
     volume/volumeview.h
@@ -510,6 +511,7 @@ set( _sources
     mobject/ObjectList.cc
     mobject/wFusion2D.cc
     mobject/wFusion3D.cc
+    mobject/VObject.cc
     volume/slice.cc
     volume/Volume.cc
     volume/volumeview.cc

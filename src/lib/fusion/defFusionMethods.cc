@@ -35,6 +35,7 @@
 #include <anatomist/fusion/defFusionMethods.h>
 #include <anatomist/mobject/Fusion2D.h>
 #include <anatomist/mobject/Fusion3D.h>
+#include <anatomist/mobject/VObject.h>
 #include <anatomist/surface/planarfusion3d.h>
 #include <anatomist/surface/cutmesh.h>
 #include <anatomist/surface/fusion2Dmesh.h>
@@ -453,6 +454,35 @@ string FusionRGBAVolumeMethod::ID() const
   return QT_TRANSLATE_NOOP( "FusionChooser", "FusionRGBAVolumeMethod" );
 }
 
+
+int FusionVolumeMethod::canFusion( const std::set<AObject *> & obj )
+{
+  if( obj.size() != 1 )
+    return 0;
+
+  GLComponent *glc = (*obj.begin())->glAPI();
+  if( glc && glc->sliceableAPI() )
+    return 120;
+  return 0;
+}
+
+
+string FusionVolumeMethod::generatedObjectType() const
+{
+  return AObject::objectTypeName( VObject::classType() );
+}
+
+
+AObject* FusionVolumeMethod::fusion( const std::vector<AObject *> & obj )
+{
+  return new VObject( *obj.begin() );
+}
+
+
+string FusionVolumeMethod::ID() const
+{
+  return QT_TRANSLATE_NOOP( "FusionChooser", "FusionVolumeMethod" );
+}
 
 // ---------------
 

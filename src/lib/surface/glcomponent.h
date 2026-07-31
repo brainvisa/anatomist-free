@@ -221,10 +221,14 @@ namespace anatomist
     virtual const Material *glMaterial() const;
     virtual const AObjectPalette* glPalette( unsigned tex = 0 ) const;
 
-    // jordan shader
+    // shaders functions 
     virtual void addShaderModule(const std::string & module);
     virtual std::string getShaderModuleIDs(){return _shaderModuleIDs;}
     virtual bool useDepthPeeling() const { return _useDepthPeeling; }
+    virtual std::string glVertexShaderTemplate() const   { return "main.vs.glsl"; }
+    virtual std::string glFragmentShaderTemplate() const { return "main.fs.glsl"; }
+    virtual std::string glGeometryShaderTemplate() const { return ""; } //empty = no geometry shader
+    virtual void updateObjectUniforms(QOpenGLShaderProgram* _shader){};
 
     virtual unsigned glNumVertex( const ViewState & ) const;
     virtual const GLfloat* glVertexArray( const ViewState & ) const;
