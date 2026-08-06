@@ -1,5 +1,13 @@
 # Changelog
 
+## [6.0.18] 2026-08-06
+
+### Changed
+
+- fixed palette issue on textures in zero-centered palette mode
+- internal fixes in PyAnatomist API bindings
+
+
 ## [6.0.17] 2026-07-02
 
 ### Changed
