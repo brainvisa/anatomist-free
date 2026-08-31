@@ -228,7 +228,7 @@ namespace anatomist
     virtual std::string glVertexShaderTemplate() const   { return "main.vs.glsl"; }
     virtual std::string glFragmentShaderTemplate() const { return "main.fs.glsl"; }
     virtual std::string glGeometryShaderTemplate() const { return ""; } //empty = no geometry shader
-    virtual void updateObjectUniforms(QOpenGLShaderProgram* _shader){};
+    virtual void updateObjectUniforms(QOpenGLShaderProgram* shader){};
 
     virtual unsigned glNumVertex( const ViewState & ) const;
     virtual const GLfloat* glVertexArray( const ViewState & ) const;

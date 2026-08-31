@@ -980,6 +980,7 @@ void GLWidgetManager::initFBOs()
 
 void GLWidgetManager::clearTexturesAndFBOs()
 {
+  qglWidget()->makeCurrent();
   qDeleteAll(_pd->colorTextures);
   _pd->colorTextures.clear();
   qDeleteAll(_pd->depthTextures);

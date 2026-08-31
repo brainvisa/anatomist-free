@@ -33,6 +33,7 @@
 
 #include <anatomist/mobject/VObject.h>
 #include <anatomist/color/objectPalette.h>
+#include <anatomist/object/actions.h>
 #include <anatomist/color/Material.h>
 #include <anatomist/window/viewstate.h>
 #include <anatomist/window3D/renderContext.h>
@@ -49,8 +50,82 @@ namespace
 {
   int registerClass()
   {
-    return AObject::registerObjectType( "VObject" );
+    int type = AObject::registerObjectType( "VObject" );
+
+    carto::rc_ptr<ObjectMenu> om = AObject::getObjectMenu( "VObject" );
+    if( !om )
+    {
+      om.reset( new ObjectMenu );
+      AObject::setObjectMenu( "VObject", om );
+    }
+
+    vector<string> vl;
+    om->insertItem( vl, "Color" );
+    vl.push_back( "Color" );
+    om->insertItem( vl, "Palette", ObjectActions::colorPaletteMenuCallback() );
+    om->insertItem( vl, "Material", ObjectActions::colorMaterialMenuCallback() );
+    vl.clear();
+
+    return type;
   }
+
+  void gaussianBlur3D( std::vector<float> & buffer,
+                       unsigned dimx, unsigned dimy, unsigned dimz,
+                       float sigma )
+  {
+    int radius = std::max( 1, (int) std::ceil( sigma * 3 ) );
+    std::vector<float> kernel( 2 * radius + 1 );
+    float sum = 0.f;
+    for( int i = -radius; i <= radius; ++i )
+    {
+      float v = std::exp( -0.5f * (i*i) / (sigma*sigma) );
+      kernel[i + radius] = v;
+      sum += v;
+    }
+    for( auto & v : kernel )
+      v /= sum;
+
+    auto idx = [&]( int x, int y, int z ) -> size_t
+    {
+      x = std::clamp( x, 0, (int) dimx - 1 );
+      y = std::clamp( y, 0, (int) dimy - 1 );
+      z = std::clamp( z, 0, (int) dimz - 1 );
+      return size_t(z) * dimx * dimy + size_t(y) * dimx + x;
+    };
+
+    std::vector<float> tmp( buffer.size() );
+    for( unsigned z=0; z<dimz; ++z )
+      for( unsigned y=0; y<dimy; ++y )
+        for( unsigned x=0; x<dimx; ++x )
+        {
+          float acc = 0.f;
+          for( int k=-radius; k<=radius; ++k )
+            acc += buffer[ idx(x+k, y, z) ] * kernel[k+radius];
+          tmp[ idx(x,y,z) ] = acc;
+        }
+
+    std::vector<float> tmp2( buffer.size() );
+    for( unsigned z=0; z<dimz; ++z )
+      for( unsigned y=0; y<dimy; ++y )
+        for( unsigned x=0; x<dimx; ++x )
+        {
+          float acc = 0.f;
+          for( int k=-radius; k<=radius; ++k )
+            acc += tmp[ idx(x, y+k, z) ] * kernel[k+radius];
+          tmp2[ idx(x,y,z) ] = acc;
+        }
+
+    for( unsigned z=0; z<dimz; ++z )
+      for( unsigned y=0; y<dimy; ++y )
+        for( unsigned x=0; x<dimx; ++x )
+        {
+          float acc = 0.f;
+          for( int k=-radius; k<=radius; ++k )
+            acc += tmp2[ idx(x, y, z+k) ] * kernel[k+radius];
+          buffer[ idx(x,y,z) ] = acc;
+        }
+  }
+
 
   template <typename T>
   bool uploadVolumeAsFloat( AVolume<T> *avol, unsigned & dimx, unsigned & dimy,
@@ -76,7 +151,7 @@ namespace
         }
 
     volumeMax = vmax;
-
+    //gaussianBlur3D( buffer, dimx, dimy, dimz, 0.8f ); // test to smooth volume
     GLCaps::glTexImage3D( GL_TEXTURE_3D, 0, GL_R32F, dimx, dimy, dimz, 0,
                           GL_RED, GL_FLOAT, buffer.data() );
     return true;
@@ -93,10 +168,12 @@ struct VObject::Private
   Point3df bmax;
   unsigned dimx, dimy, dimz;
   float volumeMax;
+  GLuint transferFuncTex;
+  float paletteMin, paletteMax;
 };
 
 VObject::Private::Private()
-  : object( 0 ), bmin( 0, 0, 0 ), bmax( 0, 0, 0 ), dimx( 0 ), dimy( 0 ), dimz( 0 ), volumeMax( 1.0f )
+  : object( 0 ), bmin( 0, 0, 0 ), bmax( 0, 0, 0 ), dimx( 0 ), dimy( 0 ), dimz( 0 ), volumeMax( 1.0f ), transferFuncTex( 0 ), paletteMin( 0.0f ), paletteMax( 1.0f )
 {
 }
 
@@ -112,14 +189,20 @@ VObject::VObject( AObject * vol )
   d->object = vol;
 
   addShaderModule( "V" );
-
   glAddTextures( 1 );
 
+  GLComponent::TexExtrema & te = glTexExtrema( 0 );
+  te.min.push_back( 0 );
+  te.max.push_back( 1 );
+  te.minquant.push_back( 0 );
+  te.maxquant.push_back( (float) d->volumeMax );
+  te.scaled = false;
+
+
   GetMaterial().setRenderProperty( Material::RenderFaceCulling, 0 );
-  GetMaterial().SetDiffuse( 0.8, 0.8, 0.8, 0.5 ); // jordan : to change to take illumination model into account
 
   insert( vol );
-  getOrCreatePalette();
+  createDefaultPalette( "semitransparent" );
   setReferentialInheritance( vol );
 }
 
@@ -171,6 +254,50 @@ unsigned VObject::glDimTex( const ViewState &, unsigned ) const
   return 3;
 }
 
+void VObject::buildTransferFunction() const
+{
+  const AObjectPalette *objpal = getOrCreatePalette();
+  if( !objpal )
+    return;
+
+  const carto::Volume<AimsRGBA> *cols = objpal->colors();
+  if( !cols )
+    return;
+  int N = cols->getSizeX();
+
+  double pmin = objpal->min1();
+  double pmax = objpal->max1();
+  if( pmin == pmax )
+  {
+    pmin = 0.0;
+    pmax = 1.0;
+  }
+
+  std::vector<unsigned char> data( N * 4 );
+  for( int i = 0; i < N; ++i )
+  {
+    AimsRGBA rgb = cols->at(i);
+    data[i*4+0] = rgb.red();
+    data[i*4+1] = rgb.green();
+    data[i*4+2] = rgb.blue();
+    data[i+4+3] = rgb.alpha();
+  }
+
+  if( !d->transferFuncTex )
+    glGenTextures( 1, &d->transferFuncTex );
+
+  glBindTexture( GL_TEXTURE_1D, d->transferFuncTex );
+  glTexParameteri( GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+  glTexParameteri( GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+  glTexParameteri( GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+  glTexImage1D( GL_TEXTURE_1D, 0, GL_RGBA, N, 0, GL_RGBA,
+                GL_UNSIGNED_BYTE, data.data() );
+
+
+  d->paletteMin = (float) pmin;
+  d->paletteMax = (float) pmax;
+}
+
 bool VObject::glMakeTexImage( const ViewState &, const GLTexture & gltex,
                               unsigned ) const
 {
@@ -210,6 +337,12 @@ bool VObject::glMakeTexImage( const ViewState &, const GLTexture & gltex,
     std::cerr << "VObject::glMakeTexImage: unsupported volume type\n";
     return false;
   }
+
+  // buildTransferFunction();
+
+  GLComponent::TexExtrema & te = const_cast<VObject*>(this)->glTexExtrema( 0 );
+  te.minquant[0] = 0.0f;
+  te.maxquant[0] = d->volumeMax;
 
   GLenum status = glGetError();
   if( status != GL_NO_ERROR )
@@ -281,6 +414,9 @@ bool VObject::glMakeBodyGLL( const ViewState &, const GLList & gllist ) const
 void VObject::createDefaultPalette( const string & name )
 {
   AObject::createDefaultPalette( name );
+  palette()->create( 512 );
+  palette()->fill();
+
 }
 
 AObjectPalette* VObject::palette()
@@ -323,14 +459,25 @@ bool VObject::isTransparent() const
   return true;
 }
 
-void VObject::updateObjectUniforms(QOpenGLShaderProgram* _shader)
+void VObject::updateObjectUniforms(QOpenGLShaderProgram* shader)
 {
-  if( !_shader)
+  if( !shader)
     return;
 
-  _shader->setUniformValue("u_bmin", d->bmin[0], d->bmin[1], d->bmin[2]);
-  _shader->setUniformValue("u_bmax", d->bmax[0], d->bmax[1], d->bmax[2]);
-  _shader->setUniformValue("u_volumeMax", d->volumeMax);
+  buildTransferFunction(); //jordan test
+
+
+  shader->setUniformValue("u_bmin", d->bmin[0], d->bmin[1], d->bmin[2]);
+  shader->setUniformValue("u_bmax", d->bmax[0], d->bmax[1], d->bmax[2]);
+  shader->setUniformValue("u_volumeMax", d->volumeMax);
+  shader->setUniformValue("u_texDim", d->dimx, d->dimy, d->dimz);
+
+  glActiveTexture( GL_TEXTURE0 + 5 );
+  glBindTexture( GL_TEXTURE_1D, d->transferFuncTex );
+  shader->setUniformValue("u_transferFunction", 5);
+
+  shader->setUniformValue("u_paletteMin", d->paletteMin);
+  shader->setUniformValue("u_paletteMax", d->paletteMax);
 
 }
 

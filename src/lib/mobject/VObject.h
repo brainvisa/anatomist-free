@@ -64,6 +64,7 @@ namespace anatomist
     virtual unsigned glDimTex( const ViewState &, unsigned tex = 0 ) const;
     virtual bool glMakeTexImage( const ViewState &state,
                                  const GLTexture &gltex, unsigned tex ) const;
+    void buildTransferFunction() const;
 
     // --- Géométrie proxy ---
     virtual bool glMakeBodyGLL( const ViewState &state,
@@ -79,7 +80,7 @@ namespace anatomist
     virtual const Material* glMaterial() const;
     virtual void SetMaterial( const Material &mat );
     virtual bool isTransparent() const;
-    virtual void updateObjectUniforms(QOpenGLShaderProgram* _shader) override;
+    virtual void updateObjectUniforms(QOpenGLShaderProgram* shader) override;
 
 
     virtual void glSetChanged( glPart, bool = true ) const;

@@ -274,8 +274,11 @@ void RenderContext::shaderBuilding(std::unordered_map<std::string, std::vector<c
     if(d->programs[shader].isNull())
     {
       auto glObj = objs.front()->glAPI();
+      std::string shaderID = shader;
+      if (!shaderID.empty() && shaderID.back() == 'V') // remove volumique rendering id for shader building
+        shaderID.pop_back();
       d->programs[shader] = d->shaderBuilder.initShader(
-        shader,
+        shaderID,
         glObj->glVertexShaderTemplate(),
         glObj->glFragmentShaderTemplate(),
         glObj->glGeometryShaderTemplate()
@@ -288,8 +291,11 @@ void RenderContext::shaderBuilding(std::unordered_map<std::string, std::vector<c
     if(d->programs[shader].isNull())
     {
       auto glObj = objs.front()->glAPI();
+      std::string shaderID = shader;
+      if (!shaderID.empty() && shaderID.back() == 'V') // remove volumique rendering id for shader building
+        shaderID.pop_back();
       d->programs[shader] = d->shaderBuilder.initShader(
-        shader,
+        shaderID,
         glObj->glVertexShaderTemplate(),
         glObj->glFragmentShaderTemplate(),
         glObj->glGeometryShaderTemplate()
