@@ -95,7 +95,7 @@ QAProfileWindow::QAProfileWindow( QWidget *p, const char *name,
   QWidget *hb = new QWidget( this );
   QHBoxLayout *hblay = new QHBoxLayout( hb );
   hblay->setSpacing( 5 );
-  hblay->setMargin( 5 );
+  hblay->setContentsMargins( 5, 5, 5, 5 );
   setCentralWidget( hb );
 
   QGroupBox *bg = new QGroupBox( "Direction", hb );

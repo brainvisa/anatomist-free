@@ -118,13 +118,13 @@ RoiLevelSetActionView::RoiLevelSetActionView(
   QWidget *myLevels = new QWidget( this );
   lay->addWidget( myLevels );
   QHBoxLayout *levellay = new QHBoxLayout( myLevels );
-  levellay->setMargin( 0 );
+  levellay->setContentsMargins( 0, 0, 0, 0 );
   levellay->setSpacing( 5 );
 
   QGroupBox *myLowLevelGroupBox = new QGroupBox( tr("Low Level"), myLevels );
   levellay->addWidget( myLowLevelGroupBox );
   QHBoxLayout *llglay = new QHBoxLayout( myLowLevelGroupBox );
-  llglay->setMargin( 5 );
+  llglay->setContentsMargins( 5, 5, 5, 5 );
   llglay->setSpacing( 5 );
   _private->myLowLevelSlider = new QSlider( Qt::Horizontal,
                                             myLowLevelGroupBox );
@@ -161,13 +161,13 @@ RoiLevelSetActionView::RoiLevelSetActionView(
   QWidget *myModes = new QWidget( this );
   lay->addWidget( myModes );
   QHBoxLayout *modelay = new QHBoxLayout( myModes );
-  modelay->setMargin( 0 );
+  modelay->setContentsMargins( 0, 0, 0, 0 );
   modelay->setSpacing( 5 );
 
   QWidget *myDimensionMode = new QWidget( myModes );
   modelay->addWidget( myDimensionMode );
   QVBoxLayout *dimmlay = new QVBoxLayout( myDimensionMode );
-  dimmlay->setMargin( 0 );
+  dimmlay->setContentsMargins( 0, 0, 0, 0 );
   dimmlay->setSpacing( 5 );
   QGroupBox *dimb = new QGroupBox( tr("Dimension"), myDimensionMode );
   dimmlay->addWidget( dimb );
@@ -207,7 +207,7 @@ RoiLevelSetActionView::RoiLevelSetActionView(
   QWidget *myMixBox = new QWidget( myModes );
   modelay->addWidget( myMixBox );
   QVBoxLayout *minblay = new QVBoxLayout( myMixBox );
-  minblay->setMargin( 0 );
+  minblay->setContentsMargins( 0, 0, 0, 0 );
   minblay->setSpacing( 5 );
 
   QGroupBox *myMixMethodBox = new QGroupBox( tr("MixMethod"), myMixBox );

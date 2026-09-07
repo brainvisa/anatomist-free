@@ -283,10 +283,10 @@ RoiManagementActionView::RoiManagementActionView( RoiManagementAction * action,
   lay1->addWidget( _private->myMainMenu );
 
   _private->mySessionMenu->addAction(
-    tr("New"), this, SLOT( newGraph() ), Qt::CTRL + Qt::ALT + Qt::Key_N );
+    tr("New"), this, SLOT( newGraph() ), Qt::CTRL | Qt::ALT | Qt::Key_N );
 
   _private->mySessionMenu->addAction(
-    tr("Open"), this, SLOT( loadGraph() ), Qt::CTRL + Qt::Key_O );
+    tr("Open"), this, SLOT( loadGraph() ), Qt::CTRL | Qt::Key_O );
 
 //   _private->mySessionMenu->addAction( tr("Reload"), this,
 //                                     SLOT( reloadGraph() ) ) ;
@@ -296,15 +296,15 @@ RoiManagementActionView::RoiManagementActionView( RoiManagementAction * action,
 
   _private->mySessionMenu->addSeparator() ;
   _private->mySaveGraphAction = _private->mySessionMenu->addAction(
-    tr("Save"), this, SLOT( saveGraph() ), Qt::CTRL + Qt::Key_S );
+    tr("Save"), this, SLOT( saveGraph() ), Qt::CTRL | Qt::Key_S );
 
   _private->mySessionMenu->addAction(
     tr("Save As"), this, SLOT( saveGraphAs() ),
-    Qt::CTRL + Qt::SHIFT + Qt::Key_S );
+    Qt::CTRL | Qt::SHIFT | Qt::Key_S );
 
   _private->mySessionMenu->addAction(
     tr("Clean"), this, SLOT( cleanSession() ),
-    Qt::CTRL + Qt::SHIFT + Qt::Key_C );
+    Qt::CTRL | Qt::SHIFT | Qt::Key_C );
 
   _private->mySaveGraphAction->setEnabled(
     _private->myRoiManagementAction->savableGraph() );
@@ -1193,7 +1193,7 @@ RoiManagementActionView::modifyFWRegionName()
   nameSetter->setWindowTitle( tr( "Modify Frame Work Region Name" ) );
 
   QVBoxLayout * l = new QVBoxLayout( nameSetter );
-  l->setMargin( 5 );
+  l->setContentsMargins( 5, 5, 5, 5 );
   l->setSpacing( 5 );
   QLineEdit * lineEdition = 0 ;
   QComboBox * selectRegionName = 0;
