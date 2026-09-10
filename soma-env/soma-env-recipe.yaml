@@ -17,7 +17,7 @@ requirements:
     - qwt
     - matplotlib
     - virtualgl
-    - qtconsole
+    - qtconsole-base
     - ipycanvas
     - ipywidgets
     - ipyevents
