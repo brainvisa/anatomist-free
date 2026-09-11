@@ -5,6 +5,9 @@ uniform vec3 u_bmin;
 uniform vec3 u_bmax;
 uniform float u_volumeMax;
 uniform vec3 u_texDim;
+uniform float u_paletteMin;
+uniform float u_paletteMax;
+
 
 uniform int   u_activeClipPlanes;
 uniform int   u_clippedObjectActive;
@@ -100,7 +103,8 @@ void main()
             float density = texture(u_texture3D[0], texCoord).r / u_volumeMax;
             if( density > densityFloor) 
             {
-                vec4 tf = texture(u_transferFunction, density);
+                float paletteT = clamp((density - u_paletteMin) / (u_paletteMax - u_paletteMin), 0.0, 1.0);
+                vec4 tf = texture(u_transferFunction, paletteT);
                 if( tf.a > 0.01 )
                 {
                     vec3 densityGrad = computeGradient(texCoord) / (u_bmax - u_bmin);
