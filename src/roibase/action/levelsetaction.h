@@ -158,7 +158,7 @@ namespace anatomist
                     std::queue<Point3d>& trialPoints, bool replace = false )  ;
     bool in( const Point3d&, Point3d p ) ;
     
-    struct PointLess : public std::binary_function< Point3d, Point3d , bool>
+    struct PointLess
     {
       bool operator () ( const Point3d & p1, const Point3d & p2 ) const
       {

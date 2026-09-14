@@ -77,7 +77,7 @@ using namespace carto ;
 using namespace aims ;
 using namespace anatomist ;
 
-struct More : public std::binary_function< float, float , bool>
+struct More
 {
   bool operator () ( float f1, float f2 ) const
   {
@@ -85,7 +85,7 @@ struct More : public std::binary_function< float, float , bool>
   }
 };
 
-struct PointLess : public std::binary_function< Point3d, Point3d , bool>
+struct PointLess
 {
   bool operator () ( const Point3d & p1, const Point3d & p2 ) const
   {
