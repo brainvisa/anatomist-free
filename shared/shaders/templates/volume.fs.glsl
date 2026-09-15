@@ -78,8 +78,6 @@ void main()
     // -------- values to tweak --------
     float stepSizeMM = 0.3;
     int numSteps = int((tFar - tNear) / stepSizeMM);
-    float accumFactor = 0.5;
-    float densityFloor = 0.1;
     // ---------------------------------
 
     // texture coordinates
@@ -101,32 +99,29 @@ void main()
         if( !isClipped(currentPosEye) )
         {
             float density = texture(u_texture3D[0], texCoord).r / u_volumeMax;
-            if( density > densityFloor) 
+            float paletteT = clamp((density - u_paletteMin) / (u_paletteMax - u_paletteMin), 0.0, 1.0);
+            vec4 tf = texture(u_transferFunction, paletteT);
+            if( tf.a > 0.01 )
             {
-                float paletteT = clamp((density - u_paletteMin) / (u_paletteMax - u_paletteMin), 0.0, 1.0);
-                vec4 tf = texture(u_transferFunction, paletteT);
-                if( tf.a > 0.01 )
-                {
-                    vec3 densityGrad = computeGradient(texCoord) / (u_bmax - u_bmin);
-                    float gradLen = length(densityGrad);
-                    vec3 normalObj = gradLen > 0.0001
-                                      ? normalize(densityGrad)
-                                      : vec3(0.0, 0.0, 1.0);
+                vec3 densityGrad = computeGradient(texCoord) / (u_bmax - u_bmin);
+                float gradLen = length(densityGrad);
+                vec3 normalObj = gradLen > 0.0001
+                                    ? normalize(densityGrad)
+                                    : vec3(0.0, 0.0, 1.0);
 
-                    // object space normal to eye space normal
-                    vec3 normalEye = normalize( normalMatrix * normalObj );
+                // object space normal to eye space normal
+                vec3 normalEye = normalize( normalMatrix * normalObj );
 
-                    BlinnPhongMaterial bp = BlinnPhong(normalEye);
-                    vec3 ambientTerm  = bp.ambient.rgb;
-                    vec3 diffuseTerm  = tf.rgb * bp.diffuse.rgb;
-                    vec3 specularTerm = bp.specular.rgb;
+                BlinnPhongMaterial bp = BlinnPhong(normalEye);
+                vec3 ambientTerm  = bp.ambient.rgb;
+                vec3 diffuseTerm  = tf.rgb * bp.diffuse.rgb;
+                vec3 specularTerm = bp.specular.rgb;
 
-                    vec3 shadedColor = ambientTerm + diffuseTerm + specularTerm;
+                vec3 shadedColor = ambientTerm + diffuseTerm + specularTerm;
 
-                    vec4 c = vec4(shadedColor, tf.a * accumFactor);
-                    accum.rgb += (1.0 - accum.a) * c.a * c.rgb;
-                    accum.a   += (1.0 - accum.a) * c.a;
-                }
+                vec4 c = vec4(shadedColor, tf.a );
+                accum.rgb += (1.0 - accum.a) * c.a * c.rgb;
+                accum.a   += (1.0 - accum.a) * c.a;
             }
         }
 
