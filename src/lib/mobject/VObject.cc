@@ -69,64 +69,6 @@ namespace
     return type;
   }
 
-  void gaussianBlur3D( std::vector<float> & buffer,
-                       unsigned dimx, unsigned dimy, unsigned dimz,
-                       float sigma )
-  {
-    int radius = std::max( 1, (int) std::ceil( sigma * 3 ) );
-    std::vector<float> kernel( 2 * radius + 1 );
-    float sum = 0.f;
-    for( int i = -radius; i <= radius; ++i )
-    {
-      float v = std::exp( -0.5f * (i*i) / (sigma*sigma) );
-      kernel[i + radius] = v;
-      sum += v;
-    }
-    for( auto & v : kernel )
-      v /= sum;
-
-    auto idx = [&]( int x, int y, int z ) -> size_t
-    {
-      x = std::clamp( x, 0, (int) dimx - 1 );
-      y = std::clamp( y, 0, (int) dimy - 1 );
-      z = std::clamp( z, 0, (int) dimz - 1 );
-      return size_t(z) * dimx * dimy + size_t(y) * dimx + x;
-    };
-
-    std::vector<float> tmp( buffer.size() );
-    for( unsigned z=0; z<dimz; ++z )
-      for( unsigned y=0; y<dimy; ++y )
-        for( unsigned x=0; x<dimx; ++x )
-        {
-          float acc = 0.f;
-          for( int k=-radius; k<=radius; ++k )
-            acc += buffer[ idx(x+k, y, z) ] * kernel[k+radius];
-          tmp[ idx(x,y,z) ] = acc;
-        }
-
-    std::vector<float> tmp2( buffer.size() );
-    for( unsigned z=0; z<dimz; ++z )
-      for( unsigned y=0; y<dimy; ++y )
-        for( unsigned x=0; x<dimx; ++x )
-        {
-          float acc = 0.f;
-          for( int k=-radius; k<=radius; ++k )
-            acc += tmp[ idx(x, y+k, z) ] * kernel[k+radius];
-          tmp2[ idx(x,y,z) ] = acc;
-        }
-
-    for( unsigned z=0; z<dimz; ++z )
-      for( unsigned y=0; y<dimy; ++y )
-        for( unsigned x=0; x<dimx; ++x )
-        {
-          float acc = 0.f;
-          for( int k=-radius; k<=radius; ++k )
-            acc += tmp2[ idx(x, y, z+k) ] * kernel[k+radius];
-          buffer[ idx(x,y,z) ] = acc;
-        }
-  }
-
-
   template <typename T>
   bool uploadVolumeAsFloat( AVolume<T> *avol, unsigned & dimx, unsigned & dimy,
                             unsigned & dimz, float & volumeMax)
@@ -151,7 +93,6 @@ namespace
         }
 
     volumeMax = vmax;
-    //gaussianBlur3D( buffer, dimx, dimy, dimz, 0.8f ); // test to smooth volume
     GLCaps::glTexImage3D( GL_TEXTURE_3D, 0, GL_R32F, dimx, dimy, dimz, 0,
                           GL_RED, GL_FLOAT, buffer.data() );
     return true;
@@ -203,7 +144,6 @@ VObject::VObject( AObject * vol )
 
   insert( vol );
   createDefaultPalette( "semitransparent" );
-  setReferentialInheritance( vol );
 }
 
 VObject::~VObject()
@@ -280,7 +220,7 @@ void VObject::buildTransferFunction() const
     data[i*4+0] = rgb.red();
     data[i*4+1] = rgb.green();
     data[i*4+2] = rgb.blue();
-    data[i+4+3] = rgb.alpha();
+    data[i*4+3] = rgb.alpha();
   }
 
   if( !d->transferFuncTex )
@@ -366,6 +306,8 @@ bool VObject::glMakeBodyGLL( const ViewState &, const GLList & gllist ) const
 
   glNewList( gllist.item(), GL_COMPILE );
   glDisable( GL_CULL_FACE );
+  glDisable(GL_CLIP_DISTANCE2);
+  glDepthMask( false );
   
   glBegin( GL_QUADS );
 
@@ -406,6 +348,8 @@ bool VObject::glMakeBodyGLL( const ViewState &, const GLList & gllist ) const
   glVertex3f( x1, y0, z0 );
 
   glEnd();
+  glDepthMask( true );
+  glEnable(GL_CLIP_DISTANCE2);
   glEnable( GL_CULL_FACE );
   glEndList();
   return true;

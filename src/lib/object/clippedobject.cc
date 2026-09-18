@@ -44,6 +44,7 @@ struct GLClipScopeItem : public GLItem
     }
     else
     {
+      glDisable( GL_CLIP_DISTANCE2 + _clipID );
       setClipPlaneUniform( false );
       glPopAttrib();
     }
@@ -261,9 +262,10 @@ bool ClippedObject::render( PrimList & prim, RenderContext & rc )
         rc_ptr<GLItem>( new GLClipScopeItem(
             true, d->clipID, d->worldPlane ) ) );
 
-    prim.push_back(
-        rc_ptr<GLItem>( new GLClipScopeItem(
-            false, d->clipID, d->worldPlane ) ) );
+    //jordan debug
+    // prim.push_back(
+    //     rc_ptr<GLItem>( new GLClipScopeItem(
+    //         false, d->clipID, d->worldPlane ) ) );
   }
 
   return hasRendered;
