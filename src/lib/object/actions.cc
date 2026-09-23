@@ -596,7 +596,7 @@ void ObjectActions::setAutomaticReferential( const set<AObject*> & obj )
         }
         Object      it;
         n = refs.size();
-        cout << "nifti transfo: " << n << endl;
+        // cout << "nifti transfo: " << n << endl;
         for( it=transs->objectIterator(), i=0; i<n && it->isValid();
              ++i, it->next() )
         {
