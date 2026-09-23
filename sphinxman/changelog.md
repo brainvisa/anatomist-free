@@ -1,5 +1,14 @@
 # Changelog
 
+## [6.0.19] 2026-09-23
+
+### Added
+
+- shortcut to display a set of objects each in a different window, in drag objects onto a window button:
+  - shift + drop: each object opens a new window of that type
+  - ctrl + drop: same but all new windows are open in a new block
+
+
 ## [6.0.18] 2026-08-06
 
 ### Changed
