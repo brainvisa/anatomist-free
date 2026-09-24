@@ -118,6 +118,7 @@ public slots:
   /// opens a window of type ID type
   void openWindow( int type );
   void openWindow( QAction* ac );
+  void openWindowSpread( QAction* ac );
   /// drop event on windows buttons
   void dropOnWindowIcon( int type, QDropEvent* ev );
   void dragEnterOnWindowIcon( int type, QDragEnterEvent* ev );
