@@ -7,6 +7,7 @@
 - shortcut to display a set of objects each in a different window, in drag objects onto a window button:
   - shift + drop: each object opens a new window of that type
   - ctrl + drop: same but all new windows are open in a new block
+  - menus and keyboard shortcuts: shift-ctrl-A/C/S/3
 
 
 ## [6.0.18] 2026-08-06
