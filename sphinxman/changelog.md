@@ -8,6 +8,7 @@
   - shift + drop: each object opens a new window of that type
   - ctrl + drop: same but all new windows are open in a new block
   - menus and keyboard shortcuts: shift-ctrl-A/C/S/3
+- windows block: the drag action can now drop on the desktop, which detaches the view from the block.
 
 
 ## [6.0.18] 2026-08-06
