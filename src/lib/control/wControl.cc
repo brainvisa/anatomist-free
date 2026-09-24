@@ -1689,6 +1689,26 @@ void ControlWindow::openEmptyBlockView()
 }
 
 
+void ControlWindow::openWindowSpread( QAction *ac )
+{
+  // callback for menus
+  int wtype = ac->data().toInt();
+  string typestr = AWindowFactory::typeString( wtype );
+
+  set<AObject *> o = selectedObjects();
+  for( auto io : o )
+  {
+    CreateWindowCommand	*command = new CreateWindowCommand( typestr );
+    theProcessor->execute( command );
+    set<AObject *> so;
+    so.insert( io );
+    set<AWindow *> sw;
+    sw.insert( command->createdWindow() );
+    theProcessor->execute( new AddObjectCommand( so, sw ) );
+  }
+}
+
+
 anatomist::Referential* ControlWindow::defaultObjectsReferential() const
 {
   set<anatomist::Referential *>	refs = theAnatomist->getReferentials();
