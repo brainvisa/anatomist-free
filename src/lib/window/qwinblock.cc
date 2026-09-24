@@ -1237,9 +1237,16 @@ void DragWinLabel::mouseMoveEvent( QMouseEvent *event )
     if( !pixl->psmall.isNull() )
       drag->setPixmap( pixl->psmall );
 
-    drag->exec( Qt::MoveAction );
+    Qt::DropAction result = drag->exec( Qt::MoveAction );
 
     item->widget()->setEnabled( true );
+
+    if( result == Qt::MoveAction )
+    {
+      // detach view
+      aw->detach();
+      aw->move( QCursor::pos() );
+    }
   }
 }
 

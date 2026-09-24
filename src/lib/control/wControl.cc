@@ -79,6 +79,7 @@
 #include <anatomist/selection/qSelMenu.h>
 #include <anatomist/object/actions.h>
 #include <anatomist/application/filedialogextension.h>
+#include <anatomist/window/qwinblock.h>
 #include <graph/tree/tree.h>
 #include <cartobase/stream/fileutil.h>
 #include <cartobase/stream/directory.h>
@@ -896,17 +897,55 @@ void ControlWindow::dropOnWindowIcon( int type, QDropEvent* event )
 
   //cout << "object decoded, " << o.size() << " objects\n";
 
-  string			typestr = AWindowFactory::typeString( type );
-  CreateWindowCommand	*command = new CreateWindowCommand( typestr );
-  theProcessor->execute( command );
+#if QT_VERSION >= 0x060000
+  bool shift = event->modifiers() & Qt::ShiftModifier;
+  bool ctrl = event->modifiers() & Qt::ControlModifier;
+#else
+  bool shift = event->keyboardModifiers() & Qt::ShiftModifier;
+  bool ctrl = event->keyboardModifiers() & Qt::ControlModifier;
+#endif
+  string typestr = AWindowFactory::typeString( type );
 
-  if( command->createdWindow() )
+  if( shift || ctrl )
   {
-    set<AWindow *>	sw;
+    QAWindowBlock *block = 0;
+    if( ctrl )
+    {
+      CreateWindowsBlockCommand *c
+        = new CreateWindowsBlockCommand( -1, 0, (vector<int>) 0, 0, 2 );
+      theProcessor->execute( c );
+      block = dynamic_cast<QAWindowBlock *>( c->block() );
+    }
+    for( auto io : o )
+    {
+      CreateWindowCommand	*command = new CreateWindowCommand( typestr );
+      theProcessor->execute( command );
 
-    sw.insert( command->createdWindow() );
-    Command	*c = new AddObjectCommand( o, sw );
-    theProcessor->execute( c );
+      if( command->createdWindow() )
+      {
+        set<AWindow *>	sw;
+
+        sw.insert( command->createdWindow() );
+        set<AObject *> so;
+        so.insert( io );
+        Command	*c = new AddObjectCommand( so, sw );
+        theProcessor->execute( c );
+      }
+    }
+  }
+  else
+  {
+    CreateWindowCommand	*command = new CreateWindowCommand( typestr );
+    theProcessor->execute( command );
+
+    if( command->createdWindow() )
+    {
+      set<AWindow *>	sw;
+
+      sw.insert( command->createdWindow() );
+      Command	*c = new AddObjectCommand( o, sw );
+      theProcessor->execute( c );
+    }
   }
 }
 
@@ -1647,6 +1686,26 @@ void ControlWindow::openEmptyBlockView()
     = new CreateWindowsBlockCommand( -1, 0, (vector<int>) 0, 0, 2 );
   theProcessor->execute( command );
   // QWidget *block = command->block();
+}
+
+
+void ControlWindow::openWindowSpread( QAction *ac )
+{
+  // callback for menus
+  int wtype = ac->data().toInt();
+  string typestr = AWindowFactory::typeString( wtype );
+
+  set<AObject *> o = selectedObjects();
+  for( auto io : o )
+  {
+    CreateWindowCommand	*command = new CreateWindowCommand( typestr );
+    theProcessor->execute( command );
+    set<AObject *> so;
+    so.insert( io );
+    set<AWindow *> sw;
+    sw.insert( command->createdWindow() );
+    theProcessor->execute( new AddObjectCommand( so, sw ) );
+  }
 }
 
 
