@@ -64,13 +64,17 @@ namespace anatomist
 {
   struct Bucket::Private
   {
+    typedef vector<size_t> Indices;
     Private();
     ~Private();
 
     mutable AimsSurfaceFacet	*surface;
+    mutable AimsSurfaceFacet *surface_tex;
+    mutable map<int, Indices> index_tex;
     mutable bool		empty;
     mutable bool		bckchanged;
     mutable map<string, AimsSurface<4,Void> >	slices;
+    mutable map<string, pair<AimsSurface<4,Void>, Indices> > slices_tex;
     bool allow2DRendering;
   };
 }
@@ -80,7 +84,7 @@ Tree* Bucket::_optionTree = 0;
 
 
 Bucket::Private::Private()
-  : surface( 0 ), empty( true ), bckchanged( true ), allow2DRendering( true )
+  : surface( 0 ), surface_tex( 0 ), empty( true ), bckchanged( true ), allow2DRendering( true )
 {
 }
 
@@ -88,6 +92,7 @@ Bucket::Private::Private()
 Bucket::Private::~Private()
 {
   delete surface;
+  delete surface_tex;
 }
 
 
@@ -833,30 +838,31 @@ namespace
 
 }
 
+
 void Bucket::meshSubBucket( const vector<pair<
-			    BucketMap<Void>::Bucket::const_iterator, 
-			    BucketMap<Void>::Bucket::const_iterator> > & ivec, 
-			    AimsSurface<4,Void> *surf, bool glonfly ) const
+                            BucketMap<Void>::Bucket::const_iterator,
+                            BucketMap<Void>::Bucket::const_iterator> > & ivec,
+                            AimsSurface<4,Void> *surf, bool glonfly ) const
 {
   /*		ALGORITHM
 
-	- buckets are scanned only once
-	- we try to minimize the number of polygons in the resulting mesh:
-	* no polygons hidden inside the mesh
-	* when possible, surfaces going along several facets in X direction 
-	  are meshed in one single polygon
+    - buckets are scanned only once
+    - we try to minimize the number of polygons in the resulting mesh:
+    * no polygons hidden inside the mesh
+    * when possible, surfaces going along several facets in X direction
+      are meshed in one single polygon
 
-	Buckets are scanned in an ordered way: equivalent to
-	for( z=zmin; z<zmax; ++z )
-	  for( y=ymin; y<ymax; ++y )
-	    for( x=xmin; x<xmax; ++x )
-	but only voxels in the bucket are considered
+    Buckets are scanned in an ordered way: equivalent to
+    for( z=zmin; z<zmax; ++z )
+      for( y=ymin; y<ymax; ++y )
+        for( x=xmin; x<xmax; ++x )
+    but only voxels in the bucket are considered
 
-	In each row (same y and z) blocks of contiguous voxels are packed.
-	If a voxel in a contiguous row (y+1, z+1, ...) touches the block, 
-	the block facet is cut -> can't be drawn with 1 polygon
+    In each row (same y and z) blocks of contiguous voxels are packed.
+    If a voxel in a contiguous row (y+1, z+1, ...) touches the block,
+    the block facet is cut -> can't be drawn with 1 polygon
 
-	...
+    ...
    */
   // x0: last x
   // y0: last y at x location (row[x])
@@ -896,170 +902,170 @@ void Bucket::meshSubBucket( const vector<pair<
 
   for( n=0; n<nv; ++n )
     for( ibi=ivec[n].first, iend=ivec[n].second; ibi!=iend; ++ibi )
+    {
+      const Point3d	& pos = ibi->first;
+      x = pos[0] - bx;
+      y = pos[1] - by;
+      z = pos[2] - bz;
+
+      // if line changed -> finish previous line
+      if( y != lasty || z != lastz )
       {
-	const Point3d	& pos = ibi->first;
-        x = pos[0] - bx;
-	y = pos[1] - by;
-	z = pos[2] - bz;
+        // finish facet z0 of (lasty, lastz)
+        if( xofz0 >= 0 )
+          addFacetZ0( xofz0+bx, x0+bx, lasty+by, lastz+bz, glonfly, vs,
+                      *surf );
+        // finish facet y0 of (lasty, lastz)
+        if( xofy0 >= 0 )
+          addFacetY0( xofy0+bx, x0+bx, lasty+by, lastz+bz, glonfly, vs,
+                      *surf );
 
-	// if line changed -> finish previous line
-	if( y != lasty || z != lastz )
-	  {
-	    // finish facet z0 of (lasty, lastz)
-	    if( xofz0 >= 0 )
-	      addFacetZ0( xofz0+bx, x0+bx, lasty+by, lastz+bz, glonfly, vs, 
-			  *surf );
-	    // finish facet y0 of (lasty, lastz)
-	    if( xofy0 >= 0 )
-	      addFacetY0( xofy0+bx, x0+bx, lasty+by, lastz+bz, glonfly, vs, 
-			  *surf );
-
-	    // finish facets y1 of before-last row (prevy, prevz)
-	    while( xybegin >= 0 )
-	      {
-                addFacetY1( xybegin+bx, xyend+bx, prevy+by, prevz+bz, glonfly,
-			    vs, *surf );
-		unstack_pair( xlist2, xybegin, xyend );
-	      }
-
-	    if( x0 >= 0 )
-	      {
-                addFacetX1( x0+bx, lasty+by, lastz+bz, glonfly, vs, *surf );
-		xlist1->push_back( x0 );	// end of last row
-	      }
-	    if( z != lastz || ( lasty >= 0 && y > lasty + 1 ) ) // empty y row
-	      {	// flush all Y1 facets (of last row)
-                unstack_pair( xlist1, xybegin, xyend );
-		while( xybegin >= 0 )
-		  {
-                    addFacetY1( xybegin+bx, xyend+bx, lasty+by, lastz+bz,
-				glonfly, vs, *surf );
-                    unstack_pair( xlist1, xybegin, xyend );
-                  }
-	      }
-
-	    x0 = -1;
-	    prevy = lasty;
-	    prevz = lastz;
-	    lasty = y;
-	    xofy0 = -1;
-	    xofz0 = -1;
-	    xlist2 = &xlists[ xln ];
-	    xln = 1 - xln;
-	    xlist1 = &xlists[ xln ];
-	    xlist1->clear();
-	    unstack_pair( xlist2, xybegin, xyend );
-          }
-
-	if( z != lastz )	// plane changed
-	  {
-	    for( i=0; i<dimx; ++i )
-	      row[i] = -1;
-	    // draw y1 facets of last row
-	    while( xybegin >= 0 )
-	      {
-		addFacetY1( xybegin+bx, xyend+bx, prevy+by, prevz+bz, glonfly, 
-			    vs, *surf );
-		unstack_pair( xlist2, xybegin, xyend );
-	      }
-	    lastz = z;
-	    prevy = -1;
-	  }
-
-	//	z walls
-	i = x + y * dimx;
-	z0 = plane[ i ];
-	if( z == 0 || z0 < z - 1 )
-	  {
-	    if( xofz0 >= 0 )
-	      {
-		if( x0 < x - 1 )
-		  {
-		    addFacetZ0( xofz0+bx, x0+bx, pos[1], pos[2], glonfly, vs, 
-				*surf );
-		    xofz0 = x;
-		  }
-	      }
-	    else
-	      xofz0 = x;
-
-	    if( z0 >= 0 )
-	      addFacetZ1( pos[0], pos[1], z0+bz, glonfly, vs, *surf );
-	  }
-	else if( xofz0 >= 0 )
-	  {
-	    addFacetZ0( xofz0+bx, x0+bx, pos[1], pos[2], glonfly, vs, *surf );
-	    xofz0 = -1;
-	  }
-	plane[ i ] = z;
-
-	//	y walls
-	y0 = row[x];
-	if( y == 0 || y0 < y - 1 ) // if nothing at (x, y-1): Y0 facet exists
-	  {
-	    if( xofy0 >= 0 )
-	      {
-		if( x0 < x - 1 ) // split: finish previous Y0 block
-		  {
-		    addFacetY0( xofy0+bx, x0+bx, pos[1], pos[2], glonfly, vs, 
-				*surf );
-		    xofy0 = x; // start another Y0 block
-		  }
-	      }
-	    else // begin new block for Y0 facet
-	      xofy0 = x;
-	  }
-	else if( xofy0 >= 0 ) // something at (x,y-1): Y0 block finished
-	  {
-	    addFacetY0( xofy0+bx, x0+bx, pos[1], pos[2], glonfly, vs, *surf );
-	    xofy0 = -1; // no new Y0 block
-	  }
-	while( xyend >= 0 && xyend < x )
-	  {
-	    addFacetY1( xybegin+bx, xyend+bx, prevy+by, pos[2], glonfly, vs, 
-			*surf );
-	    unstack_pair( xlist2, xybegin, xyend );
-	  }
-	if( xybegin >= 0 )
+        // finish facets y1 of before-last row (prevy, prevz)
+        while( xybegin >= 0 )
         {
-          if( xybegin < x )
-            {
-              addFacetY1( xybegin+bx, x+bx-1, prevy+by, pos[2], glonfly, vs,
-                          *surf );
-              if( xyend > x )
-                xybegin = x + 1;
-              else
-                unstack_pair( xlist2, xybegin, xyend );
-            }
-          else if( xybegin == x )
-            {
-              if( xyend > x )
-                xybegin = x + 1;
-              else
-                unstack_pair( xlist2, xybegin, xyend );
-            }
+          addFacetY1( xybegin+bx, xyend+bx, prevy+by, prevz+bz, glonfly,
+                      vs, *surf );
+          unstack_pair( xlist2, xybegin, xyend );
         }
 
-	row[x] = y;
+        if( x0 >= 0 )
+        {
+          addFacetX1( x0+bx, lasty+by, lastz+bz, glonfly, vs, *surf );
+          xlist1->push_back( x0 );	// end of last row
+        }
+        if( z != lastz || ( lasty >= 0 && y > lasty + 1 ) ) // empty y row
+        {	// flush all Y1 facets (of last row)
+          unstack_pair( xlist1, xybegin, xyend );
+          while( xybegin >= 0 )
+          {
+            addFacetY1( xybegin+bx, xyend+bx, lasty+by, lastz+bz,
+                        glonfly, vs, *surf );
+            unstack_pair( xlist1, xybegin, xyend );
+          }
+        }
 
-	if( x0 < 0 )
-	  xlist1->push_back( x );	// begin of row
-
-	//	x walls
-	if( x0 < 0 || x0 < x - 1 ) //x == 0 || x0 < x - 1 ) // nothing at (x-1,y)
-	  {
-	    addFacetX0( pos[0], pos[1], pos[2], glonfly, vs, *surf );
-	    //xofy0 = x;
-	    if( x0 >= 0 )
-	      {
-		addFacetX1( x0+bx, pos[1], pos[2], glonfly, vs, *surf );
-		xlist1->push_back( x0 );	// end of Y1 row
-		xlist1->push_back( x );		// beginning of new one
-	      }
-	  }
-
-	x0 = x;
+        x0 = -1;
+        prevy = lasty;
+        prevz = lastz;
+        lasty = y;
+        xofy0 = -1;
+        xofz0 = -1;
+        xlist2 = &xlists[ xln ];
+        xln = 1 - xln;
+        xlist1 = &xlists[ xln ];
+        xlist1->clear();
+        unstack_pair( xlist2, xybegin, xyend );
       }
+
+      if( z != lastz )	// plane changed
+      {
+        for( i=0; i<dimx; ++i )
+          row[i] = -1;
+        // draw y1 facets of last row
+        while( xybegin >= 0 )
+        {
+          addFacetY1( xybegin+bx, xyend+bx, prevy+by, prevz+bz, glonfly,
+                      vs, *surf );
+          unstack_pair( xlist2, xybegin, xyend );
+        }
+        lastz = z;
+        prevy = -1;
+      }
+
+      //	z walls
+      i = x + y * dimx;
+      z0 = plane[ i ];
+      if( z == 0 || z0 < z - 1 )
+      {
+        if( xofz0 >= 0 )
+        {
+          if( x0 < x - 1 )
+          {
+            addFacetZ0( xofz0+bx, x0+bx, pos[1], pos[2], glonfly, vs,
+                        *surf );
+            xofz0 = x;
+          }
+        }
+        else
+          xofz0 = x;
+
+        if( z0 >= 0 )
+          addFacetZ1( pos[0], pos[1], z0+bz, glonfly, vs, *surf );
+      }
+      else if( xofz0 >= 0 )
+      {
+        addFacetZ0( xofz0+bx, x0+bx, pos[1], pos[2], glonfly, vs, *surf );
+        xofz0 = -1;
+      }
+      plane[ i ] = z;
+
+      //	y walls
+      y0 = row[x];
+      if( y == 0 || y0 < y - 1 ) // if nothing at (x, y-1): Y0 facet exists
+      {
+        if( xofy0 >= 0 )
+        {
+          if( x0 < x - 1 ) // split: finish previous Y0 block
+          {
+            addFacetY0( xofy0+bx, x0+bx, pos[1], pos[2], glonfly, vs,
+                        *surf );
+            xofy0 = x; // start another Y0 block
+          }
+        }
+        else // begin new block for Y0 facet
+          xofy0 = x;
+      }
+      else if( xofy0 >= 0 ) // something at (x,y-1): Y0 block finished
+      {
+        addFacetY0( xofy0+bx, x0+bx, pos[1], pos[2], glonfly, vs, *surf );
+        xofy0 = -1; // no new Y0 block
+      }
+      while( xyend >= 0 && xyend < x )
+      {
+        addFacetY1( xybegin+bx, xyend+bx, prevy+by, pos[2], glonfly, vs,
+                    *surf );
+        unstack_pair( xlist2, xybegin, xyend );
+      }
+      if( xybegin >= 0 )
+      {
+        if( xybegin < x )
+        {
+          addFacetY1( xybegin+bx, x+bx-1, prevy+by, pos[2], glonfly, vs,
+                      *surf );
+          if( xyend > x )
+            xybegin = x + 1;
+          else
+            unstack_pair( xlist2, xybegin, xyend );
+        }
+        else if( xybegin == x )
+        {
+          if( xyend > x )
+            xybegin = x + 1;
+          else
+            unstack_pair( xlist2, xybegin, xyend );
+        }
+      }
+
+      row[x] = y;
+
+      if( x0 < 0 )
+        xlist1->push_back( x );	// begin of row
+
+      //	x walls
+      if( x0 < 0 || x0 < x - 1 ) //x == 0 || x0 < x - 1 ) // nothing at (x-1,y)
+      {
+        addFacetX0( pos[0], pos[1], pos[2], glonfly, vs, *surf );
+        //xofy0 = x;
+        if( x0 >= 0 )
+        {
+          addFacetX1( x0+bx, pos[1], pos[2], glonfly, vs, *surf );
+          xlist1->push_back( x0 );	// end of Y1 row
+          xlist1->push_back( x );		// beginning of new one
+        }
+      }
+
+      x0 = x;
+    }
 
   // terminate big squares
   if( xofz0 >= 0 )
@@ -1069,11 +1075,11 @@ void Bucket::meshSubBucket( const vector<pair<
     addFacetY0( xofy0+bx, x0+bx, lasty+by, lastz+bz, glonfly, vs, *surf );
 
   while( xybegin >= 0 )
-    {
-      addFacetY1( xybegin+bx, xyend+bx, prevy+by, prevz+bz, glonfly, 
-		  vs, *surf );
-      unstack_pair( xlist2, xybegin, xyend );
-    }
+  {
+    addFacetY1( xybegin+bx, xyend+bx, prevy+by, prevz+bz, glonfly,
+                vs, *surf );
+    unstack_pair( xlist2, xybegin, xyend );
+  }
 
   // terminate z planes
   unsigned	j, k;
@@ -1081,21 +1087,21 @@ void Bucket::meshSubBucket( const vector<pair<
   for( j=0, k=0; j<dimy; ++j )
     for( i=0; i<dimx; ++i, ++k )
       if( plane[ k ] >= 0 )
-	// fill facet (i,j,plane[k]+0.5)
-	addFacetZ1( i+bx, j+by, plane[k]+bz, glonfly, vs, *surf );
+        // fill facet (i,j,plane[k]+0.5)
+        addFacetZ1( i+bx, j+by, plane[k]+bz, glonfly, vs, *surf );
   prevy = lasty;
   prevz = lastz;
   if( x0 >= 0 )
+  {
+    xlist1->push_back( x0 );	// end of last row
+    unstack_pair( xlist1, xybegin, xyend );
+    while( xybegin >= 0 )
     {
-      xlist1->push_back( x0 );	// end of last row
+      addFacetY1( xybegin+bx, xyend+bx, prevy+by, prevz+bz, glonfly,
+                  vs, *surf );
       unstack_pair( xlist1, xybegin, xyend );
-      while( xybegin >= 0 )
-	{
-	  addFacetY1( xybegin+bx, xyend+bx, prevy+by, prevz+bz, glonfly, 
-		      vs, *surf );
-	  unstack_pair( xlist1, xybegin, xyend );
-	}
     }
+  }
 
   // terminate last line
   if( x0 >= 0 )
@@ -1187,8 +1193,12 @@ void Bucket::setSurface( AimsSurfaceFacet* surf )
 void Bucket::freeSurface() const
 {
   delete d->surface;
+  delete d->surface_tex;
   d->surface = 0;
+  d->surface_tex = 0;
+  d->index_tex.clear();
   d->slices.clear();
+  d->slices_tex.clear();
   setBucketChanged();
 }
 
@@ -1645,3 +1655,95 @@ void Bucket::setAllow2DRendering( bool x )
 }
 
 
+const pair<const AimsSurface<4, Void>*, const std::vector<size_t> *>
+Bucket::surfaceWithTexIndices( const ViewState & state ) const
+{
+  const SliceViewState	*svs = state.sliceVS();
+  if( svs )
+  {
+    return meshPlaneWithTex( *svs );
+  }
+  else
+  {
+    static const AimsSurface<4, Void> empty_mesh;
+    static const vector<size_t> empty_tex;
+
+    size_t t = createFacetWithTex( (size_t) rint(
+      state.timedims[0] / voxelSize()[3] ) );
+    if( !d->surface_tex )
+      return make_pair( &empty_mesh, &empty_tex );
+    auto i = d->surface_tex->find( t );
+    if( i == d->surface_tex->end() )
+      return make_pair( &empty_mesh, &empty_tex );
+    return make_pair( &i->second, &d->index_tex.find( t )->second );
+  }
+}
+
+
+std::pair<const AimsSurface<4,Void>*, const std::vector<size_t> *>
+Bucket::meshPlaneWithTex( const SliceViewState & ) const
+{
+}
+
+
+size_t Bucket::createFacetWithTex( size_t t ) const
+{
+  if( d->bckchanged )
+  {
+    freeSurface();
+    const_cast<Bucket *>( this )->setGeomExtrema();
+  }
+  if( !d->surface_tex )
+    d->surface_tex = new AimsSurfaceFacet;
+
+  // get time in bucket
+
+  if( t > MaxT() )
+    t = (size_t) MaxT();
+
+  BucketMap<Void>::iterator	ib = _bucket->lower_bound( t );
+  if( ib == _bucket->end() )
+  {
+    if( _bucket->empty() )
+      return 0;
+    ib = _bucket->find( (*_bucket->rbegin()).first );
+    if( ib == _bucket->end() )
+      return 0;
+  }
+
+  AimsSurface<4, Void>	& surf = (*d->surface_tex)[ ib->first ];
+
+  if( !surf.vertex().empty() && !d->bckchanged )
+    return ib->first;
+
+  surf = AimsSurface<4, Void>();
+
+  meshSubBucketWithTex( ib->second.begin(), ib->second.end(), &surf );
+
+  /*cout << "createFacetWithTex :\n" << d->surface->vertex().size() << " vertices\n";
+  cout << d->surface->normal().size() << " normals\n";
+  cout << d->surface->polygon().size() << " polygons\n";*/
+
+  d->bckchanged = false;
+  glSetChanged( glGEOMETRY, false );
+  glSetChanged( glBODY );
+
+  // return exact time
+  return ib->first;
+}
+
+
+void Bucket::meshSubBucketWithTex(
+  const vector<pair<
+      BucketMap<Void>::Bucket::const_iterator,
+      BucketMap<Void>::Bucket::const_iterator> > & ivec,
+  AimsSurface<4,Void> *surf, bool glonfly ) const
+{
+  Point3df	vs = Point3df( voxelSize() );
+  for( auto ibv : ivec )
+  {
+    for( auto ib=ibv.first, eb=ibv.second; ib!=eb; ++ib )
+    {
+    }
+  }
+}

@@ -27,6 +27,8 @@ set( _headers
     browser/qObjBrowserWid.h
     browser/qwObjectBrowser.h
     bucket/Bucket.h
+    bucket/fusiontexbucket.h
+    bucket/texbucket.h
     color/colortraits.h
     color/minipalette.h
     color/qwObjPalette.h
@@ -283,6 +285,8 @@ set( _sources
     browser/qObjBrowserWid.cc
     browser/qwObjectBrowser.cc
     bucket/Bucket.cc
+    bucket/fusiontexbucket.cc
+    bucket/texbucket.cc
     color/colortraits.cc
     color/minipalette.cc
     color/qwObjPalette.cc
