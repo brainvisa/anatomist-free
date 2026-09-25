@@ -39,6 +39,8 @@
 #include <cartobase/smart/sharedptr.h>
 #include <QOpenGLShaderProgram>
 #include <anatomist/surface/IShaderModule.h>
+#include <aims/resampling/quaternion.h>
+
 #include <list>
 #include <set>
 
@@ -227,17 +229,19 @@ namespace anatomist
       std::vector<int> textureDim;
     };
 
-  GLObjectUniforms(carto::rc_ptr<IShaderModule> shaderModule, carto::rc_ptr<QOpenGLShaderProgram> glShader, AObject* obj);
+  GLObjectUniforms(carto::rc_ptr<IShaderModule> shaderModule, carto::rc_ptr<QOpenGLShaderProgram> glShader, AObject* obj, const std::vector<Point4df> & objectClipPlanes = std::vector<Point4df>());
     virtual ~GLObjectUniforms();
     virtual void callList() const;
     virtual void getUniformsLocations(UniformsLocations & locations) const;
     virtual void getTexturesData(const ViewState& vs, const unsigned maxSampler, TexturesData& data) const;
     virtual void updateTextureUniforms(const UniformsLocations& locations,TexturesData& data, const unsigned maxSampler) const;
   private:
+    void updateObjectClipUniforms() const;
     carto::rc_ptr<IShaderModule> _module;
     carto::rc_ptr<QOpenGLShaderProgram> _shader;
     AObject* _obj;
     GLComponent* _glObj;
+    std::vector<Point4df> _objectClipPlanes;
   };
 
 }

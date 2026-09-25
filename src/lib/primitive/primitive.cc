@@ -543,7 +543,7 @@ void GLSceneUniforms::callList() const
     
 }
 
-GLObjectUniforms::GLObjectUniforms(carto::rc_ptr<IShaderModule> shaderModule, carto::rc_ptr<QOpenGLShaderProgram> glShader, AObject* obj) : GLItem(),_module(shaderModule), _shader(glShader), _obj(obj)
+GLObjectUniforms::GLObjectUniforms(carto::rc_ptr<IShaderModule> shaderModule, carto::rc_ptr<QOpenGLShaderProgram> glShader, AObject* obj, const std::vector<Point4df> & objectClipPlanes) : GLItem(),_module(shaderModule), _shader(glShader), _obj(obj), _objectClipPlanes(objectClipPlanes)
 {
   _glObj = obj->glAPI();
 }
@@ -552,6 +552,36 @@ GLObjectUniforms::GLObjectUniforms(carto::rc_ptr<IShaderModule> shaderModule, ca
 GLObjectUniforms::~GLObjectUniforms()
 {
   // do nothing
+}
+
+void GLObjectUniforms::updateObjectClipUniforms() const
+{
+  unsigned nb = std::min( (unsigned) _objectClipPlanes.size(), (unsigned) 6); // MaxObjectClipPlanes : jordan to modify according to renderContext
+
+  GLint nbLoc = _shader->uniformLocation( "u_nbObjectClipPlanes" );
+  if( nbLoc >= 0 )
+    _shader->setUniformValue( nbLoc, (GLint) nb );
+
+  if( nb == 0 )
+    return;
+
+  GLint planesLoc = _shader->uniformLocation( "u_objectClipPlanes" );
+  if( planesLoc < 0 )
+    return;
+
+  GLfloat mv[16];
+  glGetFloatv( GL_MODELVIEW_MATRIX, mv );
+  QMatrix4x4 modelView( mv );
+  modelView = modelView.transposed();
+  QMatrix4x4 mvInvT = modelView.inverted().transposed();
+
+  std::vector<QVector4D> planesEye( nb );
+  for( unsigned i = 0; i < nb; ++i )
+  {
+    const Point4df & p = _objectClipPlanes[i];
+    planesEye[i] = mvInvT * QVector4D( p[0], p[1], p[2], p[3] );
+  }
+  _shader->setUniformValueArray( planesLoc, planesEye.data(), (int) nb );
 }
 
 void GLObjectUniforms::callList() const
@@ -578,6 +608,8 @@ void GLObjectUniforms::callList() const
   getTexturesData(vs, maxSamplers, texturesData);
 
   updateTextureUniforms(locations, texturesData, maxSamplers);
+
+  updateObjectClipUniforms();
 
   _obj->glAPI()->updateObjectUniforms(_shader.get());
 

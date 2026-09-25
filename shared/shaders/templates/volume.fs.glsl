@@ -1,3 +1,5 @@
+#define MAX_OBJECT_CLIP_PLANES 6 //jordan to change with the one in renderContext and globjectuniforms
+
 uniform sampler3D u_texture3D[8];
 uniform sampler1D u_transferFunction;
 
@@ -10,10 +12,10 @@ uniform float u_paletteMax;
 
 
 uniform int   u_activeClipPlanes;
-uniform int   u_clippedObjectActive;
 uniform vec4  u_clipPlane0;
 uniform vec4  u_clipPlane1;
-uniform vec4  u_clipPlane2;
+uniform int   u_nbObjectClipPlanes;
+uniform vec4  u_objectClipPlanes[MAX_OBJECT_CLIP_PLANES];
 
 in vec3 v_objectPosRaw;
 in vec3 v_directionLight;
@@ -57,8 +59,15 @@ bool isClipped(vec4 eyePos)
         return true;
     if( u_activeClipPlanes >= 2 && dot(u_clipPlane1, eyePos) < 0.0 )
         return true;
-    if( u_clippedObjectActive == 1 && dot(u_clipPlane2, eyePos) < 0.0 )
-        return true;
+
+
+    for( int i = 0; i < MAX_OBJECT_CLIP_PLANES; ++i )
+    {
+        if( i >= u_nbObjectClipPlanes )
+            break;
+        if( dot(u_objectClipPlanes[i], eyePos) < 0.0 )
+            return true;
+    }
 
     return false;
 }

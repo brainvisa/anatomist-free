@@ -20,72 +20,6 @@ using namespace anatomist;
 using namespace carto;
 using namespace std;
 
-namespace
-{
-
-struct GLClipScopeItem : public GLItem
-{
-  GLClipScopeItem( bool enable, int clipID, const Point4df & plane )
-      : _enable( enable ), _clipID( clipID ), _plane( plane ) {}
-
-  bool ghost() const override { return false; }
-
-  void callList() const override
-  {
-    if( _enable )
-    {
-      glPushAttrib( GL_ENABLE_BIT );
-      glEnable( GL_CLIP_DISTANCE2 + _clipID );
-
-      GLdouble pl[4] = { _plane[0], _plane[1], _plane[2], _plane[3] };
-      glClipPlane( GL_CLIP_PLANE2 + _clipID, pl );
-
-      setClipPlaneUniform( true );
-    }
-    else
-    {
-      glDisable( GL_CLIP_DISTANCE2 + _clipID );
-      setClipPlaneUniform( false );
-      glPopAttrib();
-    }
-  }
-
-private:
-  void setClipPlaneUniform( bool active ) const
-  {
-    GLint progID = 0;
-    glGetIntegerv( GL_CURRENT_PROGRAM, &progID );
-    if( !progID )
-      return;
-
-    if( active )
-    {
-      string planeName = "u_clipPlane" + to_string( 2 + _clipID );
-      GLint loc = glGetUniformLocation( progID, planeName.c_str() );
-      if( loc >= 0 )
-      {
-        GLfloat mv[16];
-        glGetFloatv(GL_MODELVIEW_MATRIX, mv);
-        QMatrix4x4 modelView(mv);
-        modelView = modelView.transposed();
-        QMatrix4x4 mvInvT = modelView.inverted().transposed();
-        QVector4D planeEye = mvInvT * QVector4D(_plane[0], _plane[1], _plane[2], _plane[3]);
-        glUniform4f( loc, planeEye.x(), planeEye.y(), planeEye.z(), planeEye.w() );
-      }
-    }
-
-    string activeName = "u_clippedObjectActive" ;
-    GLint aloc = glGetUniformLocation( progID, activeName.c_str() );
-    if( aloc >= 0 )
-      glUniform1i( aloc, active ? 1 : 0 );
-  }
-
-  bool     _enable;
-  int      _clipID;
-  Point4df _plane;
-};
-
-} 
 
 struct ClippedObject::Private
 {
@@ -212,61 +146,25 @@ void ClippedObject::computeWorldPlane( const RenderContext & rc )
 
 
 
-bool ClippedObject::render( PrimList & prim, RenderContext & rc )
+bool ClippedObject::render( PrimList &, RenderContext & rc )
 {
-
-  const SliceViewState *osvs = rc.getViewState().sliceVS();
-  SliceViewState svs;
-  if( !osvs || !osvs->vieworientation )
-  {
-    if( osvs )
-      svs = *osvs;
-    else
-      static_cast<ViewState &>( svs ) = rc.getViewState();
-
-    const AWindow3D *w3 =
-        dynamic_cast<const AWindow3D *>( rc.getViewState().window );
-    if( w3 )
-    {
-      svs.orientation = &w3->sliceQuaternion();
-      svs.winref = w3->getReferential();
-      const GLWidgetManager *glv =
-          dynamic_cast<const GLWidgetManager *>( w3->view() );
-      if( glv )
-          svs.vieworientation = &glv->quaternion();
-    }
-  }
-
-  const bool firstlist = prim.empty();
-  PrimList::iterator ip = firstlist ? prim.end() : std::prev( prim.end() );
+  if( size() == 0 )
+    return false;
 
   computeWorldPlane( rc );
 
   list<carto::shared_ptr<AObject>> subObjects;
   for( auto it = begin(); it != end(); ++it )
-      subObjects.push_back( rc_ptr<AObject>( *it ) );
+    subObjects.push_back( rc_ptr<AObject>( *it ) );
 
   RenderMode rcmode = RenderMode::Full;
   if( rc.getViewState().selectRenderMode != ViewState::glSELECTRENDER_NONE )
     rcmode = RenderMode::Selection;
 
-  const bool hasRendered = rc.renderObjects( subObjects,
-                              rcmode,
+  rc.pushObjectClipPlane( d->worldPlane );
+  const bool hasRendered = rc.renderObjects( subObjects, rcmode,
                               rc.getViewState().selectRenderMode );
-
-  if( hasRendered )
-  {
-    auto insertPos = firstlist ? prim.begin() : std::next( ip );
-
-    prim.insert( insertPos,
-        rc_ptr<GLItem>( new GLClipScopeItem(
-            true, d->clipID, d->worldPlane ) ) );
-
-    //jordan debug
-    // prim.push_back(
-    //     rc_ptr<GLItem>( new GLClipScopeItem(
-    //         false, d->clipID, d->worldPlane ) ) );
-  }
+  rc.popObjectClipPlane();
 
   return hasRendered;
 }

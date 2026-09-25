@@ -37,6 +37,7 @@ struct RenderContext::Private
   carto::rc_ptr<QOpenGLShaderProgram> currentProgram;
   carto::rc_ptr<ViewState> vs;
   std::list<AObject *> renderobj;
+  std::vector<Point4df> objectClipPlanes;
 };
 
 RenderContext::Private::Private(AWindow3D* win, GLWidgetManager* widgetManager) : 
@@ -231,7 +232,7 @@ bool RenderContext::renderObject(std::unordered_map<std::string, std::vector<car
       {
         if(i==0)
           d->currentPrimitives->push_back(carto::rc_ptr<GLItem>(new GLSceneUniforms(module, d->currentProgram, d->glwman)));
-        d->currentPrimitives->push_back(carto::rc_ptr<GLItem>(new GLObjectUniforms(module, d->currentProgram, obj.get())));
+        d->currentPrimitives->push_back(carto::rc_ptr<GLItem>(new GLObjectUniforms(module, d->currentProgram, obj.get(), d->objectClipPlanes)));
       }
 
       success |= updateObject(obj, 0, selectmode);
@@ -408,6 +409,12 @@ void RenderContext::setupClippingPlanes()
     glEnable(GL_CLIP_DISTANCE1);
   else
     glDisable(GL_CLIP_DISTANCE1);
+
+  // clip planes always enabled for object clipping
+  // but the shader will use the object clip planes only if the object has them
+  for( unsigned i = 0; i < 6; ++i ) // MaxClipPlanes : jordan to change with the one in glObjectUniforms
+    glEnable( GL_CLIP_DISTANCE2 + i );
+
   glEndList();
 
   pr->insertList(localGLL);
@@ -587,4 +594,23 @@ void RenderContext::duplicateRenderPrimitives()
       d->currentPrimitives->push_back(*ip);
 }
 
+void RenderContext::pushObjectClipPlane( const Point4df & plane)
+{
+  if(d->objectClipPlanes.size() >= 6)// MaxClipPlanes : jordan to change with the one in glObjectUniforms
+    AWarning("RenderContext::pushObjectClipPlane: too many nested clip planes, "
+              "extra planes are ignored" );
+   d->objectClipPlanes.push_back(plane);
+}
 
+void RenderContext::popObjectClipPlane()
+{
+  if(d->objectClipPlanes.empty())
+    AWarning("RenderContext::popObjectClipPlane: no clip plane to pop" );
+  else
+    d->objectClipPlanes.pop_back();
+}
+
+const std::vector<Point4df> & RenderContext::objectClipPlanes() const
+{
+  return d->objectClipPlanes;
+}

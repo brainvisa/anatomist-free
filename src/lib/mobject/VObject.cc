@@ -306,7 +306,6 @@ bool VObject::glMakeBodyGLL( const ViewState &, const GLList & gllist ) const
 
   glNewList( gllist.item(), GL_COMPILE );
   glDisable( GL_CULL_FACE );
-  glDisable(GL_CLIP_DISTANCE2);
   glDepthMask( false );
   
   glBegin( GL_QUADS );
@@ -349,7 +348,6 @@ bool VObject::glMakeBodyGLL( const ViewState &, const GLList & gllist ) const
 
   glEnd();
   glDepthMask( true );
-  glEnable(GL_CLIP_DISTANCE2);
   glEnable( GL_CULL_FACE );
   glEndList();
   return true;

@@ -79,12 +79,14 @@ namespace anatomist
                           anatomist::ViewState::glSelectRenderMode selectmode
                           = anatomist::ViewState::glSELECTRENDER_NONE);
 
+      void pushObjectClipPlane( const Point4df & plane);
+      void popObjectClipPlane();
+      const std::vector<Point4df> & objectClipPlanes() const;
 
       const anatomist::ViewState& getViewState() const ;
       void setViewState(carto::rc_ptr<anatomist::ViewState> vs);
       void setupClippingPlanes();
       void finalizeRendering();
-
     private:
       /**
       * \brief Updates the rendering of a single object.

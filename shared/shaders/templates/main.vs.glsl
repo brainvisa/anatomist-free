@@ -1,10 +1,11 @@
 #define MAX_TEXTURE_UNITS 8
+#define MAX_OBJECT_CLIP_PLANES 6 //jordan to change with the one in renderContext and globjectuniforms
 
 uniform int   u_activeClipPlanes;
-uniform int   u_clippedObjectActive;
 uniform vec4  u_clipPlane0;
 uniform vec4  u_clipPlane1;
-uniform vec4  u_clipPlane2;
+uniform int   u_nbObjectClipPlanes;
+uniform vec4  u_objectClipPlanes[MAX_OBJECT_CLIP_PLANES];
 
 out VertexData {
     vec4 v_color;
@@ -15,7 +16,7 @@ out VertexData {
     vec3 v_directionLight;
 };
 
-out float gl_ClipDistance[]; 
+out float gl_ClipDistance[2 + MAX_OBJECT_CLIP_PLANES]; 
 
 void main()
 {
@@ -38,6 +39,10 @@ void main()
 
     gl_ClipDistance[0] = (u_activeClipPlanes >= 1) ? dot(u_clipPlane0, v_eyeVertexPosition) : 1.0;
     gl_ClipDistance[1] = (u_activeClipPlanes >= 2) ? dot(u_clipPlane1, v_eyeVertexPosition) : 1.0;
-    gl_ClipDistance[2] = (u_clippedObjectActive == 1) ? dot(u_clipPlane2, v_eyeVertexPosition) : 1.0; //jordan to change
+    
+    for (int i = 0; i < MAX_OBJECT_CLIP_PLANES; ++i)
+    {
+        gl_ClipDistance[2 + i] = (i < u_nbObjectClipPlanes) ? dot(u_objectClipPlanes[i], v_eyeVertexPosition) : 1.0;
+    }
    
 }
