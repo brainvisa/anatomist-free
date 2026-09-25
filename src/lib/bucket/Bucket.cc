@@ -76,6 +76,7 @@ namespace anatomist
     mutable map<string, AimsSurface<4,Void> >	slices;
     mutable map<string, pair<AimsSurface<4,Void>, Indices> > slices_tex;
     bool allow2DRendering;
+    mutable BucketMap<size_t> *indices;
   };
 }
 
@@ -84,7 +85,7 @@ Tree* Bucket::_optionTree = 0;
 
 
 Bucket::Private::Private()
-  : surface( 0 ), surface_tex( 0 ), empty( true ), bckchanged( true ), allow2DRendering( true )
+  : surface( 0 ), surface_tex( 0 ), empty( true ), bckchanged( true ), allow2DRendering( true ), indices( 0 )
 {
 }
 
@@ -93,6 +94,7 @@ Bucket::Private::~Private()
 {
   delete surface;
   delete surface_tex;
+  delete indices;
 }
 
 
@@ -273,14 +275,16 @@ namespace
   }
 
 
-  static inline void buildCube( const Point3df & p, const Point3df & vs, 
-                                AimsSurface<4,Void> &surf )
+  static inline void buildCube( const Bucket & b,
+                                const Point3df & p, const Point3df & vs,
+                                AimsSurface<4,Void> &surf,
+                                vector<size_t> *tex, int t )
   {
     // cout << "buildCube " << p << endl;
     vector<Point3df>			& vert = surf.vertex();
     vector<Point3df>			& norm = surf.normal();
     vector<AimsVector<uint,4> >	& poly = surf.polygon();
-    Point3df				nrm( -1, 0, 0 );
+    Point3df				nrm( 0, 0, -1 );
     unsigned				n = vert.size();
     Point3df				pts[ 8 ];
 
@@ -369,8 +373,9 @@ namespace
 
 
   static void updateAxial( const Bucket & b, 
-			   const BucketMap<Void>::Bucket & listB, float p0, 
-			   const Point3df & dir, AimsSurface<4,Void> *surf )
+                           const BucketMap<Void>::Bucket & listB, float p0,
+                           const Point3df & dir, AimsSurface<4,Void> *surf,
+                           vector<size_t> *tex, int t )
   {
     // cout << "Bucket updateAxial\n";
 
@@ -385,14 +390,15 @@ namespace
     if( ibp == ebp )
       return;
 
-    b.meshSubBucket( ibp, ebp, surf, false );
+    b.meshSubBucket( ibp, ebp, surf, false, tex, t );
   }
 
 
   static void updateCoronal( const Bucket & b, 
                              const BucketMap<Void>::Bucket & listB, 
                              float p0, const Point3df & dir, 
-                             AimsSurface<4,Void> *surf )
+                             AimsSurface<4,Void> *surf,
+                             vector<size_t> *tex, int t )
   {
     //cout << "Bucket updateCoronal\n";
 
@@ -420,13 +426,15 @@ namespace
           }
       }
 
-    b.meshSubBucket( ivec, surf, false );
+    b.meshSubBucket( ivec, surf, false, tex, t );
   }
 
 
   static void updateSagittal( const Bucket & b, 
-			      const BucketMap<Void>::Bucket & listB, float p0, 
-			      const Point3df & dir, AimsSurface<4,Void>* surf )
+                              const BucketMap<Void>::Bucket & listB, float p0,
+                              const Point3df & dir,
+                              AimsSurface<4,Void>* surf,
+                              vector<size_t> *tex, int t )
   {
     //cout << "Bucket updateSagittal\n";
 
@@ -461,7 +469,7 @@ namespace
             }
       }
 
-    b.meshSubBucket( ivec, surf, false );
+    b.meshSubBucket( ivec, surf, false, tex, t );
   }
 
 
@@ -572,10 +580,10 @@ namespace
                    const Point3df & vs, AimsSurface<4,Void> & surf )
   {
     if( glonfly )
-      {
-        addFacetZ0GL( x0, xe, y0, z0 );
-        return;
-      }
+    {
+      addFacetZ0GL( x0, xe, y0, z0 );
+      return;
+    }
 
     // cout << "addFacetZ0 " << x0 << ", " << y0 << ", " << z0 << endl;
     vector<Point3df>		& vert = surf.vertex();
@@ -767,7 +775,7 @@ namespace
 }
 
 
-size_t Bucket::createFacet( size_t t ) const
+size_t Bucket::createFacet( size_t t, bool withTex ) const
 {
   // cout << "Bucket::createFacet( " << t << " )\n";
   if( d->bckchanged )
@@ -775,8 +783,14 @@ size_t Bucket::createFacet( size_t t ) const
     freeSurface();
     const_cast<Bucket *>( this )->setGeomExtrema();
   }
-  if( !d->surface )
-    d->surface = new AimsSurfaceFacet;
+  if( withTex )
+  {
+    if( !d->surface_tex )
+      d->surface_tex = new AimsSurfaceFacet;
+  }
+  else
+    if( !d->surface )
+      d->surface = new AimsSurfaceFacet;
 
   // get time in bucket
 
@@ -785,22 +799,31 @@ size_t Bucket::createFacet( size_t t ) const
 
   BucketMap<Void>::iterator	ib = _bucket->lower_bound( t );
   if( ib == _bucket->end() )
-    {
-      if( _bucket->empty() )
-	return 0;
-      ib = _bucket->find( (*_bucket->rbegin()).first );
-      if( ib == _bucket->end() )
-        return 0;
-    }
+  {
+    if( _bucket->empty() )
+      return 0;
+    ib = _bucket->find( (*_bucket->rbegin()).first );
+    if( ib == _bucket->end() )
+      return 0;
+  }
 
-  AimsSurface<4, Void>	& surf = (*d->surface)[ ib->first ];
+  AimsSurface<4, Void>	*surf;
+  vector<size_t> *tex = 0;
+  if( withTex )
+  {
+    surf = &(*d->surface_tex)[ ib->first ];
+    tex = &d->index_tex[ ib->first ];
+  }
+  else
+    surf = &(*d->surface)[ ib->first ];
 
-  if( !surf.vertex().empty() && !d->bckchanged )
+  if( !surf->vertex().empty() && !d->bckchanged )
     return ib->first;
 
-  surf = AimsSurface<4, Void>();
+  *surf = AimsSurface<4, Void>();
 
-  meshSubBucket( ib->second.begin(), ib->second.end(), &surf );
+  meshSubBucket( ib->second.begin(), ib->second.end(), surf, false,
+                 tex, ib->first );
 
   /*cout << "createFacet :\n" << d->surface->vertex().size() << " vertices\n";
   cout << d->surface->normal().size() << " normals\n";
@@ -836,13 +859,46 @@ namespace
     //cout << "unstack_pair : " << b << ", " << e << endl;
   }
 
+
+  void buildIndices( rc_ptr<BucketMap<Void> > bucket,
+                     BucketMap<size_t> & indices, int t )
+  {
+    BucketMap<Void>::const_iterator ib = bucket->find( t );
+    if( ib == bucket->end() )
+      return;
+
+    size_t index = 0;
+    auto & ind = indices[ib->first];
+    auto ibk = ib->second.begin(), ebk = ib->second.end();
+    for( ; ibk!=ebk; ++ibk )
+      ind[ibk->first] = index++;
+  }
+
+
+  inline
+  size_t pushTexIndices( const BucketMap<Void>::Bucket & bucket,
+                         const BucketMap<size_t>::Bucket *bindices,
+                         vector<size_t> *indices, const Point3d & p,
+                         unsigned n )
+  {
+    if( indices )
+    {
+      size_t index = bindices->find( p )->second;
+      for( unsigned i=0; i<n; ++i )
+        indices->push_back( index );
+      return index;
+    }
+    return 0;
+  }
+
 }
 
 
-void Bucket::meshSubBucket( const vector<pair<
-                            BucketMap<Void>::Bucket::const_iterator,
-                            BucketMap<Void>::Bucket::const_iterator> > & ivec,
-                            AimsSurface<4,Void> *surf, bool glonfly ) const
+void Bucket::meshSubBucket(
+  const vector<pair<BucketMap<Void>::Bucket::const_iterator,
+                    BucketMap<Void>::Bucket::const_iterator> > & ivec,
+  AimsSurface<4,Void> *surf, bool glonfly,
+  vector<size_t> *tex, int t ) const
 {
   /*		ALGORITHM
 
@@ -864,6 +920,17 @@ void Bucket::meshSubBucket( const vector<pair<
 
     ...
    */
+
+  BucketMap<Void>::Bucket & bucket = _bucket->find(t)->second;
+  BucketMap<size_t>::Bucket *bindices = 0;
+  if( tex )
+  {
+    if( !d->indices )
+      d->indices = new BucketMap<size_t>;
+    buildIndices( _bucket, *d->indices, t );
+    bindices = &(*d->indices)[t];
+  }
+
   // x0: last x
   // y0: last y at x location (row[x])
   int		z0 = -1, y0 = -1, x0 = -1, lastz = -1, lasty = -1;
@@ -1194,8 +1261,10 @@ void Bucket::freeSurface() const
 {
   delete d->surface;
   delete d->surface_tex;
+  delete d->indices;
   d->surface = 0;
   d->surface_tex = 0;
+  d->indices = 0;
   d->index_tex.clear();
   d->slices.clear();
   d->slices_tex.clear();
@@ -1210,8 +1279,10 @@ void Bucket::freeSurface()
 
 
 const AimsSurface<4, Void>* 
-Bucket::meshPlane( const SliceViewState & state ) const
+Bucket::meshPlane( const SliceViewState & state,
+                   Private::Indices **tex ) const
 {
+  bool withTex = bool( tex );
   if( d->bckchanged )
   {
     freeSurface();
@@ -1235,11 +1306,11 @@ Bucket::meshPlane( const SliceViewState & state ) const
 
   BucketMap<Void>::const_iterator	ib = bk->lower_bound( (size_t) time );
   if( ib == bk->end() )
-    {
-      if( bk->empty() )
-        return 0;
-      ib = bk->find( (*bk->rbegin()).first );
-    }
+  {
+    if( bk->empty() )
+      return 0;
+    ib = bk->find( (*bk->rbegin()).first );
+  }
 
   // clear cache of older things
   d->slices.clear();
@@ -1251,7 +1322,8 @@ Bucket::meshPlane( const SliceViewState & state ) const
     tr = theAnatomist->getTransformation( oref, state.winref );
 
   const BucketMap<Void>::Bucket			& listB = (*ib).second;
-  BucketMap<Void>::Bucket::const_iterator	it,ite;
+  int t = ib->first;
+  BucketMap<Void>::Bucket::const_iterator	it, ite;
   float		dis;
   Point3df	vs = Point3df( voxelSize() ), p;
   Point3df      direction = state.orientation->transformInverse(
@@ -1263,31 +1335,31 @@ Bucket::meshPlane( const SliceViewState & state ) const
   // plane equation in object coordinates
 
   if( tr )
-    {
-      // cout << "plan (win) : " << direction << endl;
-      Transformation	*tr2 = theAnatomist->getTransformation( state.winref, 
-         oref );
-      Motion	m;
-      VolumeRef<float>	r = m.rotation();
-      r( 0, 0 ) = tr->Rotation( 0, 0 );
-      r( 0, 1 ) = tr->Rotation( 1, 0 );
-      r( 0, 2 ) = tr->Rotation( 2, 0 );
-      r( 1, 0 ) = tr->Rotation( 0, 1 );
-      r( 1, 1 ) = tr->Rotation( 1, 1 );
-      r( 1, 2 ) = tr->Rotation( 2, 1 );
-      r( 2, 0 ) = tr->Rotation( 0, 2 );
-      r( 2, 1 ) = tr->Rotation( 1, 2 );
-      r( 2, 2 ) = tr->Rotation( 2, 2 );
-      posr = tr2->transform( pos );
-      direction = m.transform( direction );
-      // cout << "plan (obj) : " << direction << endl;
-      // cout << "p0 : " << posr << endl;
-    }
+  {
+    // cout << "plan (win) : " << direction << endl;
+    Transformation	*tr2 = theAnatomist->getTransformation( state.winref,
+        oref );
+    Motion	m;
+    VolumeRef<float>	r = m.rotation();
+    r( 0, 0 ) = tr->Rotation( 0, 0 );
+    r( 0, 1 ) = tr->Rotation( 1, 0 );
+    r( 0, 2 ) = tr->Rotation( 2, 0 );
+    r( 1, 0 ) = tr->Rotation( 0, 1 );
+    r( 1, 1 ) = tr->Rotation( 1, 1 );
+    r( 1, 2 ) = tr->Rotation( 2, 1 );
+    r( 2, 0 ) = tr->Rotation( 0, 2 );
+    r( 2, 1 ) = tr->Rotation( 1, 2 );
+    r( 2, 2 ) = tr->Rotation( 2, 2 );
+    posr = tr2->transform( pos );
+    direction = m.transform( direction );
+    // cout << "plan (obj) : " << direction << endl;
+    // cout << "p0 : " << posr << endl;
+  }
   else
     posr = pos;
 
   Point3df	dir = Point3df( direction[0] * vs[0], direction[1] * vs[1], 
-				direction[2] * vs[2] );
+                            direction[2] * vs[2] );
   float		p0 = direction[0] * posr[0] + direction[1] * posr[1] 
     + direction[2] * posr[2];
 
@@ -1305,35 +1377,46 @@ Bucket::meshPlane( const SliceViewState & state ) const
   static const float	eps = 1e-4;
   bool		done = false;
 
-  AimsSurface<4,Void>	*surf = &d->slices[id];
+  AimsSurface<4,Void>	*surf;
+  Private::Indices *itex = 0;
+  if( withTex )
+  {
+    auto sl = d->slices_tex[id];
+    surf = &sl.first;
+    itex = &sl.second;
+    *tex = itex;
+  }
+  else
+    surf = &d->slices[id];
 
   if( fabs( dir[0] ) <= eps )
+  {
+    if( fabs( dir[1] ) <= eps )
     {
-      if( fabs( dir[1] ) <= eps )
-        {
-          updateAxial( *this, listB, p0, dir, surf );
-          done = true;
-        }
-      else if( fabs( dir[2] ) <= eps )
-        {
-          updateCoronal( *this, listB, p0, dir, surf );
-          done = true;
-        }
-    }
-  else if( fabs( dir[1] ) <= eps && fabs( dir[2] ) <= eps )
-    {
-      updateSagittal( *this, listB, p0, dir, surf );
+      updateAxial( *this, listB, p0, dir, surf, itex, t );
       done = true;
     }
+    else if( fabs( dir[2] ) <= eps )
+    {
+      updateCoronal( *this, listB, p0, dir, surf, itex, t );
+      done = true;
+    }
+  }
+  else if( fabs( dir[1] ) <= eps && fabs( dir[2] ) <= eps )
+  {
+    updateSagittal( *this, listB, p0, dir, surf, itex, t );
+    done = true;
+  }
 
   if( !done )
     for( it=listB.begin(), ite=listB.end(); it!=ite; ++it )
-      {
-        const Point3d	& pt = it->first;
-        dis = dir[0] * pt[0] + dir[1] * pt[1] + dir[2] * pt[2] - p0;
-        if( fabs( dis ) <= dmin )	// in plane
-          buildCube( Point3df( pt[0], pt[1], pt[2] ), vs, *surf );
-      }
+    {
+      const Point3d	& pt = it->first;
+      dis = dir[0] * pt[0] + dir[1] * pt[1] + dir[2] * pt[2] - p0;
+      if( fabs( dis ) <= dmin )	// in plane
+        buildCube( *this, Point3df( pt[0], pt[1], pt[2] ), vs, *surf,
+                   itex, t );
+    }
 
   return surf;
 }
@@ -1661,15 +1744,17 @@ Bucket::surfaceWithTexIndices( const ViewState & state ) const
   const SliceViewState	*svs = state.sliceVS();
   if( svs )
   {
-    return meshPlaneWithTex( *svs );
+    Private::Indices *tex = 0;
+    auto mesh = meshPlane( *svs, &tex );
+    return make_pair( mesh, tex );
   }
   else
   {
     static const AimsSurface<4, Void> empty_mesh;
     static const vector<size_t> empty_tex;
 
-    size_t t = createFacetWithTex( (size_t) rint(
-      state.timedims[0] / voxelSize()[3] ) );
+    size_t t = createFacet( (size_t) rint(
+      state.timedims[0] / voxelSize()[3] ), true );
     if( !d->surface_tex )
       return make_pair( &empty_mesh, &empty_tex );
     auto i = d->surface_tex->find( t );
@@ -1679,71 +1764,3 @@ Bucket::surfaceWithTexIndices( const ViewState & state ) const
   }
 }
 
-
-std::pair<const AimsSurface<4,Void>*, const std::vector<size_t> *>
-Bucket::meshPlaneWithTex( const SliceViewState & ) const
-{
-}
-
-
-size_t Bucket::createFacetWithTex( size_t t ) const
-{
-  if( d->bckchanged )
-  {
-    freeSurface();
-    const_cast<Bucket *>( this )->setGeomExtrema();
-  }
-  if( !d->surface_tex )
-    d->surface_tex = new AimsSurfaceFacet;
-
-  // get time in bucket
-
-  if( t > MaxT() )
-    t = (size_t) MaxT();
-
-  BucketMap<Void>::iterator	ib = _bucket->lower_bound( t );
-  if( ib == _bucket->end() )
-  {
-    if( _bucket->empty() )
-      return 0;
-    ib = _bucket->find( (*_bucket->rbegin()).first );
-    if( ib == _bucket->end() )
-      return 0;
-  }
-
-  AimsSurface<4, Void>	& surf = (*d->surface_tex)[ ib->first ];
-
-  if( !surf.vertex().empty() && !d->bckchanged )
-    return ib->first;
-
-  surf = AimsSurface<4, Void>();
-
-  meshSubBucketWithTex( ib->second.begin(), ib->second.end(), &surf );
-
-  /*cout << "createFacetWithTex :\n" << d->surface->vertex().size() << " vertices\n";
-  cout << d->surface->normal().size() << " normals\n";
-  cout << d->surface->polygon().size() << " polygons\n";*/
-
-  d->bckchanged = false;
-  glSetChanged( glGEOMETRY, false );
-  glSetChanged( glBODY );
-
-  // return exact time
-  return ib->first;
-}
-
-
-void Bucket::meshSubBucketWithTex(
-  const vector<pair<
-      BucketMap<Void>::Bucket::const_iterator,
-      BucketMap<Void>::Bucket::const_iterator> > & ivec,
-  AimsSurface<4,Void> *surf, bool glonfly ) const
-{
-  Point3df	vs = Point3df( voxelSize() );
-  for( auto ibv : ivec )
-  {
-    for( auto ib=ibv.first, eb=ibv.second; ib!=eb; ++ib )
-    {
-    }
-  }
-}
