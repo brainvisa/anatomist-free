@@ -21,11 +21,25 @@ in vec3 v_objectPosRaw;
 in vec3 v_directionLight;
 
 {Illumination Model Uniforms}
+{Effect Uniforms}
 
 out vec4 fragColor;
 
 
+
+// NOUVEAU : paramètres partagés par les deux phases
+const float depthAlphaThreshold = 0.5;   // opacité accumulée = "surface" pour le Z-buffer
+const float earlyTerminationAlpha = 0.95;
+
+
 {Illumination Model Functions}
+
+float eyeToWindowDepth( vec4 eyePos )
+{
+    vec4 clipPos = gl_ProjectionMatrix * eyePos;
+    float ndcZ = clipPos.z / clipPos.w;
+    return 0.5 * ( gl_DepthRange.diff * ndcZ + gl_DepthRange.near + gl_DepthRange.far );
+}
 
 bool intersectAABB(vec3 rayOrigin, vec3 rayDir, vec3 bmin, vec3 bmax,
                     out float tNear, out float tFar)
@@ -72,6 +86,48 @@ bool isClipped(vec4 eyePos)
     return false;
 }
 
+float sampleAlpha( vec3 texCoord, vec4 eyePos, out vec4 tf )
+{
+    tf = vec4(0.0);
+    if( isClipped(eyePos) )
+        return 0.0;
+
+    float density = texture(u_texture3D[0], texCoord).r / u_volumeMax;
+    float paletteT = clamp((density - u_paletteMin) / (u_paletteMax - u_paletteMin), 0.0, 1.0);
+    tf = texture(u_transferFunction, paletteT);
+
+    return ( tf.a > 0.01 ) ? tf.a : 0.0;
+}
+
+bool findSurface( vec3 texCoord, vec3 stepTex, vec4 eyePos, vec4 eyeStep,
+                  int numSteps, out vec4 hitEye )
+{
+    hitEye = vec4(0.0);
+    float alpha = 0.0;
+
+    for( int i = 0; i < numSteps; ++i )
+    {
+        if( any(lessThan(texCoord, vec3(0.0))) || any(greaterThan(texCoord, vec3(1.0))) )
+            break;
+
+        vec4 tf;
+        float a = sampleAlpha( texCoord, eyePos, tf );
+        if( a > 0.0 )
+        {
+            alpha += (1.0 - alpha) * a;
+            if( alpha >= depthAlphaThreshold )
+            {
+                hitEye = eyePos;
+                return true;
+            }
+        }
+
+        texCoord += stepTex;
+        eyePos += eyeStep;
+    }
+    return false;
+}
+
 void main()
 {
     mat3 normalMatrix = transpose(inverse(mat3(gl_ModelViewMatrix)));
@@ -90,14 +146,37 @@ void main()
     // ---------------------------------
 
     // texture coordinates
-    vec3 texCoord = (entryPointObj - u_bmin) / (u_bmax - u_bmin);
+    vec3 texCoordStart = (entryPointObj - u_bmin) / (u_bmax - u_bmin);
     vec3 rayDirTex = rayDir / (u_bmax - u_bmin);
     vec3 stepTex = rayDirTex * stepSizeMM;
 
     // eye space coordinates
-    vec4 currentPosEye = gl_ModelViewMatrix * vec4(entryPointObj, 1.0);
+    vec4 eyePosStart = gl_ModelViewMatrix * vec4(entryPointObj, 1.0);
     vec4 eyeStep = gl_ModelViewMatrix * vec4(rayDir * stepSizeMM, 0.0);
 
+    bool depthHit = false;
+    vec4 depthHitEye = vec4(0.0);
+    float fragDepth = gl_FragCoord.z;
+
+    bool surfaceKnown = false;
+#ifdef DEPTH_PEELING
+    if( u_layer > 0 )
+    {
+        depthHit = findSurface( texCoordStart, stepTex, eyePosStart, eyeStep,
+                                numSteps, depthHitEye );
+        fragDepth = depthHit ? eyeToWindowDepth( depthHitEye ) : gl_FragCoord.z;
+
+        vec2 depthTexCoord = gl_FragCoord.xy / vec2( textureSize( u_previousDepthTexture, 0 ) );
+        float previousDepth = texture( u_previousDepthTexture, depthTexCoord ).r;
+        if( fragDepth <= previousDepth + 1e-3 )
+            discard;
+
+        surfaceKnown = true;
+    }
+#endif
+
+    vec3 texCoord = texCoordStart;
+    vec4 currentPosEye = eyePosStart;
     vec4 accum = vec4(0.0);
 
     for( int i = 0; i < numSteps; ++i )
@@ -105,41 +184,46 @@ void main()
         if( any(lessThan(texCoord, vec3(0.0))) || any(greaterThan(texCoord, vec3(1.0))) )
             break;
 
-        if( !isClipped(currentPosEye) )
+        vec4 tf;
+        float a = sampleAlpha( texCoord, currentPosEye, tf );
+        if( a > 0.0 )
         {
-            float density = texture(u_texture3D[0], texCoord).r / u_volumeMax;
-            float paletteT = clamp((density - u_paletteMin) / (u_paletteMax - u_paletteMin), 0.0, 1.0);
-            vec4 tf = texture(u_transferFunction, paletteT);
-            if( tf.a > 0.01 )
+            vec3 densityGrad = computeGradient(texCoord) / (u_bmax - u_bmin);
+            float gradLen = length(densityGrad);
+            vec3 normalObj = gradLen > 0.0001
+                                ? normalize(densityGrad)
+                                : vec3(0.0, 0.0, 1.0);
+
+            // object space normal to eye space normal
+            vec3 normalEye = normalize( normalMatrix * normalObj );
+
+            BlinnPhongMaterial bp = BlinnPhong(normalEye);
+            vec3 ambientTerm  = bp.ambient.rgb;
+            vec3 diffuseTerm  = tf.rgb * bp.diffuse.rgb;
+            vec3 specularTerm = bp.specular.rgb;
+
+            vec3 shadedColor = ambientTerm + diffuseTerm + specularTerm;
+
+            accum.rgb += (1.0 - accum.a) * a * shadedColor;
+            accum.a   += (1.0 - accum.a) * a;
+
+            if( !surfaceKnown && !depthHit && accum.a >= depthAlphaThreshold )
             {
-                vec3 densityGrad = computeGradient(texCoord) / (u_bmax - u_bmin);
-                float gradLen = length(densityGrad);
-                vec3 normalObj = gradLen > 0.0001
-                                    ? normalize(densityGrad)
-                                    : vec3(0.0, 0.0, 1.0);
-
-                // object space normal to eye space normal
-                vec3 normalEye = normalize( normalMatrix * normalObj );
-
-                BlinnPhongMaterial bp = BlinnPhong(normalEye);
-                vec3 ambientTerm  = bp.ambient.rgb;
-                vec3 diffuseTerm  = tf.rgb * bp.diffuse.rgb;
-                vec3 specularTerm = bp.specular.rgb;
-
-                vec3 shadedColor = ambientTerm + diffuseTerm + specularTerm;
-
-                vec4 c = vec4(shadedColor, tf.a );
-                accum.rgb += (1.0 - accum.a) * c.a * c.rgb;
-                accum.a   += (1.0 - accum.a) * c.a;
+                depthHit = true;
+                depthHitEye = currentPosEye;
             }
         }
 
-        if( accum.a >= 0.95 )
+        if( accum.a >= earlyTerminationAlpha )
             break;
 
         texCoord += stepTex;
         currentPosEye += eyeStep;
     }
 
-    fragColor = vec4(accum.rgb, accum.a);
+    if( !surfaceKnown )
+        fragDepth = depthHit ? eyeToWindowDepth( depthHitEye ) : gl_FragCoord.z;
+
+    gl_FragDepth = fragDepth;
+    fragColor = vec4(accum.rgb/max(accum.a,1e-4), accum.a);
 }

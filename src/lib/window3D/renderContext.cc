@@ -275,9 +275,8 @@ void RenderContext::shaderBuilding(std::unordered_map<std::string, std::vector<c
     if(d->programs[shader].isNull())
     {
       auto glObj = objs.front()->glAPI();
-      std::string shaderID = shader;
-      if (!shaderID.empty() && shaderID.back() == 'V') // remove volumique rendering id for shader building
-        shaderID.pop_back();
+      std::string shaderID = shader;   
+      shaderID.erase(std::remove(shaderID.begin(), shaderID.end(), 'V'), shaderID.end()); // remove volumique rendering id for shader building
       d->programs[shader] = d->shaderBuilder.initShader(
         shaderID,
         glObj->glVertexShaderTemplate(),

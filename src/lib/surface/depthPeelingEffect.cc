@@ -18,6 +18,8 @@ std::string DepthPeelingEffect::getUniformDeclarations() const
   return R"(
 uniform sampler2D u_previousDepthTexture;
 uniform int u_layer;
+
+#define DEPTH_PEELING
   )";
 }
 
