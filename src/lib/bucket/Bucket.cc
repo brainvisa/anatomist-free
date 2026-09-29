@@ -577,7 +577,8 @@ namespace
 
   inline static 
   void addFacetZ0( int x0, int xe, int y0, int z0, bool glonfly, 
-                   const Point3df & vs, AimsSurface<4,Void> & surf )
+                   const Point3df & vs, AimsSurface<4,Void> & surf,
+                   vector<size_t> *tex = 0, BucketMap<size_t>::Bucket *bindices = 0 )
   {
     if( glonfly )
     {
@@ -606,12 +607,23 @@ namespace
     norm.push_back( nrm );
     norm.push_back( nrm );
     poly.push_back( AimsVector<uint,4>( n, n+1, n+2, n+3 ) );
+
+    if( tex )
+    {
+      size_t index1 = bindices->find( Point3d( x0, y0, z0 ) )->second;
+      size_t index2 = bindices->find( Point3d( xe, y0, z0 ) )->second;
+      tex->push_back( index1 );
+      tex->push_back( index1 );
+      tex->push_back( index2 );
+      tex->push_back( index2 );
+    }
   }
 
 
   inline static 
   void addFacetZ1( int x0, int y0, int z0, bool glonfly, const Point3df & vs, 
-                   AimsSurface<4,Void> & surf )
+                   AimsSurface<4,Void> & surf,
+                   vector<size_t> *tex = 0, BucketMap<size_t>::Bucket *bindices = 0 )
   {
     if( glonfly )
       {
@@ -639,12 +651,22 @@ namespace
     norm.push_back( nrm );
     norm.push_back( nrm );
     poly.push_back( AimsVector<uint,4>( n, n+1, n+2, n+3 ) );
+
+    if( tex )
+    {
+      size_t index1 = bindices->find( Point3d( x0, y0, z0 ) )->second;
+      tex->push_back( index1 );
+      tex->push_back( index1 );
+      tex->push_back( index1 );
+      tex->push_back( index1 );
+    }
   }
 
 
   inline static 
   void addFacetY0( int x0, int xe, int y0, int z0, bool glonfly, 
-                   const Point3df & vs, AimsSurface<4,Void> & surf )
+                   const Point3df & vs, AimsSurface<4,Void> & surf,
+                   vector<size_t> *tex = 0, BucketMap<size_t>::Bucket *bindices = 0 )
   {
     if( glonfly )
       {
@@ -672,11 +694,23 @@ namespace
     norm.push_back( nrm );
     norm.push_back( nrm );
     poly.push_back( AimsVector<uint,4>( n, n+1, n+2, n+3 ) );
+
+    if( tex )
+    {
+      size_t index1 = bindices->find( Point3d( x0, y0, z0 ) )->second;
+      size_t index2 = bindices->find( Point3d( xe, y0, z0 ) )->second;
+      tex->push_back( index1 );
+      tex->push_back( index2 );
+      tex->push_back( index2 );
+      tex->push_back( index1 );
+    }
   }
 
 
-  static void addFacetY1( int x0, int xe, int y0, int z0, bool glonfly, 
-                          const Point3df & vs, AimsSurface<4,Void> & surf )
+  inline static
+  void addFacetY1( int x0, int xe, int y0, int z0, bool glonfly,
+                   const Point3df & vs, AimsSurface<4,Void> & surf,
+                   vector<size_t> *tex = 0, BucketMap<size_t>::Bucket *bindices = 0 )
   {
     if( glonfly )
       {
@@ -704,12 +738,23 @@ namespace
     norm.push_back( nrm );
     norm.push_back( nrm );
     poly.push_back( AimsVector<uint,4>( n, n+1, n+2, n+3 ) );
+
+    if( tex )
+    {
+      size_t index1 = bindices->find( Point3d( x0, y0, z0 ) )->second;
+      size_t index2 = bindices->find( Point3d( xe, y0, z0 ) )->second;
+      tex->push_back( index1 );
+      tex->push_back( index1 );
+      tex->push_back( index2 );
+      tex->push_back( index2 );
+    }
   }
 
 
   inline static 
   void addFacetX0( int x0, int y0, int z0, bool glonfly, 
-                   const Point3df & vs, AimsSurface<4,Void> & surf )
+                   const Point3df & vs, AimsSurface<4,Void> & surf,
+                   vector<size_t> *tex = 0, BucketMap<size_t>::Bucket *bindices = 0 )
   {
     if( glonfly )
       {
@@ -737,12 +782,22 @@ namespace
     norm.push_back( nrm );
     norm.push_back( nrm );
     poly.push_back( AimsVector<uint,4>( n, n+1, n+2, n+3 ) );
+
+    if( tex )
+    {
+      size_t index1 = bindices->find( Point3d( x0, y0, z0 ) )->second;
+      tex->push_back( index1 );
+      tex->push_back( index1 );
+      tex->push_back( index1 );
+      tex->push_back( index1 );
+    }
   }
 
 
   inline static 
   void addFacetX1( int x0, int y0, int z0, bool glonfly, 
-                   const Point3df & vs, AimsSurface<4,Void> & surf )
+                   const Point3df & vs, AimsSurface<4,Void> & surf,
+                   vector<size_t> *tex = 0, BucketMap<size_t>::Bucket *bindices = 0 )
   {
     if( glonfly )
       {
@@ -770,6 +825,15 @@ namespace
     norm.push_back( nrm );
     norm.push_back( nrm );
     poly.push_back( AimsVector<uint,4>( n, n+1, n+2, n+3 ) );
+
+    if( tex )
+    {
+      size_t index1 = bindices->find( Point3d( x0, y0, z0 ) )->second;
+      tex->push_back( index1 );
+      tex->push_back( index1 );
+      tex->push_back( index1 );
+      tex->push_back( index1 );
+    }
   }
 
 }
@@ -870,8 +934,26 @@ namespace
     size_t index = 0;
     auto & ind = indices[ib->first];
     auto ibk = ib->second.begin(), ebk = ib->second.end();
-    for( ; ibk!=ebk; ++ibk )
-      ind[ibk->first] = index++;
+    Object porder;
+    try
+    {
+      porder = bucket->header().getProperty( "point_indices" );
+    }
+    catch( exception & )
+    {
+    }
+    if( porder.isNull() )
+      for( ; ibk!=ebk; ++ibk )
+        ind[ibk->first] = index++;
+    else
+    {
+      vector<size_t> pord( porder->size() );
+      Object iter = porder->objectIterator();
+      for( size_t i=0; iter->isValid(); iter->next(), ++i )
+        pord[i] = size_t(round(iter->currentValue()->getScalar()));
+      for( ; ibk!=ebk; ++ibk )
+        ind[ibk->first] = pord[index++];
+    }
   }
 
 
@@ -981,23 +1063,23 @@ void Bucket::meshSubBucket(
         // finish facet z0 of (lasty, lastz)
         if( xofz0 >= 0 )
           addFacetZ0( xofz0+bx, x0+bx, lasty+by, lastz+bz, glonfly, vs,
-                      *surf );
+                      *surf, tex, bindices );
         // finish facet y0 of (lasty, lastz)
         if( xofy0 >= 0 )
           addFacetY0( xofy0+bx, x0+bx, lasty+by, lastz+bz, glonfly, vs,
-                      *surf );
+                      *surf, tex, bindices );
 
         // finish facets y1 of before-last row (prevy, prevz)
         while( xybegin >= 0 )
         {
           addFacetY1( xybegin+bx, xyend+bx, prevy+by, prevz+bz, glonfly,
-                      vs, *surf );
+                      vs, *surf, tex, bindices );
           unstack_pair( xlist2, xybegin, xyend );
         }
 
         if( x0 >= 0 )
         {
-          addFacetX1( x0+bx, lasty+by, lastz+bz, glonfly, vs, *surf );
+          addFacetX1( x0+bx, lasty+by, lastz+bz, glonfly, vs, *surf, tex, bindices );
           xlist1->push_back( x0 );	// end of last row
         }
         if( z != lastz || ( lasty >= 0 && y > lasty + 1 ) ) // empty y row
@@ -1006,7 +1088,7 @@ void Bucket::meshSubBucket(
           while( xybegin >= 0 )
           {
             addFacetY1( xybegin+bx, xyend+bx, lasty+by, lastz+bz,
-                        glonfly, vs, *surf );
+                        glonfly, vs, *surf, tex, bindices );
             unstack_pair( xlist1, xybegin, xyend );
           }
         }
@@ -1032,7 +1114,7 @@ void Bucket::meshSubBucket(
         while( xybegin >= 0 )
         {
           addFacetY1( xybegin+bx, xyend+bx, prevy+by, prevz+bz, glonfly,
-                      vs, *surf );
+                      vs, *surf, tex, bindices );
           unstack_pair( xlist2, xybegin, xyend );
         }
         lastz = z;
@@ -1049,7 +1131,7 @@ void Bucket::meshSubBucket(
           if( x0 < x - 1 )
           {
             addFacetZ0( xofz0+bx, x0+bx, pos[1], pos[2], glonfly, vs,
-                        *surf );
+                        *surf, tex, bindices );
             xofz0 = x;
           }
         }
@@ -1057,11 +1139,11 @@ void Bucket::meshSubBucket(
           xofz0 = x;
 
         if( z0 >= 0 )
-          addFacetZ1( pos[0], pos[1], z0+bz, glonfly, vs, *surf );
+          addFacetZ1( pos[0], pos[1], z0+bz, glonfly, vs, *surf, tex, bindices );
       }
       else if( xofz0 >= 0 )
       {
-        addFacetZ0( xofz0+bx, x0+bx, pos[1], pos[2], glonfly, vs, *surf );
+        addFacetZ0( xofz0+bx, x0+bx, pos[1], pos[2], glonfly, vs, *surf, tex, bindices );
         xofz0 = -1;
       }
       plane[ i ] = z;
@@ -1075,7 +1157,7 @@ void Bucket::meshSubBucket(
           if( x0 < x - 1 ) // split: finish previous Y0 block
           {
             addFacetY0( xofy0+bx, x0+bx, pos[1], pos[2], glonfly, vs,
-                        *surf );
+                        *surf, tex, bindices );
             xofy0 = x; // start another Y0 block
           }
         }
@@ -1084,13 +1166,13 @@ void Bucket::meshSubBucket(
       }
       else if( xofy0 >= 0 ) // something at (x,y-1): Y0 block finished
       {
-        addFacetY0( xofy0+bx, x0+bx, pos[1], pos[2], glonfly, vs, *surf );
+        addFacetY0( xofy0+bx, x0+bx, pos[1], pos[2], glonfly, vs, *surf, tex, bindices );
         xofy0 = -1; // no new Y0 block
       }
       while( xyend >= 0 && xyend < x )
       {
         addFacetY1( xybegin+bx, xyend+bx, prevy+by, pos[2], glonfly, vs,
-                    *surf );
+                    *surf, tex, bindices );
         unstack_pair( xlist2, xybegin, xyend );
       }
       if( xybegin >= 0 )
@@ -1098,7 +1180,7 @@ void Bucket::meshSubBucket(
         if( xybegin < x )
         {
           addFacetY1( xybegin+bx, x+bx-1, prevy+by, pos[2], glonfly, vs,
-                      *surf );
+                      *surf, tex, bindices );
           if( xyend > x )
             xybegin = x + 1;
           else
@@ -1121,11 +1203,11 @@ void Bucket::meshSubBucket(
       //	x walls
       if( x0 < 0 || x0 < x - 1 ) //x == 0 || x0 < x - 1 ) // nothing at (x-1,y)
       {
-        addFacetX0( pos[0], pos[1], pos[2], glonfly, vs, *surf );
+        addFacetX0( pos[0], pos[1], pos[2], glonfly, vs, *surf, tex, bindices );
         //xofy0 = x;
         if( x0 >= 0 )
         {
-          addFacetX1( x0+bx, pos[1], pos[2], glonfly, vs, *surf );
+          addFacetX1( x0+bx, pos[1], pos[2], glonfly, vs, *surf, tex, bindices );
           xlist1->push_back( x0 );	// end of Y1 row
           xlist1->push_back( x );		// beginning of new one
         }
@@ -1136,15 +1218,15 @@ void Bucket::meshSubBucket(
 
   // terminate big squares
   if( xofz0 >= 0 )
-    addFacetZ0( xofz0+bx, x0+bx, lasty+by, lastz+bz, glonfly, vs, *surf );
+    addFacetZ0( xofz0+bx, x0+bx, lasty+by, lastz+bz, glonfly, vs, *surf, tex, bindices );
 
   if( xofy0 >= 0 )
-    addFacetY0( xofy0+bx, x0+bx, lasty+by, lastz+bz, glonfly, vs, *surf );
+    addFacetY0( xofy0+bx, x0+bx, lasty+by, lastz+bz, glonfly, vs, *surf, tex, bindices );
 
   while( xybegin >= 0 )
   {
     addFacetY1( xybegin+bx, xyend+bx, prevy+by, prevz+bz, glonfly,
-                vs, *surf );
+                vs, *surf, tex, bindices );
     unstack_pair( xlist2, xybegin, xyend );
   }
 
@@ -1155,7 +1237,7 @@ void Bucket::meshSubBucket(
     for( i=0; i<dimx; ++i, ++k )
       if( plane[ k ] >= 0 )
         // fill facet (i,j,plane[k]+0.5)
-        addFacetZ1( i+bx, j+by, plane[k]+bz, glonfly, vs, *surf );
+        addFacetZ1( i+bx, j+by, plane[k]+bz, glonfly, vs, *surf, tex, bindices );
   prevy = lasty;
   prevz = lastz;
   if( x0 >= 0 )
@@ -1165,14 +1247,14 @@ void Bucket::meshSubBucket(
     while( xybegin >= 0 )
     {
       addFacetY1( xybegin+bx, xyend+bx, prevy+by, prevz+bz, glonfly,
-                  vs, *surf );
+                  vs, *surf, tex, bindices );
       unstack_pair( xlist1, xybegin, xyend );
     }
   }
 
   // terminate last line
   if( x0 >= 0 )
-    addFacetX1( x0+bx, lasty+by, lastz+bz, glonfly, vs, *surf );
+    addFacetX1( x0+bx, lasty+by, lastz+bz, glonfly, vs, *surf, tex, bindices );
 
   delete[] row;
   delete[] plane;

@@ -11,6 +11,7 @@ using namespace std;
 
 struct ATexBucket::Private
 {
+  vector<GLfloat> texcoords; // FIXME should not be here
 };
 
 
@@ -26,6 +27,16 @@ ATexBucket::ATexBucket( AObject *o1, AObject* o2 )
   insert( o1 );
   insert( o2 );
   setReferentialInheritance( o1 );
+  unsigned	ntex = o2->glAPI()->glNumTextures();
+  glAddTextures( ntex );
+  for( unsigned tex=0; tex<ntex; ++tex )
+  {
+    TexExtrema  & te = GLComponent::glTexExtrema( tex );
+    te.min.push_back( 0 );
+    te.max.push_back( 0 );
+    te.minquant.push_back( 0 );
+    te.maxquant.push_back( 0 );
+  }
 }
 
 
@@ -73,103 +84,104 @@ const GLuint* ATexBucket::glPolygonArray( const ViewState & vs ) const
 
 unsigned ATexBucket::glNumTextures() const
 {
-  return 0;
-  // return (begin()++)->glNumTextures();
+  cout << "bucket numtex: " << (*(++begin()))->glAPI()->glNumTextures() << endl;
+  return (*(++begin()))->glAPI()->glNumTextures();
 }
 
 
-unsigned ATexBucket::glNumTextures( const ViewState & ) const
+unsigned ATexBucket::glNumTextures( const ViewState & vs ) const
 {
-  return 0;
+  cout << "bucket numtex: " << (*(++begin()))->glAPI()->glNumTextures( vs ) << endl;
+  return (*(++begin()))->glAPI()->glNumTextures( vs );
 }
 
 
 GLComponent::glTextureMode ATexBucket::glTexMode( unsigned tex ) const
 {
-  return (*(begin()++))->glAPI()->glTexMode( tex );
+  return (*(++begin()))->glAPI()->glTexMode( tex );
 }
 
 
 void ATexBucket::glSetTexMode( glTextureMode mode, unsigned tex )
 {
-  (*(begin()++))->glAPI()->glSetTexMode( mode, tex );
+  (*(++begin()))->glAPI()->glSetTexMode( mode, tex );
 }
 
 
 float ATexBucket::glTexRate( unsigned tex ) const
 {
-  return (*(begin()++))->glAPI()->glTexRate( tex );
+  return (*(++begin()))->glAPI()->glTexRate( tex );
 }
 
 
 void ATexBucket::glSetTexRate( float rate, unsigned tex )
 {
-  (*(begin()++))->glAPI()->glSetTexRate( rate, tex );
+  (*(++begin()))->glAPI()->glSetTexRate( rate, tex );
 }
 
 
 GLComponent::glTextureFiltering ATexBucket::glTexFiltering(
   unsigned tex ) const
 {
-  return (*(begin()++))->glAPI()->glTexFiltering( tex );
+  return (*(++begin()))->glAPI()->glTexFiltering( tex );
 }
 
 
 void ATexBucket::glSetTexFiltering( glTextureFiltering x, unsigned tex )
 {
-  (*(begin()++))->glAPI()->glSetTexFiltering( x, tex );
+  (*(++begin()))->glAPI()->glSetTexFiltering( x, tex );
 }
 
 
 GLComponent::glTextureWrapMode ATexBucket::glTexWrapMode( unsigned coord,
                                                           unsigned tex ) const
 {
-  return (*(begin()++))->glAPI()->glTexWrapMode( coord, tex );
+  return (*(++begin()))->glAPI()->glTexWrapMode( coord, tex );
 }
 
 
 void ATexBucket::glSetTexWrapMode( glTextureWrapMode x, unsigned coord,
                                    unsigned tex )
 {
-  (*(begin()++))->glAPI()->glSetTexWrapMode( x, coord, tex );
+  (*(++begin()))->glAPI()->glSetTexWrapMode( x, coord, tex );
 }
 
 
 void ATexBucket::glSetTexRGBInterpolation( bool x, unsigned tex )
 {
-  (*(begin()++))->glAPI()->glSetTexRGBInterpolation( x, tex );
+  (*(++begin()))->glAPI()->glSetTexRGBInterpolation( x, tex );
 }
 
 
 bool ATexBucket::glTexRGBInterpolation( unsigned tex ) const
 {
-  return (*(begin()++))->glAPI()->glTexRGBInterpolation( tex );
+  return (*(++begin()))->glAPI()->glTexRGBInterpolation( tex );
 }
 
 
 GLComponent::glAutoTexturingMode ATexBucket::glAutoTexMode(
   unsigned tex ) const
 {
-  return (*(begin()++))->glAPI()->glAutoTexMode( tex );
+  return (*(++begin()))->glAPI()->glAutoTexMode( tex );
 }
 
 
 void ATexBucket::glSetAutoTexMode( glAutoTexturingMode mode, unsigned tex )
 {
-  (*(begin()++))->glAPI()->glSetAutoTexMode( mode, tex );
+  (*(++begin()))->glAPI()->glSetAutoTexMode( mode, tex );
 }
 
 
 const float *ATexBucket::glAutoTexParams( unsigned coord, unsigned tex ) const
 {
-  return (*(begin()++))->glAPI()->glAutoTexParams( coord, tex );
+  return (*(++begin()))->glAPI()->glAutoTexParams( coord, tex );
 }
 
 
 void ATexBucket::glSetAutoTexParams( const float* params, unsigned coord,
                                      unsigned tex )
 {
-  (*(begin()++))->glAPI()->glSetAutoTexParams( params, coord, tex );
+  (*(++begin()))->glAPI()->glSetAutoTexParams( params, coord, tex );
 }
 
 
@@ -177,6 +189,36 @@ const std::pair<const AimsSurface<4, Void>*, const std::vector<size_t> *>
 ATexBucket::surfaceWithTexIndices( const ViewState & vs ) const
 {
   Bucket *abk = static_cast<Bucket *>( *begin() );
+  cout << "surfaceWithTexIndices nvert: " << abk->surfaceWithTexIndices( vs ).first->vertex().size() << ", ,tex: " << abk->surfaceWithTexIndices( vs ).second->size() << endl;
   return abk->surfaceWithTexIndices( vs );
+}
+
+
+unsigned ATexBucket::glDimTex( const ViewState & vs, unsigned tex ) const
+{
+  cout << "bucket dimtex: " << (*(++begin()))->glAPI()->glDimTex( vs, tex ) << endl;
+  return (*(++begin()))->glAPI()->glDimTex( vs, tex );
+}
+
+
+unsigned ATexBucket::glTexCoordSize( const ViewState & vs, unsigned tex ) const
+{
+  cout << "bucket glTexCoordSize: " << surfaceWithTexIndices( vs ).second->size() << endl;
+  return surfaceWithTexIndices( vs ).second->size();
+}
+
+
+const GLfloat* ATexBucket::glTexCoordArray( const ViewState & vs, unsigned tex ) const
+{
+  const GLfloat *coords = (*(++begin()))->glAPI()->glTexCoordArray( vs, tex );
+  auto si = *surfaceWithTexIndices( vs ).second;
+  unsigned dimtex = glDimTex( vs, tex );
+  d->texcoords.resize( si.size() * dimtex );
+  size_t rs = (*(++begin()))->glAPI()->glTexCoordSize( vs, tex );
+  cout << "raw texsize: " << rs << endl;
+  for( size_t i=0; i<si.size(); ++i )
+    for( unsigned j=0; j<dimtex; ++j )
+      d->texcoords[i * dimtex + j] = coords[si[i] * dimtex + j];
+  return &d->texcoords[0];
 }
 

@@ -19,14 +19,14 @@ namespace anatomist
       virtual ~ATexBucket();
       virtual bool CanRemove( AObject *obj ) { return false; }
 
-      virtual GLComponent* glGeometry( const ViewState & ) { return this; }
+      virtual GLComponent* glGeometry( const ViewState & ) { return (*begin())->glAPI(); }
       virtual GLComponent* glTexture( const ViewState & , unsigned n = 0 )
-      { return this; }
+      { return (*++begin())->glAPI(); }
       virtual const GLComponent* glGeometry( const ViewState & ) const
-      { return this; }
+      { return (*begin())->glAPI(); }
       virtual const GLComponent* glTexture( const ViewState & ,
                                             unsigned n = 0 ) const
-      { return this; }
+      { return (*++begin())->glAPI(); }
 
       virtual unsigned glNumVertex( const ViewState & ) const;
       virtual const GLfloat* glVertexArray( const ViewState & ) const;
@@ -56,6 +56,12 @@ namespace anatomist
                                           unsigned tex = 0 ) const;
       virtual void glSetAutoTexParams( const float* params, unsigned coord = 0,
                                       unsigned tex = 0 );
+
+      virtual unsigned glDimTex( const ViewState &, unsigned tex = 0 ) const;
+      virtual unsigned glTexCoordSize( const ViewState &,
+                                       unsigned tex = 0 ) const;
+      virtual const GLfloat* glTexCoordArray( const ViewState &,
+                                              unsigned tex = 0 ) const;
 
       const std::pair<const AimsSurface<4, Void>*, const std::vector<size_t> *>
       surfaceWithTexIndices( const ViewState & ) const;
