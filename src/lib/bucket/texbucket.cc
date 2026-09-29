@@ -18,6 +18,8 @@ struct ATexBucket::Private
 ATexBucket::ATexBucket( AObject *o1, AObject* o2 )
   : GLObjectVector(), d( new Private )
 {
+  _type = AObject::TEXBUCKET;
+
   if( !dynamic_cast<Bucket *>( o1 ) )
   {
     AObject *tmp = o1;

@@ -171,6 +171,12 @@ void QObjectTree::initIcons()
       TypeIcons.erase( AObject::TEXSURFACE );
       cerr << "Icon " << str.c_str() << " not found\n";
     }
+  str = Settings::findResourceFile( "icons/list_texbucket.xpm" );
+  if( !TypeIcons[ AObject::TEXBUCKET ].load( str.c_str() ) )
+    {
+      TypeIcons.erase( AObject::TEXBUCKET );
+      cerr << "Icon " << str.c_str() << " not found\n";
+    }
 
   TypeNames[ AObject::VOLUME        ] = "Volume";
   TypeNames[ AObject::TRIANG        ] = "Surface";
