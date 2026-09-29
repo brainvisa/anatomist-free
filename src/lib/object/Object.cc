@@ -738,6 +738,7 @@ string AObject::objectTypeName( int type )
 	  _objectTypeNames[ TEXSURFACE    ] = "TEXTURED SURF.";
 	  _objectTypeNames[ FUSION2DMESH  ] = "FUSION2D MESH";
 	  _objectTypeNames[ VECTORFIELD   ] = "VECTOR FIELD";
+	  _objectTypeNames[ TEXBUCKET     ] = "TEXTURED BUCK.";
 	  _objectTypeNames[ OTHER         ] = "UNREGISTERED";
 	  return( _objectTypeNames[ type ] );
 	}

@@ -369,6 +369,41 @@ namespace
     norm.push_back( nrm );
     norm.push_back( nrm );
     poly.push_back( AimsVector<uint,4>( n+20, n+21, n+22, n+23 ) );
+
+    if( tex )
+    {
+      auto pindices = b.pointIndices( t );
+      size_t index = pindices->find( Point3d( p ) )->second;
+      tex->push_back( index );
+      tex->push_back( index );
+      tex->push_back( index );
+      tex->push_back( index );
+
+      tex->push_back( index );
+      tex->push_back( index );
+      tex->push_back( index );
+      tex->push_back( index );
+
+      tex->push_back( index );
+      tex->push_back( index );
+      tex->push_back( index );
+      tex->push_back( index );
+
+      tex->push_back( index );
+      tex->push_back( index );
+      tex->push_back( index );
+      tex->push_back( index );
+
+      tex->push_back( index );
+      tex->push_back( index );
+      tex->push_back( index );
+      tex->push_back( index );
+
+      tex->push_back( index );
+      tex->push_back( index );
+      tex->push_back( index );
+      tex->push_back( index );
+    }
   }
 
 
@@ -377,7 +412,7 @@ namespace
                            const Point3df & dir, AimsSurface<4,Void> *surf,
                            vector<size_t> *tex, int t )
   {
-    // cout << "Bucket updateAxial\n";
+    // cout << "Bucket updateAxial surf: " << surf << ", tex: " << tex << endl;
 
     short		plpos = (short) rint( p0 / dir[2] );
     BucketMap<Void>::Bucket::const_iterator 
@@ -600,23 +635,46 @@ namespace
 
     vert.push_back( Point3df( x1, y1, z ) );
     vert.push_back( Point3df( x1, y2, z ) );
-    vert.push_back( Point3df( x2, y2, z ) );
-    vert.push_back( Point3df( x2, y1, z ) );
-    norm.push_back( nrm );
-    norm.push_back( nrm );
     norm.push_back( nrm );
     norm.push_back( nrm );
     poly.push_back( AimsVector<uint,4>( n, n+1, n+2, n+3 ) );
+    n += 4;
 
     if( tex )
     {
       size_t index1 = bindices->find( Point3d( x0, y0, z0 ) )->second;
+      tex->push_back( index1 );
+      tex->push_back( index1 );
+      // intermediate vertices to allow to set texture there
+      for( int x=x0+1; x<=xe; ++x )
+      {
+        x1 = vs[0] * ( -0.5 + x );
+        vert.push_back( Point3df( x, y2, z ) );
+        vert.push_back( Point3df( x, y1, z ) );
+        vert.push_back( Point3df( x, y1, z ) );
+        vert.push_back( Point3df( x, y2, z ) );
+        norm.push_back( nrm );
+        norm.push_back( nrm );
+        norm.push_back( nrm );
+        norm.push_back( nrm );
+        poly.push_back( AimsVector<uint,4>( n, n+1, n+2, n+3 ) );
+        n += 4;
+        index1 = bindices->find( Point3d( x - 1, y0, z0 ) )->second;
+        tex->push_back( index1 );
+        tex->push_back( index1 );
+        index1 = bindices->find( Point3d( x, y0, z0 ) )->second;
+        tex->push_back( index1 );
+        tex->push_back( index1 );
+      }
       size_t index2 = bindices->find( Point3d( xe, y0, z0 ) )->second;
-      tex->push_back( index1 );
-      tex->push_back( index1 );
       tex->push_back( index2 );
       tex->push_back( index2 );
     }
+
+    vert.push_back( Point3df( x2, y2, z ) );
+    vert.push_back( Point3df( x2, y1, z ) );
+    norm.push_back( nrm );
+    norm.push_back( nrm );
   }
 
 
@@ -680,30 +738,49 @@ namespace
     static const Point3df		nrm( 0, -1, 0 );
     unsigned			n = vert.size();
     float				y = vs[1] * ( -0.5 + y0 );
-    float				x1 = vs[0] * ( -0.5 + x0 );
-    float				x2 = vs[0] * ( 0.5 + xe );
     float				z1 = vs[2] * ( -0.5 + z0 );
     float				z2 = vs[2] * ( 0.5 + z0 );
-
-    vert.push_back( Point3df( x1, y, z1 ) );
-    vert.push_back( Point3df( x2, y, z1 ) );
-    vert.push_back( Point3df( x2, y, z2 ) );
-    vert.push_back( Point3df( x1, y, z2 ) );
-    norm.push_back( nrm );
-    norm.push_back( nrm );
-    norm.push_back( nrm );
-    norm.push_back( nrm );
-    poly.push_back( AimsVector<uint,4>( n, n+1, n+2, n+3 ) );
-
-    if( tex )
+    if( !tex )
     {
-      size_t index1 = bindices->find( Point3d( x0, y0, z0 ) )->second;
-      size_t index2 = bindices->find( Point3d( xe, y0, z0 ) )->second;
-      tex->push_back( index1 );
-      tex->push_back( index2 );
-      tex->push_back( index2 );
-      tex->push_back( index1 );
+      float				x1 = vs[0] * ( -0.5 + x0 );
+      float				x2 = vs[0] * ( 0.5 + xe );
+      vert.push_back( Point3df( x1, y, z1 ) );
+      vert.push_back( Point3df( x2, y, z1 ) );
+      vert.push_back( Point3df( x2, y, z2 ) );
+      vert.push_back( Point3df( x1, y, z2 ) );
+      norm.push_back( nrm );
+      norm.push_back( nrm );
+      norm.push_back( nrm );
+      norm.push_back( nrm );
+      poly.push_back( AimsVector<uint,4>( n, n+1, n+2, n+3 ) );
     }
+    else
+    {
+      float x1, x2;
+      int x;
+      size_t index1;
+      for( x=x0; x<=xe; ++x )
+      {
+        x1 = vs[0] * ( -0.5 + x );
+        x2 = vs[0] * ( 0.5 + x );
+        vert.push_back( Point3df( x1, y, z1 ) );
+        vert.push_back( Point3df( x2, y, z1 ) );
+        vert.push_back( Point3df( x2, y, z2 ) );
+        vert.push_back( Point3df( x1, y, z2 ) );
+        norm.push_back( nrm );
+        norm.push_back( nrm );
+        norm.push_back( nrm );
+        norm.push_back( nrm );
+        poly.push_back( AimsVector<uint,4>( n, n+1, n+2, n+3 ) );
+        n += 4;
+        index1 = bindices->find( Point3d( x, y0, z0 ) )->second;
+        tex->push_back( index1 );
+        tex->push_back( index1 );
+        tex->push_back( index1 );
+        tex->push_back( index1 );
+      }
+    }
+
   }
 
 
@@ -724,29 +801,48 @@ namespace
     static const Point3df		nrm( 0, 1, 0 );
     unsigned			n = vert.size();
     float				y = vs[1] * ( 0.5 + y0 );
-    float				x1 = vs[0] * ( -0.5 + x0 );
-    float				x2 = vs[0] * ( 0.5 + xe );
     float				z1 = vs[2] * ( -0.5 + z0 );
     float				z2 = vs[2] * ( 0.5 + z0 );
 
-    vert.push_back( Point3df( x1, y, z1 ) );
-    vert.push_back( Point3df( x1, y, z2 ) );
-    vert.push_back( Point3df( x2, y, z2 ) );
-    vert.push_back( Point3df( x2, y, z1 ) );
-    norm.push_back( nrm );
-    norm.push_back( nrm );
-    norm.push_back( nrm );
-    norm.push_back( nrm );
-    poly.push_back( AimsVector<uint,4>( n, n+1, n+2, n+3 ) );
-
-    if( tex )
+    if( !tex )
     {
-      size_t index1 = bindices->find( Point3d( x0, y0, z0 ) )->second;
-      size_t index2 = bindices->find( Point3d( xe, y0, z0 ) )->second;
-      tex->push_back( index1 );
-      tex->push_back( index1 );
-      tex->push_back( index2 );
-      tex->push_back( index2 );
+      float				x1 = vs[0] * ( -0.5 + x0 );
+      float				x2 = vs[0] * ( 0.5 + xe );
+      vert.push_back( Point3df( x1, y, z1 ) );
+      vert.push_back( Point3df( x1, y, z2 ) );
+      vert.push_back( Point3df( x2, y, z2 ) );
+      vert.push_back( Point3df( x2, y, z1 ) );
+      norm.push_back( nrm );
+      norm.push_back( nrm );
+      norm.push_back( nrm );
+      norm.push_back( nrm );
+      poly.push_back( AimsVector<uint,4>( n, n+1, n+2, n+3 ) );
+    }
+    else
+    {
+      int x;
+      float x1, x2;
+      size_t index1;
+      for( x=x0; x<=xe; ++x )
+      {
+        x1 = vs[0] * ( -0.5 + x );
+        x2 = vs[0] * ( 0.5 + x );
+        vert.push_back( Point3df( x1, y, z1 ) );
+        vert.push_back( Point3df( x1, y, z2 ) );
+        vert.push_back( Point3df( x2, y, z2 ) );
+        vert.push_back( Point3df( x2, y, z1 ) );
+        norm.push_back( nrm );
+        norm.push_back( nrm );
+        norm.push_back( nrm );
+        norm.push_back( nrm );
+        poly.push_back( AimsVector<uint,4>( n, n+1, n+2, n+3 ) );
+        n += 4;
+        index1 = bindices->find( Point3d( x, y0, z0 ) )->second;
+        tex->push_back( index1 );
+        tex->push_back( index1 );
+        tex->push_back( index1 );
+        tex->push_back( index1 );
+      }
     }
   }
 
@@ -933,6 +1029,9 @@ namespace
 
     size_t index = 0;
     auto & ind = indices[ib->first];
+    if( !ind.empty() )
+      return;  // already done
+
     auto ibk = ib->second.begin(), ebk = ib->second.end();
     Object porder;
     try
@@ -973,6 +1072,16 @@ namespace
     return 0;
   }
 
+}
+
+
+
+const BucketMap<size_t>::Bucket *Bucket::pointIndices( int t ) const
+{
+  if( !d->indices )
+    d->indices = new BucketMap<size_t>;
+  buildIndices( _bucket, *d->indices, t );
+  return &(*d->indices)[t];
 }
 
 
@@ -1365,6 +1474,7 @@ Bucket::meshPlane( const SliceViewState & state,
                    Private::Indices **tex ) const
 {
   bool withTex = bool( tex );
+  // cout << "meshPlane, tex: " << tex << ", withTex: " << withTex << endl;
   if( d->bckchanged )
   {
     freeSurface();
@@ -1373,10 +1483,23 @@ Bucket::meshPlane( const SliceViewState & state,
   }
 
   string	id = viewStateID( glGEOMETRY, state );
-  map<string, AimsSurface<4,Void> >::const_iterator i = d->slices.find( id );
+  if( tex )
+  {
+    auto i = d->slices_tex.find( id );
+    if( i != d->slices_tex.end() )
+    {
+      *tex = &i->second.second;
+      return &i->second.first;
+    }
+  }
+  else
+  {
+    map<string, AimsSurface<4,Void> >::const_iterator
+      i = d->slices.find( id );
 
-  if( i != d->slices.end() )
-    return &i->second;
+    if( i != d->slices.end() )
+      return &i->second;
+  }
 
   // get time in bucket
 
@@ -1463,7 +1586,7 @@ Bucket::meshPlane( const SliceViewState & state,
   Private::Indices *itex = 0;
   if( withTex )
   {
-    auto sl = d->slices_tex[id];
+    auto & sl = d->slices_tex[id];
     surf = &sl.first;
     itex = &sl.second;
     *tex = itex;

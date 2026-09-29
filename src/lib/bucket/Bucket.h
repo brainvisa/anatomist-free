@@ -126,6 +126,8 @@ namespace anatomist
     virtual carto::GenericObject* attributed();
     virtual const carto::GenericObject* attributed() const;
 
+    const aims::BucketMap<size_t>::Bucket *pointIndices( int t ) const;
+
     virtual Tree* optionTree() const;
     static Tree*	_optionTree;
 

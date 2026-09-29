@@ -17,6 +17,9 @@ namespace anatomist
     public:
       ATexBucket( AObject* bucket, AObject* texture );
       virtual ~ATexBucket();
+
+      virtual int MType() const { return( AObject::TEXBUCKET ); }
+
       virtual bool CanRemove( AObject *obj ) { return false; }
 
       virtual GLComponent* glGeometry( const ViewState & ) { return (*begin())->glAPI(); }

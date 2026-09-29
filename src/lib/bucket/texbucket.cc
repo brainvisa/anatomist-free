@@ -84,14 +84,12 @@ const GLuint* ATexBucket::glPolygonArray( const ViewState & vs ) const
 
 unsigned ATexBucket::glNumTextures() const
 {
-  cout << "bucket numtex: " << (*(++begin()))->glAPI()->glNumTextures() << endl;
   return (*(++begin()))->glAPI()->glNumTextures();
 }
 
 
 unsigned ATexBucket::glNumTextures( const ViewState & vs ) const
 {
-  cout << "bucket numtex: " << (*(++begin()))->glAPI()->glNumTextures( vs ) << endl;
   return (*(++begin()))->glAPI()->glNumTextures( vs );
 }
 
@@ -189,21 +187,18 @@ const std::pair<const AimsSurface<4, Void>*, const std::vector<size_t> *>
 ATexBucket::surfaceWithTexIndices( const ViewState & vs ) const
 {
   Bucket *abk = static_cast<Bucket *>( *begin() );
-  cout << "surfaceWithTexIndices nvert: " << abk->surfaceWithTexIndices( vs ).first->vertex().size() << ", ,tex: " << abk->surfaceWithTexIndices( vs ).second->size() << endl;
   return abk->surfaceWithTexIndices( vs );
 }
 
 
 unsigned ATexBucket::glDimTex( const ViewState & vs, unsigned tex ) const
 {
-  cout << "bucket dimtex: " << (*(++begin()))->glAPI()->glDimTex( vs, tex ) << endl;
   return (*(++begin()))->glAPI()->glDimTex( vs, tex );
 }
 
 
 unsigned ATexBucket::glTexCoordSize( const ViewState & vs, unsigned tex ) const
 {
-  cout << "bucket glTexCoordSize: " << surfaceWithTexIndices( vs ).second->size() << endl;
   return surfaceWithTexIndices( vs ).second->size();
 }
 
@@ -215,7 +210,6 @@ const GLfloat* ATexBucket::glTexCoordArray( const ViewState & vs, unsigned tex )
   unsigned dimtex = glDimTex( vs, tex );
   d->texcoords.resize( si.size() * dimtex );
   size_t rs = (*(++begin()))->glAPI()->glTexCoordSize( vs, tex );
-  cout << "raw texsize: " << rs << endl;
   for( size_t i=0; i<si.size(); ++i )
     for( unsigned j=0; j<dimtex; ++j )
       d->texcoords[i * dimtex + j] = coords[si[i] * dimtex + j];
