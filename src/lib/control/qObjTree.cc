@@ -190,6 +190,7 @@ void QObjectTree::initIcons()
   TypeNames[ AObject::FASCICLEGRAPH ] = "Fasc. Gr.";
   TypeNames[ AObject::TEXTURE       ] = "Texture";
   TypeNames[ AObject::TEXSURFACE    ] = "Tex. Surf.";
+  TypeNames[ AObject::TEXBUCKET     ] = "Tex. Buck.";
 }
 
 
