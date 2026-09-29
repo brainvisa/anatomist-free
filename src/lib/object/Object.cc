@@ -713,37 +713,38 @@ string AObject::objectTypeName( int type )
   if( i != _objectTypeNames.end() )
     return( (*i).second );
   else
+  {
+    if( type >= 0 && type <= OTHER )	// not initialized yet
     {
-      if( type >= 0 && type <= OTHER )	// not initialized yet
-	{
-	  _objectTypeNames[ VOLUME        ] = "VOLUME";
-	  _objectTypeNames[ BUCKET        ] = "BUCKET";
-	  _objectTypeNames[ FACET         ] = "FACET";
-	  _objectTypeNames[ TRIANG        ] = "SURFACE";
-	  _objectTypeNames[ LIST          ] = "LIST";
-	  _objectTypeNames[ VECTOR        ] = "VECTOR";
-	  _objectTypeNames[ MAP           ] = "MAP";
-	  _objectTypeNames[ SET           ] = "SET";
-	  _objectTypeNames[ GRAPH         ] = "GRAPH";
-	  _objectTypeNames[ GRAPHOBJECT   ] = "GRAPHOBJECT";
-	  _objectTypeNames[ VOLSURF       ] = "VOLSURF";
-	  _objectTypeNames[ MULTISURF     ] = "MULTISURF";
-	  _objectTypeNames[ MULTIBUCKET   ] = "MULTIBUCKET";
-	  _objectTypeNames[ MULTIVOLUME   ] = "MULTIVOLUME";
-	  _objectTypeNames[ FUSION2D      ] = "FUSION2D";
-	  _objectTypeNames[ FUSION3D      ] = "FUSION3D";
-	  _objectTypeNames[ FASCICLE      ] = "FASCICLE";
-	  _objectTypeNames[ FASCICLEGRAPH ] = "FASCIC. GRAPH";
-	  _objectTypeNames[ TEXTURE       ] = "TEXTURE";
-	  _objectTypeNames[ TEXSURFACE    ] = "TEXTURED SURF.";
-	  _objectTypeNames[ FUSION2DMESH  ] = "FUSION2D MESH";
-	  _objectTypeNames[ VECTORFIELD   ] = "VECTOR FIELD";
-	  _objectTypeNames[ OTHER         ] = "UNREGISTERED";
-	  return( _objectTypeNames[ type ] );
-	}
-      else
-	return( "UNKNOWN" );
+      _objectTypeNames[ VOLUME        ] = "VOLUME";
+      _objectTypeNames[ BUCKET        ] = "BUCKET";
+      _objectTypeNames[ FACET         ] = "FACET";
+      _objectTypeNames[ TRIANG        ] = "SURFACE";
+      _objectTypeNames[ LIST          ] = "LIST";
+      _objectTypeNames[ VECTOR        ] = "VECTOR";
+      _objectTypeNames[ MAP           ] = "MAP";
+      _objectTypeNames[ SET           ] = "SET";
+      _objectTypeNames[ GRAPH         ] = "GRAPH";
+      _objectTypeNames[ GRAPHOBJECT   ] = "GRAPHOBJECT";
+      _objectTypeNames[ VOLSURF       ] = "VOLSURF";
+      _objectTypeNames[ MULTISURF     ] = "MULTISURF";
+      _objectTypeNames[ MULTIBUCKET   ] = "MULTIBUCKET";
+      _objectTypeNames[ MULTIVOLUME   ] = "MULTIVOLUME";
+      _objectTypeNames[ FUSION2D      ] = "FUSION2D";
+      _objectTypeNames[ FUSION3D      ] = "FUSION3D";
+      _objectTypeNames[ FASCICLE      ] = "FASCICLE";
+      _objectTypeNames[ FASCICLEGRAPH ] = "FASCIC. GRAPH";
+      _objectTypeNames[ TEXTURE       ] = "TEXTURE";
+      _objectTypeNames[ TEXSURFACE    ] = "TEXTURED SURF.";
+      _objectTypeNames[ FUSION2DMESH  ] = "FUSION2D MESH";
+      _objectTypeNames[ VECTORFIELD   ] = "VECTOR FIELD";
+      _objectTypeNames[ TEXBUCKET     ] = "TEXTURED BUCK.";
+      _objectTypeNames[ OTHER         ] = "UNREGISTERED";
+      return( _objectTypeNames[ type ] );
     }
+    else
+      return "UNKNOWN";
+  }
 }
 
 

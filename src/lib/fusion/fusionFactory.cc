@@ -35,6 +35,7 @@
 #include <anatomist/fusion/fusionFactory.h>
 #include <anatomist/fusion/defFusionMethods.h>
 #include <anatomist/surface/fusiontexsurf.h>
+#include <anatomist/bucket/fusiontexbucket.h>
 #include <anatomist/fusion/fusionChooser.h>
 #include <anatomist/application/Anatomist.h>
 #include <anatomist/surface/shownormals.h>
@@ -88,6 +89,7 @@ FusionFactory::FusionFactory()
       registerMethod( new VectorFieldFusionMethod );
       registerMethod( new NormalsFusionMethod );
       registerMethod( new FusionRGBVolumeFrom5DMethod );
+      registerMethod( new FusionTexBucketMethod );
     }
 }
 

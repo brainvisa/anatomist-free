@@ -129,10 +129,10 @@ namespace anatomist
 
     // new functions
     virtual GLComponent* glGeometry( const ViewState & );
-    virtual GLComponent* glTexture(  const ViewState & , unsigned n = 0 );
+    virtual GLComponent* glTexture( const ViewState & , unsigned n = 0 );
     virtual const GLComponent* glGeometry( const ViewState & ) const;
-    virtual const GLComponent* glTexture(  const ViewState & ,
-                                           unsigned n = 0 ) const;
+    virtual const GLComponent* glTexture( const ViewState & ,
+                                          unsigned n = 0 ) const;
     virtual std::string viewStateID( glPart part, const ViewState & ) const;
     virtual void setShaderParameters(const Shader &shader, const ViewState & state) const;
 

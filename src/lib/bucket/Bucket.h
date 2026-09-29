@@ -80,12 +80,17 @@ namespace anatomist
     const aims::BucketMap<Void> & bucket() const { return( *_bucket ); }
     carto::rc_ptr<aims::BucketMap<Void> > rcBucket() { return _bucket; }
 
-    size_t createFacet( size_t t = 0 ) const;
+    size_t createFacet( size_t t = 0, bool withTex = false ) const;
     virtual bool Is2DObject();
     virtual bool Is3DObject() { return true; }
     const AimsSurface<4, Void>* surface( const ViewState & ) const;
     void setSurface( AimsSurfaceFacet* surf );
     void freeSurface();
+
+    /// for textured buckets, uses a different mesh sampling
+    const std::pair<const AimsSurface<4, Void>*, const std::vector<size_t> *>
+    surfaceWithTexIndices( const ViewState & ) const;
+
     virtual unsigned glNumVertex( const ViewState & ) const;
     virtual const GLfloat* glVertexArray( const ViewState & ) const;
     virtual const GLfloat* glNormalArray( const ViewState & ) const;
@@ -100,12 +105,15 @@ namespace anatomist
     void insert( const aims::BucketMap<Void> & region );
     void erase( const aims::BucketMap<Void> & region );
     void meshSubBucket( aims::BucketMap<Void>::Bucket::const_iterator ibegin, 
-			aims::BucketMap<Void>::Bucket::const_iterator iend, 
-			AimsSurface<4,Void> *surf, bool glonfly=false ) const;
-    void meshSubBucket( const std::vector<std::pair<
-			aims::BucketMap<Void>::Bucket::const_iterator, 
-			aims::BucketMap<Void>::Bucket::const_iterator> > & iv, 
-			AimsSurface<4,Void> *surf, bool glonfly=false ) const;
+                        aims::BucketMap<Void>::Bucket::const_iterator iend,
+                        AimsSurface<4,Void> *surf, bool glonfly=false,
+                        std::vector<size_t> *tex = 0, int t = 0 ) const;
+    void meshSubBucket(
+      const std::vector<std::pair<
+        aims::BucketMap<Void>::Bucket::const_iterator,
+        aims::BucketMap<Void>::Bucket::const_iterator> > & iv,
+      AimsSurface<4,Void> *surf, bool glonfly=false,
+      std::vector<size_t> *tex = 0, int t = 0 ) const;
 
     virtual AObject* objectAt( const std::vector<float> & pos, float tol = 0 );
 
@@ -117,6 +125,8 @@ namespace anatomist
     virtual void setInternalsChanged();
     virtual carto::GenericObject* attributed();
     virtual const carto::GenericObject* attributed() const;
+
+    const aims::BucketMap<size_t>::Bucket *pointIndices( int t ) const;
 
     virtual Tree* optionTree() const;
     static Tree*	_optionTree;
@@ -134,19 +144,22 @@ namespace anatomist
     struct Private;
     Private	*d;
 
-    const AimsSurface<4,Void>* meshPlane( const SliceViewState & ) const;
+    const AimsSurface<4,Void>* meshPlane(
+      const SliceViewState &, std::vector<size_t> ** tex = 0 ) const;
   };
+
 
   inline void 
   Bucket::meshSubBucket( aims::BucketMap<Void>::Bucket::const_iterator ibegin, 
-			 aims::BucketMap<Void>::Bucket::const_iterator iend, 
-			 AimsSurface<4,Void> *surf, bool glonfly ) const
+                         aims::BucketMap<Void>::Bucket::const_iterator iend,
+                         AimsSurface<4,Void> *surf, bool glonfly,
+                         std::vector<size_t> *tex, int t ) const
   {
     typedef aims::BucketMap<Void>::Bucket::const_iterator	biter;
     typedef std::pair<biter, biter>				piter;
     std::vector<piter>	ivec;
     ivec.push_back( piter( ibegin, iend ) );
-    meshSubBucket( ivec, surf, glonfly );
+    meshSubBucket( ivec, surf, glonfly, tex, t );
   }
 
 }

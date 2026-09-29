@@ -119,7 +119,6 @@ Fusion3D::Fusion3D( const vector<AObject *> & obj )
     te.minquant.push_back( 0 );
     te.maxquant.push_back( 0 );
   }
-  setReferentialInheritance( *begin() );
 }
 
 

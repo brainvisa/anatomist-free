@@ -127,6 +127,7 @@ namespace anatomist
       TEXSURFACE,
       FUSION2DMESH,
       VECTORFIELD,
+      TEXBUCKET,
       ///	External object type (unknown from the base anatomist library)
       OTHER
     };
