@@ -1,11 +1,13 @@
 #define MAX_OBJECT_CLIP_PLANES 6 //jordan to change with the one in renderContext and globjectuniforms
 
-uniform sampler3D u_texture3D[8];
+uniform sampler1D u_texture1D[8]; // transfer function
+uniform sampler3D u_texture3D[8]; //[0] volume, [1] gradient
 uniform sampler1D u_transferFunction;
 
 uniform vec3 u_bmin;
 uniform vec3 u_bmax;
 uniform float u_volumeMax;
+uniform float u_volumeMin;
 uniform vec3 u_texDim;
 uniform float u_paletteMin;
 uniform float u_paletteMax;
@@ -54,19 +56,6 @@ bool intersectAABB(vec3 rayOrigin, vec3 rayDir, vec3 bmin, vec3 bmax,
     return tNear <= tFar && tFar > 0.0;
 }
 
-vec3 computeGradient(vec3 pos)
-{
-    float nbSamples = 3.0;
-    vec3 eps = vec3(nbSamples/u_texDim.x, nbSamples/u_texDim.y, nbSamples/u_texDim.z);
-    float dx = texture(u_texture3D[0], pos + vec3(eps.x,0,0)).r
-             - texture(u_texture3D[0], pos - vec3(eps.x,0,0)).r;
-    float dy = texture(u_texture3D[0], pos + vec3(0,eps.y,0)).r
-             - texture(u_texture3D[0], pos - vec3(0,eps.y,0)).r;
-    float dz = texture(u_texture3D[0], pos + vec3(0,0,eps.z)).r
-             - texture(u_texture3D[0], pos - vec3(0,0,eps.z)).r;
-    return vec3(dx, dy, dz);
-}
-
 bool isClipped(vec4 eyePos)
 {
     if( u_activeClipPlanes >= 1 && dot(u_clipPlane0, eyePos) < 0.0 )
@@ -92,9 +81,10 @@ float sampleAlpha( vec3 texCoord, vec4 eyePos, out vec4 tf )
     if( isClipped(eyePos) )
         return 0.0;
 
-    float density = texture(u_texture3D[0], texCoord).r / u_volumeMax;
+    float rawDensity = texture(u_texture3D[0], texCoord).r;
+    float density = (rawDensity - u_volumeMin) / max(u_volumeMax - u_volumeMin , 1e-6);
     float paletteT = clamp((density - u_paletteMin) / (u_paletteMax - u_paletteMin), 0.0, 1.0);
-    tf = texture(u_transferFunction, paletteT);
+    tf = texture(u_texture1D[0], paletteT);
 
     return ( tf.a > 0.01 ) ? tf.a : 0.0;
 }
@@ -188,7 +178,7 @@ void main()
         float a = sampleAlpha( texCoord, currentPosEye, tf );
         if( a > 0.0 )
         {
-            vec3 densityGrad = computeGradient(texCoord) / (u_bmax - u_bmin);
+             vec3 densityGrad = texture( u_texture3D[1], texCoord ).xyz / (u_bmax - u_bmin);
             float gradLen = length(densityGrad);
             vec3 normalObj = gradLen > 0.0001
                                 ? normalize(densityGrad)
