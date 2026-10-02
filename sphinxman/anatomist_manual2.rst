@@ -220,6 +220,13 @@ The following table shows the available types of fusion according to the type of
           <b>(new in Anatomist 4.6)</b> Display lines representing a mesh normals at each vertex position.
         </td>
       </tr>
+      <tr class="row-even">
+        <td>Bucket + Textured object</td>
+        <td>FusionTexBucketMethod</td>
+        <td>
+          <b>(new in Anatomist 6.0.19)</b> Textured bucket, a bit like a textured surface, but for the particular case of buckets (with facets rerpesentation in 3D or 2D slices). The texture should match the voxels order of the BucketMap object (z, y, x order), or the bucket object has to contain in its header a voxel: index table in its "point_indices" property.
+        </td>
+      </tr>
     </tbody>
   </table>
 
