@@ -756,6 +756,57 @@ QImage* AObjectPalette::toQImage( int w, int h, double mi1, double ma1,
 }
 
 
+rc_ptr<Volume<AimsRGBA> >
+AObjectPalette::toVolume( int w, int h, double mi1, double ma1,
+                          double zero1,
+                          double mi2, double ma2, double zero2 ) const
+{
+  const Volume<AimsRGBA>    *col = colors();
+
+  if( !col || col->getSizeX() == 0 || col->getSizeY() == 0 )
+    return rc_ptr<Volume<AimsRGBA> >();
+
+  int      dimpx = int( col->getSizeX() ), dimpy = int( col->getSizeY() );
+  int      dimx = 256, dimy = dimpy, x, y;
+  int      xp, yp, shx = 0, shy = 0;
+
+  if( dimy < 32 )
+    dimy = 32;
+  if( dimy > 256 )
+    dimy = 256;
+  if( dimx == 0 )
+    dimx = 1;
+  if( w > 0 )
+    dimx = w;
+  if( h > 0 )
+    dimy = h;
+  else if( !is2dMode() && dimy > 32 )
+    dimy = 32;
+
+  shx = -int(dimx) / 2;
+  shy = -int(dimy) / 2;
+
+  ColorTraits<int>	coltraits( this, shx, dimx + shx - 1,
+                               shy, dimy + shy - 1,
+                               mi1, ma1, zero1,
+                               mi2, ma2, zero2 );
+
+  rc_ptr<Volume<AimsRGBA> > img( new Volume<AimsRGBA>( dimx, dimy ) );
+
+  for( y=0; y<dimy; ++y )
+  {
+    coltraits.paletteCoord1( y + shy, yp );
+    for( x=0; x<dimx; ++x )
+    {
+      coltraits.paletteCoord0( x + shx, xp );
+      (*img)( x, y ) = (*col)( xp, yp );
+    }
+  }
+
+  return img;
+}
+
+
 rc_ptr<Volume<AimsRGBA> > AObjectPalette::toVolume( int w, int h,
                                                     bool scaled ) const
 {
