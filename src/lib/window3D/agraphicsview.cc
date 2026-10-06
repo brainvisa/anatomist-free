@@ -307,24 +307,33 @@ AGraphicsScene::~AGraphicsScene()
 void AGraphicsScene::drawBackground( QPainter* painter, const QRectF & )
 {
   // cout << "drawBackground\n";
-  if( painter->paintEngine()->type() != QPaintEngine::OpenGL
-    && painter->paintEngine()->type() != QPaintEngine::OpenGL2 )
+  // cout << "painter: " << painter << endl;
+  // cout << "device: " << painter->device() << endl;
+  // cout << "paintEngine: " << painter->paintEngine() << endl;
+  if( painter->paintEngine() )
   {
-    cerr << "AGraphicsScene: drawBackground needs a QGLWidget to be set as"
-      "viewport on the graphics view" << endl;
-    cerr << "paintEngine type: " << painter->paintEngine()->type() << endl;
-    return;
+    // cout << "type: " << painter->paintEngine()->type() << endl;
+    if( painter->paintEngine()->type() != QPaintEngine::OpenGL
+      && painter->paintEngine()->type() != QPaintEngine::OpenGL2 )
+    {
+      cerr << "AGraphicsScene: drawBackground needs a QGLWidget to be set as"
+        "viewport on the graphics view" << endl;
+      cerr << "paintEngine type: " << painter->paintEngine()->type() << endl;
+      return;
+    }
+    QList<QGraphicsView *> gviews = views();
+    QList<QGraphicsView *>::iterator ig, eg = gviews.end();
+    for( ig=gviews.begin(); ig!=eg; ++ig )
+    {
+      GLWidgetManager* glm = dynamic_cast<GLWidgetManager *>(
+        (*ig)->viewport() );
+      if( glm )
+        glm->paintScene();
+    }
+    // cout << "drawBackground done.\n";
+  //   QTimer::singleShot( 20, this, SLOT( update() ) );
   }
-  QList<QGraphicsView *> gviews = views();
-  QList<QGraphicsView *>::iterator ig, eg = gviews.end();
-  for( ig=gviews.begin(); ig!=eg; ++ig )
-  {
-    GLWidgetManager* glm = dynamic_cast<GLWidgetManager *>( 
-      (*ig)->viewport() );
-    if( glm )
-      glm->paintScene();
-  }
-//   QTimer::singleShot( 20, this, SLOT( update() ) );
+  // else cout << "no paintEngine.\n";
 }
 
 
