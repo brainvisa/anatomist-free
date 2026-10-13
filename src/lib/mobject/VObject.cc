@@ -44,6 +44,7 @@
 #include <QOpenGLContext>
 #include <QOpenGLExtraFunctions>
 #include <limits>
+#include <anatomist/reference/Geometry.h>
 
 #include <QOpenGLShaderProgram>
 
@@ -106,10 +107,12 @@ namespace
     uniform sampler3D u_volume;
     layout( rgba16f, binding = 0 ) uniform writeonly image3D u_gradient;
     uniform int u_offset;
+    uniform int u_channel; // 0=scalar, 3=RGBA
 
     float voxel( ivec3 p, ivec3 dim )
     {
-      return texelFetch( u_volume, clamp( p, ivec3(0), dim - 1 ), 0 ).r;
+      vec4 v = texelFetch( u_volume, clamp( p, ivec3(0), dim - 1 ), 0 );
+      return u_channel == 3 ? v.a : v.r;
     }
 
     void main()
@@ -220,7 +223,7 @@ namespace
   */
   bool computeGradientGPU( carto::rc_ptr<QOpenGLShaderProgram> & program,
                            bool & programFailed,
-                           unsigned dimx, unsigned dimy, unsigned dimz, const int gradientOffset,
+                           unsigned dimx, unsigned dimy, unsigned dimz, const int gradientOffset, int channel,
                            GLuint gradientTex, GLuint volumeTex )
   {
     if( programFailed )
@@ -257,6 +260,7 @@ namespace
     program->bind();
     program->setUniformValue( "u_volume", 0 );
     program->setUniformValue( "u_offset", gradientOffset );
+    program->setUniformValue( "u_channel", channel );
     f->glBindImageTexture( 0, gradientTex, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA16F );
 
     f->glDispatchCompute( ( dimx + 7 ) / 8, ( dimy + 7 ) / 8, ( dimz + 7 ) / 8 );
@@ -333,10 +337,83 @@ namespace
     else if( auto *a = dynamic_cast<AVolume<double> *>( obj ) )   readVolume( a, dimx, dimy, dimz, volumeMax, volumeMin, buffer );
     else
     {
-      std::cerr << "VObject: unsupported volume type\n";
       return false;
     }
     return true;
+  }
+
+  /* Alpha of an RGB voxel, as in the former VolRender (color norm),
+     clamped: the norm can reach 441.
+  */
+  inline uint8_t normAlpha( uint8_t r, uint8_t g, uint8_t b )
+  {
+    return uint8_t( std::min( std::sqrt( float( r * r + g * g + b * b ) ),
+                              255.f ) );
+  }
+
+  inline AimsRGBA toRGBA( const AimsRGB & c )
+  {
+    return AimsRGBA( c.red(), c.green(), c.blue(),
+                     normAlpha( c.red(), c.green(), c.blue() ) );
+  }
+
+  inline AimsRGBA toRGBA( const AimsRGBA & c )
+  {
+    return c;
+  }
+
+  /* Copies an RGB or RGBA volume into an RGBA8 buffer (x-fastest order).
+     \param recomputeAlpha  replace alpha with the color norm (used for
+                            non-transparent sliceable objects)
+  */
+  template <typename T>
+  void copyColorVolume( const carto::Volume<T> & vol, bool recomputeAlpha,
+                        unsigned & dimx, unsigned & dimy, unsigned & dimz,
+                        std::vector<uint8_t> & buffer )
+  {
+    dimx = vol.getSizeX();
+    dimy = vol.getSizeY();
+    dimz = vol.getSizeZ();
+    buffer.resize( 4 * size_t( dimx ) * dimy * dimz );
+    uint8_t *p = buffer.data();
+    for( unsigned z=0; z<dimz; ++z )
+      for( unsigned y=0; y<dimy; ++y )
+        for( unsigned x=0; x<dimx; ++x )
+        {
+          AimsRGBA c = toRGBA( vol.at( x, y, z ) );
+          if( recomputeAlpha )
+            c.alpha() = normAlpha( c.red(), c.green(), c.blue() );
+          *p++ = c.red();
+          *p++ = c.green();
+          *p++ = c.blue();
+          *p++ = c.alpha();
+        }
+  }
+
+  /* Reads a color object into an RGBA8 buffer:
+     - AVolume<AimsRGB>: alpha = color norm
+     - AVolume<AimsRGBA>: alpha kept as is
+     Must be called after readVolumeAsFloat() failed, since scalar volumes
+     are also sliceable.
+  */
+  bool readColorVolume( AObject *obj,
+                        unsigned & dimx, unsigned & dimy, unsigned & dimz,
+                        std::vector<uint8_t> & buffer, bool & alphaComputed )
+  {
+    if( auto *a = dynamic_cast<AVolume<AimsRGB> *>( obj ) )
+    {
+      copyColorVolume( *a->volume(), false, dimx, dimy, dimz, buffer );
+      alphaComputed = true;  // alpha recomputed from color norm
+      return true;
+    }
+    if( auto *a = dynamic_cast<AVolume<AimsRGBA> *>( obj ) )
+    {
+      copyColorVolume( *a->volume(), false, dimx, dimy, dimz, buffer );
+      alphaComputed = false;  // alpha kept as is
+      return true;
+    }
+
+    return false;
   }
 }
 
@@ -349,15 +426,17 @@ struct VObject::Private
   Point3df bmin;
   Point3df bmax;
   unsigned dimx, dimy, dimz;
+  bool colorVolume;  // true if the volume is RGB or RGBA, false if scalar
   float volumeMax;
   float volumeMin;
   GLuint volumeTex;
+  bool alphaComputed;  // true if the alpha channel of a color volume was recomputed from the color norm
   carto::rc_ptr<QOpenGLShaderProgram> gradientProgram;
   bool gradientProgramFailed;   
 };
 
 VObject::Private::Private()
-  : object( 0 ), bmin( 0, 0, 0 ), bmax( 0, 0, 0 ), dimx( 0 ), dimy( 0 ), dimz( 0 ), volumeMax( 1.0f ), volumeMin(0.0f), volumeTex( 0 ), gradientProgramFailed( false )
+  : object( 0 ), bmin( 0, 0, 0 ), bmax( 0, 0, 0 ), dimx( 0 ), dimy( 0 ), dimz( 0 ), colorVolume(false), volumeMax( 1.0f ), volumeMin(0.0f), volumeTex( 0 ), alphaComputed(false), gradientProgramFailed( false )
 {
 }
 
@@ -452,7 +531,7 @@ unsigned VObject::glDimTex( const ViewState &, unsigned tex) const
   
 }
 
-bool VObject::glMakeTexImage( const ViewState &, const GLTexture & gltex,
+bool VObject::glMakeTexImage( const ViewState & state, const GLTexture & gltex,
                               unsigned tex) const
 {
   if( !checkObject() )
@@ -482,56 +561,104 @@ bool VObject::glMakeTexImage( const ViewState &, const GLTexture & gltex,
 }
 
 // ---- tex 0 : volume ----
-bool VObject::makeVolumeTexture( GLuint texName ) const
+bool VObject::makeVolumeTexture(GLuint texName ) const
 {
-  std::vector<float> buffer;
-  if( !readVolumeAsFloat( d->object, d->dimx, d->dimy, d->dimz,
-                          d->volumeMax, d->volumeMin, buffer ) )
-    return false;
+  GLComponent::TexExtrema & te
+    = const_cast<VObject*>( this )->glTexExtrema( 0 );
 
-  glBindTexture( GL_TEXTURE_3D, texName );
-  setTextureParams( GL_TEXTURE_3D );
-  GLCaps::glTexImage3D( GL_TEXTURE_3D, 0, GL_R32F, d->dimx, d->dimy, d->dimz, 0,
-                        GL_RED, GL_FLOAT, buffer.data() );
+  std::vector<float> fbuf;
+  std::vector<uint8_t> cbuf;
+
+  if( readVolumeAsFloat( d->object, d->dimx, d->dimy, d->dimz,
+                         d->volumeMax, d->volumeMin, fbuf ) )
+  {
+    d->colorVolume = false;
+    glBindTexture( GL_TEXTURE_3D, texName );
+    setTextureParams( GL_TEXTURE_3D );
+    GLCaps::glTexImage3D( GL_TEXTURE_3D, 0, GL_R32F, d->dimx, d->dimy,
+                          d->dimz, 0, GL_RED, GL_FLOAT, fbuf.data() );
+    te.minquant[0] = d->volumeMin;
+    te.maxquant[0] = d->volumeMax;
+  }
+  else if( readColorVolume( d->object, d->dimx, d->dimy, d->dimz,
+                            cbuf, d->alphaComputed ) )
+  {
+    d->colorVolume = true;
+    // GL_RGBA8 is sampled normalized in [0,1]
+    d->volumeMin = 0.f;
+    d->volumeMax = 1.f;
+    // premultiplied alpha: trilinear filtering no longer mixes the color
+    // of opaque voxels with the (black) color of transparent neighbors
+    for( size_t i = 0; i < cbuf.size(); i += 4 )
+    {
+      unsigned a = cbuf[i + 3];
+      cbuf[i]     = uint8_t( ( cbuf[i]     * a + 127 ) / 255 );
+      cbuf[i + 1] = uint8_t( ( cbuf[i + 1] * a + 127 ) / 255 );
+      cbuf[i + 2] = uint8_t( ( cbuf[i + 2] * a + 127 ) / 255 );
+    }
+    glBindTexture( GL_TEXTURE_3D, texName );
+    setTextureParams( GL_TEXTURE_3D );
+    GLCaps::glTexImage3D( GL_TEXTURE_3D, 0, GL_RGBA8, d->dimx, d->dimy,
+                          d->dimz, 0, GL_RGBA, GL_UNSIGNED_BYTE, cbuf.data() );
+    // value range of the former VolRender for color volumes
+    te.minquant[0] = 0;
+    te.maxquant[0] = 255;
+  }
+  else
+  {
+    std::cerr << "VObject: unsupported volume type\n";
+    return false;
+  }
 
   d->volumeTex = texName;
-
-  GLComponent::TexExtrema & te = const_cast<VObject*>( this )->glTexExtrema( 0 );
-  te.minquant[0] = d->volumeMin;
-  te.maxquant[0] = d->volumeMax;
   return true;
 }
 
 // ---- tex 1 : gradient ----
-bool VObject::makeGradientTexture( GLuint texName ) const
+bool VObject::makeGradientTexture(GLuint texName ) const
 {
-  if( !d->volumeTex )
+   if( !d->volumeTex )
   {
     std::cerr << "VObject: gradient requested before volume texture\n";
     return false;
   }
 
   const int gradientOffset = 3; // offset for gradient computation (in voxels)
+  // color volumes: gradient of the opacity (alpha channel, in [0,1])
+  const int channel = d->colorVolume ? 3 : 0;
 
   bool ok = false;
   if( gpuGradientAvailable() && !d->gradientProgramFailed )
     ok = computeGradientGPU( d->gradientProgram, d->gradientProgramFailed,
-                             d->dimx, d->dimy, d->dimz, gradientOffset, texName, d->volumeTex );
+                             d->dimx, d->dimy, d->dimz, gradientOffset,
+                             channel, texName, d->volumeTex );
 
   if( !ok )   // CPU fallback
   {
     std::vector<float> buffer;
     unsigned dx, dy, dz;
-    float vmax;
-    float vmin;
-    if( !readVolumeAsFloat( d->object, dx, dy, dz, vmax, vmin, buffer ) )
-      return false;
+    if( d->colorVolume )
+    {
+      std::vector<uint8_t> rgba;
+      if( !readColorVolume( d->object, dx, dy, dz, rgba, d->alphaComputed ) )
+        return false;
+      buffer.resize( rgba.size() / 4 );
+      for( size_t i = 0; i < buffer.size(); ++i )
+        buffer[i] = rgba[4 * i + 3] / 255.f;   // same scale as the GPU fetch
+    }
+    else
+    {
+      float vmax, vmin;
+      if( !readVolumeAsFloat( d->object, dx, dy, dz, vmax, vmin, buffer ) )
+        return false;
+    }
     ok = computeGradientCPU( buffer, dx, dy, dz, gradientOffset, texName );
   }
 
-
   return ok;
-}
+  }
+
+  
 
 // ---- tex 2 : transfert function (palette) ----
 bool VObject::makeTransferFunctionTexture( GLuint texName ) const
@@ -674,21 +801,18 @@ void VObject::updateObjectUniforms(QOpenGLShaderProgram* shader)
   if( !shader)
     return;
 
-  //buildTransferFunction(); //jordan test
-
-
   shader->setUniformValue("u_bmin", d->bmin[0], d->bmin[1], d->bmin[2]);
   shader->setUniformValue("u_bmax", d->bmax[0], d->bmax[1], d->bmax[2]);
   shader->setUniformValue("u_volumeMax", d->volumeMax);
   shader->setUniformValue("u_volumeMin", d->volumeMin);
+  shader->setUniformValue( "u_colorVolume", d->colorVolume ? 1 : 0 );
+  shader->setUniformValue( "u_alphaComputed", d->alphaComputed ? 1 : 0 );
 
   const AObjectPalette *objpal = getOrCreatePalette();
   float pmin = objpal ? (float)objpal->min1() : 0.0f;
   float pmax = objpal ? (float)objpal->max1() : 1.0f;
   shader->setUniformValue("u_paletteMin", pmin);
   shader->setUniformValue("u_paletteMax", pmax);
-
-
 }
 
 bool VObject::renderingIsObserverDependent() const
@@ -723,6 +847,9 @@ void VObject::update( const Observable* observable, void* arg )
   const AObject *o = dynamic_cast<const AObject *>( observable );
   if( o && o == d->object )
   {
+    if( d->colorVolume && o->obsHasChanged( GLComponent::glTEXIMAGE ) )
+      glSetTexImageChanged( true, 0 );
+
     if( o->obsHasChanged( GLComponent::glBODY ) )
     {
       glSetChanged( GLComponent::glBODY, true );

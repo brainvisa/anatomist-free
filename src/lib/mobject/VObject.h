@@ -84,7 +84,7 @@ namespace anatomist
     /** Builds a volume renderer for the given volume object.
         \param vol source volume. Must be an AVolume<T> with a scalar voxel
         type T among int8_t, uint8_t, int16_t, uint16_t, int32_t, uint32_t,
-        float and double. Other objects (RGB/RGBA volumes, 2D fusions, other
+        float and double. Other objects (2D fusions, other
         sliceable objects) are accepted but cannot be rendered: the volume
         texture fails to build and nothing is displayed.
         The volume becomes a child of the VObject.
@@ -188,9 +188,12 @@ namespace anatomist
 
   private:
 
-    /** Uploads the volume data (tex 0) as a GL_R32F 3D texture, records
-        its GL name for the gradient computation, and updates the texture
-        extrema with the volume maximum value.
+     /** Uploads the volume data (tex 0):
+        - scalar volumes: GL_R32F 3D texture (raw values)
+        - RGB / RGBA volumes : GL_RGBA8 3D texture
+          (RGB: alpha = color norm, as in the former VolRender)
+        Records its GL name for the gradient computation and updates the
+        texture extrema.
     */
     bool makeVolumeTexture( GLuint texName ) const;
 
