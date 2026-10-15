@@ -11,7 +11,6 @@ out float gl_ClipDistance[2 + MAX_OBJECT_CLIP_PLANES];
 void main()
 {
     v_objectPosRaw = gl_Vertex.xyz;
-    v_directionLight = normalize( (inverse(gl_ModelViewMatrix) * vec4(gl_LightSource[0].position.xyz, 0.0)).xyz );
 
     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 

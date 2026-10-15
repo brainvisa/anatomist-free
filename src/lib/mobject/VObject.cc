@@ -398,18 +398,16 @@ namespace
   */
   bool readColorVolume( AObject *obj,
                         unsigned & dimx, unsigned & dimy, unsigned & dimz,
-                        std::vector<uint8_t> & buffer, bool & alphaComputed )
+                        std::vector<uint8_t> & buffer)
   {
     if( auto *a = dynamic_cast<AVolume<AimsRGB> *>( obj ) )
     {
       copyColorVolume( *a->volume(), false, dimx, dimy, dimz, buffer );
-      alphaComputed = true;  // alpha recomputed from color norm
       return true;
     }
     if( auto *a = dynamic_cast<AVolume<AimsRGBA> *>( obj ) )
     {
       copyColorVolume( *a->volume(), false, dimx, dimy, dimz, buffer );
-      alphaComputed = false;  // alpha kept as is
       return true;
     }
 
@@ -430,13 +428,12 @@ struct VObject::Private
   float volumeMax;
   float volumeMin;
   GLuint volumeTex;
-  bool alphaComputed;  // true if the alpha channel of a color volume was recomputed from the color norm
   carto::rc_ptr<QOpenGLShaderProgram> gradientProgram;
   bool gradientProgramFailed;   
 };
 
 VObject::Private::Private()
-  : object( 0 ), bmin( 0, 0, 0 ), bmax( 0, 0, 0 ), dimx( 0 ), dimy( 0 ), dimz( 0 ), colorVolume(false), volumeMax( 1.0f ), volumeMin(0.0f), volumeTex( 0 ), alphaComputed(false), gradientProgramFailed( false )
+  : object( 0 ), bmin( 0, 0, 0 ), bmax( 0, 0, 0 ), dimx( 0 ), dimy( 0 ), dimz( 0 ), colorVolume(false), volumeMax( 1.0f ), volumeMin(0.0f), volumeTex( 0 ), gradientProgramFailed( false )
 {
 }
 
@@ -581,7 +578,7 @@ bool VObject::makeVolumeTexture(GLuint texName ) const
     te.maxquant[0] = d->volumeMax;
   }
   else if( readColorVolume( d->object, d->dimx, d->dimy, d->dimz,
-                            cbuf, d->alphaComputed ) )
+                            cbuf) )
   {
     d->colorVolume = true;
     // GL_RGBA8 is sampled normalized in [0,1]
@@ -640,7 +637,7 @@ bool VObject::makeGradientTexture(GLuint texName ) const
     if( d->colorVolume )
     {
       std::vector<uint8_t> rgba;
-      if( !readColorVolume( d->object, dx, dy, dz, rgba, d->alphaComputed ) )
+      if( !readColorVolume( d->object, dx, dy, dz, rgba ) )
         return false;
       buffer.resize( rgba.size() / 4 );
       for( size_t i = 0; i < buffer.size(); ++i )
@@ -806,7 +803,6 @@ void VObject::updateObjectUniforms(QOpenGLShaderProgram* shader)
   shader->setUniformValue("u_volumeMax", d->volumeMax);
   shader->setUniformValue("u_volumeMin", d->volumeMin);
   shader->setUniformValue( "u_colorVolume", d->colorVolume ? 1 : 0 );
-  shader->setUniformValue( "u_alphaComputed", d->alphaComputed ? 1 : 0 );
 
   const AObjectPalette *objpal = getOrCreatePalette();
   float pmin = objpal ? (float)objpal->min1() : 0.0f;

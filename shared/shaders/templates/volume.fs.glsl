@@ -10,7 +10,6 @@ uniform float u_volumeMin;
 uniform float u_paletteMin;
 uniform float u_paletteMax;
 uniform int   u_colorVolume; // 1 if the volume is RGB/RGBA, 0 if scalar
-uniform int  u_alphaComputed; // 1 if the alpha channel of a color volume was recomputed from the color norm, 0 if it was kept as is 
 
 
 uniform int   u_activeClipPlanes;
@@ -20,9 +19,7 @@ uniform int   u_nbObjectClipPlanes;
 uniform vec4  u_objectClipPlanes[MAX_OBJECT_CLIP_PLANES];
 
 in vec3 v_objectPosRaw;
-in vec3 v_directionLight;
 
-{Illumination Model Uniforms}
 {Effect Uniforms}
 
 out vec4 fragColor;
@@ -34,16 +31,6 @@ const float earlyTerminationAlpha = 0.95; // accumulated alpha threshold for ear
 // ratio between the current step and the reference step (1 voxel),
 // used for opacity correction. Set in main().
 float g_stepRatio = 1.0;
-
-// gradient length (relative to the value range) under which the region is
-// considered homogeneous: no shading
-const float gradientReliability = 0.01;
-
-// color volumes: ambient part of the luminance-only lighting
-const float colorAmbient = 0.4;
-
-
-{Illumination Model Functions}
 
 float eyeToWindowDepth( vec4 eyePos )
 {
@@ -84,66 +71,6 @@ bool isClipped(vec4 eyePos)
     return false;
 }
 
-// distance to a clip plane (eye space), kept as the nearest one so far
-void testClipPlane( vec4 plane, vec4 eyePos, inout float dmin, inout vec3 normal )
-{
-    float len = length( plane.xyz );
-    if( len < 1e-6 )
-        return;
-    float d = dot( plane, eyePos ) / len;   // >= 0 on the kept side
-    if( d < dmin )
-    {
-        dmin = d;
-        normal = -plane.xyz / len;          // outward normal of the cut face
-    }
-}
-
-// distance to the nearest active clip plane, and its normal (eye space)
-float nearestClipPlane( vec4 eyePos, out vec3 normal )
-{
-    float dmin = 1e20;
-    normal = vec3( 0.0, 0.0, 1.0 );
-    if( u_activeClipPlanes >= 1 )
-        testClipPlane( u_clipPlane0, eyePos, dmin, normal );
-    if( u_activeClipPlanes >= 2 )
-        testClipPlane( u_clipPlane1, eyePos, dmin, normal );
-    for( int i = 0; i < MAX_OBJECT_CLIP_PLANES; ++i )
-    {
-        if( i >= u_nbObjectClipPlanes )
-            break;
-        testClipPlane( u_objectClipPlanes[i], eyePos, dmin, normal );
-    }
-    return dmin;
-}
-
-// orients a normal toward the camera (orthographic view: eye looks along -z)
-vec3 faceCamera( vec3 n )
-{
-    return n.z < 0.0 ? -n : n;
-}
-
-/* Shading normal (eye space, facing the camera), shared by scalar and
-   color volumes:
-   - gradient normal, faded out in homogeneous regions (noisy gradient)
-   - clip plane normal near a cut, where the visible surface is the plane
-*/
-vec3 shadingNormal( vec3 grad, vec3 voxelSize, float valueRange,
-                    vec4 eyePos, mat3 normalMatrix, float clipShadingDistance )
-{
-    vec3 normalEye = vec3( 0.0, 0.0, 1.0 );   // facing the camera
-
-    float relLen = length( grad ) / valueRange;
-    float wGrad = smoothstep( gradientReliability, 4.0 * gradientReliability, relLen );
-    if( wGrad > 0.0 )
-        normalEye = normalize( mix( normalEye,
-            faceCamera( normalize( normalMatrix * ( grad / voxelSize ) ) ), wGrad ) );
-
-    vec3 clipNormal;
-    float dClip = nearestClipPlane( eyePos, clipNormal );
-    float wClip = 1.0 - smoothstep( 0.0, clipShadingDistance, dClip );
-    return normalize( mix( normalEye, faceCamera( clipNormal ), wClip ) );
-}
-
 vec4 transferFunction( float raw )
 {
     float density  = (raw - u_volumeMin) / max(u_volumeMax - u_volumeMin, 1e-6);
@@ -165,10 +92,7 @@ float sampleAlpha( vec3 texCoord, vec4 eyePos, out vec4 tf )
         color.r = transferFunction( color.r ).r;
         color.g = transferFunction( color.g ).g;
         color.b = transferFunction( color.b ).b;
-
-        float alpha = ( u_alphaComputed != 0 )
-            ? transferFunction( voxel.a ).a   // computed alpha: palette = opacity curve
-            : voxel.a;            // stored alpha: respected, global scale only
+        float alpha = transferFunction( voxel.a ).a ;
         tf = vec4( color, alpha );
     }
     else
@@ -275,29 +199,7 @@ void main()
         float a = sampleAlpha( texCoord, currentPosEye, tf );
         if( a > 0.0 )
         {
-            vec3 grad = texture( u_texture3D[1], texCoord ).xyz;
-            vec3 normalEye = shadingNormal( grad, voxelSize, valueRange,
-                                            currentPosEye, normalMatrix,
-                                            clipShadingDistance );
-
-            vec3 shadedColor;
-            if( u_colorVolume != 0 )
-            {
-                // luminance-only diffuse: direction colors are kept,
-                // no (white) specular that would desaturate them
-                vec3 lightEye = normalize( gl_LightSource[0].position.xyz );
-                float diffuse = max( dot( normalEye, lightEye ), 0.0 );
-                shadedColor = tf.rgb * ( colorAmbient + ( 1.0 - colorAmbient ) * diffuse );
-                shadedColor = tf.rgb ;
-            }
-            else
-            {
-                BlinnPhongMaterial bp = BlinnPhong( normalEye );
-                shadedColor = bp.ambient.rgb + tf.rgb * bp.diffuse.rgb + bp.specular.rgb;
-                shadedColor = tf.rgb;
-            }
-
-            accum.rgb += (1.0 - accum.a) * a * shadedColor;
+            accum.rgb += (1.0 - accum.a) * a * tf.rgb;
             accum.a   += (1.0 - accum.a) * a;
 
             if( !surfaceKnown && !depthHit && accum.a >= depthAlphaThreshold )
