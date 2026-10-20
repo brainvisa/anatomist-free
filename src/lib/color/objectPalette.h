@@ -250,6 +250,11 @@ namespace anatomist
     QImage* toQImage( int w = 0, int h = 0, double min1 = 0., double max1 = 1.,
                       double zero1 = 0.5, double min2 = 0., double max2 = 1.,
                       double zero2 = 0.5 ) const;
+    /// same as toQImage() but for an AIMS Volume
+    carto::rc_ptr<carto::Volume<AimsRGBA> >
+      toVolume( int w, int h, double min1, double max1,
+                double zero1, double min2 = 0., double max2 = 1.,
+                double zero2 = 0.5 ) const;
     carto::rc_ptr<carto::Volume<AimsRGBA> >
       toVolume( int w = 0, int h = 0, bool scaled = true ) const;
 

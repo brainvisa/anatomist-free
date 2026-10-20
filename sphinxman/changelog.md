@@ -1,6 +1,6 @@
 # Changelog
 
-## [6.0.19] 2026-09-24
+## [6.0.19] 2026-09-29
 
 ### Added
 
@@ -9,6 +9,7 @@
   - ctrl + drop: same but all new windows are open in a new block
   - menus and keyboard shortcuts: shift-ctrl-A/C/S/3
 - windows block: the drag action can now drop on the desktop, which detaches the view from the block.
+- textured buckets: fusion between a bucket and a texture, are now supported
 
 
 ## [6.0.18] 2026-08-06

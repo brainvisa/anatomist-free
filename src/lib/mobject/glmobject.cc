@@ -189,7 +189,7 @@ bool GLMObject::glToRef( const Referential* objref, GLPrimitives & p ) const
 {
   if( objref )
   {
-    cout << "GLMObject::glToRef\n";
+    // cout << "GLMObject::glToRef\n";
     const Referential *r = getReferential();
     if( objref != r )
     {
