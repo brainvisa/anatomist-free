@@ -88,6 +88,7 @@ FusionFactory::FusionFactory()
       registerMethod( new ConnectivityMatrixFusionMethod );
       registerMethod( new VectorFieldFusionMethod );
       registerMethod( new NormalsFusionMethod );
+      registerMethod( new FusionRGBVolumeFrom5DMethod );
     }
 }
 

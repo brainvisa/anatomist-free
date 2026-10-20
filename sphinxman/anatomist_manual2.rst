@@ -115,7 +115,7 @@ The following table shows the available types of fusion according to the type of
       <tr class="row-even">
         <td>
           Only one volume or 2D fusion <br/>
-          <img src="images/fusion_slice_method_little.png" />
+          <img src="_images/fusion_slice_method_little.png" />
         </td>
         <td>FusionSliceMethod</td>
         <td>
@@ -135,7 +135,7 @@ The following table shows the available types of fusion according to the type of
       <tr class="row-even">
         <td>
           Volume + Mesh <br/>
-          <img src="images/fusion_map_iwhitemesh_little.png" />
+          <img src="_images/fusion_map_iwhitemesh_little.png" />
         </td>
         <td>Fusion3DMethod</td>
         <td>

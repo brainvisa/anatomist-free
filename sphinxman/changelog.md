@@ -1,13 +1,78 @@
 # Changelog
 
-## [Unreleased]
+## [6.0.19] 2026-09-24
+
+### Added
+
+- shortcut to display a set of objects each in a different window, in drag objects onto a window button:
+  - shift + drop: each object opens a new window of that type
+  - ctrl + drop: same but all new windows are open in a new block
+  - menus and keyboard shortcuts: shift-ctrl-A/C/S/3
+- windows block: the drag action can now drop on the desktop, which detaches the view from the block.
+
+
+## [6.0.18] 2026-08-06
+
+### Changed
+
+- fixed palette issue on textures in zero-centered palette mode
+- internal fixes in PyAnatomist API bindings
+
+
+## [6.0.17] 2026-07-02
+
+### Changed
+
+- fixed bounds handling for 4D+ volumes when the timestep is not 1. This bug had appeared in 6.0.15 as a side effect of another fix (primarily targetting volume rendering)
+
+
+## [6.0.15] 2026-06-16
+
+### Changed
+
+- fixed crash in volume rendering from a Fusion 2D
+
+
+## [6.0.14] 2026-05-21
+
+- internal improvements in ana_atlas_nonlin and fixes
+
+
+## [6.0.13] 2026-04-07
+
+### Added
+
+- new large palettes with random colors
+
+## [6.0.12] 2026-03-11
+
+### Added
+
+- new method in pyanatomist to check if the application exists
+- ana_demo doesn't download data if they are already installed
+
+### Changed
+
+
+## [6.0.9] 2026-02-27
+
+### Changed
+
+- avoid crash in windows blocks when the application has been deleted
+
+
+## [6.0.6] 2026-02-06
 
 ### Changed
 
 - fixed a crash when deleting a graph with selected nodes
+- added a fusion from a 5D volume to build a RGB volume. Some NIFTI RGB are stored this way.
+- fixed size of FusionRGBAVolume fusion when voxel size is not 1x1x1mm
+- measure control: fixed markers display in direct referentials
+- little demo script: `ana_demo.py`
 
 
-## [6.6.0] 2026-01-12
+## [6.0.0] 2026-01-12
 
 There has been several significant changes in this version...
 

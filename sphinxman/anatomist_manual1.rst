@@ -744,7 +744,11 @@ Objects visualization
 
 There are several ways of visualizing an object in a window (after object loading):
 
-* Drag and drop the object on a window icon of the left menu bar (it will open a new window containing this object).
+* Drag and drop one or several object(s) on a window icon of the left menu bar (it will open a new window containing this object).
+
+  * in Anatomist 6.0.19, when several objects are dropped, if the <shift> key is down upon drop, each object will be displayued in a separate new window.
+  * also in Anatomist 6.0.19, if the <control> key is down, the same will happen, but all new windows will be bound in a new block.
+
 * Drag and drop the object on an already opened window.
 * Drag and drop the object on an opened window icon in the right panel.
 * Select the object and a window and click on *add* button in the left menu bar.

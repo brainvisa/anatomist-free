@@ -98,7 +98,7 @@ RoiDynSegmentActionView::RoiDynSegmentActionView(
   _private->myDynSegmentAction->addObserver(this);
 
   QVBoxLayout *lay = new QVBoxLayout( this );
-  lay->setMargin( 0 );
+  lay->setContentsMargins( 0, 0, 0, 0 );
   lay->setSpacing( 5 );
 
   QHBoxLayout *sllay = new QHBoxLayout;
@@ -137,7 +137,7 @@ RoiDynSegmentActionView::RoiDynSegmentActionView(
   QWidget *myModes = new QWidget( this );
   lay->addWidget( myModes );
   QGridLayout *mlay = new QGridLayout( myModes );
-  mlay->setMargin( 0 );
+  mlay->setContentsMargins( 0, 0, 0, 0 );
   QGroupBox *dimbox = new QGroupBox( tr("Dimension"), myModes );
   mlay->addWidget( dimbox, 0, 0 );
   QHBoxLayout *dblay = new QHBoxLayout( dimbox );

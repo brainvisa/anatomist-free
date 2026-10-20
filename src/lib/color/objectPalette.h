@@ -45,6 +45,7 @@ class QImage;
 namespace anatomist
 {
   class AObject;
+  class GLComponent;
 
   class AObjectPalette
   {
@@ -132,14 +133,49 @@ namespace anatomist
     { if( dim == 1 ) setAbsMin2( obj, x ); else setAbsMin1( obj, x ); }
     void setAbsMax( int dim, const AObject *obj, double x )
     { if( dim == 1 ) setAbsMax2( obj, x ); else setAbsMax1( obj, x ); }
-    double relValue1( const AObject * obj, double absval ) const;
-    double relValue2( const AObject * obj, double absval ) const;
-    double relValue( int dim, const AObject* obj, double absval ) const
+
+    /// get the absolute min for a given object
+    double absMin1( const GLComponent *glcj ) const;
+    /// get the absolute max for a given object
+    double absMax1( const GLComponent *glc ) const;
+    /// get the absolute min for a given object
+    double absMin2( const GLComponent *glc ) const;
+    /// get the absolute max for a given object
+    double absMax2( const GLComponent *glc ) const;
+    double absMin( int dim, const GLComponent *glc ) const
+    { return dim == 1 ? absMin2( glc ) : absMin1( glc ); }
+    double absMax( int dim, const GLComponent *glc ) const
+    { return dim == 1 ? absMax2( glc ) : absMax1( glc ); }
+    /// set the min from an absolute value for a given object
+    void setAbsMin1( const GLComponent *glc, double x );
+    /// set the max from an absolute value for a given object
+    void setAbsMax1( const GLComponent *glc, double x );
+    /// set the min from an absolute value for a given object
+    void setAbsMin2( const GLComponent *glc, double x );
+    /// set the max from an absolute value for a given object
+    void setAbsMax2( const GLComponent *glc, double x );
+    void setAbsMin( int dim, const GLComponent *glc, double x )
+    { if( dim == 1 ) setAbsMin2( glc, x ); else setAbsMin1( glc, x ); }
+    void setAbsMax( int dim, const GLComponent *glc, double x )
+    { if( dim == 1 ) setAbsMax2( glc, x ); else setAbsMax1( glc, x ); }
+
+    double relValue1( const AObject *obj, double absval ) const;
+    double relValue2( const AObject *obj, double absval ) const;
+    double relValue( int dim, const AObject *obj, double absval ) const
     { return dim == 1 ? relValue2( obj, absval ) : relValue1( obj, absval ); }
-    double absValue1( const AObject * obj, double relval ) const;
-    double absValue2( const AObject * obj, double relval ) const;
+    double absValue1( const AObject *obj, double relval ) const;
+    double absValue2( const AObject *obj, double relval ) const;
     double absValue( int dim, const AObject* obj, double relval ) const
     { return dim == 1 ? absValue2( obj, relval ) : absValue1( obj, relval ); }
+
+    double relValue1( const GLComponent *glc, double absval ) const;
+    double relValue2( const GLComponent *glc, double absval ) const;
+    double relValue( int dim, const GLComponent *glc, double absval ) const
+    { return dim == 1 ? relValue2( glc, absval ) : relValue1( glc, absval ); }
+    double absValue1( const GLComponent *glc, double relval ) const;
+    double absValue2( const GLComponent *glc, double relval ) const;
+    double absValue( int dim, const GLComponent* glc, double relval ) const
+    { return dim == 1 ? absValue2( glc, relval ) : absValue1( glc, relval ); }
 
     void setPalette1DMapping( Palette1DMapping palette1DMapping )
     { _palette1DMapping = palette1DMapping ; }

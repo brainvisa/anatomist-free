@@ -36,6 +36,7 @@
 #include <anatomist/selection/qSelMenu.h>
 #include <anatomist/control/wControl.h>
 #include <anatomist/window/qWinFactory.h>
+#include <anatomist/window/Window.h>
 #include <anatomist/application/module.h>
 #include <qmenubar.h>
 #include <QActionGroup>
@@ -150,8 +151,11 @@ void AControlMenuHandler::create()
   map<int, string>		wtypes = AWindowFactory::typeNames();
   map<int, string>::iterator	it, ft=wtypes.end();
 
+  QMenu *spread = new QMenu( "Multiple views" );
   QActionGroup *ag = new QActionGroup( _menubar );
   ag->setObjectName( "windows_types" );
+  QActionGroup *agw = new QActionGroup( _menubar );
+  agw->setObjectName( "window_spread" );
   for( it=wtypes.begin(); it!=ft; ++it )
   {
     ac = window->addAction( ControlWindow::tr( (*it).second.c_str() ) );
@@ -163,14 +167,44 @@ void AControlMenuHandler::create()
     if( !pixs.psmall.isNull() )
       ac->setIcon( pixs.psmall );
     ag->addAction( ac );
+    if( it->first == AWindow::AXIAL_WINDOW
+        || it->first == AWindow::CORONAL_WINDOW
+        || it->first == AWindow::SAGITTAL_WINDOW
+        || it->first == AWindow::WINDOW_3D )
+    {
+      QKeySequence shortcut;
+      switch( it->first )
+      {
+        case AWindow::AXIAL_WINDOW:
+          shortcut = Qt::CTRL | Qt::SHIFT | Qt::Key_A;
+          break;
+        case AWindow::CORONAL_WINDOW:
+          shortcut = Qt::CTRL | Qt::SHIFT |  Qt::Key_C;
+          break;
+        case AWindow::SAGITTAL_WINDOW:
+          shortcut = Qt::CTRL | Qt::SHIFT |  Qt::Key_S;
+          break;
+        default:
+          shortcut = Qt::CTRL | Qt::SHIFT | Qt::Key_3;
+      }
+      ac = spread->addAction( ControlWindow::tr( (*it).second.c_str() ),
+                              0, 0, shortcut );
+      ac->setData( it->first );
+      if( !pixs.psmall.isNull() )
+      ac->setIcon( pixs.psmall );
+      agw->addAction( ac );
+    }
   }
-  ag->connect( ag, SIGNAL( triggered( QAction* ) ), 
+  window->addMenu( spread );
+  ag->connect( ag, SIGNAL( triggered( QAction* ) ),
                _receiver, SLOT( openWindow( QAction* ) ) );
-  window->addAction( ControlWindow::tr( "Open 3 standard views" ), _receiver, 
+  agw->connect( agw, SIGNAL( triggered( QAction* ) ),
+                _receiver, SLOT( openWindowSpread( QAction* ) ) );
+  window->addAction( ControlWindow::tr( "Open 3 standard views" ), _receiver,
                      SLOT( openThreeViews() ), Qt::CTRL | Qt::Key_T );
-  window->addAction( ControlWindow::tr( "Open a 4 views block" ), _receiver, 
+  window->addAction( ControlWindow::tr( "Open a 4 views block" ), _receiver,
                      SLOT( openBlockView() ), Qt::CTRL | Qt::Key_B );
-  window->addAction( ControlWindow::tr( "Open an new empty block" ), _receiver,
+  window->addAction( ControlWindow::tr( "Open a new empty block" ), _receiver,
                      SLOT( openEmptyBlockView() ), Qt::CTRL | Qt::Key_N );
 
   window->addSeparator();

@@ -243,12 +243,12 @@ void MiniPaletteGraphics::_drawPaletteInGraphicsView()
   else
     dim = 1;
 
-  m1 = pal->relValue1( obj, d->min[0] );
-  M1 = pal->relValue1( obj, d->max[0] );
-  z1 = pal->relValue1( obj, 0. );
-  m2 = pal->relValue2( obj, d->min[1] );
-  M2 = pal->relValue2( obj, d->max[1] );
-  z2 = pal->relValue2( obj, 0. );
+  m1 = pal->relValue1( obj->glAPI(), d->min[0] );
+  M1 = pal->relValue1( obj->glAPI(), d->max[0] );
+  z1 = pal->relValue1( obj->glAPI(), 0. );
+  m2 = pal->relValue2( obj->glAPI(), d->min[1] );
+  M2 = pal->relValue2( obj->glAPI(), d->max[1] );
+  z2 = pal->relValue2( obj->glAPI(), 0. );
 
   QPixmap pix;
   if( d->with_view )

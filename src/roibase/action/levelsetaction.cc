@@ -1,36 +1,3 @@
-/* This software and supporting documentation are distributed by
- *     Institut Federatif de Recherche 49
- *     CEA/NeuroSpin, Batiment 145,
- *     91191 Gif-sur-Yvette cedex
- *     France
- *
- * This software is governed by the CeCILL-B license under
- * French law and abiding by the rules of distribution of free software.
- * You can  use, modify and/or redistribute the software under the
- * terms of the CeCILL-B license as circulated by CEA, CNRS
- * and INRIA at the following URL "http://www.cecill.info".
- *
- * As a counterpart to the access to the source code and  rights to copy,
- * modify and redistribute granted by the license, users are provided only
- * with a limited warranty  and the software's author,  the holder of the
- * economic rights,  and the successive licensors  have only  limited
- * liability.
- *
- * In this respect, the user's attention is drawn to the risks associated
- * with loading,  using,  modifying and/or developing or reproducing the
- * software by the user in light of its specific status of free software,
- * that may mean  that it is complicated to manipulate,  and  that  also
- * therefore means  that it is reserved for developers  and  experienced
- * professionals having in-depth computer knowledge. Users are therefore
- * encouraged to load and test the software's suitability as regards their
- * requirements in conditions enabling the security of their systems and/or
- * data to be ensured and,  more generally, to use and operate it in the
- * same conditions as regards security.
- *
- * The fact that you are presently reading this means that you have had
- * knowledge of the CeCILL-B license and that you accept its terms.
- */
-
 #include <aims/connectivity/connectivity.h>
 #include <anatomist/action/levelsetaction.h>
 #include <anatomist/action/histoplot.h>
@@ -118,13 +85,13 @@ RoiLevelSetActionView::RoiLevelSetActionView(
   QWidget *myLevels = new QWidget( this );
   lay->addWidget( myLevels );
   QHBoxLayout *levellay = new QHBoxLayout( myLevels );
-  levellay->setMargin( 0 );
+  levellay->setContentsMargins( 0, 0, 0, 0 );
   levellay->setSpacing( 5 );
 
   QGroupBox *myLowLevelGroupBox = new QGroupBox( tr("Low Level"), myLevels );
   levellay->addWidget( myLowLevelGroupBox );
   QHBoxLayout *llglay = new QHBoxLayout( myLowLevelGroupBox );
-  llglay->setMargin( 5 );
+  llglay->setContentsMargins( 5, 5, 5, 5 );
   llglay->setSpacing( 5 );
   _private->myLowLevelSlider = new QSlider( Qt::Horizontal,
                                             myLowLevelGroupBox );
@@ -161,13 +128,13 @@ RoiLevelSetActionView::RoiLevelSetActionView(
   QWidget *myModes = new QWidget( this );
   lay->addWidget( myModes );
   QHBoxLayout *modelay = new QHBoxLayout( myModes );
-  modelay->setMargin( 0 );
+  modelay->setContentsMargins( 0, 0, 0, 0 );
   modelay->setSpacing( 5 );
 
   QWidget *myDimensionMode = new QWidget( myModes );
   modelay->addWidget( myDimensionMode );
   QVBoxLayout *dimmlay = new QVBoxLayout( myDimensionMode );
-  dimmlay->setMargin( 0 );
+  dimmlay->setContentsMargins( 0, 0, 0, 0 );
   dimmlay->setSpacing( 5 );
   QGroupBox *dimb = new QGroupBox( tr("Dimension"), myDimensionMode );
   dimmlay->addWidget( dimb );
@@ -207,7 +174,7 @@ RoiLevelSetActionView::RoiLevelSetActionView(
   QWidget *myMixBox = new QWidget( myModes );
   modelay->addWidget( myMixBox );
   QVBoxLayout *minblay = new QVBoxLayout( myMixBox );
-  minblay->setMargin( 0 );
+  minblay->setContentsMargins( 0, 0, 0, 0 );
   minblay->setSpacing( 5 );
 
   QGroupBox *myMixMethodBox = new QGroupBox( tr("MixMethod"), myMixBox );

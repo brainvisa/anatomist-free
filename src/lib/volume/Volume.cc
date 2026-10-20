@@ -450,9 +450,11 @@ void AVolume<T>::updateSlice( AImage & image, const Point3df & p0,
   const AObjectPalette *pal = getOrCreatePalette();
   ColorTraits<T>	coltraits(
     pal, d->traits.minTypedTexValue(), d->traits.maxTypedTexValue(),
-    pal->relValue1( this, d->traits.minTypedTexValue() ),
-    pal->relValue1( this, d->traits.maxTypedTexValue() ),
-    pal->relValue1( this, 0. ) );
+    pal->relValue1( static_cast<const GLComponent *>( this ),
+                    d->traits.minTypedTexValue() ),
+    pal->relValue1( static_cast<const GLComponent *>( this ),
+                    d->traits.maxTypedTexValue() ),
+    pal->relValue1( static_cast<const GLComponent *>( this ), 0. ) );
   T iempty = coltraits.neutralColor();
   AimsRGBA empty = coltraits.color( iempty );
 
@@ -671,9 +673,12 @@ void AVolume<T>::updateAxial( AImage *ximage, const Point3df & pf0,
   */
   ColorTraits<T>	coltraits(
     pal, d->traits.minTypedTexValue(), d->traits.maxTypedTexValue(),
-    pal->relValue1( this, d->traits.minTypedTexValue() ),
-    pal->relValue1( this, d->traits.maxTypedTexValue() ),
-    pal->relValue1( this, 0. ) );
+    pal->relValue1( static_cast<const GLComponent *>( this ),
+                    d->traits.minTypedTexValue() ),
+    pal->relValue1( static_cast<const GLComponent *>( this ),
+                    d->traits.maxTypedTexValue() ),
+    pal->relValue1( static_cast<const GLComponent *>( this ),
+                    0. ) );
   AimsRGBA empty = coltraits.color( coltraits.neutralColor() );
 
   if( vs[2] == 0 )
@@ -775,9 +780,11 @@ void AVolume<T>::updateCoronal( AImage *ximage, const Point3df &pf0,
   const AObjectPalette *pal = getOrCreatePalette();
   ColorTraits<T>	coltraits(
     pal, d->traits.minTypedTexValue(), d->traits.maxTypedTexValue(),
-    pal->relValue1( this, d->traits.minTypedTexValue() ),
-    pal->relValue1( this, d->traits.maxTypedTexValue() ),
-    pal->relValue1( this, 0. ) );
+    pal->relValue1( static_cast<const GLComponent *>( this ),
+                    d->traits.minTypedTexValue() ),
+    pal->relValue1( static_cast<const GLComponent *>( this ),
+                    d->traits.maxTypedTexValue() ),
+    pal->relValue1( static_cast<const GLComponent *>( this ), 0. ) );
   AimsRGBA empty = coltraits.color( coltraits.neutralColor() );
 
   vector<int> dims = _volume->getSize();
@@ -880,9 +887,11 @@ void AVolume<T>::updateSagittal( AImage *ximage, const Point3df & pf0,
   const AObjectPalette *pal = getOrCreatePalette();
   ColorTraits<T>	coltraits(
     pal, d->traits.minTypedTexValue(), d->traits.maxTypedTexValue(),
-    pal->relValue1( this, d->traits.minTypedTexValue() ),
-    pal->relValue1( this, d->traits.maxTypedTexValue() ),
-    pal->relValue1( this, 0. ) );
+    pal->relValue1( static_cast<const GLComponent *>( this ),
+                    d->traits.minTypedTexValue() ),
+    pal->relValue1( static_cast<const GLComponent *>( this ),
+                    d->traits.maxTypedTexValue() ),
+    pal->relValue1( static_cast<const GLComponent *>( this ), 0. ) );
   AimsRGBA empty = coltraits.color( coltraits.neutralColor() );
 
   if( xx >= _volume->getSizeX() || xx < 0 )
@@ -1648,6 +1657,74 @@ float VolumeVectorTraits<T>::mixedTexValue( const vector<int> & pos ) const
     mval += (float) *it;
 
   return mval / n;
+}
+
+
+namespace
+{
+
+  template <typename U> inline int _rgbDim()
+  {
+    return 3;
+  }
+
+
+  template <> int _rgbDim<AimsRGBA>()
+  {
+    return 4;
+  }
+
+
+  template <typename T, typename U> AVolume<U> *
+  _fillVolFrom5D( const AVolume<T> & avol )
+  {
+    auto vol = avol.volume().get();
+    auto dims = vol->getSize();
+    dims.resize( 4 );
+    auto rgbr = rc_ptr( new Volume<U>( dims ) );
+    auto rgb = new AVolume<U>( rgbr );
+    auto rgbv = rgbr.get();
+
+    int x, y, z, t, c, cc;
+    cc = std::min( _rgbDim<U>(), dims[4] );
+    U rgbp;
+
+    double scale = 1.;
+    if( !numeric_limits<T>::is_integer )
+    {
+      T maxi = vol->max();
+      if( maxi > 255.5 )
+        scale = 255. / maxi;
+    }
+
+    for( t=0; t<dims[3]; ++t )
+      for( z=0; z<dims[2]; ++z )
+        for( y=0; y<dims[1]; ++y )
+          for( x=0; x<dims[0]; ++x )
+          {
+            U & rgbp = rgbv->at( x, y, z, t );
+            for( c=0; c<cc; ++c )
+              rgbp[c] = (uint8_t)(
+                rint( double( vol->at( x, y, z, t, c ) ) * scale ) );
+          }
+    rgbv->copyHeaderFrom( vol->header() );
+    rgb->setReferential( const_cast<Referential *>( avol.getReferential() ) );
+
+    return rgb;
+  }
+
+}
+
+
+template <typename T> AObject *AVolume<T>::rgbVolumeFrom5D() const
+{
+  return _fillVolFrom5D<T, AimsRGB>( *this );
+}
+
+
+template <typename T> AObject *AVolume<T>::rgbaVolumeFrom5D() const
+{
+  return _fillVolFrom5D<T, AimsRGBA>( *this );
 }
 
 

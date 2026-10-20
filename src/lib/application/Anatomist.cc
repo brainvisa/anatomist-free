@@ -375,6 +375,8 @@ Anatomist::~Anatomist()
   while( !_privData->anaWin.empty() )
     delete _privData->anaWin.begin()->second.get();
 
+  setDefaultWindowsBlock( 0 );
+
   ::anatomist::Cursor::cleanStatic();
 
   // cout << "deleting objects... " << _privData->anaObj.size() << endl;
