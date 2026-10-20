@@ -1784,10 +1784,6 @@ De plus:
         <translation>Interpoleur: permet d&apos;interpoler les textures faites pour un maillage sur un autre maillage de géométrie différente. Pour espérer un résultat raisonnable, il vaut mieux utiliser d&apos;abord un &quot;SurfaceMatcher&quot; qui déforme une surface vers l&apos;autre</translation>
     </message>
     <message>
-        <source>VolumeRenderingFusionMethod</source>
-        <translation>Rendu volumique</translation>
-    </message>
-    <message>
         <source>FusionRGBAVolumeMethod</source>
         <translation>Extraction de volume RGBA</translation>
     </message>

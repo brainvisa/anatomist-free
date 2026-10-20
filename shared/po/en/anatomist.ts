@@ -1795,10 +1795,6 @@ In addition:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>VolumeRenderingFusionMethod</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Fusion2DMeshMethod</source>
         <translation type="unfinished"></translation>
     </message>
