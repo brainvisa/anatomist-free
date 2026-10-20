@@ -156,6 +156,7 @@ std::string dynamicShaderBuilder::generateShaderSource() const
 
 carto::rc_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initShader(const std::string shaderIDs, std::string vsTemplate, std::string fsTemplate, std::string gsTemplate)
 {
+  resetBuildState();
   carto::rc_ptr<QOpenGLShaderProgram> program(new QOpenGLShaderProgram());
   std::string baseTemplate, vertexSource, fragmentSource, geometrySource;
   std::vector<carto::rc_ptr<IShaderModule>> shaderModules = shaderMapping::getModules(shaderIDs);
@@ -204,7 +205,7 @@ carto::rc_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initShader(const std::
     std::cerr << "Fragment shader error : " << program->log().toStdString() << std::endl;
   }
 
-  // Geometry shader (optional)
+  // Geometry shader (optional) 
   if(!gsTemplate.empty())
   {
     baseTemplate = readShaderFile(path.front()+"/"+gsTemplate);
@@ -256,4 +257,11 @@ carto::rc_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initBlendingShader()
   }
   
   return program;
+}
+
+void dynamicShaderBuilder::resetBuildState()
+{
+  m_effects.clear();               // list filled by addEffect()
+  m_illuminationModel.reset();     // set by setIlluminationModel()
+  m_baseShaderTemplate.clear();          // set by setBaseTemplate()
 }

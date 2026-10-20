@@ -52,13 +52,14 @@ namespace anatomist
     TexturingParamsCommand(
       const std::set<AObject *> & obj, unsigned tex = 0,
       int mode = -1, int filter = -1, int gen = -1,
-      float rate = -1, int rgbint = -1,
+      float rate = -1, int rgbint = -1, int geomshader = -1,
       const float* genparams1 = 0,
       const float* genparams2 = 0,
       const float* genparams3 = 0,
       int valinter = -1,
       const std::vector<GLComponent::glTextureWrapMode> *wrapmode = 0
                           );
+                    
     virtual ~TexturingParamsCommand();
 
     virtual std::string name() const { return( "TexturingParams" ); }
@@ -75,6 +76,7 @@ namespace anatomist
     int			_gen;
     float		_rate;
     int			_rgbinter;
+    int     _geomshader;
     int                 _valinter;
     std::vector<float>	_genparams_1;
     std::vector<float>	_genparams_2;

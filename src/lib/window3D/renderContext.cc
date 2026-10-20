@@ -21,6 +21,16 @@
 
 using namespace anatomist;
 
+namespace
+{
+  std::string builderShaderID( const std::string & key )
+  {
+    std::string id = key.substr( 0, key.find( '#' ) ); // strip program variant suffix
+    id.erase( std::remove( id.begin(), id.end(), 'V' ), id.end() ); // remove volumique rendering id
+    return id;
+  }
+}
+
 struct RenderContext::Private
 {
   Private(AWindow3D* win, GLWidgetManager* widgetManager);
@@ -255,6 +265,11 @@ void RenderContext::retrieveShaders(const std::list<carto::shared_ptr<AObject>> 
       std::string shaderID = glObj->getShaderModuleIDs();
       if(d->glwman->useDepthPeeling())
         shaderID += "1"; //id for depth peeling
+      
+      std::string gs = glObj->glGeometryShaderTemplate();
+      if(!gs.empty())
+        shaderID += "#" + gs;
+
       if(obj->isTransparent())
         transparentDrawables[shaderID].push_back(obj);
       else
@@ -276,9 +291,8 @@ void RenderContext::shaderBuilding(std::unordered_map<std::string, std::vector<c
     {
       auto glObj = objs.front()->glAPI();
       std::string shaderID = shader;   
-      shaderID.erase(std::remove(shaderID.begin(), shaderID.end(), 'V'), shaderID.end()); // remove volumique rendering id for shader building
       d->programs[shader] = d->shaderBuilder.initShader(
-        shaderID,
+        builderShaderID(shaderID),
         glObj->glVertexShaderTemplate(),
         glObj->glFragmentShaderTemplate(),
         glObj->glGeometryShaderTemplate()
@@ -292,10 +306,8 @@ void RenderContext::shaderBuilding(std::unordered_map<std::string, std::vector<c
     {
       auto glObj = objs.front()->glAPI();
       std::string shaderID = shader;
-      if (!shaderID.empty() && shaderID.back() == 'V') // remove volumique rendering id for shader building
-        shaderID.pop_back();
       d->programs[shader] = d->shaderBuilder.initShader(
-        shaderID,
+        builderShaderID(shaderID),
         glObj->glVertexShaderTemplate(),
         glObj->glFragmentShaderTemplate(),
         glObj->glGeometryShaderTemplate()

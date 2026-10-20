@@ -3383,6 +3383,10 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
         <translation>Interpolation dans l&apos;espace RGB (textures de labels)</translation>
     </message>
     <message>
+        <source>No color interpolation (might be slower)</source>
+        <translation>Pas d&apos;interpolation de couleur (peut être plus lent)</translation>
+    </message>
+    <message>
         <source>Parameters...</source>
         <translation>Paramètres...</translation>
     </message>

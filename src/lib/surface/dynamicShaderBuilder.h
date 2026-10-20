@@ -138,6 +138,8 @@ namespace anatomist
       carto::rc_ptr<QOpenGLShaderProgram> initBlendingShader();
     
     private:
+      void resetBuildState();
+
       std::string m_baseShaderTemplate;
       carto::rc_ptr<IShaderModule> m_illuminationModel;
       std::vector<carto::rc_ptr<IShaderModule>> m_effects;

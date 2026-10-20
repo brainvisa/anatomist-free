@@ -70,8 +70,6 @@ struct GLComponent::Private
   }
   int generateID() const;
 
-  void makeRGBTex();
-
   static unsigned long globalMaxNumPolygons();
   static void setGlobalMaxNumPolygons( unsigned long n );
   static unsigned long & _globalMaxNumPolygons();
@@ -91,12 +89,13 @@ struct GLComponent::Private
   mutable int                   globjectid;
   static set<int> & usedIDs();
   unsigned long   maxNumPolygons;
+  bool geomshader;
 };
 
 
 GLComponent::Private::Private()
   : changed( GLComponent::glNOPART ), memory( 4 ), ntex( 0 ), globjectid( -1 ),
-  maxNumPolygons( 0 )
+  maxNumPolygons( 0 ), geomshader( false )
 {
 }
 
@@ -2215,7 +2214,7 @@ Object GLComponent::debugInfo() const
       o->setProperty( "textures", tx );
       ObjectVector	& txl = tx->value<ObjectVector>();
 
-      for( i=0; i<d->ntex; ++i )
+      for( i=0; i<d->textures.size(); ++i )
         {
           //cout << "tex " << i << endl;
           txl.push_back( Object::value( Dictionary() ) );
@@ -2461,5 +2460,24 @@ void GLComponent::glSetGlobalMaxNumDisplayedPolygons( unsigned long n )
 {
   GLComponent::Private::setGlobalMaxNumPolygons( n );
   setAllObjectsChanged();
+}
+
+bool GLComponent::glGeometryShaderEnabled() const
+{
+  return d->geomshader;
+}
+
+void GLComponent::setGeometryShaderEnabled( bool x )
+{
+  if( d->geomshader != x )
+  {
+    d->geomshader = x;
+    glSetChanged( glBODY, true );
+  }
+}
+
+std::string GLComponent::glGeometryShaderTemplate() const
+{
+  return d->geomshader ? "main.gs.glsl" : "";
 }
 

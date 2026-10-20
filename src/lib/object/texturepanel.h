@@ -92,6 +92,7 @@ protected slots:
   void rgbInterpolation( bool );
   void valueInterpolationChanged( bool );
   void generationParamsDialog();
+  void geometryShaderChanged( bool );
 
 private:
   struct Private;

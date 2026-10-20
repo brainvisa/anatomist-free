@@ -53,14 +53,14 @@ TexturingParamsCommand::TexturingParamsCommand(
   const set<AObject *> & obj,
   unsigned tex, int mode,
   int filter, int gen,
-  float rate, int rgbint,
+  float rate, int rgbint, int geomshader,
   const float* genp1,
   const float* genp2,
   const float* genp3,
   int valinter,
   const vector<GLComponent::glTextureWrapMode> *wrapmode )
   : RegularCommand(), _objects( obj ), _tex( tex ), _mode( mode ), 
-    _filter( filter ), _gen( gen ), _rate( rate ), _rgbinter( rgbint ),
+    _filter( filter ), _gen( gen ), _rate( rate ), _rgbinter( rgbint ), _geomshader( geomshader ),
     _valinter( valinter )
 {
   if( genp1 )
@@ -112,6 +112,7 @@ bool TexturingParamsCommand::initSyntax()
   s[ "rate"                ] = Semantic( "float", false );
   s[ "interpolation"       ] = Semantic( "string", false );
   s[ "value_interpolation" ] = Semantic( "int", false );
+  s[ "geometry_shader"     ] = Semantic( "int", false );
   s[ "generation_params_1" ] = Semantic( "float_vector", false );
   s[ "generation_params_2" ] = Semantic( "float_vector", false );
   s[ "generation_params_3" ] = Semantic( "float_vector", false );
@@ -150,6 +151,8 @@ void TexturingParamsCommand::doit()
               gc->glSetTexRate( _rate, _tex );
             if( _rgbinter >= 0 )
               gc->glSetTexRGBInterpolation( (bool) _rgbinter, _tex );
+            if( _geomshader >= 0 )
+              gc->setGeometryShaderEnabled( (bool) _geomshader );
 
             if( !_wrapmode.empty() )
             {
@@ -203,6 +206,7 @@ Command* TexturingParamsCommand::read( const Tree & com,
   int			gen = -1;
   int			tex = 0;
   int			inter = -1;
+  int geomshader = -1;
   int			vinter = -1;
   float			rate = -1;
   unsigned		i, n;
@@ -246,6 +250,10 @@ Command* TexturingParamsCommand::read( const Tree & com,
   try
   {
     sinter = com.getProperty( "interpolation" )->getString();
+  } catch( ... ) {}
+  try
+  {
+    geomshader = com.getProperty( "geometry_shader" )->getScalar();
   } catch( ... ) {}
   com.getProperty( "generation_params_1", genparam1 );
   com.getProperty( "generation_params_2", genparam2 );
@@ -368,7 +376,7 @@ Command* TexturingParamsCommand::read( const Tree & com,
     g3 = &genparam3[0];
 
   return new TexturingParamsCommand( obj, (unsigned) tex, mode, filt, gen, 
-                                     rate, inter, g1, g2, g3, vinter,
+                                     rate, inter, geomshader, g1, g2, g3, vinter,
                                      wmodevec.empty() ? 0 : &wmodevec );
 }
 
@@ -389,11 +397,11 @@ void TexturingParamsCommand::write( Tree & com, Serializer* ser ) const
   if( _tex != 0 )
     t->setProperty( "texture_index", (int) _tex );
 
-  if( _mode >= 0 && _mode <= GLComponent::glMIN_ALPHA )
+  if( _mode >= 0 && _mode <= GLComponent::glGEOMETRIC_LIGHTEN)
     {
       static const string smode[] = 
         { "geometric", "linear", "replace", "decal", "blend", "add", "combine",
-          "linear_A_if_A_white", "linear_A_if_B_white", "linear_A_if_A_black", "linear_A_if_B_black", "linear_B_if_A_white", " linear_B_if_B_white", "linear_B_if_A_black", "linear_B_if_B_black", "linear_A_if_A_opaque", "linear_A_if_B_transparent", "linear_B_if_B_opaque", "linear_B_if_A_transparent", "max_channel", "min_channel", "max_opacity", "min_opacity", "geometric_sqrt", "geometric_lighten",
+          "linear_A_if_A_white", "linear_A_if_B_white", "linear_A_if_A_black", "linear_A_if_B_black", "linear_B_if_A_white", "linear_B_if_B_white", "linear_B_if_A_black", "linear_B_if_B_black", "linear_A_if_A_opaque", "linear_A_if_B_transparent", "linear_B_if_B_opaque", "linear_B_if_A_transparent", "max_channel", "min_channel", "max_opacity", "min_opacity", "geometric_sqrt", "geometric_lighten",
         };
       t->setProperty( "mode", smode[_mode] );
     }
@@ -422,6 +430,9 @@ void TexturingParamsCommand::write( Tree & com, Serializer* ser ) const
       t->setProperty( "interpolation", sinter[ _rgbinter ] );
     }
 
+  if( _geomshader >= 0 )
+    t->setProperty( "geometry_shader", _geomshader );
+
   if( _rate >= 0 && _rate <= 1 )
     t->setProperty( "rate", _rate );
 
@@ -431,6 +442,27 @@ void TexturingParamsCommand::write( Tree & com, Serializer* ser ) const
     t->setProperty( "generation_params_2", _genparams_2 );
   if( _genparams_3.size() == 4 )
     t->setProperty( "generation_params_3", _genparams_3 );
+  if( _valinter >= 0 )
+    t->setProperty( "value_interpolation", _valinter );
+
+  if( !_wrapmode.empty() )
+  {
+    // same order as GLComponent::glTextureWrapMode
+    static const string swrap[] =
+      { "repeat", "mirrored_repeat", "clamp_to_edge", "clamp_to_border",
+        "mirror_clamp_to_edge" };
+    vector<string> wm;
+    wm.reserve( _wrapmode.size() );
+    for( unsigned k=0; k<_wrapmode.size(); ++k )
+    {
+      int m = int( _wrapmode[k] );
+      if( m >= 0 && m < 5 )
+        wm.push_back( swrap[m] );
+      else
+        wm.push_back( "clamp_to_edge" );
+    }
+    t->setProperty( "wrapmode", wm );
+  }
 
   com.insert( t );
 }

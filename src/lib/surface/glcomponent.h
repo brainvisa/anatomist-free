@@ -227,7 +227,9 @@ namespace anatomist
     virtual bool useDepthPeeling() const { return _useDepthPeeling; }
     virtual std::string glVertexShaderTemplate() const   { return "main.vs.glsl"; }
     virtual std::string glFragmentShaderTemplate() const { return "main.fs.glsl"; }
-    virtual std::string glGeometryShaderTemplate() const { return ""; } //empty = no geometry shader
+    virtual std::string glGeometryShaderTemplate() const; //empty = no geometry shader
+    virtual bool glGeometryShaderEnabled() const;
+    virtual void setGeometryShaderEnabled(bool enabled);
     virtual void updateObjectUniforms(QOpenGLShaderProgram* shader){};
 
     virtual unsigned glNumVertex( const ViewState & ) const;
@@ -411,8 +413,8 @@ namespace anatomist
     struct Private;
     Private	*d;
     Shader      *_shader;
-    std::string _shaderModuleIDs; //jordan
-    bool _useDepthPeeling; //jordan
+    std::string _shaderModuleIDs;
+    bool _useDepthPeeling;
   };
 
 
