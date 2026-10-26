@@ -52,7 +52,7 @@ namespace anatomist
     TexturingParamsCommand(
       const std::set<AObject *> & obj, unsigned tex = 0,
       int mode = -1, int filter = -1, int gen = -1,
-      float rate = -1, int rgbint = -1, int geomshader = -1,
+      float rate = -1, int rgbint = -1,
       const float* genparams1 = 0,
       const float* genparams2 = 0,
       const float* genparams3 = 0,
@@ -68,15 +68,14 @@ namespace anatomist
   protected:
     virtual void doit();
 
-  private:
+  private: 
     std::set<AObject *>	_objects;
     unsigned		_tex;
     int			_mode;
     int			_filter;
     int			_gen;
     float		_rate;
-    int			_rgbinter;
-    int     _geomshader;
+    int			_rgbinter; // -1: no change, 0: palette, 1: RGB, 2: geometry shader
     int                 _valinter;
     std::vector<float>	_genparams_1;
     std::vector<float>	_genparams_2;

@@ -65,8 +65,8 @@ struct QTexturePanel::Private
   QGroupBox                     *genbox;
   QButtonGroup                  *geng;
   QGroupBox			*rgbintbox;
-  QCheckBox			*rgbint;
-  QCheckBox      *geomshadercb;
+  QComboBox *interpcb;
+
   QSlider			*mixsl;
   QLabel			*mixlb;
   QPushButton			*genparambutton;
@@ -75,8 +75,8 @@ struct QTexturePanel::Private
   int				filt;
   int				genmode;
   int				rate;
-  bool				rgbinterpol;
-  bool                         geomshader;
+  int       interpmode; // 0: palette, 1: rgb, 2: geometry shader  
+
   bool                          valinter;
   vector<GLComponent::glTextureWrapMode> wrapmode;
   bool				updating;
@@ -94,7 +94,7 @@ struct QTexturePanel::Private
 
 
 QTexturePanel::Private::Private( const set<AObject *> & obj )
-  : objects( obj ), mode( 0 ), filt( 0 ), rgbinterpol( false ), geomshader( false ),
+  : objects( obj ), mode( 0 ), filt( 0 ), interpmode( 0),
     wrapmode( 3, GLComponent::glTEXWRAP_CLAMP_TO_EDGE ), updating( false ),
     tex( 0 ),
     partvisible( 6 ), recurs( false ), uptodate( true ), modes( 0 )
@@ -272,12 +272,12 @@ QTexturePanel::QTexturePanel( const set<AObject *> & obj,
   vlay->addWidget( d->rgbintbox );
   vlay2 = new QVBoxLayout( d->rgbintbox );
   d->rgbintbox->setLayout( vlay2 );
-  d->rgbint = new QCheckBox( tr( "RGB space interpolation (label textures)" ),
-                             d->rgbintbox );
-  vlay2->addWidget( d->rgbint );
-  d->geomshadercb = new QCheckBox( tr( "No color interpolation (might be slower)" ),
-                             d->rgbintbox );
-  vlay2->addWidget( d->geomshadercb );
+
+  d->interpcb = new QComboBox( d->rgbintbox );
+  d->interpcb->addItem( tr( "None (palette)" ) );
+  d->interpcb->addItem( tr( "RGB space interpolation (label textures)" ) ); 
+  d->interpcb->addItem( tr( "No color interpolation (might be slower)" ) );
+  vlay2->addWidget( d->interpcb );
   vlay2->addStretch( 1 );
 
   updateWindow();
@@ -295,10 +295,8 @@ QTexturePanel::QTexturePanel( const set<AObject *> & obj,
            SLOT( generationChanged( int ) ) );
   connect( d->mixsl, SIGNAL( valueChanged( int ) ), 
            SLOT( rateChanged( int ) ) );
-  connect( d->rgbint, SIGNAL( toggled( bool ) ), this, 
-           SLOT( rgbInterpolation( bool ) ) );
-  connect( d->geomshadercb, SIGNAL( toggled( bool ) ), this, 
-           SLOT( geometryShaderChanged( bool ) ) );
+  connect( d->interpcb, SIGNAL( activated( int ) ),
+           this, SLOT( interpolationChanged( int ) ) );
   connect( gpb, SIGNAL( clicked() ), this, SLOT( generationParamsDialog() ) );
   connect( d->valintercb, SIGNAL( toggled( bool ) ),
            this, SLOT( valueInterpolationChanged( bool ) ) );
@@ -347,7 +345,7 @@ void QTexturePanel::runCommand()
       TexturingParamsCommand 
         *c = new TexturingParamsCommand( d->objects, d->tex, d->mode, d->filt, 
                                          d->genmode, 0.01 * d->rate, 
-                                         d->rgbinterpol, d->geomshader, gp1, gp2, gp3,
+                                         d->interpmode, gp1, gp2, gp3,
                                          d->valinter, &d->wrapmode);
       theProcessor->execute( c );
     }
@@ -458,13 +456,14 @@ void QTexturePanel::updateWindow()
       d->wrapmode[0] = c->glTexWrapMode( 0, d->tex );
       d->wrapmode[1] = c->glTexWrapMode( 1, d->tex );
       d->wrapmode[2] = c->glTexWrapMode( 2, d->tex );
-      d->rgbinterpol = c->glTexRGBInterpolation( d->tex );
       d->genmode = c->glAutoTexMode( d->tex );
       d->rate = (int) rint( c->glTexRate( d->tex ) * 100 );
       d->filtg->button( d->filt )->setChecked( true );
-      d->rgbint->setChecked( d->rgbinterpol );
-      d->geomshader = c->glGeometryShaderEnabled();
-      d->geomshadercb->setChecked( d->geomshader );
+      if( c->glGeometryShaderEnabled() )
+        d->interpmode = 2;
+      else
+        d->interpmode = c->glTexRGBInterpolation( d->tex ) ? 1 : 0;
+      d->interpcb->setCurrentIndex( d->interpmode );
       d->geng->button( d->genmode )->setChecked( true );
       d->mixsl->setValue( d->rate );
       d->mixlb->setText( QString::number( d->rate ) );
@@ -695,7 +694,8 @@ void QTexturePanel::updateObjects()
           c->glSetTexWrapMode( d->wrapmode[0], 0, d->tex );
           c->glSetTexWrapMode( d->wrapmode[1], 1, d->tex );
           c->glSetTexWrapMode( d->wrapmode[2], 2, d->tex );
-          c->glSetTexRGBInterpolation( d->rgbinterpol, d->tex );
+          c->glSetTexRGBInterpolation( d->interpmode == 1, d->tex );
+          c->setGeometryShaderEnabled( d->interpmode == 2 ); 
           c->glSetAutoTexMode( (GLComponent::glAutoTexturingMode) d->genmode, 
                                d->tex );
           c->glSetTexRate( float(d->rate) / 100, d->tex );
@@ -775,15 +775,6 @@ void QTexturePanel::setObjects( const set<AObject *> & obj )
 }
 
 
-void QTexturePanel::rgbInterpolation( bool x )
-{
-  if( d->rgbinterpol != x )
-    {
-      d->rgbinterpol = x;
-      d->uptodate = false;
-      runCommand();
-    }
-}
 
 
 void QTexturePanel::valueInterpolationChanged( bool x )
@@ -796,11 +787,11 @@ void QTexturePanel::valueInterpolationChanged( bool x )
     }
 }
 
-void QTexturePanel::geometryShaderChanged( bool x )
+void QTexturePanel::interpolationChanged( int x )
 {
-  if( d->geomshader != x )
+  if( d->interpmode != x )
   {
-    d->geomshader = x;
+    d->interpmode = x;
     d->uptodate = false;
     runCommand();
   }

@@ -3375,6 +3375,10 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
         <translation>Interpolation de texture</translation>
     </message>
     <message>
+        <source>None (palette)</source>
+        <translation>Aucune (palette)</translation>
+    </message>
+    <message>
         <source>RGB space interpolation (label textures)</source>
         <translation>Interpolation dans l&apos;espace RGB (textures de labels)</translation>
     </message>

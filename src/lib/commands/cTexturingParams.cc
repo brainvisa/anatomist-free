@@ -53,14 +53,14 @@ TexturingParamsCommand::TexturingParamsCommand(
   const set<AObject *> & obj,
   unsigned tex, int mode,
   int filter, int gen,
-  float rate, int rgbint, int geomshader,
+  float rate, int rgbint,
   const float* genp1,
   const float* genp2,
   const float* genp3,
   int valinter,
   const vector<GLComponent::glTextureWrapMode> *wrapmode )
   : RegularCommand(), _objects( obj ), _tex( tex ), _mode( mode ), 
-    _filter( filter ), _gen( gen ), _rate( rate ), _rgbinter( rgbint ), _geomshader( geomshader ),
+    _filter( filter ), _gen( gen ), _rate( rate ), _rgbinter( rgbint ),
     _valinter( valinter )
 {
   if( genp1 )
@@ -112,7 +112,6 @@ bool TexturingParamsCommand::initSyntax()
   s[ "rate"                ] = Semantic( "float", false );
   s[ "interpolation"       ] = Semantic( "string", false );
   s[ "value_interpolation" ] = Semantic( "int", false );
-  s[ "geometry_shader"     ] = Semantic( "int", false );
   s[ "generation_params_1" ] = Semantic( "float_vector", false );
   s[ "generation_params_2" ] = Semantic( "float_vector", false );
   s[ "generation_params_3" ] = Semantic( "float_vector", false );
@@ -150,9 +149,10 @@ void TexturingParamsCommand::doit()
             if( _rate >= 0 )
               gc->glSetTexRate( _rate, _tex );
             if( _rgbinter >= 0 )
-              gc->glSetTexRGBInterpolation( (bool) _rgbinter, _tex );
-            if( _geomshader >= 0 )
-              gc->setGeometryShaderEnabled( (bool) _geomshader );
+            {
+              gc->glSetTexRGBInterpolation( _rgbinter == 1, _tex );
+              gc->setGeometryShaderEnabled( _rgbinter == 2 );
+            }
 
             if( !_wrapmode.empty() )
             {
@@ -206,7 +206,6 @@ Command* TexturingParamsCommand::read( const Tree & com,
   int			gen = -1;
   int			tex = 0;
   int			inter = -1;
-  int geomshader = -1;
   int			vinter = -1;
   float			rate = -1;
   unsigned		i, n;
@@ -251,10 +250,6 @@ Command* TexturingParamsCommand::read( const Tree & com,
   {
     sinter = com.getProperty( "interpolation" )->getString();
   } catch( ... ) {}
-  try
-  {
-    geomshader = com.getProperty( "geometry_shader" )->getScalar();
-  } catch( ... ) {}
   com.getProperty( "generation_params_1", genparam1 );
   com.getProperty( "generation_params_2", genparam2 );
   com.getProperty( "generation_params_3", genparam3 );
@@ -270,7 +265,10 @@ Command* TexturingParamsCommand::read( const Tree & com,
   static map<string, GLComponent::glTextureMode>	modes;
   static map<string, GLComponent::glTextureFiltering>	filters;
   static map<string, GLComponent::glAutoTexturingMode>	gens;
-  static map<string, bool>				inters;
+  static map<string, int>				inters;
+  inters[ "palette"         ] = 0;
+  inters[ "rgb"             ] = 1;
+  inters[ "geometry_shader" ] = 2;
   static map<string, GLComponent::glTextureWrapMode>	wrapmodes;
   if( modes.empty() )
   {
@@ -325,7 +323,7 @@ Command* TexturingParamsCommand::read( const Tree & com,
   map<string, GLComponent::glTextureMode>::const_iterator	im;
   map<string, GLComponent::glTextureFiltering>::const_iterator	iflt;
   map<string, GLComponent::glAutoTexturingMode>::const_iterator	itg;
-  map<string, bool>::const_iterator				iti;
+  map<string, int>::const_iterator				iti;
   map<string, GLComponent::glTextureWrapMode>::const_iterator	iw;
 
   if( !smode.empty() )
@@ -376,7 +374,7 @@ Command* TexturingParamsCommand::read( const Tree & com,
     g3 = &genparam3[0];
 
   return new TexturingParamsCommand( obj, (unsigned) tex, mode, filt, gen, 
-                                     rate, inter, geomshader, g1, g2, g3, vinter,
+                                     rate, inter, g1, g2, g3, vinter,
                                      wmodevec.empty() ? 0 : &wmodevec );
 }
 
@@ -422,16 +420,13 @@ void TexturingParamsCommand::write( Tree & com, Serializer* ser ) const
       t->setProperty( "generation", sgen[_gen] );
     }
 
-  if( _rgbinter >= 0 && _rgbinter < 2 )
+  if( _rgbinter >= 0 && _rgbinter < 3 )
     {
       static const string sinter[] = 
-        { "palette", "rgb", 
+        { "palette", "rgb", "geometry_shader",
         };
       t->setProperty( "interpolation", sinter[ _rgbinter ] );
     }
-
-  if( _geomshader >= 0 )
-    t->setProperty( "geometry_shader", _geomshader );
 
   if( _rate >= 0 && _rate <= 1 )
     t->setProperty( "rate", _rate );

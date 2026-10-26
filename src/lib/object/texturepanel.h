@@ -89,10 +89,9 @@ protected slots:
   void filteringChanged( int );
   void generationChanged( int );
   void rateChanged( int );
-  void rgbInterpolation( bool );
   void valueInterpolationChanged( bool );
   void generationParamsDialog();
-  void geometryShaderChanged( bool );
+  void interpolationChanged( int );
 
 private:
   struct Private;
