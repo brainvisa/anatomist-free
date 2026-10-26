@@ -481,7 +481,7 @@ AObject* FusionVolumeMethod::fusion( const std::vector<AObject *> & obj )
 
 string FusionVolumeMethod::ID() const
 {
-  return QT_TRANSLATE_NOOP( "FusionChooser", "FusionVolumeMethod" );
+  return QT_TRANSLATE_NOOP( "FusionChooser", "VolumeRenderingFusionMethod" );
 }
 
 // ---------------
