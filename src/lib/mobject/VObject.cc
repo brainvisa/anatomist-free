@@ -448,7 +448,6 @@ VObject::VObject( AObject * vol )
   _type = classType();
   d->object = vol;
 
-  addShaderModule( "V" );
   glAddTextures( 3 );
 
   for( unsigned t = 0; t < 3; ++t )

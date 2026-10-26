@@ -4,10 +4,8 @@
 
 using namespace anatomist;
 
-
 BlinnPhongIlluminationModel::BlinnPhongIlluminationModel()
 {
-  _id="0";
   _isIlluminationModel=true;
   _name="BlinnPhong";
 }

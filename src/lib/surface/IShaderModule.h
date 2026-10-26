@@ -39,6 +39,7 @@
 #include <QOpenGLShaderProgram>
 //#include <anatomist/window/glwidgetmanager.h>
 #include <cartobase/smart/rcobject.h>
+#include <anatomist/surface/shaderTypes.h>
 
 
 
@@ -72,13 +73,15 @@ namespace anatomist
     public:
       virtual ~IShaderModule() = default;
 
-      /// Returns the module unique string identifier.
-      virtual std::string getID() const {return _id;}
+      /**
+      * \brief Identifier of the module, used to request it from ShaderModuleRegistry.
+      */
+      virtual ShaderModuleId id() const = 0;
 
       /// Returns true if this module defines an illumination model.
       virtual bool isIlluminationModel() const {return _isIlluminationModel;}
 
-      /// return the human-readable name of the module
+      /// Prints the human-readable name of the module.
       virtual void printModule() const{std::cout << _name<< std::endl;};
       
 
@@ -144,18 +147,16 @@ namespace anatomist
       *
       * This method is typically used to set lighting or camera-related parameters
       * (for example the viewer position or light direction).
-      * Automatically called for each rendered object by \c GLSceneUniforms::callList().
+      * Called once per program group, before its first rendered object, by \c GLSceneUniforms::callList().
       */
       virtual void setupSceneUniforms(QOpenGLShaderProgram& program, GLWidgetManager& scene) const  = 0;
 
 
     
     protected:
-      /// unique string identifier of the module
-      std::string _id;
       /// human-readable name of the module
       std::string _name;
-      bool _isIlluminationModel;
+      bool _isIlluminationModel = false;
 
   };
 }

@@ -183,7 +183,10 @@ set( _headers
     surface/transformedobject.h
     surface/triangulated.h
     surface/Shader.h
-    surface/shaderMapping.h
+    surface/shaderModuleRegistry.h
+    surface/shaderProgramCache.h
+    surface/shaderProgramKey.h
+    surface/shaderTypes.h
     surface/shownormals.h
     surface/shownormalsgui.h
     surface/vectorfield.h
@@ -444,7 +447,8 @@ set( _sources
     surface/transformedobject.cc
     surface/triangulated.cc
     surface/Shader.cc
-    surface/shaderMapping.cc
+    surface/shaderModuleRegistry.cc
+    surface/shaderProgramCache.cc
     surface/shownormals.cc
     surface/shownormalsgui.cc
     surface/vectorfield.cc

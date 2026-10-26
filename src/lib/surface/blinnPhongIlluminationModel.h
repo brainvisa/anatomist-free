@@ -45,6 +45,8 @@ namespace anatomist
     */
     public:
       BlinnPhongIlluminationModel();
+
+      ShaderModuleId id() const { return ShaderModuleId::BlinnPhong; }
       std::string getUniformDeclarations() const override;
       std::string getFunctionImplementation() const override;
       std::string getFunctionCall() const override;

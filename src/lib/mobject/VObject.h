@@ -171,6 +171,9 @@ namespace anatomist
 
     // --- Shaders ---
 
+    /// Always returns RenderPipeline::Volume, so that the shader builder
+    /// uses the volume shader templates and not the default mesh ones.
+    RenderPipeline renderPipeline() const override { return RenderPipeline::Volume; }
     /// Vertex shader template: "volume.vs.glsl"
     virtual std::string glVertexShaderTemplate() const;
     /// Fragment shader template: "volume.fs.glsl"

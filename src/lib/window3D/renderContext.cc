@@ -1,9 +1,9 @@
 #include <anatomist/window3D/renderContext.h>
 #include <anatomist/window3D/window3D.h>
 #include <anatomist/window/glwidgetmanager.h>
-#include <anatomist/surface/shaderMapping.h>
 #include <anatomist/surface/IShaderModule.h>
-#include <anatomist/surface/dynamicShaderBuilder.h>
+#include <anatomist/surface/shaderModuleRegistry.h>
+#include <anatomist/surface/shaderProgramCache.h>
 #include <anatomist/surface/glcomponent.h>
 #include <anatomist/primitive/primitive.h>
 #include <anatomist/misc/error.h>
@@ -21,15 +21,6 @@
 
 using namespace anatomist;
 
-namespace
-{
-  std::string builderShaderID( const std::string & key )
-  {
-    std::string id = key.substr( 0, key.find( '#' ) ); // strip program variant suffix
-    id.erase( std::remove( id.begin(), id.end(), 'V' ), id.end() ); // remove volumique rendering id
-    return id;
-  }
-}
 
 struct RenderContext::Private
 {
@@ -42,8 +33,6 @@ struct RenderContext::Private
   PrimList& temporaryPrimitives;
   PrimList& selectionPrimitives;
   PrimList* currentPrimitives;
-  dynamicShaderBuilder shaderBuilder;
-  std::map<std::string, carto::rc_ptr<QOpenGLShaderProgram>> programs;
   carto::rc_ptr<QOpenGLShaderProgram> currentProgram;
   carto::rc_ptr<ViewState> vs;
   std::list<AObject *> renderobj;
@@ -58,7 +47,6 @@ window(win), glwman(widgetManager),permanentPrimitives(glwman->permanentPrimitiv
 RenderContext::Private::~Private()
 {
   glwman = nullptr;
-  programs.clear();
   currentProgram.reset();
 }
 
@@ -66,15 +54,33 @@ RenderContext::RenderContext(AWindow3D* window, GLWidgetManager* widgetManager)
 {
   d = new Private(window, widgetManager);
   d->glwman->clearLists();
-  shaderMapping::initShaderMapping();
   d->currentPrimitives = &d->permanentPrimitives;
 
 }
 
+RenderContext::RenderContext( RenderContext && other ) noexcept
+  : d( other.d )
+{
+  other.d = nullptr;
+}
+
+RenderContext & RenderContext::operator=( RenderContext && other ) noexcept
+{
+  if( this != &other )
+  {
+    delete d;
+    d = other.d;
+    other.d = nullptr;
+  }
+  return *this;
+}
+
 RenderContext::~RenderContext()
 {
-  d= nullptr;
+  if( !d )
+    return;
   delete d;
+  d = nullptr;
 }
 
 bool RenderContext::renderScene( const std::list<carto::shared_ptr<AObject>> & objs, RenderMode mode, anatomist::ViewState::glSelectRenderMode selectmode )
@@ -146,12 +152,10 @@ bool RenderContext::renderObjects( const std::list<carto::shared_ptr<AObject>> &
 {
   bool success = false;
   std::vector<float> bbmin, bbmax;
-  std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> opaqueDrawables;
-  std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> transparentDrawables;
-  std::vector<carto::shared_ptr<AObject>> nonDrawables;
+  DrawableGroups opaqueDrawables, transparentDrawables;
+  std::vector<carto::shared_ptr<AObject> > nonDrawables;
 
   retrieveShaders(objs, opaqueDrawables, transparentDrawables ,nonDrawables);
-  shaderBuilding( opaqueDrawables, transparentDrawables);
 
   if(!opaqueDrawables.empty())
     success |= renderObject(opaqueDrawables, mode, selectmode);
@@ -217,104 +221,80 @@ bool RenderContext::updateObject(carto::shared_ptr<AObject> obj, PrimList* pl,
   return success;
 }
 
-bool RenderContext::renderObject(std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> & drawables, RenderMode mode,
-                                 anatomist::ViewState::glSelectRenderMode selectmode)
+bool RenderContext::renderObject( DrawableGroups & drawables, RenderMode mode,
+                                  ViewState::glSelectRenderMode selectmode )
 {
   bool success = false;
 
-  for(const auto & [shader, objects] : drawables)
-  { 
-    switchShaderProgram(d->programs[shader]);
-    auto shaderModules = getEffectiveShaderModules(objects.front()->glAPI()->getShaderModuleIDs());
-    for(size_t i=0; i< objects.size(); ++i)
+  for( const auto & [ key, objects ] : drawables )
+  {
+    carto::rc_ptr<QOpenGLShaderProgram> program
+      = ShaderProgramCache::instance().program( key );
+    if( program.isNull() )
+      continue;  // build failure already reported by the builder
+
+    switchShaderProgram( program );
+    auto shaderModules = ShaderModuleRegistry::resolve( key.modules );
+    bool sceneUniformsPushed = false;
+
+    for( const auto & obj : objects )
     {
-      auto obj = objects[i];
-
-      if(mode == RenderMode::PermanentOnly && d->window->isTemporary(obj.get()))
+      if( mode == RenderMode::PermanentOnly && d->window->isTemporary( obj.get() ) )
+        continue;
+      if( mode == RenderMode::TemporaryOnly && !d->window->isTemporary( obj.get() ) )
         continue;
 
-      if(mode == RenderMode::TemporaryOnly && !d->window->isTemporary(obj.get()))
-        continue;
-
-      auto glObj = obj->glAPI();
-
-      for(const auto & module : shaderModules)
+      if( !sceneUniformsPushed )
       {
-        if(i==0)
-          d->currentPrimitives->push_back(carto::rc_ptr<GLItem>(new GLSceneUniforms(module, d->currentProgram, d->glwman)));
-        d->currentPrimitives->push_back(carto::rc_ptr<GLItem>(new GLObjectUniforms(module, d->currentProgram, obj.get(), d->objectClipPlanes)));
+        for( const auto & module : shaderModules )
+          d->currentPrimitives->push_back( carto::rc_ptr<GLItem>(
+            new GLSceneUniforms( module, d->currentProgram, d->glwman ) ) );
+        sceneUniformsPushed = true;
       }
+      for( const auto & module : shaderModules )
+        d->currentPrimitives->push_back( carto::rc_ptr<GLItem>(
+          new GLObjectUniforms( module, d->currentProgram, obj.get(),
+                                d->objectClipPlanes ) ) );
 
-      success |= updateObject(obj, 0, selectmode);
+      success |= updateObject( obj, 0, selectmode );
     }
   }
   d->currentProgram = carto::rc_ptr<QOpenGLShaderProgram>();
   return success;
 }
 
-void RenderContext::retrieveShaders(const std::list<carto::shared_ptr<AObject>> & objs,
-                                  std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> & opaqueDrawables,
-                                  std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> & transparentDrawables, 
-                                   std::vector<carto::shared_ptr<AObject>> & nonDrawables)
+ShaderProgramKey RenderContext::programKey( GLComponent * glObj ) const
 {
-  for(const auto & obj : objs)
-  {
-    auto glObj = obj->glAPI();
-    if(glObj)
-    {
-      std::string shaderID = glObj->getShaderModuleIDs();
-      if(d->glwman->useDepthPeeling())
-        shaderID += "1"; //id for depth peeling
-      
-      std::string gs = glObj->glGeometryShaderTemplate();
-      if(!gs.empty())
-        shaderID += "#" + gs;
+  ShaderProgramKey key;
+  key.pipeline = glObj->renderPipeline();
+  key.modules = glObj->shaderModules();
+  if( d->glwman->useDepthPeeling() )
+    key.modules.insert( ShaderModuleId::DepthPeeling ); // context decision
+  key.vertexTemplate   = glObj->glVertexShaderTemplate();
+  key.fragmentTemplate = glObj->glFragmentShaderTemplate();
+  key.geometryTemplate = glObj->glGeometryShaderTemplate();
+  return key;
+}
 
-      if(obj->isTransparent())
-        transparentDrawables[shaderID].push_back(obj);
-      else
-        opaqueDrawables[shaderID].push_back(obj);
-    }
-    else
+void RenderContext::retrieveShaders(
+  const std::list<carto::shared_ptr<AObject> > & objs,
+  DrawableGroups & opaqueDrawables, DrawableGroups & transparentDrawables,
+  std::vector<carto::shared_ptr<AObject> > & nonDrawables )
+{
+  for( const auto & obj : objs )
+  {
+    GLComponent *glObj = obj->glAPI();
+    if( !glObj )
     {
-      nonDrawables.push_back(obj);
+      nonDrawables.push_back( obj );
+      continue;
     }
+    DrawableGroups & groups
+      = obj->isTransparent() ? transparentDrawables : opaqueDrawables;
+    groups[ programKey( glObj ) ].push_back( obj );
   }
 }
 
-void RenderContext::shaderBuilding(std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>> & opaqueDrawables,
-                                  std::unordered_map<std::string, std::vector<carto::shared_ptr<AObject>>>  & transparentDrawables)
-{
-  for(const auto & [shader, objs] : opaqueDrawables)
-  {
-    if(d->programs[shader].isNull())
-    {
-      auto glObj = objs.front()->glAPI();
-      std::string shaderID = shader;   
-      d->programs[shader] = d->shaderBuilder.initShader(
-        builderShaderID(shaderID),
-        glObj->glVertexShaderTemplate(),
-        glObj->glFragmentShaderTemplate(),
-        glObj->glGeometryShaderTemplate()
-      );
-    }
-  }
-
-  for(const auto & [shader, objs] : transparentDrawables)
-  {
-    if(d->programs[shader].isNull())
-    {
-      auto glObj = objs.front()->glAPI();
-      std::string shaderID = shader;
-      d->programs[shader] = d->shaderBuilder.initShader(
-        builderShaderID(shaderID),
-        glObj->glVertexShaderTemplate(),
-        glObj->glFragmentShaderTemplate(),
-        glObj->glGeometryShaderTemplate()
-      );
-    }
-  }
-}
 
 void RenderContext::switchShaderProgram( carto::rc_ptr<QOpenGLShaderProgram> program )
 {
@@ -365,20 +345,6 @@ void RenderContext::postTransparentRenderingSetup()
   glDepthMask(GL_TRUE);
   glEndList();
   d->currentPrimitives->push_back(RefGLItem(renderpr));
-}
-
-std::vector<carto::rc_ptr<IShaderModule>> RenderContext::getEffectiveShaderModules(const std::string& shaderID)
-{
-  std::string ids = shaderID;
-  if(!ids.empty() && ids.back() == 'V')
-    ids.pop_back(); // remove V module for now, as it is not used in the shader building process
-  auto modules = shaderMapping::getModules(ids);
-  if(d->glwman->useDepthPeeling())
-  {
-    auto dpmodules = shaderMapping::getModules("1"); //jordan : id for depth peeling, may change
-    modules.insert(modules.end(), dpmodules.begin(), dpmodules.end());
-  }
-  return modules;
 }
 
 void RenderContext::setupClippingPlanes()
@@ -608,8 +574,11 @@ void RenderContext::duplicateRenderPrimitives()
 void RenderContext::pushObjectClipPlane( const Point4df & plane)
 {
   if(d->objectClipPlanes.size() >= 6)// MaxClipPlanes : jordan to change with the one in glObjectUniforms
+  {
     AWarning("RenderContext::pushObjectClipPlane: too many nested clip planes, "
               "extra planes are ignored" );
+    return;
+  }
    d->objectClipPlanes.push_back(plane);
 }
 

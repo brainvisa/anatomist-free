@@ -10,7 +10,6 @@
 #include <anatomist/config/version.h> 
 
 #include <anatomist/surface/dynamicShaderBuilder.h>
-#include <anatomist/surface/shaderMapping.h>
 #include <cartobase/config/paths.h>
 #include <anatomist/surface/blinnPhongIlluminationModel.h>
 #include <anatomist/surface/depthPeelingEffect.h>
@@ -154,12 +153,11 @@ std::string dynamicShaderBuilder::generateShaderSource() const
   return shaderSource;
 }
 
-carto::rc_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initShader(const std::string shaderIDs, std::string vsTemplate, std::string fsTemplate, std::string gsTemplate)
+carto::rc_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initShader(const std::vector<carto::rc_ptr<IShaderModule> > & shaderModules, std::string vsTemplate, std::string fsTemplate, std::string gsTemplate)
 {
   resetBuildState();
   carto::rc_ptr<QOpenGLShaderProgram> program(new QOpenGLShaderProgram());
   std::string baseTemplate, vertexSource, fragmentSource, geometrySource;
-  std::vector<carto::rc_ptr<IShaderModule>> shaderModules = shaderMapping::getModules(shaderIDs);
   std::list<std::string> path =  carto::Paths::findResourceFiles("shaders/templates", "anatomist", m_anatomistVersion);
   if (path.empty()) {
     std::cerr << "Error : No template shader found in shaders/templates." << std::endl;
@@ -218,10 +216,12 @@ carto::rc_ptr<QOpenGLShaderProgram> dynamicShaderBuilder::initShader(const std::
   }
   
 
-  if(!program->link())
+  if( !program->link() )
   {
-    std::cerr << "Shader linkage error : " << program->log().toStdString() << std::endl; 
+    std::cerr << "Shader linkage error : " << program->log().toStdString() << std::endl;
+    return carto::rc_ptr<QOpenGLShaderProgram>();
   }
+
   return program;
 }
 

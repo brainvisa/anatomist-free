@@ -5,10 +5,8 @@
 
 using namespace anatomist;
 
-
 DepthPeelingEffect::DepthPeelingEffect()
 {
-  _id="1";
   _isIlluminationModel=false;
   _name="depthPeeling";
 }

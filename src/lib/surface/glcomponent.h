@@ -38,6 +38,7 @@
 #include <anatomist/window/glcaps.h>
 #include <anatomist/window/viewstate.h>
 #include <anatomist/surface/Shader.h>
+#include <anatomist/surface/shaderTypes.h>
 #include <aims/rgb/rgb.h>
 #include <cartobase/object/object.h>
 #include <cartodata/volume/volume.h>
@@ -222,8 +223,9 @@ namespace anatomist
     virtual const AObjectPalette* glPalette( unsigned tex = 0 ) const;
 
     // shaders functions 
-    virtual void addShaderModule(const std::string & module);
-    virtual std::string getShaderModuleIDs(){return _shaderModuleIDs;}
+    const std::set<ShaderModuleId> & shaderModules() const { return _shaderModules; }
+    virtual RenderPipeline renderPipeline() const { return RenderPipeline::Surface; }
+
     virtual bool useDepthPeeling() const { return _useDepthPeeling; }
     virtual std::string glVertexShaderTemplate() const   { return "main.vs.glsl"; }
     virtual std::string glFragmentShaderTemplate() const { return "main.fs.glsl"; }
@@ -408,12 +410,12 @@ namespace anatomist
 
   protected:
     void glAddTextures( unsigned ntex = 1 );
+    std::set<ShaderModuleId> _shaderModules;
 
   private:
     struct Private;
     Private	*d;
     Shader      *_shader;
-    std::string _shaderModuleIDs;
     bool _useDepthPeeling;
   };
 

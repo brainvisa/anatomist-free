@@ -61,7 +61,7 @@
 #include <QWindow>
 
 #include <cartobase/config/paths.h>
-#include <anatomist/surface/dynamicShaderBuilder.h>
+#include <anatomist/surface/shaderProgramCache.h>
 #include <QOpenGLTexture>
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLFramebufferObjectFormat>
@@ -230,7 +230,6 @@ struct GLWidgetManager::Private
   int recordWidth;
   int recordHeight;
 
-  dynamicShaderBuilder shaderBuilder;
   bool useDepthPeeling;
   std::vector<QOpenGLFramebufferObject*> fbos;
   std::vector<QOpenGLTexture*> depthTextures;
@@ -1032,12 +1031,7 @@ void GLWidgetManager::drawFullScreenQuad()
 void GLWidgetManager::blendPass()
 {
 
-  carto::rc_ptr<QOpenGLShaderProgram> prog = _pd->shaderBuilder.initBlendingShader();
-  if(prog.isNull())
-  {
-    std::cerr << "Failed to initialize blending shader." << std::endl;
-    return;
-  }
+  carto::rc_ptr<QOpenGLShaderProgram> prog = ShaderProgramCache::instance().blendProgram();
 
   GLenum err;
   while(glGetError() != GL_NO_ERROR){}

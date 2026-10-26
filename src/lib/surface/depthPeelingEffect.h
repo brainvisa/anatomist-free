@@ -45,6 +45,7 @@ namespace anatomist
     */
     public:
       DepthPeelingEffect();
+      ShaderModuleId id() const { return ShaderModuleId::DepthPeeling; }
       std::string getUniformDeclarations() const override;
       std::string getFunctionImplementation() const override;
       std::string getFunctionCall() const override;

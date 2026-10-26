@@ -87,10 +87,8 @@
 #include <aims/mesh/surfaceOperation.h>
 #include <anatomist/object/objectparamselect.h>
 #include <anatomist/surface/dynamicShaderBuilder.h>
-#include <anatomist/surface/shaderMapping.h>
 #include <anatomist/primitive/primitive.h>
 #include <anatomist/surface/dynamicShaderBuilder.h>
-#include <anatomist/surface/shaderMapping.h>
 #include <anatomist/primitive/primitive.h>
 #include <aims/resampling/quaternion.h>
 #include <qslider.h>

@@ -306,7 +306,7 @@ GLComponent::GLComponent() : d( new GLComponent::Private )
   else
     _shader = 0;
 
-  _shaderModuleIDs= "0";
+  _shaderModules = { ShaderModuleId::BlinnPhong };
 }
 
 
