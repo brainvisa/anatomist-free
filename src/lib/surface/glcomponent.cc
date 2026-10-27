@@ -2400,40 +2400,10 @@ GLComponent::TexInfo & GLComponent::glTexInfo( unsigned tex ) const
 
 
 void GLComponent::setupShader()
-{ //jordan
-  // if( !glMaterial() )
-  //   return;
-  // int mstate = glMaterial()->renderProperty( Material::UseShader );
-  // bool state = (mstate > 0 || (mstate < 0 && Shader::isUsedByDefault() ) );
-  // if( state )
-  // {
-  //   if( !_shader )
-  //     _shader = new Shader;
-  //   int value = glMaterial()->renderProperty( Material::RenderLighting );
-  //   if( value < 0 )
-  //     value = Shader::DefaultLightingModel;
-  //   _shader->setLightingModel( (Shader::LightingModel) value );
-  //   value = glMaterial()->renderProperty( Material::RenderSmoothShading );
-  //   if( value < 0 )
-  //     value = Shader::DefaultInterpolationModel;
-  //   _shader->setInterpolationModel( (Shader::InterpolationModel) value );
-  //   value = glMaterial()->renderProperty( Material::ShaderColorNormals );
-  //   if( value < 0 )
-  //     value = Shader::DefaultColoringModel;
-  //   _shader->setColoringModel( (Shader::ColoringModel) value );
-  //   // load_if_needed() will be done in bind() now
-  //   // _shader->load_if_needed();
-  // }
-  // else
-  //   removeShader();
+{ 
+  //jordan - remove all old shader stuff
 }
 
-  void GLComponent::addShaderModule(const std::string& moduleID)
-  {
-    _shaderModuleIDs += moduleID;
-    std::sort(_shaderModuleIDs.begin(), _shaderModuleIDs.end());
-
-  }
 
 
 unsigned long GLComponent::glMaxNumDisplayedPolygons() const
