@@ -135,6 +135,7 @@ namespace anatomist
 
 
     void createDefaultPalette( const std::string & name = "" );
+    virtual void adjustPalette();
     virtual AObjectPalette* palette();
     virtual const AObjectPalette* palette() const;
     /** Sets the palette and flags the transfer function texture (tex 2)

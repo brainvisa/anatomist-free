@@ -39,6 +39,8 @@
 #include <anatomist/window3D/renderContext.h>
 #include <anatomist/volume/Volume.h>
 #include <anatomist/window/glcaps.h>
+#include <anatomist/control/qObjTree.h>
+#include <anatomist/application/settings.h>
 #include <graph/tree/tree.h>
 #include <algorithm>
 #include <QOpenGLContext>
@@ -446,6 +448,19 @@ VObject::VObject( AObject * vol )
   : ObjectVector(), GLComponent(), d( new Private )
 {
   _type = classType();
+
+  if( QObjectTree::TypeNames.find( _type ) == QObjectTree::TypeNames.end() )
+  {
+    string str = Settings::findResourceFile( "icons/list_volrender.png" );
+    if( !QObjectTree::TypeIcons[ _type ].load( str.c_str() ) )
+    {
+      QObjectTree::TypeIcons.erase( _type );
+      cerr << "Icon " << str.c_str() << " not found\n";
+    }
+
+    QObjectTree::TypeNames[ _type ] = "Volume Rendering";
+  }
+
   d->object = vol;
 
   glAddTextures( 3 );
@@ -464,7 +479,9 @@ VObject::VObject( AObject * vol )
   GetMaterial().setRenderProperty( Material::RenderFaceCulling, 0 );
 
   insert( vol );
+
   createDefaultPalette( "semitransparent" );
+  setReferentialInheritance( vol );
 }
 
 VObject::~VObject()
@@ -746,10 +763,26 @@ bool VObject::glMakeBodyGLL( const ViewState &, const GLList & gllist ) const
 void VObject::createDefaultPalette( const string & name )
 {
   AObject::createDefaultPalette( name );
+  adjustPalette();
   palette()->create( 512 );
   palette()->fill();
 
 }
+
+
+void VObject::adjustPalette()
+{
+  AObjectPalette *pal = palette();
+  AObject *vol = *begin();
+  if( vol->type() == VOLUME && !dynamic_cast<AVolume<AimsRGB> *>( vol )
+    && !dynamic_cast<AVolume<AimsRGBA> *>( vol ) )
+  {
+    const AObjectPalette  *pal2 = vol->getOrCreatePalette();
+    pal->setMax1( pal2->max1() );
+    pal->setMin1( pal->max1() * 0.25 );
+  }
+}
+
 
 AObjectPalette* VObject::palette()
 {
