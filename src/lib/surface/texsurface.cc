@@ -339,8 +339,3 @@ bool ATexSurface::boundingBox( vector<float> & bmin,
   }
   return res;
 }
-
-void ATexSurface::setShaderParameters(const Shader &shader, const ViewState & state) const
-{
-  shader.setShaderParameters(*this, state);
-}

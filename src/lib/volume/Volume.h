@@ -56,8 +56,6 @@ namespace anatomist
     AVolumeBase();
     virtual ~AVolumeBase();
 
-    virtual void setShaderParameters( const Shader &shader,
-                                      const ViewState & state ) const;
     virtual void internalUpdate();
     /// some Nifti volumes are RGB/RGBA with channels separated in the 5th dim
     virtual AObject *rgbVolumeFrom5D() const = 0;

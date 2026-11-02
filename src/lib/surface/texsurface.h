@@ -125,7 +125,6 @@ public:
   const AObject* surface() const { return( _surf.get() ); }
   AObject* texture() { return( _tex.get() ); }
   const AObject* texture() const { return( _tex.get() ); }
-  virtual void setShaderParameters(const Shader &shader, const ViewState & state) const;
 
   virtual Tree* optionTree() const;
   static Tree*	_optionTree;

@@ -44,6 +44,7 @@
 #include <anatomist/color/colortraits.h>
 #include <anatomist/primitive/primitive.h>
 #include <aims/rgb/rgb.h>
+#include <iostream>
 #include <map>
 #include <vector>
 #include <algorithm>
@@ -293,19 +294,11 @@ GLComponent::TexExtrema::TexExtrema()
 // -------------------
 
 
-GLComponent::GLComponent() : d( new GLComponent::Private )
+GLComponent::GLComponent() : d( new GLComponent::Private ), _useDepthPeeling(false)
 {
   unsigned	i;
   for( i=0; i<glNOPART; ++i )
     d->changed[i] = true;
-  if (Shader::isUsedByDefault())
-  {
-    _shader = new Shader();
-    // _shader->load_if_needed();
-  }
-  else
-    _shader = 0;
-
   _shaderModules = { ShaderModuleId::BlinnPhong };
 }
 
@@ -313,7 +306,6 @@ GLComponent::GLComponent() : d( new GLComponent::Private )
 GLComponent::~GLComponent()
 {
   delete d;
-  if (_shader) delete _shader;
 }
 
 
@@ -840,7 +832,6 @@ GLPrimitives GLComponent::glMaterialGLL( const ViewState & state ) const
   if( changed )
   {
     d->materialGLL.clear();
-    const_cast<GLComponent *>( this )->setupShader();
   }
 
   GLList	*l( new GLList );
@@ -1884,8 +1875,6 @@ bool GLComponent::glMakeBodyGLL( const ViewState & state,
   glDisableClientState( GL_COLOR_ARRAY );
 
   glNewList( gllist.item(), GL_COMPILE );
-  // if (_shader)
-  //   _shader->bind(*this, state); jordan
   if( !vnormal )
   {
     glPushAttrib( GL_LIGHTING_BIT );
@@ -1895,7 +1884,6 @@ bool GLComponent::glMakeBodyGLL( const ViewState & state,
   if( !vnormal )
     glPopAttrib();
 
-  // if (_shader) _shader->release(); jordan
   glEndList();
 
   return true;
@@ -2182,7 +2170,7 @@ Object GLComponent::debugInfo() const
       map<string, GLPrimitives>::const_iterator	im, em;
       unsigned	i, j, n = d->changed.size();
       static const string	partname[] = {
-        "general", "body", "material", "geometry", "palette", "referential", 
+        "general", "body", "material", "shader", "geometry", "palette", "referential", 
         "teximage", "texenv", 
       };
 
@@ -2397,13 +2385,6 @@ GLComponent::TexInfo & GLComponent::glTexInfo( unsigned tex ) const
 {
   return d->textures[ tex ];
 }
-
-
-void GLComponent::setupShader()
-{ 
-  //jordan - remove all old shader stuff
-}
-
 
 
 unsigned long GLComponent::glMaxNumDisplayedPolygons() const

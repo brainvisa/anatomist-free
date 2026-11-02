@@ -37,7 +37,6 @@
 #include <anatomist/primitive/primitiveTypes.h>
 #include <anatomist/window/glcaps.h>
 #include <anatomist/window/viewstate.h>
-#include <anatomist/surface/Shader.h>
 #include <anatomist/surface/shaderTypes.h>
 #include <aims/rgb/rgb.h>
 #include <cartobase/object/object.h>
@@ -209,15 +208,6 @@ namespace anatomist
     virtual void glClearHasChangedFlags() const;
     virtual void glSetChanged( glPart, bool = true ) const;
     virtual bool glHasChanged( glPart ) const;
-
-    void setShader(const Shader &shader);
-    void removeShader();
-    /// create, setup, or remove the shader
-    void setupShader();
-    const Shader *getShader() const;
-    Shader *getShader();
-    virtual void setShaderParameters(const Shader &shader,
-                                     const ViewState & state) const;
 
     virtual const Material *glMaterial() const;
     virtual const AObjectPalette* glPalette( unsigned tex = 0 ) const;
@@ -415,30 +405,10 @@ namespace anatomist
   private:
     struct Private;
     Private	*d;
-    Shader      *_shader;
     bool _useDepthPeeling;
   };
-
-
-  inline void GLComponent::setShader(const Shader &shader)
-  { 
-    if (_shader) delete _shader;
-    _shader = new Shader(shader);
-    glSetChanged( GLComponent::glBODY );
-  }
-  inline void GLComponent::removeShader(void)
-  { //jordan
-    // if (_shader)
-    // {
-    //   delete _shader;
-    //   _shader = NULL;
-    //   glSetChanged( GLComponent::glBODY );
-    // }
-  }
+  
   inline const Material *GLComponent::glMaterial() const          { return 0; }
-  inline const Shader *GLComponent::getShader() const { return _shader; }
-  inline Shader *GLComponent::getShader() { return _shader; }
-  inline void GLComponent::setShaderParameters(const Shader &shader, const ViewState & state) const { shader.setShaderParameters(*this, state); }
   inline const AObjectPalette* GLComponent::glPalette( unsigned ) const
   { return 0; }
   inline unsigned GLComponent::glNumVertex( const ViewState & ) const

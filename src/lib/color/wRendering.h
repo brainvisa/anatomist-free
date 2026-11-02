@@ -37,9 +37,7 @@
 
 #include <anatomist/observer/Observer.h>
 #include <anatomist/color/Material.h>
-#include <anatomist/surface/Shader.h>
 #include <anatomist/ui/ui_color_rendering.h>
-#include <qslider.h>
 #include <set>
 
 
@@ -62,7 +60,6 @@ public:
 
   const std::set<anatomist::AObject*>& objects() const { return _parents; }
   const anatomist::Material& getMaterial() const { return _material; }
-  const anatomist::Shader& getShader() const { return _shader; }
 
   void update( const anatomist::Observable* observable, void* arg );
   void updateObjectsRendering();
@@ -73,7 +70,6 @@ protected slots:
   void chooseObject();
   void objectsChosen( const std::set<anatomist::AObject *> & );
 
-  void enableShadersClicked( int x );
   void renderModeChanged( int x );
   void renderPropertyChanged( int x );
   void lightingModelChanged( int x );
@@ -83,16 +79,11 @@ protected slots:
   void lineWidthChanged();
   void unlitColorClicked();
 
-  void reloadClicked(void);
-
 protected:
-  void updateObjectsShading();
-  void removeObjectsShading();
   virtual void unregisterObservable( anatomist::Observable* );
 
   std::set<anatomist::AObject *>	_parents;
   anatomist::Material			_material;
-  anatomist::Shader			_shader;
 
 private:
   struct Private;

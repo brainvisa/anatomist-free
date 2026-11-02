@@ -243,7 +243,6 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
     {
       GetMaterial().setRenderProperty( Material::UseShader, 1 );
       GetMaterial().setRenderProperty( Material::NormalIsDirection, 1 );
-      setupShader();
     }
     try
     {
@@ -274,7 +273,6 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
     {
       GetMaterial().setRenderProperty( Material::UseShader, 1 );
       GetMaterial().setRenderProperty( Material::NormalIsDirection, 1 );
-      setupShader();
     }
     try
     {

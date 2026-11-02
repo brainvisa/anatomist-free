@@ -203,11 +203,6 @@ AVolumeBase::AVolumeBase() : SliceableObject(), PythonAObject()
 AVolumeBase::~AVolumeBase()
 {}
 
-void AVolumeBase::setShaderParameters(const Shader &shader, const ViewState & state) const
-{
-  shader.setShaderParameters(*this, state);
-}
-
 
 void AVolumeBase::internalUpdate()
 {

@@ -45,8 +45,6 @@
 #include <anatomist/commands/cSetMaterial.h>
 #include <anatomist/object/objectparamselect.h>
 #include <anatomist/application/settings.h>
-#include <anatomist/application/globalConfig.h>
-#include <anatomist/surface/glcomponent.h>
 #include <anatomist/dialogs/colorDialog.h>
 #include <cartobase/object/object.h>
 #include <QDoubleValidator>
@@ -104,25 +102,11 @@ RenderingWindow::RenderingWindow( const set<AObject *> &objL, QWidget* parent,
   vboxlayout->setSpacing(0);
   select_container_widget->layout()->setContentsMargins( 0, 0, 0, 0 );
 
-  //GlobalConfiguration   *cfg = theAnatomist->config();
-  bool use_glshader = Shader::isActivated();
-  if (!use_glshader) shader_tab->setEnabled(false);
-  if (theAnatomist->userLevel() < 3) reload_pushButton->hide();
-
   lineWidth_lineEdit->setValidator( new QDoubleValidator( 0., 100., 2, 0 ) );
-
-  int mstate = _material.renderProperty( Material::UseShader );
-  bool state = ( ( Shader::isUsedByDefault() && mstate != 0 ) || mstate > 0 );
-  lighting_model_groupBox->setEnabled(state);
-  interpolation_model_groupBox->setEnabled(state);
-  coloring_model_groupBox->setEnabled(state);
-  Qt::CheckState  check_state = (state ? Qt::Checked : Qt::Unchecked);
-  enable_shaders_checkBox->setCheckState(check_state);
 
   default_lighting_model_radioButton->hide();
   default_interpolation_model_radioButton->hide();
   default_coloring_model_radioButton->hide();
-//   directions_coloring_model_radioButton->hide();
 
   // connections
   connect( sel, SIGNAL( selectionStarts() ), this, SLOT( chooseObject() ) );
@@ -141,16 +125,12 @@ RenderingWindow::RenderingWindow( const set<AObject *> &objL, QWidget* parent,
            SLOT( renderPropertyChanged( int ) ) );
   connect( unlitColor_pushButton, SIGNAL( clicked() ), this,
            SLOT( unlitColorClicked() ) );
-  connect( enable_shaders_checkBox, SIGNAL( stateChanged( int ) ), this,
-           SLOT( enableShadersClicked( int ) ) );
   connect( lighting_model_buttonGroup, SIGNAL( idClicked( int) ), this,
            SLOT( lightingModelChanged( int ) ) );
   connect( interpolation_model_buttonGroup, SIGNAL( idClicked( int)), this,
            SLOT( interpolationModelChanged( int ) ) );
   connect( coloring_model_buttonGroup, SIGNAL( idClicked( int) ), this,
            SLOT( coloringModelChanged( int ) ) );
-  connect( reload_pushButton, SIGNAL( clicked( ) ), this, 
-           SLOT( reloadClicked( ) ) );
 
   updateInterface();
   static_cast<QBoxLayout *>( layout() )->addStretch( 1 );
@@ -195,48 +175,9 @@ void RenderingWindow::unregisterObservable( Observable* obs )
 void RenderingWindow::updateObjectsRendering()
 {
   set<AObject *>::const_iterator io, fo=objects().end();
-  int mstate = getMaterial().renderProperty( Material::UseShader );
-  bool state = mstate > 0 || ( mstate < 0 && Shader::isUsedByDefault() );
-  if( state )
-    _shader.load_if_needed();
-  else
-    removeObjectsShading();
 
   for( io=objects().begin(); io!=fo; ++io )
-  {
-    GLComponent *glc = (*io)->glAPI();
-    if( state )
-      glc->setShader( getShader() );
     (*io)->SetMaterial( getMaterial() );
-  }
-  for( io=objects().begin(); io!=fo; ++io )
-  {
-    (*io)->notifyObservers( this );
-    (*io)->clearHasChangedFlags();
-  }
-}
-
-
-void RenderingWindow::updateObjectsShading()
-{
-  updateObjectsRendering();
-}
-
-
-void RenderingWindow::removeObjectsShading()
-{
-  set<AObject *>::const_iterator io, fo=objects().end();
-  GLComponent *glc = NULL;
-
-  for( io=objects().begin(); io!=fo; ++io )
-  {
-    glc = (*io)->glAPI();
-    if( glc )
-    {
-      (*io)->GetMaterial().setRenderProperty( Material::UseShader, 0 );
-      glc->removeShader();
-    }
-  }
   for( io=objects().begin(); io!=fo; ++io )
   {
     (*io)->notifyObservers( this );
@@ -316,42 +257,26 @@ void RenderingWindow::updateInterface()
                       (int) ( _material.unlitColor(2) * 255.9 ) ) );
     unlitColor_pushButton->setIcon( pix );
 
-    //shader
-    GLComponent *glc = (*_parents.begin())->glAPI();
-    if( glc )
-    {
-      const Shader *shader = glc->getShader();
-      int mstate = _material.renderProperty( Material::UseShader );
-      bool state = ( ( Shader::isUsedByDefault() && mstate != 0 ) || mstate > 0 );
-      enable_shaders_checkBox->setChecked( state );
-      int lighting_model = _material.renderProperty( Material::RenderLighting );
-      if( lighting_model < 0 )
-        lighting_model = Material::BlinnPhongLighting;
-      lighting_model_buttonGroup->button(-lighting_model - 3)->setChecked(true);
-      int interpolation = _material.renderProperty(
-        Material::RenderSmoothShading );
-      if( interpolation < 0 )
-        interpolation = Material::GouraudShading;
-      interpolation_model_buttonGroup->button(
-        -interpolation - 3)->setChecked(true);
-      int coloring_model = _material.renderProperty(
-        Material::ShaderColorNormals );
-      if( coloring_model < 0 )
-        coloring_model = 0;
-      if( _material.renderProperty( Material::NormalIsDirection ) > 0 )
-        coloring_model = 2;
-      coloring_model_buttonGroup->button(-coloring_model - 3)->setChecked(true);
-      if (shader)
-        _shader = *shader;
-      else
-      {
-        _shader = Shader();
-        _shader.setModels( (Shader::LightingModel) lighting_model,
-                          (Shader::InterpolationModel) interpolation,
-                          (Shader::ColoringModel) coloring_model,
-                          Shader::DefaultMaterialModel );
-      }
-    }
+    // lighting / interpolation / coloring models (Material properties)
+    int lighting_model = _material.renderProperty( Material::RenderLighting );
+    if( lighting_model < 0 )
+      lighting_model = Material::BlinnPhongLighting;
+    lighting_model_buttonGroup->button( -lighting_model - 3 )->setChecked( true );
+
+    int interpolation = _material.renderProperty(
+      Material::RenderSmoothShading );
+    if( interpolation < 0 )
+      interpolation = Material::GouraudShading;
+    interpolation_model_buttonGroup->button(
+      -interpolation - 3 )->setChecked( true );
+
+    int coloring_model = _material.renderProperty(
+      Material::ShaderColorNormals );
+    if( coloring_model < 0 )
+      coloring_model = 0;
+    if( _material.renderProperty( Material::NormalIsDirection ) > 0 )
+      coloring_model = 2;
+    coloring_model_buttonGroup->button( -coloring_model - 3 )->setChecked( true );
   }
 
   blockSignals( false );
@@ -507,84 +432,41 @@ void RenderingWindow::renderPropertyChanged( int x )
   }
   _material.setRenderProperty( prop, y );
 
+  // keep the lighting / interpolation radio buttons in sync
   if( prop == Material::RenderLighting && y >= 0 )
   {
     if( y > 0 )
       y = 2; // if on, use blinn-phong
-    if( y >= 0 )
-    {
-      _shader.setLightingModel( (Shader::LightingModel)( y ) );
-      lighting_model_buttonGroup->button( -y - 3 )->setChecked(true);
-    }
+    lighting_model_buttonGroup->button( -y - 3 )->setChecked( true );
   }
   else if( prop == Material::RenderSmoothShading && y >= 0 )
-  {
-    _shader.setInterpolationModel( (Shader::InterpolationModel)( y ) );
-    if( y >= 0 )
-      interpolation_model_buttonGroup->button( -y - 3 )->setChecked(true);
-  }
+    interpolation_model_buttonGroup->button( -y - 3 )->setChecked( true );
 
   _privdata->modified = true;
   updateObjectsRendering();
   _privdata->operating = false;
 }
 
-void RenderingWindow::enableShadersClicked( int x )
+
+void RenderingWindow::lightingModelChanged( int x )
 {
-  bool state = (x == Qt::Checked);
-
-  _material.setRenderProperty( Material::UseShader, int( state ) );
-//   if( state )
-//   {
-//     _material.setRenderProperty( Material::RenderLighting,
-//                                  _shader.getLightingModel() );
-//     _material.setRenderProperty( Material::RenderSmoothShading,
-//                                  _shader.getInterpolationModel() );
-//   }
-
-  lighting_model_groupBox->setEnabled(state);
-  interpolation_model_groupBox->setEnabled(state);
-  coloring_model_groupBox->setEnabled(state);
-
+  _material.setRenderProperty( Material::RenderLighting, -x - 3 );
+  setButtonState( lighting_checkBox,
+                  _material.renderProperty( Material::RenderLighting ) );
   updateObjectsRendering();
   _privdata->modified = true;
 }
 
 
-void RenderingWindow::lightingModelChanged( int x )
-{
-  _material.setRenderProperty( Material::RenderLighting, -x - 3 );
-  setButtonState(lighting_checkBox,
-                  _material.renderProperty(Material::RenderLighting));
-  //XXX : skip default (window default)
-  if (x == -2)
-  {
-    std::cout << "Default not implemented yet" << std::endl;
-  }
-  else
-  {
-    _shader.setLightingModel((Shader::LightingModel) (-x - 3));
-    updateObjectsShading();
-  }
-  _privdata->modified = true;
-}
-
 void RenderingWindow::interpolationModelChanged( int x )
 {
   _material.setRenderProperty( Material::RenderSmoothShading, -x - 3 );
-  //XXX : skip default (window default)
-  setButtonState(smooth_shading_checkBox,
-                  _material.renderProperty(Material::RenderSmoothShading));
-  if (x == -2)
-  {
-    std::cout << "Default not implemented yet" << std::endl;
-  } else {
-    _shader.setInterpolationModel((Shader::InterpolationModel) (-x - 3));
-    _shader.load_if_needed();
-    updateObjectsShading();
-  }
+  setButtonState( smooth_shading_checkBox,
+                  _material.renderProperty( Material::RenderSmoothShading ) );
+  updateObjectsRendering();
   _privdata->modified = true;
 }
+
 
 void RenderingWindow::coloringModelChanged( int x )
 {
@@ -596,35 +478,8 @@ void RenderingWindow::coloringModelChanged( int x )
   }
   _material.setRenderProperty( Material::ShaderColorNormals, scn );
   _material.setRenderProperty( Material::NormalIsDirection, nisd );
-  //XXX : skip default (window default)
-  if (x == -2)
-  {
-    std::cout << "Default not implemented yet" << std::endl;
-  }
-  else
-  {
-    _shader.setColoringModel((Shader::ColoringModel) (-x - 3));
-    _shader.load_if_needed();
-    updateObjectsShading();
-  }
-}
-
-
-void RenderingWindow::reloadClicked(void)
-{
-  set<AObject *>::const_iterator io, fo=objects().end();
-  GLComponent *glc = NULL;
-
-  _shader.reload();
-
-  for( io=objects().begin(); io!=fo; ++io )
-    {
-      glc = (*io)->glAPI();
-      if (not glc->getShader()) glc->setShader( getShader() );
-      glc->glSetChanged(GLComponent::glBODY);
-      (*io)->notifyObservers( this );
-      (*io)->clearHasChangedFlags();
-    }
+  updateObjectsRendering();
+  _privdata->modified = true;
 }
 
 
@@ -693,4 +548,3 @@ void RenderingWindow::unlitColorClicked()
   updateObjectsRendering();
   _privdata->operating = false;
 }
-

@@ -453,7 +453,6 @@ void AObject::SetMaterial( const Material & mat )
     _material = mat;
     if( changeshader )
     {
-      glc->setupShader();
       glc->glSetChanged( GLComponent::glBODY );
     }
     if( glc )
@@ -1253,7 +1252,6 @@ void AObject::setProperties( Object /*options*/ )
               GetMaterial().set( *m );
               if( g )
               {
-                g->setupShader();
                 g->glSetChanged( GLComponent::glMATERIAL );
               }
               else

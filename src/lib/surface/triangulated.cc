@@ -48,7 +48,6 @@ ASurface<2>::ASurface( const char * )
   GetMaterial().setRenderProperty( Material::NormalIsDirection, 1 );
   glAPI()->glSetChanged( GLComponent::glBODY );
   glAPI()->glSetChanged( GLComponent::glMATERIAL );
-  glAPI()->setupShader();
 }
 
 

@@ -47,7 +47,6 @@
 #include <anatomist/reference/wChooseReferential.h>
 #include <anatomist/commands/cLoadObject.h>
 #include <anatomist/processor/Processor.h>
-#include <anatomist/surface/Shader.h>
 #include <anatomist/surface/glcomponent.h>
 #include <qtabbar.h>
 #include <qgroupbox.h>
@@ -739,31 +738,6 @@ PreferencesWindow::PreferencesWindow()
   "so this module\n"
   "might still crash with such an OpenGL implementation." ) );
 
-  // shaders
-  QCheckBox *glshader = new QCheckBox( 
-    tr( "Enable OpenGL shaders (GLSL 1.2 support needed)" ), tgl );
-  vlay->addWidget( glshader );
-  bool	support_glshader = Shader::isSupported();
-  bool	useglshader;
-
-  if (not support_glshader)
-  {
-    glshader->setEnabled(false);
-    useglshader = false;
-  }
-  else useglshader = Shader::isActivated();
-
-  glshader->setChecked( useglshader);
-  glshader->setToolTip( tr( "Enable OpenGL shaders." ) );
-
-  QCheckBox *glshaderbydefault = new QCheckBox( 
-    tr( "Use shader-based OpenGL pipeline (lighting/shading model) by default" 
-      ), tgl );
-  vlay->addWidget( glshaderbydefault );
-  if (not support_glshader)
-    glshaderbydefault->setEnabled(false);
-  glshaderbydefault->setChecked(Shader::isUsedByDefault());
-
   QHBoxLayout *polylay = new QHBoxLayout;
   vlay->addLayout( polylay );
   QLabel *lpl = new QLabel( tr( "Limit polygons / object:" ) );
@@ -852,10 +826,6 @@ PreferencesWindow::PreferencesWindow()
            SLOT( setMaxTextures( const QString & ) ) );
   connect( glselect, SIGNAL( toggled( bool ) ), this,
            SLOT( enableOpenGLSelection( bool ) ) );
-  connect( glshader, SIGNAL( toggled( bool ) ), this,
-           SLOT( enableOpenGLShader( bool ) ) );
-  connect( glshaderbydefault, SIGNAL( toggled( bool ) ), this,
-           SLOT( shadersByDefault( bool ) ) );
   connect( _pdat->limitpoly, SIGNAL( editingFinished() ),
            this, SLOT( maxPolygonsPerObjectChanged() ) );
 }
@@ -1270,37 +1240,6 @@ void PreferencesWindow::enableOpenGLSelection( bool x )
     theAnatomist->config()->setProperty( "disableOpenGLSelection", int(1) );
   }
 }
-
-
-void PreferencesWindow::enableOpenGLShader( bool x )
-{
-  if( x )
-  {
-    if( theAnatomist->config()->hasProperty( "disableOpenGLShader" ) )
-      theAnatomist->config()->removeProperty( "disableOpenGLShader" );
-    Shader::enable_all();
-  }
-  else
-  {
-    theAnatomist->config()->setProperty( "disableOpenGLShader", int(1) );
-    Shader::disable_all();
-  }
-}
-
-
-void PreferencesWindow::shadersByDefault( bool x )
-{
-  if( x )
-  {
-    theAnatomist->config()->setProperty( "shadersByDefault", int(1) );
-  }
-  else
-  {
-    if( theAnatomist->config()->hasProperty( "shadersByDefault" ) )
-      theAnatomist->config()->removeProperty( "shadersByDefault" );
-  }
-}
-
 
 void PreferencesWindow::commonScannerBasedReferential( bool x )
 {

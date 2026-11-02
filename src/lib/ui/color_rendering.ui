@@ -408,13 +408,6 @@
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_7">
          <item>
-          <widget class="QCheckBox" name="enable_shaders_checkBox">
-           <property name="text">
-            <string>enable shaders</string>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QGroupBox" name="lighting_model_groupBox">
            <property name="enabled">
             <bool>false</bool>
@@ -676,19 +669,6 @@
             </spacer>
            </item>
            <item>
-            <widget class="QPushButton" name="reload_pushButton">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>Reload</string>
-             </property>
-            </widget>
-           </item>
-           <item>
             <spacer name="horizontalSpacer_2">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
@@ -740,7 +720,6 @@
   <tabstop>ghost_radioButton</tabstop>
   <tabstop>selectable_when_opaque_radioButton</tabstop>
   <tabstop>selectable_when_not_totally_transparent_radioButton</tabstop>
-  <tabstop>enable_shaders_checkBox</tabstop>
   <tabstop>default_lighting_model_radioButton</tabstop>
   <tabstop>radioButton_7</tabstop>
   <tabstop>radioButton_8</tabstop>
@@ -753,7 +732,6 @@
   <tabstop>radioButton_14</tabstop>
   <tabstop>radioButton_15</tabstop>
   <tabstop>directions_coloring_model_radioButton</tabstop>
-  <tabstop>reload_pushButton</tabstop>
  </tabstops>
  <resources/>
  <connections/>
