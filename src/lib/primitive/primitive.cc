@@ -613,24 +613,29 @@ void GLObjectUniforms::callList() const
   updateObjectClipUniforms();
 
   const Material *mat = _glObj->glMaterial();
-  GLint colorNormalsLoc = _shader->uniformLocation( "u_colorNormals" );
-  if( colorNormalsLoc >= 0 )
+  if( mat )
   {
-    bool colorNormals = mat && mat->renderProperty( Material::ShaderColorNormals ) > 0;
-    _shader->setUniformValue( colorNormalsLoc, colorNormals );
-  }
+    GLint colorNormalsLoc = _shader->uniformLocation( "u_colorNormals" );
+    if( colorNormalsLoc >= 0 )
+    {
+      bool colorNormals = mat && mat->renderProperty( Material::ShaderColorNormals ) > 0;
+      _shader->setUniformValue( colorNormalsLoc, colorNormals );
+    }
 
-  GLint lightingEnabledLoc = _shader->uniformLocation( "u_lightingEnabled" );
-  if( lightingEnabledLoc >= 0 )
-  {
-    bool lighting = mat->renderProperty( Material::RenderLighting ) != 0;
-    _shader->setUniformValue(lightingEnabledLoc, lighting);
+    GLint lightingEnabledLoc = _shader->uniformLocation( "u_lightingEnabled" );
+    if( lightingEnabledLoc >= 0 )
+    {
+      bool lighting = mat->renderProperty( Material::RenderLighting ) != 0;
+      _shader->setUniformValue(lightingEnabledLoc, lighting);
+    }
   }
 
   _obj->glAPI()->updateObjectUniforms(_shader.get());
 
   if(_module)
+  {
     _module->setupObjectUniforms(*_shader, *_glObj);
+  }
 }
 
 void GLObjectUniforms::getUniformsLocations(UniformsLocations & locations) const
