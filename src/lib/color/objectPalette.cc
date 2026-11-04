@@ -479,6 +479,7 @@ namespace
 
         for( i=0, n=colortable.size(); i<n; ++i )
           dat.at( i ) = colortable[i];
+        p->update();
         // private palette, not inserted in global list
         // pall.push_back( p );
       }
