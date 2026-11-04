@@ -13,6 +13,8 @@ uniform bool u_hasTexture;
 uniform bool u_isSelectionPass;
 uniform bool u_flatShading;
 uniform bool u_isOutlinedRendering;
+uniform bool u_colorNormals;
+uniform bool u_lightingEnabled;
 
 uniform bool u_hasFog;
 uniform float u_fogDensity;
@@ -241,7 +243,18 @@ void main()
   vec4 outlineColor = vec4(0.0, 0.0, 0.0, 1.0); //could be better than black
   vec3 normal = u_flatShading ? v_normalFlat : v_normal;
   vec4 color = u_isOutlinedRendering ? outlineColor : basicColor();
-  {Illumination Model Call}
+  if(u_colorNormals && !u_isOutlinedRendering)
+  {
+    // Normal (or line direction) back in object space, so the colour stays
+    // attached to the data instead of changing with the camera.
+    vec3 objNormal = normalize(inverse(gl_NormalMatrix) * normal);
+    color.rgb = abs(objNormal);
+  }
+  if(u_lightingEnabled)
+  {
+    {Illumination Model Call}
+  }
+
   {Effect Call}
 
   if(u_hasFog)

@@ -428,33 +428,8 @@ void AObject::SetMaterial( const Material & mat )
 {
   if( mat != _material )
   {
-    bool changeshader = false;
-    GLComponent* glc = glAPI();
-    if( glc )
-    {
-      if( _material.renderProperty( Material::UseShader )
-          != mat.renderProperty( Material::UseShader ) )
-        changeshader = true;
-      if( !changeshader && mat.renderProperty( Material::UseShader ) )
-      {
-        Material::RenderProperty props[] = { Material::RenderLighting,
-          Material::RenderSmoothShading,
-          Material::ShaderColorNormals,
-          Material::NormalIsDirection };
-        for( int p=0; p<4; ++p )
-          if( _material.renderProperty( props[p] )
-            != mat.renderProperty( props[p] ) )
-          {
-            changeshader = true;
-            break;
-          }
-      }
-    }
     _material = mat;
-    if( changeshader )
-    {
-      glc->glSetChanged( GLComponent::glBODY );
-    }
+    GLComponent* glc = glAPI();
     if( glc )
       glc->glSetChanged( GLComponent::glMATERIAL );
     else

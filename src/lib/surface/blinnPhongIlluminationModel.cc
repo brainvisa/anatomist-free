@@ -23,6 +23,7 @@ uniform vec4 u_materialAmbient;
 uniform vec4 u_materialDiffuse;
 uniform vec4 u_materialSpecular;
 uniform float u_materialShininess;
+uniform bool u_normalIsDirection;
   )";
 }
 
@@ -47,21 +48,29 @@ BlinnPhongMaterial BlinnPhong(vec3 normal)
   vec3 eyeDirection = vec3(0,0,1);
   vec3 halfVector = normalize(lightDirection + eyeDirection);
 
-  // ambient
-  vec4 b_ambient = (gl_LightSource[0].ambient + gl_LightModel.ambient) * u_materialAmbient;
+  float cos_theta;
+  float cos_alpha;
 
-  // diffuse
-  float cos_theta = abs(dot(normal, lightDirection));
-  vec4 diffuse = gl_LightSource[0].diffuse * cos_theta;
-
-  // specular
-  float cos_alpha = pow(max(dot(normal, halfVector), 0.0), u_materialShininess);
-  vec4 specular = gl_LightSource[0].specular * cos_alpha * u_materialSpecular;
+  if(u_normalIsDirection)
+  {
+    // "normal" actually holds the line direction T: light the line as a
+    // thin tube, using the tube normal that maximizes each term.
+    vec3 T = normalize(normal);
+    float LT = dot(lightDirection, T);
+    float HT = dot(halfVector, T);
+    cos_theta = sqrt(max(1.0 - LT * LT, 0.0));
+    cos_alpha = pow(sqrt(max(1.0 - HT * HT, 0.0)), u_materialShininess);
+  }
+  else
+  {
+    cos_theta = abs(dot(normal, lightDirection));
+    cos_alpha = pow(max(dot(normal, halfVector), 0.0), u_materialShininess);
+  }
 
   BlinnPhongMaterial material;
-  material.ambient = b_ambient;
-  material.diffuse = diffuse;
-  material.specular = specular;
+  material.ambient = (gl_LightSource[0].ambient + gl_LightModel.ambient) * u_materialAmbient;
+  material.diffuse = gl_LightSource[0].diffuse * cos_theta;
+  material.specular = gl_LightSource[0].specular * cos_alpha * u_materialSpecular;
 
   return material; 
 }
@@ -71,16 +80,22 @@ BlinnPhongMaterial BlinnPhong(vec3 normal)
 
 std::string BlinnPhongIlluminationModel::getFunctionCall() const
 {
-  return R"(BlinnPhongMaterial blinnPhong = BlinnPhong(normal);
-  vec3 ambientTerm = blinnPhong.ambient.rgb;
-  vec3 diffuseTerm = color.rgb * blinnPhong.diffuse.rgb;
-  vec3 specularTerm = blinnPhong.specular.rgb;
-  color.rgb = ambientTerm + diffuseTerm + specularTerm;)";
+  return R"(
+    BlinnPhongMaterial blinnPhong = BlinnPhong(normal);
+    vec3 ambientTerm = blinnPhong.ambient.rgb;
+    vec3 diffuseTerm = color.rgb * blinnPhong.diffuse.rgb;
+    vec3 specularTerm = blinnPhong.specular.rgb;
+    color.rgb = ambientTerm + diffuseTerm + specularTerm;
+  )";
 }
 
 void BlinnPhongIlluminationModel::setupObjectUniforms(QOpenGLShaderProgram& program, GLComponent& obj) const
 {
   auto material = obj.glMaterial();
+
+
+  bool lighting = true;
+  bool normalIsDirection = false;
 
   if( !material )
   {
@@ -109,7 +124,10 @@ void BlinnPhongIlluminationModel::setupObjectUniforms(QOpenGLShaderProgram& prog
 
     int materialShininessLocation = program.uniformLocation("u_materialShininess");
     program.setUniformValue(materialShininessLocation, material->Shininess());
+
+    normalIsDirection = material->renderProperty( Material::NormalIsDirection ) > 0;
   }
+  program.setUniformValue(program.uniformLocation("u_normalIsDirection"), normalIsDirection);
 }
 
 

@@ -241,7 +241,6 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
     _completeMeshDirections( *surf );
     if( D == 2 && !_surface->normal().empty() )
     {
-      GetMaterial().setRenderProperty( Material::UseShader, 1 );
       GetMaterial().setRenderProperty( Material::NormalIsDirection, 1 );
     }
     try
@@ -271,7 +270,6 @@ bool ASurface<D>::glMakeBodyGLL( const anatomist::ViewState& viewState,
     _completeMeshDirections( *surf );
     if( D == 2 && !_surface->normal().empty() )
     {
-      GetMaterial().setRenderProperty( Material::UseShader, 1 );
       GetMaterial().setRenderProperty( Material::NormalIsDirection, 1 );
     }
     try

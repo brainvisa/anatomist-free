@@ -291,6 +291,16 @@
               </attribute>
              </widget>
             </item>
+            <item>
+             <widget class="QCheckBox" name="color_normals_checkBox">
+              <property name="text">
+               <string>Color by normals (directions for line meshes)</string>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
            </layout>
           </widget>
          </item>
@@ -402,302 +412,6 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="shader_tab">
-        <attribute name="title">
-         <string>Advanced (shaders)</string>
-        </attribute>
-        <layout class="QVBoxLayout" name="verticalLayout_7">
-         <item>
-          <widget class="QGroupBox" name="lighting_model_groupBox">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="title">
-            <string>Lighting model :</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_6">
-            <item>
-             <widget class="QRadioButton" name="default_lighting_model_radioButton">
-              <property name="font">
-               <font>
-                <weight>50</weight>
-                <bold>false</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>Default (view setting)</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">lighting_model_buttonGroup</string>
-              </attribute>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_7">
-              <property name="font">
-               <font>
-                <weight>50</weight>
-                <bold>false</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>None</string>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">lighting_model_buttonGroup</string>
-              </attribute>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_8">
-              <property name="font">
-               <font>
-                <weight>50</weight>
-                <bold>false</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>Phong (faster)</string>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">lighting_model_buttonGroup</string>
-              </attribute>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_9">
-              <property name="font">
-               <font>
-                <weight>50</weight>
-                <bold>false</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>Blinn-Phong (better)</string>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">lighting_model_buttonGroup</string>
-              </attribute>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="interpolation_model_groupBox">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="title">
-            <string>Interpolation Model :</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_9">
-            <item>
-             <widget class="QRadioButton" name="default_interpolation_model_radioButton">
-              <property name="text">
-               <string>Default (view setting)</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">interpolation_model_buttonGroup</string>
-              </attribute>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_10">
-              <property name="text">
-               <string>None (flat rendering)</string>
-              </property>
-              <property name="checked">
-               <bool>false</bool>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">interpolation_model_buttonGroup</string>
-              </attribute>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_11">
-              <property name="text">
-               <string>Gouraud (faster)</string>
-              </property>
-              <property name="checked">
-               <bool>false</bool>
-              </property>
-              <property name="autoRepeat">
-               <bool>false</bool>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">interpolation_model_buttonGroup</string>
-              </attribute>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_12">
-              <property name="text">
-               <string>Phong (better)</string>
-              </property>
-              <property name="checked">
-               <bool>false</bool>
-              </property>
-              <property name="autoRepeat">
-               <bool>false</bool>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">interpolation_model_buttonGroup</string>
-              </attribute>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="coloring_model_groupBox">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="title">
-            <string>Coloring Model :</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_8">
-            <item>
-             <widget class="QRadioButton" name="default_coloring_model_radioButton">
-              <property name="text">
-               <string>Default (view setting)</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">coloring_model_buttonGroup</string>
-              </attribute>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_14">
-              <property name="text">
-               <string>Material</string>
-              </property>
-              <property name="checked">
-               <bool>false</bool>
-              </property>
-              <property name="autoRepeat">
-               <bool>false</bool>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">coloring_model_buttonGroup</string>
-              </attribute>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_15">
-              <property name="text">
-               <string>Normals</string>
-              </property>
-              <property name="checked">
-               <bool>false</bool>
-              </property>
-              <property name="autoRepeat">
-               <bool>false</bool>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">coloring_model_buttonGroup</string>
-              </attribute>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="directions_coloring_model_radioButton">
-              <property name="text">
-               <string>Directions</string>
-              </property>
-              <property name="checked">
-               <bool>false</bool>
-              </property>
-              <property name="autoRepeat">
-               <bool>false</bool>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">coloring_model_buttonGroup</string>
-              </attribute>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout">
-           <item>
-            <spacer name="horizontalSpacer">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer_2">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <spacer name="verticalSpacer_3">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </widget>
       </widget>
      </item>
     </layout>
@@ -716,22 +430,12 @@
   <tabstop>smooth_polygons_checkBox</tabstop>
   <tabstop>depth_buffer_checkBox</tabstop>
   <tabstop>cull_polygon_faces_checkBox</tabstop>
+  <tabstop>frontface_checkBox</tabstop>
+  <tabstop>color_normals_checkBox</tabstop>
   <tabstop>always_select_radioButton</tabstop>
   <tabstop>ghost_radioButton</tabstop>
   <tabstop>selectable_when_opaque_radioButton</tabstop>
   <tabstop>selectable_when_not_totally_transparent_radioButton</tabstop>
-  <tabstop>default_lighting_model_radioButton</tabstop>
-  <tabstop>radioButton_7</tabstop>
-  <tabstop>radioButton_8</tabstop>
-  <tabstop>radioButton_9</tabstop>
-  <tabstop>default_interpolation_model_radioButton</tabstop>
-  <tabstop>radioButton_10</tabstop>
-  <tabstop>radioButton_11</tabstop>
-  <tabstop>radioButton_12</tabstop>
-  <tabstop>default_coloring_model_radioButton</tabstop>
-  <tabstop>radioButton_14</tabstop>
-  <tabstop>radioButton_15</tabstop>
-  <tabstop>directions_coloring_model_radioButton</tabstop>
  </tabstops>
  <resources/>
  <connections/>
@@ -742,9 +446,6 @@
    </property>
   </buttongroup>
   <buttongroup name="rendering_buttonGroup"/>
-  <buttongroup name="interpolation_model_buttonGroup"/>
   <buttongroup name="selection_buttonGroup"/>
-  <buttongroup name="lighting_model_buttonGroup"/>
-  <buttongroup name="coloring_model_buttonGroup"/>
  </buttongroups>
 </ui>

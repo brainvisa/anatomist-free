@@ -30,65 +30,63 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
-
-
+ 
+ 
 #ifndef ANA_COLOR_WRENDERING_H
 #define ANA_COLOR_WRENDERING_H
-
+ 
 #include <anatomist/observer/Observer.h>
 #include <anatomist/color/Material.h>
 #include <anatomist/ui/ui_color_rendering.h>
 #include <set>
-
-
+ 
+ 
 namespace anatomist
 {
   class AObject;
 }
-
-
+ 
+ 
 /**	Rendering aspect (shading/lighting model, effects) tuning window
  */
 class RenderingWindow : public QWidget, public Ui::RenderingWindow, public anatomist::Observer
 {
   Q_OBJECT
-
+ 
 public:
   RenderingWindow( const std::set<anatomist::AObject *> &, QWidget* parent = 0, 
 		  const char *name = 0, Qt::WindowFlags f = Qt::WindowFlags() );
   virtual ~RenderingWindow();
-
+ 
   const std::set<anatomist::AObject*>& objects() const { return _parents; }
   const anatomist::Material& getMaterial() const { return _material; }
-
+ 
   void update( const anatomist::Observable* observable, void* arg );
   void updateObjectsRendering();
   void updateInterface();
   void runCommand();
-
+ 
 protected slots:
   void chooseObject();
   void objectsChosen( const std::set<anatomist::AObject *> & );
-
+ 
   void renderModeChanged( int x );
   void renderPropertyChanged( int x );
-  void lightingModelChanged( int x );
-  void interpolationModelChanged( int x );
-  void coloringModelChanged( int x );
+  void colorNormalsChanged( int state );
   void selectionModeChanged( int x );
   void lineWidthChanged();
   void unlitColorClicked();
-
+ 
 protected:
   virtual void unregisterObservable( anatomist::Observable* );
-
+ 
   std::set<anatomist::AObject *>	_parents;
   anatomist::Material			_material;
-
+ 
 private:
   struct Private;
   Private	*_privdata;
 };
-
-
+ 
+ 
 #endif

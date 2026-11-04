@@ -30,9 +30,9 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
-
+ 
 #include <anatomist/color/wRendering.h>
-
+ 
 #include <qlayout.h>
 #include <qcheckbox.h>
 #include <qlabel.h>
@@ -48,11 +48,11 @@
 #include <anatomist/dialogs/colorDialog.h>
 #include <cartobase/object/object.h>
 #include <QDoubleValidator>
-
+ 
 using namespace anatomist;
 using namespace std;
-
-
+ 
+ 
 struct RenderingWindow::Private
 {
   Private( const set<AObject *> & o ) : operating( false ), initial( o ), modified( false )
@@ -62,28 +62,28 @@ struct RenderingWindow::Private
   ObjectParamSelect	*objsel;
   bool			modified;
 };
-
-
+ 
+ 
 //	Real RenderingWindow class
-
-
+ 
+ 
 RenderingWindow::RenderingWindow( const set<AObject *> &objL, QWidget* parent,
                                   const char *name, Qt::WindowFlags f )
   : QWidget( parent, f ), _parents( objL ), 
     _privdata( new Private( objL ) )
 {
-
+ 
   setObjectName(name);
   setAttribute(Qt::WA_DeleteOnClose);
   setupUi(this);
-
+ 
   if( _parents.size() > 0 )
     _material = (*_parents.begin())->GetMaterial();
-
+ 
   for (set<AObject *>::iterator it=_parents.begin();
        it!=_parents.end();++it)
     (*it)->addObserver( (Observer*)this );
-
+ 
   setWindowTitle( name );
   if( windowFlags() & Qt::Window )
   {
@@ -92,8 +92,8 @@ RenderingWindow::RenderingWindow( const set<AObject *> &objL, QWidget* parent,
     if( !anaicon.isNull() )
       setWindowIcon( anaicon );
   }
-
-
+ 
+ 
   ObjectParamSelect *sel
     = new ObjectParamSelect( _parents, select_container_widget);
   _privdata->objsel = sel;
@@ -101,20 +101,16 @@ RenderingWindow::RenderingWindow( const set<AObject *> &objL, QWidget* parent,
   vboxlayout->addWidget(sel);
   vboxlayout->setSpacing(0);
   select_container_widget->layout()->setContentsMargins( 0, 0, 0, 0 );
-
+ 
   lineWidth_lineEdit->setValidator( new QDoubleValidator( 0., 100., 2, 0 ) );
-
-  default_lighting_model_radioButton->hide();
-  default_interpolation_model_radioButton->hide();
-  default_coloring_model_radioButton->hide();
-
+ 
   // connections
   connect( sel, SIGNAL( selectionStarts() ), this, SLOT( chooseObject() ) );
   connect( sel, 
            SIGNAL( objectsSelected( const std::set<anatomist::AObject *> & ) ),
            this, 
            SLOT( objectsChosen( const std::set<anatomist::AObject *> & ) ) );
-
+ 
   connect( rendering_buttonGroup, SIGNAL( idClicked( int ) ), this,
            SLOT( renderModeChanged( int ) ) );
   connect( selection_buttonGroup, SIGNAL( idClicked( int ) ), this,
@@ -123,42 +119,38 @@ RenderingWindow::RenderingWindow( const set<AObject *> &objL, QWidget* parent,
            SLOT( lineWidthChanged() ) );
   connect( display_buttonGroup, SIGNAL( idClicked( int) ), this,
            SLOT( renderPropertyChanged( int ) ) );
+  connect( color_normals_checkBox, SIGNAL( stateChanged( int ) ), this,
+           SLOT( colorNormalsChanged( int ) ) );
   connect( unlitColor_pushButton, SIGNAL( clicked() ), this,
            SLOT( unlitColorClicked() ) );
-  connect( lighting_model_buttonGroup, SIGNAL( idClicked( int) ), this,
-           SLOT( lightingModelChanged( int ) ) );
-  connect( interpolation_model_buttonGroup, SIGNAL( idClicked( int)), this,
-           SLOT( interpolationModelChanged( int ) ) );
-  connect( coloring_model_buttonGroup, SIGNAL( idClicked( int) ), this,
-           SLOT( coloringModelChanged( int ) ) );
-
+ 
   updateInterface();
   static_cast<QBoxLayout *>( layout() )->addStretch( 1 );
-
+ 
 }
-
-
+ 
+ 
 RenderingWindow::~RenderingWindow()
 {
   _privdata->operating = true;
-
+ 
   /* sending SetMaterial command only when window is closed, to avoid sending
      thousands of commands while tuning the colors */
   runCommand();
-
+ 
   cleanupObserver();
-
+ 
   delete _privdata;
 }
-
-
+ 
+ 
 void RenderingWindow::update( const Observable*, void* arg )
 {
   if( arg != this && !_privdata->operating )
     updateInterface();
 }
-
-
+ 
+ 
 void RenderingWindow::unregisterObservable( Observable* obs )
 {
   runCommand();
@@ -170,12 +162,12 @@ void RenderingWindow::unregisterObservable( Observable* obs )
   _privdata->objsel->updateLabel( _parents );
   updateInterface();
 }
-
-
+ 
+ 
 void RenderingWindow::updateObjectsRendering()
 {
   set<AObject *>::const_iterator io, fo=objects().end();
-
+ 
   for( io=objects().begin(); io!=fo; ++io )
     (*io)->SetMaterial( getMaterial() );
   for( io=objects().begin(); io!=fo; ++io )
@@ -184,11 +176,11 @@ void RenderingWindow::updateObjectsRendering()
     (*io)->clearHasChangedFlags();
   }
 }
-
-
+ 
+ 
 namespace
 {
-
+ 
   void setButtonState( QAbstractButton* b, int x )
   {
     QCheckBox	*cb = dynamic_cast<QCheckBox *>( b );
@@ -208,18 +200,18 @@ namespace
         cb->setCheckState( Qt::PartiallyChecked );
       }
   }
-
+ 
 }
-
+ 
 void RenderingWindow::updateInterface()
 {
   if( _privdata->operating )
     return;
-
+ 
   _privdata->operating = true;
-
+ 
   blockSignals( true );
-
+ 
   if( _parents.empty() )
   {
     tabWidget->setEnabled( false );
@@ -227,7 +219,7 @@ void RenderingWindow::updateInterface()
   else
   {
     tabWidget->setEnabled( true );
-
+ 
     //material
     _material = (*_parents.begin())->GetMaterial();
     rendering_buttonGroup->button(
@@ -250,40 +242,21 @@ void RenderingWindow::updateInterface()
     if( _material.renderProperty(Material::FrontFace) >= 0 )
       ff = 1 - _material.renderProperty(Material::FrontFace);
     setButtonState( frontface_checkBox, ff );
+    color_normals_checkBox->setChecked(
+      _material.renderProperty( Material::ShaderColorNormals ) > 0 );
     lineWidth_lineEdit->setText( QString::number( _material.lineWidth() ) );
     QPixmap pix( 32, 16 );
     pix.fill( QColor( (int) ( _material.unlitColor(0) * 255.9 ),
                       (int) ( _material.unlitColor(1) * 255.9 ),
                       (int) ( _material.unlitColor(2) * 255.9 ) ) );
     unlitColor_pushButton->setIcon( pix );
-
-    // lighting / interpolation / coloring models (Material properties)
-    int lighting_model = _material.renderProperty( Material::RenderLighting );
-    if( lighting_model < 0 )
-      lighting_model = Material::BlinnPhongLighting;
-    lighting_model_buttonGroup->button( -lighting_model - 3 )->setChecked( true );
-
-    int interpolation = _material.renderProperty(
-      Material::RenderSmoothShading );
-    if( interpolation < 0 )
-      interpolation = Material::GouraudShading;
-    interpolation_model_buttonGroup->button(
-      -interpolation - 3 )->setChecked( true );
-
-    int coloring_model = _material.renderProperty(
-      Material::ShaderColorNormals );
-    if( coloring_model < 0 )
-      coloring_model = 0;
-    if( _material.renderProperty( Material::NormalIsDirection ) > 0 )
-      coloring_model = 2;
-    coloring_model_buttonGroup->button( -coloring_model - 3 )->setChecked( true );
   }
-
+ 
   blockSignals( false );
   _privdata->operating = false;
 }
-
-
+ 
+ 
 void RenderingWindow::chooseObject()
 {
   set<AObject *>::iterator	ir = _privdata->initial.begin(), 
@@ -297,35 +270,35 @@ void RenderingWindow::chooseObject()
         ++ir;
         _privdata->initial.erase( ir2 );
       }
-
+ 
   _privdata->objsel->selectObjects( _privdata->initial, _parents );
 }
-
-
+ 
+ 
 void RenderingWindow::objectsChosen( const set<AObject *> & o )
 {
   _privdata->operating = true;
   runCommand();
-
+ 
   set<AObject *>::const_iterator	i, e = o.end();
   while( !_parents.empty() )
     (*_parents.begin())->deleteObserver( this );
   _parents = o;
   for( i=o.begin(); i!=e; ++i )
     (*i)->addObserver( this );
-
+ 
   _privdata->objsel->updateLabel( o );
   _privdata->operating = false;
   updateInterface();
 }
-
-
+ 
+ 
 void RenderingWindow::runCommand()
 {
   if( _privdata->modified && !_parents.empty() )
     {
       string	rmode, smode;
-
+ 
       switch( _material.renderProperty( Material::RenderMode ) )
       {
       case Material::Normal:
@@ -366,7 +339,7 @@ void RenderingWindow::runCommand()
         smode = "default";
         break;
       }
-
+ 
       SetMaterialCommand	*com 
         = new SetMaterialCommand
         ( _parents, _material.Ambient(), _material.Diffuse(), 
@@ -381,36 +354,35 @@ void RenderingWindow::runCommand()
           _material.lineWidth(),
           unlit,
           smode,
-          _material.renderProperty( Material::UseShader ),
-          _material.renderProperty( Material::ShaderColorNormals ) //,
-          // _material.renderProperty( Material::NormalIsDirection )
+          -2, // use_shader: obsolete, left untouched
+          _material.renderProperty( Material::ShaderColorNormals )
         );
       theProcessor->execute( com );
       _privdata->modified = false;
     }
 }
-
-
+ 
+ 
 void RenderingWindow::renderModeChanged( int x )
 {
   if( _privdata->operating )
     return;
   _privdata->operating = true;
-
+ 
   _material.setRenderProperty( Material::RenderMode, -x - 3 );
-
+ 
   _privdata->modified = true;
   updateObjectsRendering();
   _privdata->operating = false;
 }
-
-
+ 
+ 
 void RenderingWindow::renderPropertyChanged( int x )
 {
   if( _privdata->operating )
     return;
   _privdata->operating = true;
-
+ 
   int	y;
   switch(( (QCheckBox *) display_buttonGroup->button(x))->checkState() )
     {
@@ -423,7 +395,7 @@ void RenderingWindow::renderPropertyChanged( int x )
     default:
       y = -1;
     }
-
+ 
   Material::RenderProperty prop = (Material::RenderProperty) (-x - 2);
   if( prop == Material::FrontFace && y >= 0 )
   {
@@ -431,100 +403,73 @@ void RenderingWindow::renderPropertyChanged( int x )
     y = 1 - y;
   }
   _material.setRenderProperty( prop, y );
-
-  // keep the lighting / interpolation radio buttons in sync
-  if( prop == Material::RenderLighting && y >= 0 )
-  {
-    if( y > 0 )
-      y = 2; // if on, use blinn-phong
-    lighting_model_buttonGroup->button( -y - 3 )->setChecked( true );
-  }
-  else if( prop == Material::RenderSmoothShading && y >= 0 )
-    interpolation_model_buttonGroup->button( -y - 3 )->setChecked( true );
-
+ 
   _privdata->modified = true;
   updateObjectsRendering();
   _privdata->operating = false;
 }
-
-
-void RenderingWindow::lightingModelChanged( int x )
+ 
+ 
+void RenderingWindow::colorNormalsChanged( int state )
 {
-  _material.setRenderProperty( Material::RenderLighting, -x - 3 );
-  setButtonState( lighting_checkBox,
-                  _material.renderProperty( Material::RenderLighting ) );
-  updateObjectsRendering();
+  /* blockSignals( true ) in updateInterface() only blocks the signals of the
+     window itself, not those of its child widgets: setChecked() on the
+     checkbox still emits stateChanged(), hence this guard. */
+  if( _privdata->operating )
+    return;
+  _privdata->operating = true;
+ 
+  _material.setRenderProperty( Material::ShaderColorNormals,
+                               state == Qt::Checked ? 1 : 0 );
+ 
   _privdata->modified = true;
-}
-
-
-void RenderingWindow::interpolationModelChanged( int x )
-{
-  _material.setRenderProperty( Material::RenderSmoothShading, -x - 3 );
-  setButtonState( smooth_shading_checkBox,
-                  _material.renderProperty( Material::RenderSmoothShading ) );
   updateObjectsRendering();
-  _privdata->modified = true;
+  _privdata->operating = false;
 }
-
-
-void RenderingWindow::coloringModelChanged( int x )
-{
-  int nisd = 0, scn = -x - 3;
-  if( x == -5 ) // normal is direction
-  {
-    scn = 1;
-    nisd = 1;
-  }
-  _material.setRenderProperty( Material::ShaderColorNormals, scn );
-  _material.setRenderProperty( Material::NormalIsDirection, nisd );
-  updateObjectsRendering();
-  _privdata->modified = true;
-}
-
-
+ 
+ 
 void RenderingWindow::selectionModeChanged( int x )
 {
   if( _privdata->operating )
     return;
   _privdata->operating = true;
-
+ 
   _material.setRenderProperty( Material::SelectableMode, -x - 2 );
-
+ 
   _privdata->modified = true;
   updateObjectsRendering();
   _privdata->operating = false;
 }
-
-
+ 
+ 
 void RenderingWindow::lineWidthChanged()
 {
   if( _privdata->operating )
     return;
   _privdata->operating = true;
-
+ 
   bool ok = false;
   float value = lineWidth_lineEdit->text().toFloat( &ok );
   if( ok )
     _material.setLineWidth( value );
   else
     lineWidth_lineEdit->setText( QString::number( _material.lineWidth() ) );
-
+ 
   _privdata->modified = true;
   updateObjectsRendering();
   _privdata->operating = false;
 }
-
-
+ 
+ 
 void RenderingWindow::unlitColorClicked()
 {
   if( _privdata->operating )
     return;
   _privdata->operating = true;
-
+ 
   const GLfloat* mcol = _material.unlitColor();
   int   alpha = (int) ( mcol[3] * 255.9 );
-
+ 
   QColor col
     = QAColorDialog::getColor(
       QColor( (int) ( mcol[0] * 255.9 ),
@@ -538,12 +483,12 @@ void RenderingWindow::unlitColorClicked()
                              ((float) col.green()) / 255,
                              ((float) col.blue()) / 255,
                              ((float) alpha) / 255 );
-
+ 
     QPixmap pix( 32, 16 );
     pix.fill( col );
     unlitColor_pushButton->setIcon( pix );
   }
-
+ 
   _privdata->modified = true;
   updateObjectsRendering();
   _privdata->operating = false;

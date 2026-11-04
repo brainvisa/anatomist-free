@@ -3756,6 +3756,10 @@ Essayez avec &quot;ajouter un attribut&quot; (?)</translation>
         <translation>La face avant des polygones est Horaire (CW)</translation>
     </message>
     <message>
+        <source>Color by normals (directions for line meshes)</source>
+        <translation>Affichage de la normal</translation>
+    </message>
+    <message>
         <source>Line width: </source>
         <translation>Épaisseur de trait:</translation>
     </message>

@@ -34,6 +34,7 @@
 
 #include <anatomist/primitive/primitive.h>
 #include <anatomist/primitive/primitiveTypes.h>
+#include <anatomist/color/Material.h>
 #include <anatomist/window3D/window3D.h>
 #include <anatomist/window/glcaps.h>
 #include <anatomist/window/glwidgetmanager.h>
@@ -610,6 +611,21 @@ void GLObjectUniforms::callList() const
   updateTextureUniforms(locations, texturesData, maxSamplers);
 
   updateObjectClipUniforms();
+
+  const Material *mat = _glObj->glMaterial();
+  GLint colorNormalsLoc = _shader->uniformLocation( "u_colorNormals" );
+  if( colorNormalsLoc >= 0 )
+  {
+    bool colorNormals = mat && mat->renderProperty( Material::ShaderColorNormals ) > 0;
+    _shader->setUniformValue( colorNormalsLoc, colorNormals );
+  }
+
+  GLint lightingEnabledLoc = _shader->uniformLocation( "u_lightingEnabled" );
+  if( lightingEnabledLoc >= 0 )
+  {
+    bool lighting = mat->renderProperty( Material::RenderLighting ) != 0;
+    _shader->setUniformValue(lightingEnabledLoc, lighting);
+  }
 
   _obj->glAPI()->updateObjectUniforms(_shader.get());
 
