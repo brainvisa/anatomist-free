@@ -1469,12 +1469,12 @@ void Bucket::freeSurface()
 }
 
 
-const AimsSurface<4, Void>* 
+const AimsSurface<4, Void>*
 Bucket::meshPlane( const SliceViewState & state,
                    Private::Indices **tex ) const
 {
   bool withTex = bool( tex );
-  // cout << "meshPlane, tex: " << tex << ", withTex: " << withTex << endl;
+  // cout << "meshPlane, tex: " << tex << ", this: " << this << endl;
   if( d->bckchanged )
   {
     freeSurface();
@@ -1544,7 +1544,21 @@ Bucket::meshPlane( const SliceViewState & state,
     // cout << "plan (win) : " << direction << endl;
     Transformation	*tr2 = theAnatomist->getTransformation( state.winref,
         oref );
-    Motion	m;
+    rc_ptr<AffineTransformation3d> tr2m_r;
+    AffineTransformation3d *tr2m;
+    if( !tr2 )
+    {
+      /* this might happen in the special case of the ROI cursor, which moves
+         using a temporary, non-registered transformation, for which we have
+         not built an inverse. But I agree this situation is a bit
+         pathological. */
+      tr2m = new AffineTransformation3d;
+      tr2m_r.reset( tr2m );
+      *tr2m = *tr->motion().inverse();
+    }
+    else
+      tr2m = &tr2->motion();
+    AffineTransformation3d	m;
     VolumeRef<float>	r = m.rotation();
     r( 0, 0 ) = tr->Rotation( 0, 0 );
     r( 0, 1 ) = tr->Rotation( 1, 0 );
@@ -1555,7 +1569,7 @@ Bucket::meshPlane( const SliceViewState & state,
     r( 2, 0 ) = tr->Rotation( 0, 2 );
     r( 2, 1 ) = tr->Rotation( 1, 2 );
     r( 2, 2 ) = tr->Rotation( 2, 2 );
-    posr = tr2->transform( pos );
+    posr = tr2m->transform( pos );
     direction = m.transform( direction );
     // cout << "plan (obj) : " << direction << endl;
     // cout << "p0 : " << posr << endl;
