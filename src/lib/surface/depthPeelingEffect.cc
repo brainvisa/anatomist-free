@@ -29,13 +29,9 @@ void peeling(vec4 color)
   if(color.a > 0.99) return; // if the color is opaque, no need to peel
   if(u_layer > 0)// perform the peeling
   {
-    vec2 texCoord = gl_FragCoord.xy  / vec2(textureSize(u_previousDepthTexture, 0));
-    float previousDepth = texture(u_previousDepthTexture, texCoord).r;
-    float epsilon = 1e-3;
-    if(gl_FragCoord.z <= (previousDepth + epsilon))
-    {
+    float previousDepth = texelFetch(u_previousDepthTexture, ivec2(gl_FragCoord.xy), 0).r;
+    if(gl_FragCoord.z <= previousDepth)
       discard;
-    }
   }
 }
 )";

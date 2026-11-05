@@ -59,6 +59,7 @@
 #include <QLineEdit>
 #include <QIntValidator>
 #include <QWindow>
+#include <algorithm>
 
 #include <cartobase/config/paths.h>
 #include <anatomist/surface/shaderProgramCache.h>
@@ -1037,28 +1038,48 @@ void GLWidgetManager::blendPass()
   while(glGetError() != GL_NO_ERROR){}
 
   glBindFramebuffer(GL_FRAMEBUFFER, qglWidget()->defaultFramebufferObject());
-  glViewport(0, 0, _pd->glwidget->width(), _pd->glwidget->height());
+  int width = _pd->glwidget->width();
+  int height = _pd->glwidget->height();
+  QWindow *win = qglWidget()->window()->windowHandle();
+  if( win )
+  {
+    width *= win->devicePixelRatio();
+    height *= win->devicePixelRatio();
+  }
+  glViewport(0, 0, width, height);
 
   glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
+  GLint maxUnits = 0;
+  glGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS, &maxUnits );
+  int nbLayers = std::min( { _pd->nbLayers, (int) _pd->colorTextures.size(), (int) maxUnits, 16 } );
 
   prog->bind();
-
-  GLint maxTextureUnits=0;
-  glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &maxTextureUnits); // fixed pipeline, otherwise use GL_MAX_TEXTURE_IMAGE_UNITS
-
-  for(int i=0; i<_pd->nbLayers && i< maxTextureUnits ; ++i)
+  int nBound = 0;
+  for( int i = 0; i < nbLayers; ++i )
   {
-    glActiveTexture(GL_TEXTURE0+i);
-    _pd->colorTextures[i]->bind();
-    std::string uniformName = "u_layerTexture[" + std::to_string(i) + "]";
-    prog->setUniformValue(uniformName.c_str(), i);
+    QOpenGLTexture *tex = _pd->colorTextures[i];
+    if( !tex || !tex->isCreated() )
+    {
+      cerr << "blendPass: color texture " << i << " is invalid" << endl;
+      break;
+    }
+    glActiveTexture( GL_TEXTURE0 + i );
+    tex->bind();
+    std::string uniformName = "u_layerTexture[" + std::to_string( i ) + "]";
+    prog->setUniformValue( uniformName.c_str(), i );
+    ++nBound;
   }
+  prog->setUniformValue( "u_numLayers", nBound );
 
-  prog->setUniformValue("u_numLayers", _pd->nbLayers);
   drawFullScreenQuad();
+
   prog->release();
-  glDisable(GL_BLEND);
+  for( int i = 0; i < nBound; ++i )
+    _pd->colorTextures[i]->release( GLuint( i ) );
+  glActiveTexture( GL_TEXTURE0 );
+  glDisable( GL_BLEND );
 }
 
 void GLWidgetManager::depthPeeling(GLPrimitives* pl)
