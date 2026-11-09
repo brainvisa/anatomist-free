@@ -229,7 +229,7 @@ namespace anatomist
       std::vector<int> textureDim;
     };
 
-  GLObjectUniforms(carto::rc_ptr<IShaderModule> shaderModule, carto::rc_ptr<QOpenGLShaderProgram> glShader, AObject* obj, const std::vector<Point4df> & objectClipPlanes = std::vector<Point4df>());
+  GLObjectUniforms(carto::rc_ptr<IShaderModule> shaderModule, carto::rc_ptr<QOpenGLShaderProgram> glShader, AObject* obj, const std::vector<Point4df> & objectClipPlanes = std::vector<Point4df>(), unsigned drawIndex = 0);
     virtual ~GLObjectUniforms();
     virtual void callList() const;
     virtual void getUniformsLocations(UniformsLocations & locations) const;
@@ -242,6 +242,7 @@ namespace anatomist
     AObject* _obj;
     GLComponent* _glObj;
     std::vector<Point4df> _objectClipPlanes;
+    unsigned _drawIndex;
   };
 
 }

@@ -44,7 +44,7 @@ uniform int u_texEnvMode[MAX_TEXTURE_UNITS * 3];
 {Illumination Model Uniforms}
 {Effect Uniforms}
 
-out vec4 fragColor;
+layout (location = 0) out vec4 fragColor;
  
 {Illumination Model Functions}
 {Effect Functions}
@@ -233,6 +233,11 @@ vec4 basicColor()
 
 void main()
 {
+  #ifdef DEPTH_PEELING
+    gl_FragDepth = peelDepth();
+  #endif
+
+
   if(u_isSelectionPass)
   {
     /* In selection pass, we want to output the color as is, without any lighting or texture effect, 
@@ -264,6 +269,7 @@ void main()
     fogFactor = clamp(fogFactor, 0.0, 1.0);
     color = mix(u_fogColor, color, fogFactor);
   }
+  
   fragColor = color;
 }
 

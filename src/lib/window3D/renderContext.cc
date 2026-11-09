@@ -37,10 +37,12 @@ struct RenderContext::Private
   carto::rc_ptr<ViewState> vs;
   std::list<AObject *> renderobj;
   std::vector<Point4df> objectClipPlanes;
+  unsigned drawIndex;
 };
 
 RenderContext::Private::Private(AWindow3D* win, GLWidgetManager* widgetManager) : 
-window(win), glwman(widgetManager),permanentPrimitives(glwman->permanentPrimitivesRef()), temporaryPrimitives(glwman->tempPrimitivesRef()), selectionPrimitives(glwman->selectionPrimitivesRef()) ,currentProgram(nullptr), currentPrimitives(nullptr)
+window(win), glwman(widgetManager),permanentPrimitives(glwman->permanentPrimitivesRef()), temporaryPrimitives(glwman->tempPrimitivesRef()), 
+selectionPrimitives(glwman->selectionPrimitivesRef()) ,currentProgram(nullptr), currentPrimitives(nullptr), drawIndex(0)
 {
 }
 
@@ -252,9 +254,17 @@ bool RenderContext::renderObject( DrawableGroups & drawables, RenderMode mode,
         sceneUniformsPushed = true;
       }
       for( const auto & module : shaderModules )
-        d->currentPrimitives->push_back( carto::rc_ptr<GLItem>(
-          new GLObjectUniforms( module, d->currentProgram, obj.get(),
-                                d->objectClipPlanes ) ) );
+        // submission order index, used as tie-break key by depth peeling: it
+        // must grow with drawing order. Temporary objects are drawn after the
+        // permanent ones, and may be re-rendered alone (TemporaryOnly), so they
+        // get indices above every permanent object.
+        ++d->drawIndex;
+        unsigned drawIndex = d->drawIndex
+          + ( mode == RenderMode::TemporaryOnly ? 0x40000000u : 0u );
+        for( const auto & module : shaderModules )
+          d->currentPrimitives->push_back( carto::rc_ptr<GLItem>(
+            new GLObjectUniforms( module, d->currentProgram, obj.get(),
+                                  d->objectClipPlanes, drawIndex ) ) );
 
       success |= updateObject( obj, 0, selectmode );
     }

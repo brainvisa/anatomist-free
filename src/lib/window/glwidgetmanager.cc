@@ -77,6 +77,66 @@ extern void qt_gl_set_global_share_context(QOpenGLContext *context);
 #endif
 
 
+
+
+namespace
+{
+  // size in device pixels, as used by glViewport() in paintGL()
+  void deviceSize( QOpenGLWidget* glw, int & w, int & h )
+  {
+    w = glw->width();
+    h = glw->height();
+    QWindow *win = glw->window()->windowHandle();
+    if( win )
+    {
+      w *= win->devicePixelRatio();
+      h *= win->devicePixelRatio();
+    }
+  }
+
+  QOpenGLTexture* makeLayerTexture( int w, int h,
+                                    QOpenGLTexture::TextureFormat format )
+  {
+    QOpenGLTexture* tex = new QOpenGLTexture( QOpenGLTexture::Target2D );
+    tex->create();
+    tex->setSize( w, h );
+    tex->setFormat( format );
+    tex->setMinMagFilters( QOpenGLTexture::Nearest, QOpenGLTexture::Nearest );
+    tex->setWrapMode( QOpenGLTexture::ClampToEdge );
+    if( format == QOpenGLTexture::RG32U )
+      // integer formats need an integer pixel format
+      tex->allocateStorage( QOpenGLTexture::RG_Integer, QOpenGLTexture::UInt32 );
+    else
+      tex->allocateStorage();
+    return tex;
+  }
+
+  // leaves the FBO bound
+  void attachLayer( QOpenGLFramebufferObject* fbo, QOpenGLTexture* color,
+                    QOpenGLTexture* key, QOpenGLTexture* depth )
+  {
+    fbo->bind();
+    glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                            GL_TEXTURE_2D, color->textureId(), 0 );
+    glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1,
+                            GL_TEXTURE_2D, key->textureId(), 0 );
+    glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+                            GL_TEXTURE_2D, depth->textureId(), 0 );
+    // draw buffers are FBO state: set once, kept across rebinds
+    const GLenum buffers[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+    glDrawBuffers( 2, buffers );
+  }
+
+    void GLAPIENTRY glDebugCallback( GLenum source, GLenum type, GLuint id,
+                                   GLenum severity, GLsizei length,
+                                   const GLchar* message, const void* )
+  {
+    if( type == GL_DEBUG_TYPE_ERROR )
+      std::cerr << "GL ERROR: " << message << std::endl; // gdb breakpoint here
+  }
+}
+
+
 namespace Qt
 {
 }
@@ -234,9 +294,11 @@ struct GLWidgetManager::Private
   bool useDepthPeeling;
   std::vector<QOpenGLFramebufferObject*> fbos;
   std::vector<QOpenGLTexture*> depthTextures;
+  std::vector<QOpenGLTexture*> keyTextures;
   std::vector<QOpenGLTexture*> colorTextures;
   int nbLayers;
   int currentLayer;
+  GLuint peelTargetFbo;
   GLuint fullScreenQuadList;
   int depthPeelingUnitTexture;
   ClipPlaneState clipState;
@@ -275,7 +337,7 @@ GLWidgetManager::Private::Private()
     transparentBackground( true ), backgroundAlpha( 128 ),
     mouseX( 0 ), mouseY( 0 ), resized(false), saveInProgress( false ),
     cameraChanged( true ), recordWidth( 0 ), recordHeight( 0 ), useDepthPeeling(false), nbLayers(8),
-    currentLayer(0), fullScreenQuadList(0), depthPeelingUnitTexture(7), isSelectionPass(false), isFlatShading(false), isOutlinedRendering(false), uniformOutlinedRendering(false)
+    currentLayer(0), peelTargetFbo(0) ,fullScreenQuadList(0), depthPeelingUnitTexture(7), isSelectionPass(false), isFlatShading(false), isOutlinedRendering(false), uniformOutlinedRendering(false)
 #ifdef ANA_USE_QOPENGLWIDGET
     ,
     z_framebuffer( 0 ), z_renderbuffer( 0 ),
@@ -388,8 +450,15 @@ namespace
 
 }
 
+
 void GLWidgetManager::initializeGL()
 {
+
+  // //DEBUG: report the exact GL call that fails
+  // glEnable( GL_DEBUG_OUTPUT );
+  // glEnable( GL_DEBUG_OUTPUT_SYNCHRONOUS );
+  // glDebugMessageCallback( glDebugCallback, nullptr );
+
   // depth peeling checks and initialization
   checkDepthPeeling( _pd );
   initTextures();
@@ -657,15 +726,8 @@ void GLWidgetManager::resizeOtherFramebuffers( int w, int h )
 void GLWidgetManager::restoreFramebuffer()
 {
 #ifdef ANA_USE_QOPENGLWIDGET
-  if( _pd->useDepthPeeling )
-  {
-    _pd->fbos[0]->release();
-  }
-  else
-  {
-    GLCaps::glBindFramebuffer( GL_FRAMEBUFFER,
+  GLCaps::glBindFramebuffer( GL_FRAMEBUFFER,
                              _pd->glwidget->defaultFramebufferObject() );
-  }
 #endif
 }
 
@@ -821,9 +883,14 @@ void GLWidgetManager::drawObjects( DrawMode m, GLPrimitives* pl)
     el = _selectprimitives.end();
   }
 
-  if(_pd->useDepthPeeling && !_pd->isSelectionPass)
+  if(_pd->useDepthPeeling && !_pd->isSelectionPass && m == Normal)
   {
-    qglWidget()->makeCurrent();
+    // the context is already current here; makeCurrent() would rebind the
+    // widget's default framebuffer and lose the actual target (snapshots...)
+    GLint target = 0;
+    glGetIntegerv( GL_DRAW_FRAMEBUFFER_BINDING, &target );
+    _pd->peelTargetFbo = target;
+
     GLenum err;
 
     while( glGetError() != GL_NO_ERROR ){}
@@ -886,87 +953,60 @@ void GLWidgetManager::drawObjects( DrawMode m, GLPrimitives* pl)
 
 void GLWidgetManager::initTextures()
 {
+  int w, h;
+  deviceSize( qglWidget(), w, h );
+
   _pd->colorTextures.clear();
   _pd->depthTextures.clear();
-  _pd->colorTextures.reserve(_pd->nbLayers);
-  _pd->depthTextures.reserve(_pd->nbLayers);
-
-  for(int i = 0; i<_pd->nbLayers; ++i)
+  _pd->keyTextures.clear();
+  for( int i = 0; i < _pd->nbLayers; ++i )
   {
-    //Depth texture
-    QOpenGLTexture* depthTexture = new QOpenGLTexture(QOpenGLTexture::Target2D);
-    depthTexture->create();
-    depthTexture->setSize(this->width(), this->height());
-    depthTexture->setFormat(QOpenGLTexture::D32F);
-    depthTexture->setMinMagFilters(QOpenGLTexture::Nearest, QOpenGLTexture::Nearest);
-    depthTexture->setWrapMode(QOpenGLTexture::ClampToEdge);
-    depthTexture->allocateStorage();
-    _pd->depthTextures.push_back(depthTexture);
-
-    //Color texture
-    QOpenGLTexture* colorTexture = new QOpenGLTexture(QOpenGLTexture::Target2D);
-    colorTexture->create();
-    colorTexture->setSize(this->width(), this->height());
-    colorTexture->setFormat(QOpenGLTexture::RGBA32F);
-    colorTexture->setMinMagFilters(QOpenGLTexture::Nearest, QOpenGLTexture::Nearest);
-    colorTexture->setWrapMode(QOpenGLTexture::ClampToEdge);
-    colorTexture->allocateStorage();
-    _pd->colorTextures.push_back(colorTexture);
+    _pd->depthTextures.push_back( makeLayerTexture( w, h, QOpenGLTexture::D32F ) );
+    _pd->colorTextures.push_back( makeLayerTexture( w, h, QOpenGLTexture::RGBA32F ) );
+    _pd->keyTextures.push_back( makeLayerTexture( w, h, QOpenGLTexture::RG32U ) );
   }
 }
 
-void GLWidgetManager::resizeTexturesAndFBOs(int w, int h)
+void GLWidgetManager::resizeTexturesAndFBOs( int w, int h )
 {
+  if( _pd->fbos.size() != size_t( _pd->nbLayers ) )
+    return;
   qglWidget()->makeCurrent();
-  if(_pd->colorTextures.size() != 0 && _pd->depthTextures.size() != 0)
+  for( int i = 0; i < _pd->nbLayers; ++i )
   {
-    for(size_t i=0; i< _pd->nbLayers; ++i)
-    {
-      _pd->colorTextures[i]->destroy();
-      _pd->colorTextures[i]->create();
-      _pd->colorTextures[i]->setSize(w,h);
-      _pd->colorTextures[i]->setFormat(QOpenGLTexture::RGBA32F);
-      _pd->colorTextures[i]->setMinMagFilters(QOpenGLTexture::Nearest, QOpenGLTexture::Nearest);
-      _pd->colorTextures[i]->setWrapMode(QOpenGLTexture::ClampToEdge);
-      _pd->colorTextures[i]->allocateStorage();
-
-      _pd->depthTextures[i]->destroy();
-      _pd->depthTextures[i]->create();
-      _pd->depthTextures[i]->setSize(w,h);
-      _pd->depthTextures[i]->setFormat(QOpenGLTexture::D32F);
-      _pd->depthTextures[i]->setMinMagFilters(QOpenGLTexture::Nearest, QOpenGLTexture::Nearest);
-      _pd->depthTextures[i]->setWrapMode(QOpenGLTexture::ClampToEdge);
-      _pd->depthTextures[i]->allocateStorage();
-
-      _pd->fbos[i]->bind();
-      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _pd->colorTextures[i]->textureId(), 0);
-      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _pd->depthTextures[i]->textureId(), 0);
-      _pd->fbos[i]->release();  
-    }
+    delete _pd->colorTextures[i];
+    delete _pd->depthTextures[i];
+    delete _pd->keyTextures[i];
+    _pd->colorTextures[i] = makeLayerTexture( w, h, QOpenGLTexture::RGBA32F );
+    _pd->depthTextures[i] = makeLayerTexture( w, h, QOpenGLTexture::D32F );
+    _pd->keyTextures[i] = makeLayerTexture( w, h, QOpenGLTexture::RG32U );
+    attachLayer( _pd->fbos[i], _pd->colorTextures[i], _pd->keyTextures[i],
+                 _pd->depthTextures[i] );
+    _pd->fbos[i]->release();
   }
 }
 
 void GLWidgetManager::initFBOs()
 {
+  int w, h;
+  deviceSize( qglWidget(), w, h );
+
   _pd->fbos.clear();
-  _pd->fbos.reserve(_pd->nbLayers);
+  _pd->fbos.reserve( _pd->nbLayers );
   QOpenGLFramebufferObjectFormat format;
-  format.setAttachment(QOpenGLFramebufferObject::NoAttachment);
-  for(int i = 0; i<_pd->nbLayers; ++i)
+  format.setAttachment( QOpenGLFramebufferObject::NoAttachment );
+  for( int i = 0; i < _pd->nbLayers; ++i )
   {
-    QOpenGLFramebufferObject* fbo = new QOpenGLFramebufferObject(this->width(), this->height(), format);
-    if(!fbo->isValid())
+    QOpenGLFramebufferObject* fbo = new QOpenGLFramebufferObject( w, h, format );
+    if( !fbo->isValid() )
     {
       std::cerr << "Failed to create framebuffer object" << std::endl;
       delete fbo;
       return;
     }
-    fbo->bind();
-
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _pd->colorTextures[i]->textureId(), 0);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _pd->depthTextures[i]->textureId(), 0);
-
-    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    attachLayer( fbo, _pd->colorTextures[i], _pd->keyTextures[i],
+                 _pd->depthTextures[i] );
+    if( glCheckFramebufferStatus( GL_FRAMEBUFFER ) != GL_FRAMEBUFFER_COMPLETE )
     {
       std::cerr << "Framebuffer is not complete" << std::endl;
       fbo->release();
@@ -974,18 +1014,20 @@ void GLWidgetManager::initFBOs()
       return;
     }
     fbo->release();
-    _pd->fbos.push_back(fbo);
+    _pd->fbos.push_back( fbo );
   }
 }
 
 void GLWidgetManager::clearTexturesAndFBOs()
 {
   qglWidget()->makeCurrent();
-  qDeleteAll(_pd->colorTextures);
+  qDeleteAll( _pd->colorTextures );
   _pd->colorTextures.clear();
-  qDeleteAll(_pd->depthTextures);
+  qDeleteAll( _pd->depthTextures );
   _pd->depthTextures.clear();
-  qDeleteAll(_pd->fbos);
+  qDeleteAll( _pd->keyTextures );
+  _pd->keyTextures.clear();
+  qDeleteAll( _pd->fbos );
   _pd->fbos.clear();
   if( _pd->fullScreenQuadList != 0 )
   {
@@ -1037,7 +1079,7 @@ void GLWidgetManager::blendPass()
   GLenum err;
   while(glGetError() != GL_NO_ERROR){}
 
-  glBindFramebuffer(GL_FRAMEBUFFER, qglWidget()->defaultFramebufferObject());
+  glBindFramebuffer(GL_FRAMEBUFFER, _pd->peelTargetFbo);
   int width = _pd->glwidget->width();
   int height = _pd->glwidget->height();
   QWindow *win = qglWidget()->window()->windowHandle();
@@ -1082,34 +1124,53 @@ void GLWidgetManager::blendPass()
   glDisable( GL_BLEND );
 }
 
-void GLWidgetManager::depthPeeling(GLPrimitives* pl)
-{ 
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LESS);
-  glDepthMask(GL_TRUE);
+void GLWidgetManager::depthPeeling( GLPrimitives* pl )
+{
+  const GLfloat clearColor[4] = { 0.f, 0.f, 0.f, 0.f };
+  const GLuint clearKey[4] = { 0, 0, 0, 0 };
+  const GLfloat clearDepth = 1.f;
+  const int depthUnit = _pd->depthPeelingUnitTexture;
+  const int keyUnit = depthPeelingKeyUnitTexture();
 
-  for (int i = 0; i < _pd->nbLayers; ++i) 
-  { 
+
+   for( int i = 0; i < _pd->nbLayers; ++i )
+  {
     _pd->fbos[i]->bind();
-    glClearDepth(1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+    const GLenum buffers[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+    glDrawBuffers( 2, buffers );
 
-    if(i>0)
-      _pd->depthTextures[i-1]->bind(_pd->depthPeelingUnitTexture);
+    // the objects display lists replayed below may change these states:
+    // re-assert them for every layer (depth mask / color mask also gate
+    // glClearBuffer*)
+    glEnable( GL_DEPTH_TEST );
+    glDepthFunc( GL_LESS );
+    glDepthMask( GL_TRUE );
+    glColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
+    glDisable( GL_BLEND );
 
+    glClearBufferfv( GL_COLOR, 0, clearColor );
+    glClearBufferuiv( GL_COLOR, 1, clearKey );
+    glClearBufferfv( GL_DEPTH, 0, &clearDepth );
+    if( i > 0 )
+    {
+      _pd->depthTextures[i-1]->bind( depthUnit );
+      _pd->keyTextures[i-1]->bind( keyUnit );
+    }
     _pd->currentLayer = i;
 
-    for (auto& primitive : *pl)
-    {
+    for( auto & primitive : *pl )
       primitive->callList();
-    }
+
 
     _pd->fbos[i]->release();
-    if(i>0)
-      _pd->depthTextures[i-1]->release();
+    if( i > 0 )
+    {
+      _pd->depthTextures[i-1]->release( depthUnit );
+      _pd->keyTextures[i-1]->release( keyUnit );
+    }
   }
-  _pd->depthTextures[_pd->nbLayers-1]->release();
-  glBindFramebuffer(GL_FRAMEBUFFER, qglWidget()->defaultFramebufferObject());
+  glActiveTexture( GL_TEXTURE0 );
+  glBindFramebuffer( GL_FRAMEBUFFER, _pd->peelTargetFbo );
   _pd->currentLayer = 0;
 }
 
@@ -2168,10 +2229,6 @@ bool GLWidgetManager::positionFromCursor( int x, int y, Point3df & position )
 
   updateZBuffer();
   bindOtherFramebuffer( ZSelect );
-  if(_pd->useDepthPeeling)
-  {
-    _pd->fbos[0]->bind();
-  }
 
   setupView();
   y = _pd->glwidget->height() - 1 - y;
@@ -2850,17 +2907,6 @@ int GLWidgetManager::nbLayers() const
   return _pd->nbLayers;
 }
 
-void GLWidgetManager::setNbLayers( int n )
-{
-  if( n < 1 )
-    n = 1;
-  _pd->nbLayers = n;
-  clearTexturesAndFBOs();
-  initTextures();
-  initFBOs();
-  createFullScreenQuad();
-}
-
 int GLWidgetManager::currentLayer() const
 {
   return _pd->currentLayer;
@@ -2885,6 +2931,24 @@ void GLWidgetManager::setDepthPeelingUnitTexture( int unit )
   if( unit > 7 )
     unit = 7;
   _pd->depthPeelingUnitTexture = unit;
+}
+
+void GLWidgetManager::setNbLayers( int n )
+{
+  // blend.fs composites at most 16 layers
+  n = std::max( 1, std::min( n, 16 ) );
+  _pd->nbLayers = n;
+  clearTexturesAndFBOs();
+  initTextures();
+  initFBOs();
+  createFullScreenQuad();
+}
+
+int GLWidgetManager::depthPeelingKeyUnitTexture() const
+{
+  // next to the depth texture unit, never on the same one
+  int unit = _pd->depthPeelingUnitTexture;
+  return unit > 0 ? unit - 1 : unit + 1;
 }
 
 ClipPlaneState& GLWidgetManager::clipState() const

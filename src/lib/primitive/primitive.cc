@@ -544,7 +544,7 @@ void GLSceneUniforms::callList() const
     
 }
 
-GLObjectUniforms::GLObjectUniforms(carto::rc_ptr<IShaderModule> shaderModule, carto::rc_ptr<QOpenGLShaderProgram> glShader, AObject* obj, const std::vector<Point4df> & objectClipPlanes) : GLItem(),_module(shaderModule), _shader(glShader), _obj(obj), _objectClipPlanes(objectClipPlanes)
+GLObjectUniforms::GLObjectUniforms(carto::rc_ptr<IShaderModule> shaderModule, carto::rc_ptr<QOpenGLShaderProgram> glShader, AObject* obj, const std::vector<Point4df> & objectClipPlanes, unsigned drawIndex) : GLItem(),_module(shaderModule), _shader(glShader), _obj(obj), _objectClipPlanes(objectClipPlanes), _drawIndex(drawIndex)
 {
   _glObj = obj->glAPI();
 }
@@ -629,6 +629,10 @@ void GLObjectUniforms::callList() const
       _shader->setUniformValue(lightingEnabledLoc, lighting);
     }
   }
+
+  GLint drawIndexLoc = _shader->uniformLocation( "u_drawIndex" );
+  if( drawIndexLoc >= 0 )
+    _shader->setUniformValue( drawIndexLoc, (GLint) _drawIndex );
 
   _obj->glAPI()->updateObjectUniforms(_shader.get());
 

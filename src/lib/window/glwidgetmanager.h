@@ -274,6 +274,7 @@ namespace anatomist
     void setCurrentLayer( int n );
     int depthPeelingUnitTexture() const;
     void setDepthPeelingUnitTexture( int unit );
+    int depthPeelingKeyUnitTexture() const;
     ClipPlaneState& clipState() const;
     void setClipState( const ClipPlaneState& state );
     void texToPng();
