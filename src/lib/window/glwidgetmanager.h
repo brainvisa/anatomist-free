@@ -47,6 +47,7 @@
 class QGestureEvent;
 class QTouchEvent;
 class QOpenGLTexture;
+class QOpenGLFramebufferObject;
 
 
 namespace aims
@@ -55,7 +56,6 @@ namespace aims
 }
 
 class GLWidgetManager_Private_QObject;
-
 
 namespace anatomist
 {
@@ -275,6 +275,7 @@ namespace anatomist
     int depthPeelingUnitTexture() const;
     void setDepthPeelingUnitTexture( int unit );
     int depthPeelingKeyUnitTexture() const;
+    int depthPeelingOpaqueFirst() const;
     ClipPlaneState& clipState() const;
     void setClipState( const ClipPlaneState& state );
     void texToPng();
@@ -293,6 +294,28 @@ namespace anatomist
     */
     virtual void paintGL( DrawMode m, int virtualWidth=0, int virtualHeight=0 );
     void record();
+
+        /// Widget size in device pixels, as used by glViewport() in paintGL()
+    void deviceSize( int & w, int & h ) const;
+
+    /** Allocates a depth peeling layer texture (nearest filtering, clamped).
+        Integer formats (tie-break keys) get an integer pixel format.
+    */
+    static QOpenGLTexture* makeLayerTexture( int w, int h, int format );
+
+    /** Attaches a layer's color, key and depth textures to its FBO and sets
+        both draw buffers. Leaves the FBO bound.
+    */
+    static void attachLayer( QOpenGLFramebufferObject* fbo,
+                             QOpenGLTexture* color, QOpenGLTexture* key,
+                             QOpenGLTexture* depth );
+
+    /// GL_DEBUG_OUTPUT callback: prints GL errors (handy gdb breakpoint)
+    static void GLAPIENTRY glDebugCallback( GLenum source, GLenum type,
+                                            GLuint id, GLenum severity,
+                                            GLsizei length,
+                                            const GLchar* message,
+                                            const void* userParam );
 
     // anatomist::GLPrimitives _primitives;
     anatomist::GLPrimitives _permanentprimitives;

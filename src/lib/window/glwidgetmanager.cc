@@ -77,66 +77,6 @@ extern void qt_gl_set_global_share_context(QOpenGLContext *context);
 #endif
 
 
-
-
-namespace
-{
-  // size in device pixels, as used by glViewport() in paintGL()
-  void deviceSize( QOpenGLWidget* glw, int & w, int & h )
-  {
-    w = glw->width();
-    h = glw->height();
-    QWindow *win = glw->window()->windowHandle();
-    if( win )
-    {
-      w *= win->devicePixelRatio();
-      h *= win->devicePixelRatio();
-    }
-  }
-
-  QOpenGLTexture* makeLayerTexture( int w, int h,
-                                    QOpenGLTexture::TextureFormat format )
-  {
-    QOpenGLTexture* tex = new QOpenGLTexture( QOpenGLTexture::Target2D );
-    tex->create();
-    tex->setSize( w, h );
-    tex->setFormat( format );
-    tex->setMinMagFilters( QOpenGLTexture::Nearest, QOpenGLTexture::Nearest );
-    tex->setWrapMode( QOpenGLTexture::ClampToEdge );
-    if( format == QOpenGLTexture::RG32U )
-      // integer formats need an integer pixel format
-      tex->allocateStorage( QOpenGLTexture::RG_Integer, QOpenGLTexture::UInt32 );
-    else
-      tex->allocateStorage();
-    return tex;
-  }
-
-  // leaves the FBO bound
-  void attachLayer( QOpenGLFramebufferObject* fbo, QOpenGLTexture* color,
-                    QOpenGLTexture* key, QOpenGLTexture* depth )
-  {
-    fbo->bind();
-    glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                            GL_TEXTURE_2D, color->textureId(), 0 );
-    glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1,
-                            GL_TEXTURE_2D, key->textureId(), 0 );
-    glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-                            GL_TEXTURE_2D, depth->textureId(), 0 );
-    // draw buffers are FBO state: set once, kept across rebinds
-    const GLenum buffers[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-    glDrawBuffers( 2, buffers );
-  }
-
-    void GLAPIENTRY glDebugCallback( GLenum source, GLenum type, GLuint id,
-                                   GLenum severity, GLsizei length,
-                                   const GLchar* message, const void* )
-  {
-    if( type == GL_DEBUG_TYPE_ERROR )
-      std::cerr << "GL ERROR: " << message << std::endl; // gdb breakpoint here
-  }
-}
-
-
 namespace Qt
 {
 }
@@ -299,6 +239,7 @@ struct GLWidgetManager::Private
   int nbLayers;
   int currentLayer;
   GLuint peelTargetFbo;
+  GLint peelViewport[4];
   GLuint fullScreenQuadList;
   int depthPeelingUnitTexture;
   ClipPlaneState clipState;
@@ -457,7 +398,7 @@ void GLWidgetManager::initializeGL()
   // //DEBUG: report the exact GL call that fails
   // glEnable( GL_DEBUG_OUTPUT );
   // glEnable( GL_DEBUG_OUTPUT_SYNCHRONOUS );
-  // glDebugMessageCallback( glDebugCallback, nullptr );
+  // glDebugMessageCallback( &GLWidgetManager::glDebugCallback, nullptr );
 
   // depth peeling checks and initialization
   checkDepthPeeling( _pd );
@@ -891,6 +832,11 @@ void GLWidgetManager::drawObjects( DrawMode m, GLPrimitives* pl)
     glGetIntegerv( GL_DRAW_FRAMEBUFFER_BINDING, &target );
     _pd->peelTargetFbo = target;
 
+    // offscreen renderings (snapshots) use their own viewport: keep it for
+    // the blend pass
+    glGetIntegerv( GL_VIEWPORT, _pd->peelViewport );
+    
+
     GLenum err;
 
     while( glGetError() != GL_NO_ERROR ){}
@@ -954,7 +900,7 @@ void GLWidgetManager::drawObjects( DrawMode m, GLPrimitives* pl)
 void GLWidgetManager::initTextures()
 {
   int w, h;
-  deviceSize( qglWidget(), w, h );
+  deviceSize( w, h );
 
   _pd->colorTextures.clear();
   _pd->depthTextures.clear();
@@ -989,7 +935,7 @@ void GLWidgetManager::resizeTexturesAndFBOs( int w, int h )
 void GLWidgetManager::initFBOs()
 {
   int w, h;
-  deviceSize( qglWidget(), w, h );
+  deviceSize( w, h );
 
   _pd->fbos.clear();
   _pd->fbos.reserve( _pd->nbLayers );
@@ -1080,15 +1026,9 @@ void GLWidgetManager::blendPass()
   while(glGetError() != GL_NO_ERROR){}
 
   glBindFramebuffer(GL_FRAMEBUFFER, _pd->peelTargetFbo);
-  int width = _pd->glwidget->width();
-  int height = _pd->glwidget->height();
-  QWindow *win = qglWidget()->window()->windowHandle();
-  if( win )
-  {
-    width *= win->devicePixelRatio();
-    height *= win->devicePixelRatio();
-  }
-  glViewport(0, 0, width, height);
+  glBindFramebuffer( GL_FRAMEBUFFER, _pd->peelTargetFbo );
+  glViewport( _pd->peelViewport[0], _pd->peelViewport[1],
+              _pd->peelViewport[2], _pd->peelViewport[3] );
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -1470,7 +1410,8 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
 
   _pd->glwidget->makeCurrent();
 
-  GLuint fb, depth_rb, color_tex;
+  // CHANGED: initialized, fb is tested / rebound later even when unused
+  GLuint fb = 0, depth_rb = 0, color_tex = 0;
   GLint devwidth = width;
   GLint devheight = height;
   QWindow *win = qglWidget()->window()->windowHandle();
@@ -1481,6 +1422,21 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
     height /= win->devicePixelRatio();
   }
   GLenum status;
+
+  /* NEW: depth peeling layers must match the offscreen size (custom-size
+     snapshots / recordings). Done before binding the snapshot framebuffer,
+     since resizing rebinds the widget's one. Restored at the end. */
+  bool resizedLayers = false;
+  if( use_framebuffer && _pd->useDepthPeeling )
+  {
+    int ww, wh;
+    deviceSize( ww, wh );
+    if( devwidth != ww || devheight != wh )
+    {
+      resizeTexturesAndFBOs( devwidth, devheight );
+      resizedLayers = true;
+    }
+  }
 
   if( use_framebuffer )
   {
@@ -1561,6 +1517,14 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
       use_framebuffer = false;
       width = wwidth;
       height = wheight;
+      // CHANGED: the on-screen fallback renders at the widget size
+      devwidth = wwidth;
+      devheight = wheight;
+      if( win )
+      {
+        devwidth *= win->devicePixelRatio();
+        devheight *= win->devicePixelRatio();
+      }
     }
   }
   if( !use_framebuffer )
@@ -1580,17 +1544,17 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
   QImage::Format iformat;
   QImage        pix;
 
-  GLCaps::glBindFramebuffer( GL_FRAMEBUFFER, fb );
+  // CHANGED: fb may have been deleted (fallback to on-screen rendering)
+  GLuint readFb
+    = use_framebuffer ? fb : _pd->glwidget->defaultFramebufferObject();
+  GLCaps::glBindFramebuffer( GL_FRAMEBUFFER, readFb );
   glPixelStorei( GL_PACK_ALIGNMENT, 4 ); // QImage buffers seem to align to 4
   glPixelStorei( GL_PACK_SKIP_PIXELS, 0 );
   status = glGetError();
   if( status != GL_NO_ERROR )
     cerr << "snap 3 : OpenGL error: " << gluErrorString(status) << endl;
-  glReadBuffer( GL_FRONT );
-  // the above always produces an OpenGL error. Never mind. It works without.
-  //   status = glGetError();
-  //   if( status != GL_NO_ERROR )
-  //     cerr << "snap 4 : OpenGL error: " << gluErrorString(status) << endl;
+  // CHANGED: GL_FRONT / GL_BACK are invalid while a FBO is bound
+  glReadBuffer( use_framebuffer ? GL_COLOR_ATTACHMENT0 : GL_BACK );
 
   switch( bufmode )
   {
@@ -1643,7 +1607,8 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
     if( depth == 32 && QSysInfo::ByteOrder != QSysInfo::LittleEndian )
     {
       cout << "change bit order\n";
-      int n = width*height;
+      // CHANGED: device pixels, the size of pix
+      int n = devwidth * devheight;
       unsigned char *buf = pix.bits(), c;
       for( i=0; i<n; ++i )
       {
@@ -1663,14 +1628,23 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
     if( alpha && _pd->transparentBackground && bufmode == 4
         && _pd->backgroundAlpha != 255 && depth == 32 )
     {
-      int n = width * height, y, w = width;
+      // CHANGED: device pixels, this is what glReadPixels returns
+      int n = devwidth * devheight, y, w = devwidth;
       vector<GLfloat> buffer( n, 2. );
+      // NEW: the depth peeling blend pass writes no depth: use the nearest
+      // layer's depth instead
+      bool peelDepth = _pd->useDepthPeeling && !_pd->fbos.empty();
+      if( peelDepth )
+        GLCaps::glBindFramebuffer( GL_READ_FRAMEBUFFER,
+                                   _pd->fbos[0]->handle() );
       // read Z buffer
       glReadPixels( 0, 0, devwidth, devheight,
                     GL_DEPTH_COMPONENT, GL_FLOAT, &buffer[0] );
+      if( peelDepth )
+        GLCaps::glBindFramebuffer( GL_READ_FRAMEBUFFER, readFb );
       unsigned char *buf = pix.bits();
       // TODO: WHY THIS y-inversion ???
-      for( y=height-1; y>=0; --y )
+      for( y=devheight-1; y>=0; --y )
         for( i=0; i<w; ++i )
         {
           buf += 3;
@@ -1701,6 +1675,14 @@ QImage GLWidgetManager::snapshotImage( int bufmode, int width, int height )
     glDeleteTextures( 1, &color_tex );
     GLCaps::glDeleteRenderbuffers( 1, &depth_rb );
     GLCaps::glDeleteFramebuffers( 1, &fb );
+  }
+
+  // NEW: back to the widget size for on-screen rendering
+  if( resizedLayers )
+  {
+    int ww, wh;
+    deviceSize( ww, wh );
+    resizeTexturesAndFBOs( ww, wh );
   }
 
   return pix;
@@ -2951,6 +2933,12 @@ int GLWidgetManager::depthPeelingKeyUnitTexture() const
   return unit > 0 ? unit - 1 : unit + 1;
 }
 
+int GLWidgetManager::depthPeelingOpaqueFirst() const
+{
+  //jordan to do : add a button on the GUI to set this parameter :  0 transparent first, 1 opaque first
+  return 0;
+}
+
 ClipPlaneState& GLWidgetManager::clipState() const
 {
   return _pd->clipState;
@@ -3039,4 +3027,62 @@ void GLWidgetManager::texToPng()
       restoreFramebuffer();
     }
   // }
+}
+
+void GLWidgetManager::deviceSize( int & w, int & h ) const
+{
+  w = _pd->glwidget->width();
+  h = _pd->glwidget->height();
+  QWindow *win = _pd->glwidget->window()->windowHandle();
+  if( win )
+  {
+    w *= win->devicePixelRatio();
+    h *= win->devicePixelRatio();
+  }
+}
+
+
+QOpenGLTexture* GLWidgetManager::makeLayerTexture( int w, int h, int format )
+{
+  QOpenGLTexture::TextureFormat tformat
+    = static_cast<QOpenGLTexture::TextureFormat>( format );
+  QOpenGLTexture* tex = new QOpenGLTexture( QOpenGLTexture::Target2D );
+  tex->create();
+  tex->setSize( w, h );
+  tex->setFormat( tformat );
+  tex->setMinMagFilters( QOpenGLTexture::Nearest, QOpenGLTexture::Nearest );
+  tex->setWrapMode( QOpenGLTexture::ClampToEdge );
+  if( tformat == QOpenGLTexture::RG32U )
+    // integer formats need an integer pixel format
+    tex->allocateStorage( QOpenGLTexture::RG_Integer, QOpenGLTexture::UInt32 );
+  else
+    tex->allocateStorage();
+  return tex;
+}
+
+
+void GLWidgetManager::attachLayer( QOpenGLFramebufferObject* fbo,
+                                   QOpenGLTexture* color, QOpenGLTexture* key,
+                                   QOpenGLTexture* depth )
+{
+  fbo->bind();
+  glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                          GL_TEXTURE_2D, color->textureId(), 0 );
+  glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1,
+                          GL_TEXTURE_2D, key->textureId(), 0 );
+  glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+                          GL_TEXTURE_2D, depth->textureId(), 0 );
+  // draw buffers are FBO state: set once, kept across rebinds
+  const GLenum buffers[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+  glDrawBuffers( 2, buffers );
+}
+
+
+void GLAPIENTRY GLWidgetManager::glDebugCallback( GLenum, GLenum type,
+                                                  GLuint, GLenum, GLsizei,
+                                                  const GLchar* message,
+                                                  const void* )
+{
+  if( type == GL_DEBUG_TYPE_ERROR )
+    std::cerr << "GL ERROR: " << message << std::endl; // gdb breakpoint here
 }

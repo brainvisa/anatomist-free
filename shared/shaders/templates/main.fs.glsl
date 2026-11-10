@@ -233,13 +233,11 @@ vec4 basicColor()
 
 void main()
 {
-  #ifdef DEPTH_PEELING
-    gl_FragDepth = peelDepth();
-  #endif
-
-
   if(u_isSelectionPass)
   {
+    #ifdef DEPTH_PEELING
+      gl_FragDepth = peelDepth(1.0);
+    #endif
     /* In selection pass, we want to output the color as is, without any lighting or texture effect, 
     to be able to retrieve the object ID from the color.*/
     fragColor = vec4(v_color.rgb, 1.0);
