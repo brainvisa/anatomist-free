@@ -870,6 +870,18 @@ The following figure shows the effect of the ``min`` setting with the same palet
 
   min < 0
 
+
+Label textures: int values, each with a color
+*********************************************
+
+In such a texture, each textue value is an integer, and identifies a region, with a label and a color. The palette normally assigns a color to each label value. However the palette mechanism is designed primarily for float intensities values, and their interpretation is slighjtly different. In labels textures, the value "0" means "the first color in the colormap list", not "the value 0.0 is the lower bound of the palette (coordinate 0.0 in the palette image)". In this label case, the coordinate 0.5 in the palette image (in pixels) should match the texture value 0, so that the value is in the middle of the color array.
+
+.. figure:: images/label_palette.png
+
+Thus the min/max palette settings should be, in absolute mode, [-0.5 : max + 0.5], and not [min : max] as usual.
+GIFTI textures with a labels texture are loaded with correct default bounds settings after a fix in Anatomist 6.0.19. There was a bug here in Anatomist versions 6.0 to 6.0.18.
+
+
 **Palette parameters:**
 
 +--------------------+--------------------------------------------------------+
