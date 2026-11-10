@@ -1296,12 +1296,13 @@ void AObject::setProperties( Object /*options*/ )
                 float den = te.maxquant[0] - te.minquant[0];
                 if( den == 0. )
                   den = 1.;
-                opal->setMin1( ( vmin - te.minquant[0] ) / den );
-                opal->setMax1( ( vmax - te.minquant[0] + 0.99 ) / den );
+                // int labels palette range [min - 0.5 : max + 0.5]
+                opal->setMin1( ( vmin - te.minquant[0] - 0.5 ) / den );
+                opal->setMax1( ( vmax - te.minquant[0] + 0.5 ) / den );
               }
               else
               {
-                opal->setMin1( 0. );
+                opal->setMin1( -0.5 / pal->getSizeX() );
                 opal->setMax1( pal->getSizeX() + 0.99 / pal->getSizeX() );
               }
               opal->setMin2( 0. );
