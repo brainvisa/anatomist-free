@@ -11,6 +11,10 @@
 - windows block: the drag action can now drop on the desktop, which detaches the view from the block.
 - textured buckets: fusion between a bucket and a texture, are now supported
 
+### Changed
+
+- fix in default palette bounds adjustment for label textures (gifti labels table)
+
 
 ## [6.0.18] 2026-08-06
 
